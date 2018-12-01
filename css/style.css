@@ -1,0 +1,128 @@
+/* for testing only */
+* {
+  /* Background: rgba(255,0,0,0.1); */
+  /* outline: 1px solid red; */
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  font-size: calc(1rem + 0.5vw);
+  /* https://material.io/color/ */
+  --colourPrimary: #cfd8dc; /* #1976d2 */
+  --colourLight: #ffffff; /* #63a4ff */
+  --colourDark: #9ea7aa; /* #004ba0 */
+}
+
+/* https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
+html {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: Roboto, sans-serif; /* regular (400), medium (500), black (700) */
+}
+
+#article-right {
+  width: calc(100% - 40px);
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+#hero {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#hero h1 {
+  text-align: center;
+  font-size: 4rem;
+  font-weight: black;
+  color: var(--colourDark);
+}
+
+a:link,
+a:visited {
+  text-decoration: none;
+}
+
+/* https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    Needed to account for sticky navbar at top
+*/
+.anchor:target {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+
+section {
+  /* border: 2px dashed rgb(255, 0, 242); */
+}
+
+/* Target an element that has all of multiple classes */
+.dcCharts {
+  visibility: hidden;
+  /*display: none; */
+}
+
+.tile {
+  border: 1px solid var(--colourPrimary);
+  border-radius: 5px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.tile h2 {
+  background-color: var(--colourDark);
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 10px;
+}
+
+.tile .body {
+  padding: 0.5rem;
+  overscroll-behavior: none;
+}
+
+.tile footer {
+  margin-top: auto;
+  border-top: 1px solid var(--colourPrimary);
+  padding: 10px;
+  text-align: center;
+}
+
+/* to make the image auto resize to the max width of the boundary */
+img {
+  max-width: 95%;
+  min-width: 250px;
+  height: auto;
+  vertical-align: middle;
+  margin: 0 auto;
+}
+
+/* Used to make tile clickable - doesn't cover footer */
+.clickable a {
+  display: inline-block;
+  height: 100%;
+  width: 100%; /*  fill the parent  */
+}
+
+/* below is for pre tiles method only 
+.tiles li {
+  border: 1px solid #ffe066;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+*/

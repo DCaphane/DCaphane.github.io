@@ -1,0 +1,12 @@
+﻿Sort1,Sort2,ECDS_Group,ECDS_Description,SNOMED_Code
+21,31,Hospital,Outpatients (not fracture clinic),1066111000000103
+21,41,Hospital,Review in ED (scheduled) ,1077181000000100
+11,41,Community,Community psychiatric support services,183584001
+21,61,Hospital,Medical specialist (private),266747000
+21,11,Hospital,Fracture clinic,301791000000104
+11,21,Community,Physiotherapy,306170007
+11,31,Community,Dentist,306735003
+91,11,No referral,No referral ,3780001
+11,51,Community,Other community service,710915002
+21,21,Hospital,Ambulatory Care service,898791000000105
+11,11,Community,General Practitioner,989501000000106

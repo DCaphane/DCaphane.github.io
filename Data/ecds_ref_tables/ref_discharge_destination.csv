@@ -1,0 +1,18 @@
+﻿Sort1,Sort2,ECDS_Group,ECDS_Description,SNOMED_Code
+31,11,Ambulatory / short stay,Short stay (less than 24hr) ward outside the ED but managed by ED,1066331000000109
+31,21,Ambulatory / short stay,Ambulatory Emergency Care service,1066341000000100
+31,31,Ambulatory / short stay,Hospital in the home service,1066351000000102
+55,11,Admitted,High Dependency Unit (level 2),1066361000000104
+55,31,Admitted,Coronary Care Unit (level 2),1066371000000106
+55,51,Admitted,Special Care Baby Unit (level 2),1066381000000108
+61,11,Admitted,Intensive Care Unit (level 3),1066391000000105
+61,41,Admitted,Neonatal Intensive Care Unit (level 3),1066401000000108
+91,51,Transfer,Discharge to Hospice ,183919006
+91,11,Transfer,Transfer to another hospital / healthcare facility,19712007
+95,11,Died,Mortuary,305398007
+11,11,Discharged,Home,306689006
+11,21,Discharged,Residential care facility without 24 hour nursing care (e.g. residential home),306691003
+11,31,Discharged,Residential care facility with 24 hour nursing care (e.g. nursing home),306694006
+11,41,Discharged,Police,306705005
+51,11,Admitted,Ward - physical ward bed outside ED,306706006
+11,45,Discharged,Custodial services e.g. prison / detention centre,50861005

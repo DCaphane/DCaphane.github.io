@@ -1,0 +1,107 @@
+#hero {
+  grid-area: hero;
+}
+
+.wrapper-nav {
+  grid-area: nav-main;
+}
+
+#article-left {
+  grid-area: nav-sub;
+}
+
+#article-right {
+  grid-area: article;
+}
+
+#footer {
+  grid-area: footer;
+}
+
+/* default, single column grid*/
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "hero"
+    "nav-main"
+    "nav-sub"
+    "article"
+    "footer";
+}
+
+/* Media Queries */
+
+@media only screen and (max-width: 500px) {
+  #article-left {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 500px) {
+  .wrapper {
+    grid-template-columns: min-content 1fr;
+    grid-template-areas:
+      "hero   hero"
+      "nav-main   nav-main"
+      "nav-sub  article"
+      "footer   footer";
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .wrapper {
+    grid-template-columns: max-content 1fr;
+    grid-template-areas:
+      "hero  hero"
+      "nav-main   nav-main"
+      "nav-sub article"
+      "footer  footer";
+  }
+
+  .tiles .wide {
+    grid-column-end: span 2;
+  }
+}
+
+.column {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/Realizing_common_layouts_using_CSS_Grid_Layout#A_product_listing_with_auto-placement
+https://rachelandrew.co.uk/archives/2016/04/12/flexible-sized-grids-with-auto-fill-and-minmax/
+https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/
+*/
+.tiles {
+  margin: 2em;
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(300px, 1fr)
+  ); /* auto was previously 200px*/
+  grid-auto-flow: dense;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+}
+
+.tile .content {
+  flex: 1 1 auto;
+}
+
+/* Used to centre the image */
+.tile .body {
+  display: flex;
+  justify-content: center; /* align horizontal */
+  align-items: center; /* align vertical */
+}
+
+.cover {
+  object-fit: scale-down;
+}

@@ -1,0 +1,17 @@
+﻿Sort1,Sort2,ECDS_Group,ECDS_Description,SNOMED_Code
+51,11,Left before treatment complete,Left before initial assessment,1066301000000103
+51,21,Left before treatment complete,Left after assessment with intent to attend other healthcare provider,1066311000000101
+51,41,Left before treatment complete,Left after assessment but before treatment complete (destination unknown),1066321000000107
+21,11,Streamed at assessment,Streamed to primary care service / GP,1077021000000100
+21,21,Streamed at assessment,Streamed to Urgent Care Centre,1077031000000103
+21,61,Streamed at assessment,Streamed to mental health service,1077041000000107
+31,31,Streamed at assessment,Streamed to dental service,1077051000000105
+31,51,Streamed at assessment,Streamed to ophthalmology service,1077061000000108
+31,11,Streamed at assessment,Streamed to pharmacy service,1077071000000101
+21,41,Streamed at assessment,Streamed to Ambulatory Emergency Care service,1077081000000104
+21,51,Streamed at assessment,Streamed to falls service,1077091000000102
+21,55,Streamed at assessment,Streamed to frailty service,1077101000000105
+21,31,Streamed at assessment,Streamed to Emergency Department,1077781000000101
+11,11,Treatment complete,Treatment complete,182992009
+81,11,Died,Dead on arrival,63238001
+81,21,Died,Died in the Emergency Care facility,75004002
