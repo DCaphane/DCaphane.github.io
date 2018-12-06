@@ -49,11 +49,18 @@ values
     ,('14' ,'Other' ,'Other');
 */
 
+set datefirst 1; -- Mon as day 1
 
-
-select cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arrival_DateTime'
-  -- ,dateadd(minute, isnull(Duration_in_Min, 60), cast(0 as datetime)) as 'Duration' -- format as datetime for nice formatting... Suspect 24 hours is too long (unless zoom is an option)
-     ,isnull(Duration_in_Min, 60) * 1000 * 60 as 'Duration_ms' -- deafults to 60 mins if not submitted
+select --cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arrival_DateTime'
+    cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime) + cast(arrival_time as datetime)) AS BIGINT) * 1000 as 'Arrival_DateTime_ms'
+    , cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime)) AS BIGINT) * 1000 as 'Arrival_Date_ms'
+    , cast(Datediff(s, '1970-01-01', cast(dateadd(dd, 1 - datepart(dd, Arrival_Date), Arrival_Date) as datetime)) AS BIGINT) * 1000 as 'Period_ms'
+    -- , cast(dateadd(dd, 1 - datepart(dd, Arrival_Date), Arrival_Date) as datetime) as 'Period'
+    -- , datepart(mm, arrival_date) as 'MonthNo'
+    , datepart(dw, cast(arrival_date as datetime)) as 'WeekdayNo'
+    , datepart(hh, cast(arrival_time as datetime)) as 'Hour'
+    -- ,dateadd(minute, isnull(Duration_in_Min, 60), cast(0 as datetime)) as 'Duration' -- format as datetime for nice formatting... Suspect 24 hours is too long (unless zoom is an option)
+    , isnull(Duration_in_Min, 60) * 1000 * 60 as 'Duration_ms' -- deafults to 60 mins if not submitted
     -- , Generated_Record_ID -- for validation only
 	-- , left(Week_Day, 3) as 'WeekDay' -- derive at source
 	-- , bh.Bank_Holiday_Desc as 'BankHolidays' -- derive as source
