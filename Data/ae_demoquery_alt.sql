@@ -51,9 +51,9 @@ values
 
 set datefirst 1; -- Mon as day 1
 
-select --cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arrival_DateTime'
-    cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime) + cast(arrival_time as datetime)) AS BIGINT) * 1000 as 'Arrival_DateTime_ms'
-    , cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime)) AS BIGINT) * 1000 as 'Arrival_Date_ms'
+select -- cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arrival_DateTime'
+    -- cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime) + cast(arrival_time as datetime)) AS BIGINT) * 1000 as 'Arrival_DateTime_ms'
+    cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime)) AS BIGINT) * 1000 as 'Arrival_Date_ms'
     , cast(Datediff(s, '1970-01-01', cast(dateadd(dd, 1 - datepart(dd, Arrival_Date), Arrival_Date) as datetime)) AS BIGINT) * 1000 as 'Period_ms'
     -- , cast(dateadd(dd, 1 - datepart(dd, Arrival_Date), Arrival_Date) as datetime) as 'Period'
     -- , datepart(mm, arrival_date) as 'MonthNo'
@@ -133,6 +133,7 @@ select --cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arr
 		else 0
 		end as 'Comm_Serial'
 	 ,practice_code
+     ,isnull(LSOA, 0) as 'lsoa'
 from [Customer_VOYCCG].[eMBED].[AnalystTableAAELive] ae
     left join [Info-UK-Health-Dimensions].[dbo].[ref_Dates] bh
     on ae.Arrival_Date = bh.Full_Date
