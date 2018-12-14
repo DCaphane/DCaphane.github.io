@@ -106,7 +106,8 @@ const // Time Charts
   chtDischFUP = dc.sunburstChart("#dischFUP-chart"),
   chtDrugAlcohol = dc.sunburstChart("#drugalcohol-chart"),
   chtDuration = dc.lineChart("#duration-chart"),
-  boxPlotDuration = dc.boxPlot("#box-test");
+  boxPlotDuration = dc.boxPlot("#box-test"),
+  mapLSOA = dc.geoChoroplethChart("#map-test");
 
 // Import Reference Tables and Data
 // https://github.com/d3/d3-fetch/blob/master/README.md#dsv
@@ -545,7 +546,8 @@ Papa.parse("Data/AE_RawData_snomed.csv", {
       dischDest: 12,
       dischFUP: 13,
       commSerial: 14,
-      practice: 15
+      practice: 15,
+      lsoa: 16
     };
 
     d.data.forEach(function(d) {
@@ -1746,6 +1748,44 @@ chtDayofWeek // only works on certain chart types eg. pie
           return arrWeekDays[f];
         })
         .join(", ");
+    });
+
+
+    const dimLSOA = cf.dimension(function(d) {
+      return d[sqlCols.lsoa];
+    }),
+    groupLSOA = dimLSOA.group();
+
+    d3.json("../Data/lsoas_simple50.geojson").then(function (lsoasJson) {
+
+      mapLSOA
+        .useViewBoxResizing(true)
+        .width(chtWidthStd)
+        .height(chtHeightStd)
+        .dimension(dimLSOA)
+        .group(groupLSOA)
+        // .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+        // .colorCalculator(function (d) { return d ? mapLSOA.colors()(d) : '#ccc'; })
+        //.colors(colorbrewer.YlGnBu[7])
+        .colors(d3.scaleSequential(d3.interpolateYlOrRd))
+        .colorDomain([
+            d3.min(groupLSOA.all(), dc.pluck('value')),
+            d3.max(groupLSOA.all(), dc.pluck('value'))
+        ])
+        .overlayGeoJson(lsoasJson.features, "lsoa", function (d) {
+            return d.properties.lsoa11cd;
+        })
+        .projection( // https://github.com/d3/d3-geo-projection
+          d3.geoMercator()
+          .fitSize([chtWidthStd, chtHeightStd], lsoasJson)
+          )
+        .valueAccessor(function(kv) {
+            // console.log(kv);
+            return kv.value;
+        })
+        .turnOnControls()
+        .controlsUseVisibility(true)
+        .render();
     });
 
     document.getElementById("bl-sectest").style.display = "none";
