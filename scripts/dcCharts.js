@@ -1783,6 +1783,11 @@ chtDayofWeek // only works on certain chart types eg. pie
             // console.log(kv);
             return kv.value;
         })
+        .title(function(d) {
+          return ["lsoa: " + d.key,
+                  "Value: " + formatNumber(d.value)
+        ].join("\n");
+        })
         .turnOnControls()
         .controlsUseVisibility(true)
         .render();
