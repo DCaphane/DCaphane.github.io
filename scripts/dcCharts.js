@@ -107,7 +107,9 @@ const // Time Charts
   chtDrugAlcohol = dc.sunburstChart("#drugalcohol-chart"),
   chtDuration = dc.lineChart("#duration-chart"),
   boxPlotDuration = dc.boxPlot("#box-test"),
-  mapLSOA = dc.geoChoroplethChart("#map-test");
+  // mapLSOA = dc.geoChoroplethChart("#map-test")
+  mapLSOA = dc_leaflet.choroplethChart("#map-test")
+  ;
 
 // Import Reference Tables and Data
 // https://github.com/d3/d3-fetch/blob/master/README.md#dsv
@@ -1751,43 +1753,47 @@ chtDayofWeek // only works on certain chart types eg. pie
     });
 
 
-    const dimLSOA = cf.dimension(function(d) {
+    const dimLSOA = cf.dimension(function (d) {
       return d[sqlCols.lsoa];
     }),
-    groupLSOA = dimLSOA.group();
+      groupLSOA = dimLSOA.group();
 
     d3.json("../Data/lsoas_simple50.geojson").then(function (lsoasJson) {
-
+      // http://bl.ocks.org/KatiRG/cccd23dd7a830da0de5c
       mapLSOA
         .useViewBoxResizing(true)
         .width(chtWidthStd)
         .height(chtHeightStd)
         .dimension(dimLSOA)
         .group(groupLSOA)
-        // .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+        .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
         // .colorCalculator(function (d) { return d ? mapLSOA.colors()(d) : '#ccc'; })
         //.colors(colorbrewer.YlGnBu[7])
-        .colors(d3.scaleSequential(d3.interpolateYlOrRd))
+        //.colors(d3.scaleSequential(d3.interpolateYlOrRd))
         .colorDomain([
-            d3.min(groupLSOA.all(), dc.pluck('value')),
-            d3.max(groupLSOA.all(), dc.pluck('value'))
+          d3.min(groupLSOA.all(), dc.pluck('value')),
+          d3.max(groupLSOA.all(), dc.pluck('value'))
         ])
-        .overlayGeoJson(lsoasJson.features, "lsoa", function (d) {
-            return d.properties.lsoa11cd;
+        .colorAccessor(function (d) {
+          return d.value;
         })
-        .projection( // https://github.com/d3/d3-geo-projection
-          d3.geoMercator()
-          .fitSize([chtWidthStd, chtHeightStd], lsoasJson)
-          )
-        .valueAccessor(function(kv) {
-            // console.log(kv);
-            return kv.value;
+        // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
+        .center([53.96838, -1.08269]) // centre on York Hospital
+        .zoom(9)
+        .geojson(lsoasJson)
+        // .title(function(d) {
+        //   return ["lsoa: " + d.key,
+        //           "Value: " + formatNumber(d.value)
+        // ].join("\n");
+        // })
+        .featureKeyAccessor(function (feature) {
+          return feature.properties.lsoa11cd;
         })
-        .title(function(d) {
-          return ["lsoa: " + d.key,
-                  "Value: " + formatNumber(d.value)
-        ].join("\n");
+        .renderPopup(true)
+        .popup(function (d, feature) {
+          return feature.properties.lsoa11cd + ": " + d.value;
         })
+        .legend(dc_leaflet.legend().position('bottomright'))
         .turnOnControls()
         .controlsUseVisibility(true)
         .render();

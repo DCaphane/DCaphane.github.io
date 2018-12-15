@@ -52,6 +52,11 @@
     <!-- dc.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.9/dc.min.js"></script>
 
+    <!-- leaflet -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.js"></script>
+    <script defer src="scripts/dc.leaflet.min.js"></script>    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.css" />
+
     <script defer src="scripts/dcCharts.js"></script>
     <script defer src="scripts/navbar_side.js"></script>
     <script defer src="scripts/toTop.js"></script>
@@ -453,11 +458,10 @@
                 <h2>Map Testing</h2>
                 <div id="map-test">
                   <span class="reset" style="visibility: hidden;">
-                    Current filter: <span class="filter"></span>
                   </span>
                   <a
                     class="reset"
-                    href="javascript:mapLSOAs.filterAll();dc.redrawAll();"
+                    href="javascript:dc.redrawAll();"
                     style="visibility: hidden;"
                     >reset</a
                   >
