@@ -107,10 +107,7 @@ const // Time Charts
   chtDrugAlcohol = dc.sunburstChart("#drugalcohol-chart"),
   chtDuration = dc.lineChart("#duration-chart"),
   boxPlotDuration = dc.boxPlot("#box-test"),
-  // mapLSOA = dc.geoChoroplethChart("#map-test")
-  mapLSOA = dc_leaflet.choroplethChart("#map-test")
-  ;
-
+  mapLSOA = dc_leaflet.choroplethChart("#map-test");
 // Import Reference Tables and Data
 // https://github.com/d3/d3-fetch/blob/master/README.md#dsv
 console.time("dataImport");
@@ -1752,48 +1749,89 @@ chtDayofWeek // only works on certain chart types eg. pie
         .join(", ");
     });
 
-
-    const dimLSOA = cf.dimension(function (d) {
-      return d[sqlCols.lsoa];
-    }),
+    const dimLSOA = cf.dimension(function(d) {
+        return d[sqlCols.lsoa];
+      }),
       groupLSOA = dimLSOA.group();
 
-    d3.json("../Data/lsoas_simple50.geojson").then(function (lsoasJson) {
+    d3.json("../Data/lsoas_simple50.geojson").then(function(lsoasJson) {
+      // https://github.com/dc-js/dc.leaflet.js
+      // note issue with pop ups described here:
+      //     https://github.com/dc-js/dc.leaflet.js/issues/22
       // http://bl.ocks.org/KatiRG/cccd23dd7a830da0de5c
+      // https://leafletjs.com/examples/choropleth/
+
+      // Dynamic Colour Domain
+      // https://groups.google.com/forum/#!topic/dc-js-user-group/6_EzrHSRQ30
+
+      mapLSOA.on("preRender", function(chart) {
+        chart.colorDomain(
+          d3.extent(chart.group().all(), chart.valueAccessor())
+        );
+      });
+      mapLSOA.on("preRedraw", function(chart) {
+        chart.colorDomain(
+          d3.extent(chart.group().all(), chart.valueAccessor())
+        );
+      });
+
       mapLSOA
         .useViewBoxResizing(true)
-        .width(chtWidthStd)
+        .width(chtWidthWide)
         .height(chtHeightStd)
         .dimension(dimLSOA)
         .group(groupLSOA)
-        .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
         // .colorCalculator(function (d) { return d ? mapLSOA.colors()(d) : '#ccc'; })
-        //.colors(colorbrewer.YlGnBu[7])
-        //.colors(d3.scaleSequential(d3.interpolateYlOrRd))
+        .colors(d3.scaleQuantize().range(d3.schemeYlOrRd[7]))
         .colorDomain([
-          d3.min(groupLSOA.all(), dc.pluck('value')),
-          d3.max(groupLSOA.all(), dc.pluck('value'))
+          d3.min(groupLSOA.all(), dc.pluck("value")),
+          d3.max(groupLSOA.all(), dc.pluck("value"))
         ])
-        .colorAccessor(function (d) {
+        .colorAccessor(function(d) {
           return d.value;
         })
-        // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
-        .center([53.96838, -1.08269]) // centre on York Hospital
-        .zoom(9)
+        //.map() //not sure what this does...
+        // .brushOn(true) // default = true
+        .mapOptions(
+          // https://leafletjs.com/reference-1.3.4.html#map-option
+          {
+            // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
+            center: [53.96838, -1.08269], // centre on York Hospital
+            zoom: 9,
+            minZoom: 6, // how far out eg. 0 = whole world
+            maxZoom: 14, // how far in, eg. to the detail (max = 18)
+            // https://leafletjs.com/reference-1.3.4.html#latlngbounds
+            maxBounds: [
+              [50.0, 1.6232], //south west
+              [59.790,-10.239] //north east
+              ]
+          }
+        )
         .geojson(lsoasJson)
         // .title(function(d) {
         //   return ["lsoa: " + d.key,
         //           "Value: " + formatNumber(d.value)
         // ].join("\n");
         // })
-        .featureKeyAccessor(function (feature) {
+        .featureKeyAccessor(function(feature) {
           return feature.properties.lsoa11cd;
         })
+        .featureOptions({ // formatting of feature layer
+          weight: 2,
+          opacity: 1,
+          color: 'white',
+          dashArray: '3',
+          fillOpacity: 0.7
+        })
+        // Issue with popups described here: https://github.com/dc-js/dc.js/issues/608
+        // With brushOn set to false, pop up appears on click but filter will not apply
+        // With brushOn set to true (default), pop up will not appear but filter works
+        .brushOn(true)
         .renderPopup(true)
-        .popup(function (d, feature) {
+        .popup(function(d, feature) {
           return feature.properties.lsoa11cd + ": " + d.value;
         })
-        .legend(dc_leaflet.legend().position('bottomright'))
+        .legend(dc_leaflet.legend().position("bottomright"))
         .turnOnControls()
         .controlsUseVisibility(true)
         .render();

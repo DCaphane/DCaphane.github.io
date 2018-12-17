@@ -126,3 +126,7 @@ img {
   cursor: pointer;
 }
 */
+
+.leaflet-container {
+  margin: auto; /* center map in div */
+}
