@@ -167,7 +167,7 @@ from [Customer_VOYCCG].[eMBED].[AnalystTableAAELive] ae
 --left join [customer].[ref_ec_inj_activity] inj_activity
 --	on main.[Emergency Care Injury Activity Type SNOMED CT] = inj_activity.SNOMED_Code
 where
-	ae.period between '20171001' and '20180930'
+	ae.period between '20180101' and '20181231'
     and (coalesce(nullif(left(ae.CCG_Code, 3), 'X26'), left(ae.provider_purchaser_id, 3)) = '03Q' -- When unknown practice, default to provider purchaser
     or left(ae.provider_purchaser_id, 3) = '03Q')
     and isnull(diag.[dmicSequenceNumber], 1) = 1
