@@ -140,6 +140,7 @@ getGeoData("Data/cyc_wards.geojson").then(function (data) {
     style: wardsStyle,
     onEachFeature: function (feature, layer) {
       layer.bindPopup('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
+      layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
     }
   }
   ).addTo(map02);
