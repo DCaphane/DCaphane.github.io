@@ -102,6 +102,7 @@ section {
 }
 
 /* to make the image auto resize to the max width of the boundary */
+/* img is also used for leaflet marker - removing this but need to understand if any impact elsewhere...
 img {
   max-width: 95%;
   min-width: 250px;
@@ -109,6 +110,7 @@ img {
   vertical-align: middle;
   margin: 0 auto;
 }
+*/
 
 /* Used to make tile clickable - doesn't cover footer */
 .clickable a {
@@ -130,3 +132,8 @@ img {
 .leaflet-container {
   margin: auto; /* center map in div */
 }
+
+.map { 
+  min-height: 500px;
+  width: 95%;
+ }
