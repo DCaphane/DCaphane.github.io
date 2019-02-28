@@ -164,18 +164,49 @@ var geojsonMarkerOptions = {
 };
 
 // https://gis.stackexchange.com/questions/179925/leaflet-geojson-changing-the-default-blue-marker-to-other-png-files
+
 getGeoData("Data/PrimaryCareHomes.geojson").then(function(data) {
   L.geoJSON(data, {
     pointToLayer: function (feature, latlng) {
         return L.marker(latlng, {icon: arrIcons[feature.properties.pch_no - 1]});
-    }
+    },
+    onEachFeature: onEachFeature
   }).bindPopup(function (layer) {
     return '<h1>PCH: ' + layer.feature.properties.practice_group + '</h1>'
     + '<p>Address: ' + layer.feature.properties.address_01+ '</p>'
     ;
   })
   .addTo(map02);
+})
+.then(function(data) {
+  for (var categoryName in categories) {
+    categoryArray = categories[categoryName];
+    overlays[categoryName] = L.layerGroup(categoryArray);
+}
+
+L.control.layers(null, overlays).addTo(map02);
 });
+
+
+// https://stackoverflow.com/questions/33478202/leaflet-how-to-toggle-geojson-feature-properties-from-a-single-collection
+var categories = {},
+    category;
+
+function onEachFeature(feature, layer) {
+    // layer.bindPopup(L.Util.template(popTemplate, feature.properties));
+    category = feature.properties.pch_no;
+    // Initialize the category array if not already set.
+    if (typeof categories[category] === "undefined") {
+        categories[category] = [];
+    }
+    categories[category].push(layer);
+}
+
+// Use function onEachFeature in your L.geoJson initialization.
+
+var overlays = {},
+    categoryArray;
+
 
 
 // Function to import data
