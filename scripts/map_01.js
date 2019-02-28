@@ -18,7 +18,8 @@ map01.getPane('geojsonBoundaryPane').style.zIndex = 375;
 
 
 // Tiles
-// Mapbox
+
+/* Mapbox
 L.tileLayer(
   "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
   {
@@ -30,13 +31,14 @@ L.tileLayer(
       "pk.eyJ1IjoiZGNhcGgiLCJhIjoiY2l5cnU3Mnl4MDAwMDJxbXJ6bjBiYjVwdCJ9.bCjPbVwn-V7ENeDao6XYCg"
   }
 ).addTo(map01);
+*/
 
 // Open Street Map
-/*
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map01);
-*/
+
 
 var circle = L.circle([53.96838,-1.08269], {
   color: "red",
