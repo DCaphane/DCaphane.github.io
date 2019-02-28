@@ -167,7 +167,7 @@ var geojsonMarkerOptions = {
 getGeoData("Data/PrimaryCareHomes.geojson").then(function(data) {
   L.geoJSON(data, {
     pointToLayer: function (feature, latlng) {
-        return L.marker(latlng, {icon: arrIcons[feature.properties.pch_no]});
+        return L.marker(latlng, {icon: arrIcons[feature.properties.pch_no - 1]});
     }
   }).bindPopup(function (layer) {
     return '<h1>PCH: ' + layer.feature.properties.practice_group + '</h1>'
