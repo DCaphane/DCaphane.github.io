@@ -1,9 +1,8 @@
 // https://stackoverflow.com/questions/33478202/leaflet-how-to-toggle-geojson-feature-properties-from-a-single-collection
 let categories = {},
-    category,
-    categoryArray
-    overlayMaps = {}
-    ;
+  category,
+  categoryArray;
+overlayMaps = {};
 // Tile Baselayers
 
 // Mapbox
@@ -19,22 +18,24 @@ let tile_MB = L.tileLayer(
   }
 );
 
-
 // Open Street Map
 // https://leaflet-extras.github.io/leaflet-providers/preview/
-let tile_OSM01 =  L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}', {
-    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    subdomains: 'abcd',
+let tile_OSM01 = L.tileLayer(
+  "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}",
+  {
+    attribution:
+      'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    subdomains: "abcd",
     minZoom: 0,
     maxZoom: 20,
-    ext: 'png'
-});
-
+    ext: "png"
+  }
+);
 
 let baseMaps = {
-  "tile_MB": tile_MB,
-  "tile_OSM01": tile_OSM01
-}
+  tile_MB: tile_MB,
+  tile_OSM01: tile_OSM01
+};
 
 let map02 = L.map("mapid_02", {
   preferCanvas: true,
@@ -46,12 +47,21 @@ let map02 = L.map("mapid_02", {
   // https://leafletjs.com/reference-1.3.4.html#latlngbounds
   maxBounds: [
     [50.0, 1.6232], //south west
-    [59.790, -10.239] //north east
+    [59.79, -10.239] //north east
   ],
   layers: [tile_OSM01]
 });
 
 var myLayersControl = L.control.layers(baseMaps, overlayMaps).addTo(map02);
+
+var scaleBar = L.control
+  .scale({
+    // https://leafletjs.com/reference-1.4.0.html#control-scale-option
+    position: "bottomleft",
+    metric: true,
+    imperial: true
+  })
+  .addTo(map02);
 
 // Used to style polygons
 var wardsStyle = {
@@ -60,60 +70,80 @@ var wardsStyle = {
   opacity: 0.6
 };
 
-var test;
+let test;
 // Export geojson data layers as: EPSG: 4326 - WGS 84
-getGeoData("Data/cyc_wards.geojson").then(function (data) {
-  test = L.geoJSON(data, {
-    style: wardsStyle,
-    onEachFeature: function (feature, layer) {
-      layer.bindPopup('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
-      // layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
-    }
-  }
-  ).addTo(map02);
-}).then(()=>{
-  myLayersControl.addOverlay(test, "wards_cyc");
-})
-
-
+getGeoData("Data/cyc_wards.geojson")
+  .then(function(data) {
+    test = L.geoJSON(data, {
+      style: wardsStyle,
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(
+          "<h1>" +
+            feature.properties.wd17nm +
+            "</h1><p>Code: " +
+            feature.properties.wd17cd +
+            "</p>"
+        );
+        // layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
+      }
+    }).addTo(map02);
+  })
+  .then(() => {
+    myLayersControl.addOverlay(test, "wards_cyc"); // Adds an overlay (checkbox entry) with the given name to the control.
+  });
 
 // https://gis.stackexchange.com/questions/179925/leaflet-geojson-changing-the-default-blue-marker-to-other-png-files
 // https://leafletjs.com/examples/layers-control/
 // https://stackoverflow.com/questions/49196123/how-can-i-add-multiple-overlay-layers-in-leaflet-js-having-three-categories-at-t
-getGeoData("Data/PrimaryCareHomes.geojson").then(function(data) {
-  L.geoJSON(data, {
-    pointToLayer: function (feature, latlng) {
-        return L.marker(latlng, {icon: arrIcons[feature.properties.pch_no - 1]});
-    },
-    onEachFeature: onEachFeature // Use function onEachFeature in your L.geoJson initialization.
-  }).bindPopup(function (layer) {
-    return '<h1>PCH: ' + layer.feature.properties.practice_group + '</h1>'
-    + '<p>Address: ' + layer.feature.properties.address_01+ '</p>'
-    ;
+getGeoData("Data/PrimaryCareHomes.geojson")
+  .then(function(data) {
+    L.geoJSON(data, {
+      pointToLayer: function(feature, latlng) {
+        return L.marker(latlng, {
+          icon: arrIcons[feature.properties.pch_no - 1]
+        });
+      },
+      onEachFeature: onEachFeature
+    })
+      .bindPopup(function(layer) {
+        return (
+          "<h1>PCH: " +
+          layer.feature.properties.practice_group +
+          "</h1>" +
+          "<p>Address: " +
+          layer.feature.properties.address_01 +
+          "</p>"
+        );
+      })
+      .addTo(map02);
   })
-  .addTo(map02);
-})
-.then(() => {
-  for (var categoryName in categories) {
-    categoryArray = categories[categoryName];
-    overlayMaps[categoryName] = L.layerGroup(categoryArray);
-}
+  .then(() => {
+    for (var categoryName in categories) {
+      categoryArray = categories[categoryName];
+      // overlayMaps[categoryName] = L.layerGroup(categoryArray);
+      myLayersControl.addOverlay(L.layerGroup(categoryArray), categoryName);
+    }
+  });
 
-L.control.layers(null, overlayMaps).addTo(map02);
-});
+// Try this, iterate over category array (1-7)
+// https://gis.stackexchange.com/questions/233728/adding-a-layer-control-legend-based-on-geojson-properties
 
-
+/*
+categories {object} used to create an object with key = category, value is array
+category variable, used to store the distinct feature eg. phc_no, practice_group etc
+categoryArray
+*/
 
 function onEachFeature(feature, layer) {
-    // layer.bindPopup(L.Util.template(popTemplate, feature.properties));
-    category = feature.properties.pch_no; // practice_group
-    // Initialize the category array if not already set.
-    if (typeof categories[category] === "undefined") {
-        categories[category] = [];
-    }
-    categories[category].push(layer);
+  // Use function onEachFeature in your L.geoJson initialization.
+  // layer.bindPopup(L.Util.template(popTemplate, feature.properties));
+  category = feature.properties.pch_no; // practice_group
+  // Initialize the category array if not already set.
+  if (typeof categories[category] === "undefined") {
+    categories[category] = [];
+  }
+  categories[category].push(layer);
 }
-
 
 // Function to import data
 async function getGeoData(url) {
@@ -121,7 +151,6 @@ async function getGeoData(url) {
   let data = await response.json();
   return data;
 }
-
 
 // Pop Ups
 // https://leafletjs.com/reference-1.4.0.html#popup
