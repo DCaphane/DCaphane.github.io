@@ -62,7 +62,10 @@ let map02 = L.map('mapid_02', {
 		[50.0, 1.6232], //south west
 		[59.79, -10.239] //north east
 	],
-  layers: [CartoDB_Voyager] // default basemap that will appear first
+  layers: [CartoDB_Voyager], // default basemap that will appear first
+  fullscreenControl: { // https://github.com/Leaflet/Leaflet.fullscreen
+    pseudoFullscreen: false // if true, fullscreen to page width and height
+  }  
 });
 
 var layerControl = L.control
