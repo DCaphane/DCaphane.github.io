@@ -1,4 +1,3 @@
-// https://stackoverflow.com/questions/33478202/leaflet-how-to-toggle-geojson-feature-properties-from-a-single-collection
 let categories = {},
   category,
   categoryArray;
@@ -52,7 +51,9 @@ let map02 = L.map("mapid_02", {
   layers: [tile_OSM01]
 });
 
-var myLayersControl = L.control.layers(baseMaps, overlayMaps).addTo(map02);
+var layerControl = L.control.layers(baseMaps, overlayMaps, {
+  collapsed: false
+}).addTo(map02);
 
 var scaleBar = L.control
   .scale({
@@ -70,11 +71,11 @@ var wardsStyle = {
   opacity: 0.6
 };
 
-let test;
+let wardLayer;
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 getGeoData("Data/cyc_wards.geojson")
   .then(function(data) {
-    test = L.geoJSON(data, {
+    wardLayer = L.geoJSON(data, {
       style: wardsStyle,
       onEachFeature: function(feature, layer) {
         layer.bindPopup(
@@ -89,44 +90,36 @@ getGeoData("Data/cyc_wards.geojson")
     }).addTo(map02);
   })
   .then(() => {
-    myLayersControl.addOverlay(test, "wards_cyc"); // Adds an overlay (checkbox entry) with the given name to the control.
+    layerControl.addOverlay(wardLayer, "wards_cyc"); // Adds an overlay (checkbox entry) with the given name to the control.
   });
 
 // https://gis.stackexchange.com/questions/179925/leaflet-geojson-changing-the-default-blue-marker-to-other-png-files
 // https://leafletjs.com/examples/layers-control/
 // https://stackoverflow.com/questions/49196123/how-can-i-add-multiple-overlay-layers-in-leaflet-js-having-three-categories-at-t
+let allItems;
 getGeoData("Data/PrimaryCareHomes.geojson")
   .then(function(data) {
-    L.geoJSON(data, {
+    allItems = L.geoJSON(data, {
       pointToLayer: function(feature, latlng) {
         return L.marker(latlng, {
           icon: arrIcons[feature.properties.pch_no - 1]
-        });
+        })//.addTo(map02);
       },
       onEachFeature: onEachFeature
-    })
-      .bindPopup(function(layer) {
-        return (
-          "<h1>PCH: " +
-          layer.feature.properties.practice_group +
-          "</h1>" +
-          "<p>Address: " +
-          layer.feature.properties.address_01 +
-          "</p>"
-        );
-      })
-      .addTo(map02);
+    })//.addTo(map02);
   })
+  .then(() =>{
+    // Option to turn on/ off all points at once
+    layerControl.addOverlay(allItems, "All");
+  })  
   .then(() => {
     for (var categoryName in categories) {
       categoryArray = categories[categoryName];
-      // overlayMaps[categoryName] = L.layerGroup(categoryArray);
-      myLayersControl.addOverlay(L.layerGroup(categoryArray), categoryName);
+      //overlayMaps[categoryName] = L.layerGroup(categoryArray).addTo(map02);
+      layerControl.addOverlay(L.layerGroup(categoryArray), categoryName);
+      console.log(L.layerGroup(categoryArray))
     }
   });
-
-// Try this, iterate over category array (1-7)
-// https://gis.stackexchange.com/questions/233728/adding-a-layer-control-legend-based-on-geojson-properties
 
 /*
 categories {object} used to create an object with key = category, value is array
@@ -136,7 +129,16 @@ categoryArray
 
 function onEachFeature(feature, layer) {
   // Use function onEachFeature in your L.geoJson initialization.
-  // layer.bindPopup(L.Util.template(popTemplate, feature.properties));
+  layer.bindPopup(
+    "<h1>PCH: " +
+      layer.feature.properties.practice_group +
+      "</h1>" +
+      "<p>Address: " +
+      layer.feature.properties.address_01 +
+      "</p>"
+  );
+  //layer.setIcon(arrIcons[feature.properties.pch_no - 1]);
+
   category = feature.properties.pch_no; // practice_group
   // Initialize the category array if not already set.
   if (typeof categories[category] === "undefined") {
@@ -164,3 +166,18 @@ function onMapClick(e) {
 }
 
 // map02.on("click", onMapClick);
+
+
+/* Useful Links
+
+
+// this works
+https://stackoverflow.com/questions/39545791/leaflet-map-getting-specific-data-of-geojson-file-with-button
+  https://plnkr.co/edit/H6E6q0vKwb3RPOZBWs27?p=preview
+
+https://gis.stackexchange.com/questions/264788/creating-toggle-layers-in-leaflet
+  https://plnkr.co/edit/rf2JDe3RfF9p8Xm3Ga98?p=preview
+
+
+
+*/
