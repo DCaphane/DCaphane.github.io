@@ -1,7 +1,8 @@
 let categories = {},
 	category,
 	overlayMaps = {};
-// Tile Baselayers
+
+  // Tile Baselayers
 
 // Mapbox
 /*
@@ -64,7 +65,7 @@ let map02 = L.map('mapid_02', {
 	],
   layers: [CartoDB_Voyager], // default basemap that will appear first
   fullscreenControl: { // https://github.com/Leaflet/Leaflet.fullscreen
-    pseudoFullscreen: false // if true, fullscreen to page width and height
+    pseudoFullscreen: true // if true, fullscreen to page width and height
   }  
 });
 
@@ -167,6 +168,9 @@ function onMapClick(e) {
 
 /* Useful Links
 
+  // how to populate layers with async
   https://plnkr.co/edit/H6E6q0vKwb3RPOZBWs27?p=preview
 
+  // Add an 'All Points' option that syncs
+  https://jsfiddle.net/qkvo7hav/7/
 */

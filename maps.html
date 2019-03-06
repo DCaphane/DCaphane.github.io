@@ -39,7 +39,6 @@
 
     <link rel="stylesheet" type="text/css" href="css/toTop.css" />
 
-
     <!-- leaflet -->
     <link
       rel="stylesheet"
@@ -54,16 +53,37 @@
       crossorigin=""
     ></script>
 
-<!-- Add full screen option -->
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
-<link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
-  rel='stylesheet' />
+    <!-- Markers 
+https://github.com/marslan390/BeautifyMarker
+-->
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet.beautifymarker@1.1.1/leaflet-beautify-marker-icon.css"
+      integrity="sha256-z+OIReUtBUL6C3pVj9u4oSuT/5MDiVt9jpaqQrHlyR4="
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/leaflet.beautifymarker@1.1.1/leaflet-beautify-marker-icon.js"
+      integrity="sha256-CzohIPDltfN55kGmk3ske1EbltYXH1Rij+Dat6NWKq4="
+      crossorigin="anonymous"
+    ></script>
 
+    <!-- Add full screen option -->
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+      rel="stylesheet"
+    />
 
     <script defer src="scripts/navbar_main.js"></script>
     <script defer src="scripts/navbar_side.js"></script>
     <script defer src="scripts/toTop.js"></script>
-
 
     <style></style>
   </head>
@@ -122,71 +142,63 @@
               <div class="tile wide content">
                 <h2>Using Circle Markers</h2>
                 <div id="mapid_01" class="map"></div>
-                <footer class="cta">Layers overlap - can only see tooltip for top layer.</footer>
+                <footer class="cta">
+                  Layers overlap - can only see tooltip for top layer.
+                </footer>
               </div>
 
               <div class="tile wide content">
                 <h2>Using Regular Markers</h2>
                 <div id="mapid_02" class="map"></div>
-                <footer class="cta">Markers appear on top of ward boundaries. These are img files. Consider creating own with color brewer.
+                <footer class="cta">
+                  Markers appear on top of ward boundaries. These are img files.
+                  Consider creating own with color brewer.
                 </footer>
               </div>
 
               <div class="tile content">
                 <h2>Empty</h2>
-                <div id="empty">
-                </div>
-                <footer class="cta">
-                </footer>
+                <div id="empty"></div>
+                <footer class="cta"></footer>
               </div>
-
             </div>
           </section>
 
           <section id="sec-diagnosis" class="section anchor">
             <h1>Diagnosis</h1>
 
-
             <div id="secdiag" class="tiles dcCharts">
               <div class="tile content">
                 <h2>Diagnosis Main</h2>
-                <div id="mapid_03">
-                </div>
+                <div id="mapid_03"></div>
                 <footer class="cta">Add Description Here</footer>
               </div>
 
               <div class="tile content">
                 <h2>Diagnoses</h2>
-                <div id="mapid_04">
-                </div>
+                <div id="mapid_04"></div>
                 <footer class="cta">Add Description Here</footer>
               </div>
-
             </div>
           </section>
 
           <section id="sec-patient" class="section anchor">
             <h1>Patient Characteristics</h1>
 
-
             <div id="secpatient" class="tiles dcCharts">
               <div class="tile content">
                 <h2>Age Band</h2>
-                <div id="mapid_05">
-                </div>
+                <div id="mapid_05"></div>
                 <footer class="cta">Add Description Here</footer>
               </div>
 
               <div class="tile wide content">
                 <h2>GP Practice</h2>
-                <div id="mapid_06">
-                </div>
+                <div id="mapid_06"></div>
                 <footer class="cta">Add Description Here</footer>
               </div>
-
             </div>
           </section>
-
         </div>
         <div class="footer"></div>
         <!-- Test internal footer -->
@@ -199,7 +211,8 @@
     </div>
   </body>
 
-  <script defer src="scripts/map_default_markers.js"></script>
+  <!--script defer src="scripts/map_default_markers.js"></script -->
+  <script defer src="scripts/map_beautifyMarker.js"></script>
   <script defer src="scripts/map_01.js"></script>
   <script defer src="scripts/map_02.js"></script>
 </html>
