@@ -1,5 +1,6 @@
 // https://github.com/marslan390/BeautifyMarker
 // https://fontawesome.com/start
+// https://fontawesome.com/license/free
 
 const objColours = {
 	red: '#e41a1c',
