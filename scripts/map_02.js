@@ -152,6 +152,19 @@ function addDataToMap(data, map) {
 	});
 }
 
+L.marker([53.96838, -1.08269], {
+	icon: L.BeautifyIcon.icon({
+		iconShape: 'circle',
+		icon: 'h-square',
+		borderColor: 'red',
+		backgroundColor: 'transparent',
+		textColor: 'rgba(255,0,0)' // Text color of marker icon
+	}),
+	zIndexOffset: 1000,
+	draggable: false
+}).addTo(map02).bindPopup("York Hospital");
+
+
 // Function to import data
 async function getGeoData(url) {
 	let response = await fetch(url);
