@@ -2,7 +2,7 @@ let categories = {},
 	category,
 	overlayMaps = {};
 
-  // Tile Baselayers
+// Tile Baselayers
 
 // Mapbox
 /*
@@ -22,18 +22,26 @@ let tile_MB = L.tileLayer(
 // Open Street Map
 // https://leaflet-extras.github.io/leaflet-providers/preview/
 
-var OpenStreetMap_BlackAndWhite = L.tileLayer('https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-});
+var OpenStreetMap_BlackAndWhite = L.tileLayer(
+	'https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
+	{
+		maxZoom: 18,
+		attribution:
+			'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	}
+);
 
-var CartoDB_Voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 19
-});
+var CartoDB_Voyager = L.tileLayer(
+	'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+	{
+		attribution:
+			'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+		subdomains: 'abcd',
+		maxZoom: 19
+	}
+);
 
-let Stamen_Toner  = L.tileLayer(
+let Stamen_Toner = L.tileLayer(
 	'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}',
 	{
 		attribution:
@@ -46,9 +54,9 @@ let Stamen_Toner  = L.tileLayer(
 );
 
 let baseMaps = {
-  'B&W': OpenStreetMap_BlackAndWhite,
-  Plain: CartoDB_Voyager,
-  Simple: Stamen_Toner
+	'B&W': OpenStreetMap_BlackAndWhite,
+	Plain: CartoDB_Voyager,
+	Simple: Stamen_Toner
 };
 
 let map02 = L.map('mapid_02', {
@@ -63,10 +71,11 @@ let map02 = L.map('mapid_02', {
 		[50.0, 1.6232], //south west
 		[59.79, -10.239] //north east
 	],
-  layers: [CartoDB_Voyager], // default basemap that will appear first
-  fullscreenControl: { // https://github.com/Leaflet/Leaflet.fullscreen
-    pseudoFullscreen: true // if true, fullscreen to page width and height
-  }  
+	layers: [CartoDB_Voyager], // default basemap that will appear first
+	fullscreenControl: {
+		// https://github.com/Leaflet/Leaflet.fullscreen
+		pseudoFullscreen: true // if true, fullscreen to page width and height
+	}
 });
 
 var layerControl = L.control
@@ -93,29 +102,26 @@ var wardsStyle = {
 
 let wardLayer;
 // Export geojson data layers as: EPSG: 4326 - WGS 84
-getGeoData('Data/cyc_wards.geojson')
-	.then(function(data) {
-		wardLayer = L.geoJSON(data, {
-			style: wardsStyle,
-			onEachFeature: function(feature, layer) {
-				layer.bindPopup(
-					'<h1>' +
-						feature.properties.wd17nm +
-						'</h1><p>Code: ' +
-						feature.properties.wd17cd +
-						'</p>'
-				);
-				// layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
-			}
-    }).addTo(map02);
-    layerControl.addOverlay(wardLayer, 'wards_cyc'); // Adds an overlay (checkbox entry) with the given name to the control.
-	});
-
+getGeoData('Data/cyc_wards.geojson').then(function(data) {
+	wardLayer = L.geoJSON(data, {
+		style: wardsStyle,
+		onEachFeature: function(feature, layer) {
+			layer.bindPopup(
+				'<h1>' +
+					feature.properties.wd17nm +
+					'</h1><p>Code: ' +
+					feature.properties.wd17cd +
+					'</p>'
+			);
+			// layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
+		}
+	}).addTo(map02);
+	layerControl.addOverlay(wardLayer, 'wards_cyc'); // Adds an overlay (checkbox entry) with the given name to the control.
+});
 
 getGeoData('Data/PrimaryCareHomes.geojson').then(function(data) {
 	addDataToMap(data, map02);
 });
-
 
 // let allItems;
 function addDataToMap(data, map) {

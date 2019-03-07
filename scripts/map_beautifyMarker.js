@@ -11,49 +11,49 @@ const objColours = {
   pink: "#f781bf"
 };
 
-const leafRed = L.BeautifyIcon.icon({
+const markerRed = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.red,
     backgroundColor: 'white'
   }),
-  leafBlue = L.BeautifyIcon.icon({
+  markerBlue = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.blueull,
     backgroundColor: 'white'
   }),
-  leafGreen = L.BeautifyIcon.icon({
+  markerGreen = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.green,
     backgroundColor: 'white'
   }),
-  leafPurple = L.BeautifyIcon.icon({
+  markerPurple = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.purple,
     backgroundColor: 'white'
   }),
-  leafOrange = L.BeautifyIcon.icon({
+  markerOrange = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.orange,
     backgroundColor: 'white'
   }),
-  leafYellow = L.BeautifyIcon.icon({
+  markerYellow = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.yellow,
     backgroundColor: 'white'
   }),
-  leafBrown = L.BeautifyIcon.icon({
+  markerBrown = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.brown,
     backgroundColor: 'white'
   }),
-  leafPink = L.BeautifyIcon.icon({
+  markerPink = L.BeautifyIcon.icon({
     iconShape: "marker",
     icon: null,
     borderColor: objColours.pink,
@@ -61,12 +61,12 @@ const leafRed = L.BeautifyIcon.icon({
   });
 
 const arrIcons = [
-  leafRed,
-  leafBlue,
-  leafGreen,
-  leafPurple,
-  leafOrange,
-  leafYellow,
-  leafBrown,
-  leafPink
+  markerRed,
+  markerBlue,
+  markerGreen,
+  markerPurple,
+  markerOrange,
+  markerYellow,
+  markerBrown,
+  markerPink
 ];
