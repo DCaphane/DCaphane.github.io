@@ -95,29 +95,37 @@ var scaleBar = L.control
 
 // Used to style polygons
 var wardsStyle = {
-	color: '#0078ff',
-	weight: 2,
-	opacity: 0.6
+	fillColor: 'white', // fill colour
+	fillOpacity: 0.5,
+	color: '#0078ff', // border colour
+	opacity: 1,
+	weight: 2
 };
 
-let wardLayer;
+let wardLayer,
+	pcnLayer;
 // Export geojson data layers as: EPSG: 4326 - WGS 84
-getGeoData('Data/cyc_wards.geojson').then(function(data) {
-	wardLayer = L.geoJSON(data, {
-		style: wardsStyle,
-		onEachFeature: function(feature, layer) {
-			layer.bindPopup(
-				'<h1>' +
-					feature.properties.wd17nm +
-					'</h1><p>Code: ' +
-					feature.properties.wd17cd +
-					'</p>'
-			);
-			// layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
-		}
-	}).addTo(map02);
-	layerControl.addOverlay(wardLayer, 'wards_cyc'); // Adds an overlay (checkbox entry) with the given name to the control.
-});
+getGeoData('Data/cyc_wards.geojson')
+	.then(function(data) {
+		wardLayer = L.geoJSON(data, {
+			style: wardsStyle,
+			onEachFeature: function(feature, layer) {
+				layer.bindPopup(
+					'<h1>' +
+						feature.properties.wd17nm +
+						'</h1><p>Code: ' +
+						feature.properties.wd17cd +
+						'</p>'
+				);
+				// layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
+			}
+		}).addTo(map02);
+		layerControl.addOverlay(wardLayer, 'wards_cyc'); // Adds an overlay (checkbox entry) with the given name to the control.
+	})
+	.then(function(data) {
+		// https://gis.stackexchange.com/questions/272490/styling-individual-features-in-a-geojson-layer
+
+	});
 
 getGeoData('Data/PrimaryCareHomes.geojson').then(function(data) {
 	addDataToMap(data, map02);
@@ -128,7 +136,7 @@ function addDataToMap(data, map) {
 	L.geoJson(data, {
 		pointToLayer: function(feature, latlng) {
 			return L.marker(latlng, {
-				icon: arrIcons[feature.properties.pch_no - 1]
+				icon: arrMarkerIcons[feature.properties.pch_no - 1]
 			});
 		},
 		onEachFeature: function(feature, layer) {
@@ -162,8 +170,9 @@ L.marker([53.96838, -1.08269], {
 	}),
 	zIndexOffset: 1000,
 	draggable: false
-}).addTo(map02).bindPopup("York Hospital");
-
+})
+	.addTo(map02)
+	.bindPopup('York Hospital');
 
 // Function to import data
 async function getGeoData(url) {
