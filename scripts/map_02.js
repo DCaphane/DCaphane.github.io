@@ -1,6 +1,4 @@
-let categories = {},
-	category,
-	overlayMaps = {};
+
 
 // Tile Baselayers
 
@@ -84,6 +82,12 @@ var layerControl = L.control
 	})
 	.addTo(map02);
 
+var subLayerControl = L.control
+	.layers(null, null, {
+		collapsed: true
+	})
+	.addTo(map02);	
+
 var scaleBar = L.control
 	.scale({
 		// https://leafletjs.com/reference-1.4.0.html#control-scale-option
@@ -107,6 +111,11 @@ let wardLayer,
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 getGeoData('Data/cyc_wards.geojson')
 	.then(function(data) {
+
+		// https://gis.stackexchange.com/questions/272490/styling-individual-features-in-a-geojson-layer
+		// https://leafletjs.com/examples/choropleth/
+		addWardGroupsToMap(data, map02);
+
 		wardLayer = L.geoJSON(data, {
 			style: wardsStyle,
 			onEachFeature: function(feature, layer) {
@@ -120,12 +129,11 @@ getGeoData('Data/cyc_wards.geojson')
 				// layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
 			}
 		}).addTo(map02);
-		layerControl.addOverlay(wardLayer, 'wards_cyc'); // Adds an overlay (checkbox entry) with the given name to the control.
-	})
-	.then(function(data) {
-		// https://gis.stackexchange.com/questions/272490/styling-individual-features-in-a-geojson-layer
+		
+		subLayerControl.addOverlay(wardLayer, 'wards_cyc'); // Adds an overlay (checkbox entry) with the given name to the control.
 
 	});
+
 
 getGeoData('Data/PrimaryCareHomes.geojson').then(function(data) {
 	addDataToMap(data, map02);
@@ -133,6 +141,10 @@ getGeoData('Data/PrimaryCareHomes.geojson').then(function(data) {
 
 // let allItems;
 function addDataToMap(data, map) {
+
+	let categories = {},
+	category;
+
 	L.geoJson(data, {
 		pointToLayer: function(feature, latlng) {
 			return L.marker(latlng, {
@@ -160,6 +172,29 @@ function addDataToMap(data, map) {
 	});
 }
 
+
+function addWardGroupsToMap(data, map) {
+
+	let categories = {},
+	category;
+
+	L.geoJson(data, {
+		style: style,
+		onEachFeature: function(feature, layer) {
+			category = feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+			// Initialize the category array if not already set.
+			if (typeof categories[category] === 'undefined') {
+				categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
+				subLayerControl.addOverlay(categories[category], category);
+			}
+			categories[category].addLayer(layer);
+		}
+	});
+}
+
+
+
+// Separate marker for York Trust
 L.marker([53.96838, -1.08269], {
 	icon: L.BeautifyIcon.icon({
 		iconShape: 'circle',
@@ -193,6 +228,29 @@ function onMapClick(e) {
 }
 
 // map02.on("click", onMapClick);
+
+// for colouring ward groupings
+function getColor(d) {
+    return d > 7 ? '#800026' :
+           d > 6  ? '#BD0026' :
+           d > 5  ? '#E31A1C' :
+           d > 4  ? '#FC4E2A' :
+           d > 3   ? '#FD8D3C' :
+           d > 2   ? '#FEB24C' :
+           d > 1   ? '#FED976' :
+                      '#FFEDA0';
+}
+
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.pcn_ward_group),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+}
 
 /* Useful Links
 
