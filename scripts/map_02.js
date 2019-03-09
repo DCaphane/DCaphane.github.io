@@ -151,20 +151,20 @@ function addDataToMap(data, map) {
 
   L.geoJson(data, {
     pointToLayer: function(feature, latlng) {
-      switch(feature.properties.practice_group) {
-        case 'York Medical Group ':
-      return L.marker(latlng, {
-        icon: arrMarkerIcons[feature.properties.pch_no - 1]
-      })
-      case 'Priory Medical Group ':
-      return L.marker(latlng, {
-        icon: arrCircleIcons[feature.properties.pch_no - 1]
-      })
-      default:
-      return L.marker(latlng, {
-        icon: arrrRectangleIcons[feature.properties.pch_no - 1]
-      })      
-    };
+      switch (feature.properties.practice_group) {
+        case "York Medical Group ":
+          return L.marker(latlng, {
+            icon: arrMarkerIcons[feature.properties.pch_no - 1]
+          });
+        case "Priory Medical Group ":
+          return L.marker(latlng, {
+            icon: arrCircleIcons[feature.properties.pch_no - 1]
+          });
+        default:
+          return L.marker(latlng, {
+            icon: arrrRectangleIcons[feature.properties.pch_no - 1]
+          });
+      }
     },
     onEachFeature: function(feature, layer) {
       var popupText =
@@ -278,3 +278,19 @@ function style(feature) {
   // Add an 'All Points' option that syncs
   https://jsfiddle.net/qkvo7hav/7/
 */
+
+// Home Button
+// https://github.com/CliffCloud/Leaflet.EasyButton
+var home = {
+  lat: 53.9581,
+  lng: -1.0643,
+  zoom: 11
+};
+
+L.easyButton(
+  "fa-home",
+  function(btn, map) {
+    map.setView([home.lat, home.lng], home.zoom);
+  },
+  "Zoom To Home"
+).addTo(map02);
