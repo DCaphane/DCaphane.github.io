@@ -25,7 +25,7 @@ const objMarkers = {
 	doughnutMarker: ['doughnut', [22, 22]]
 };
 
-// map marker style
+// map marker style - map marker
 const markerRed = L.BeautifyIcon.icon({
 		iconShape: objMarkers.mapMarker[0],
 		icon: 'circle', // 'user-md',
@@ -95,7 +95,7 @@ const arrMarkerIcons = [
 ];
 
 
-// map marker style
+// map marker style - circle
 const circleRed = L.BeautifyIcon.icon({
 		iconShape: objMarkers.circleMarker[0],
 		icon: 'circle', // 'user-md',
@@ -162,4 +162,74 @@ const arrCircleIcons = [
 	circleYellow,
 	circleBrown,
 	circlePink
+];
+
+
+// map marker style - rectangle
+const rectangleRed = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'square',
+	borderColor: objColours.red[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.red[1] // Text color of marker icon
+}),
+rectangleBlue = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.blue[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.blue[1]
+}),
+rectangleGreen = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.green[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.green[1]
+}),
+rectanglePurple = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.purple[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.purple[1]
+}),
+rectangleOrange = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.orange[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.orange[1]
+}),
+rectangleYellow = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.yellow[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.yellow[1]
+}),
+rectangleBrown = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.brown[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.brown[1]
+}),
+rectanglePink = L.BeautifyIcon.icon({
+	iconShape: objMarkers.rectangleMarker[0],
+	icon: 'circle',
+	borderColor: objColours.pink[0],
+	backgroundColor: objColours.white[0],
+	textColor: objColours.pink[1]
+});
+
+const arrrRectangleIcons = [
+rectangleRed,
+rectangleBlue,
+rectangleGreen,
+rectanglePurple,
+rectangleOrange,
+rectangleYellow,
+rectangleBrown,
+rectanglePink
 ];

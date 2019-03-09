@@ -21,6 +21,7 @@ let tile_MB = L.tileLayer(
 var OpenStreetMap_BlackAndWhite = L.tileLayer(
   "https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
   {
+    minZoom: 0,
     maxZoom: 18,
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -33,6 +34,7 @@ var CartoDB_Voyager = L.tileLayer(
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: "abcd",
+    minZoom: 0,
     maxZoom: 19
   }
 );
@@ -149,9 +151,20 @@ function addDataToMap(data, map) {
 
   L.geoJson(data, {
     pointToLayer: function(feature, latlng) {
+      switch(feature.properties.practice_group) {
+        case 'York Medical Group ':
       return L.marker(latlng, {
         icon: arrMarkerIcons[feature.properties.pch_no - 1]
-      });
+      })
+      case 'Priory Medical Group ':
+      return L.marker(latlng, {
+        icon: arrCircleIcons[feature.properties.pch_no - 1]
+      })
+      default:
+      return L.marker(latlng, {
+        icon: arrrRectangleIcons[feature.properties.pch_no - 1]
+      })      
+    };
     },
     onEachFeature: function(feature, layer) {
       var popupText =
