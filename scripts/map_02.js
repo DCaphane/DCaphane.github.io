@@ -10,7 +10,7 @@ let tile_MB = L.tileLayer(
 		maxZoom: 18,
 		id: 'mapbox.streets',
 		accessToken:
-			'pk.eyJ1IjoiZGNhcGgiLCJhIjoiY2l5cnU3Mnl4MDAwMDJxbXJ6bjBiYjVwdCJ9.bCjPbVwn-V7ENeDao6XYCg'
+			'addKeyHere'
 	}
 );
 */
@@ -39,6 +39,7 @@ var CartoDB_Voyager = L.tileLayer(
   }
 );
 
+// http://maps.stamen.com/#watercolor/12/37.7706/-122.3782
 let Stamen_Toner = L.tileLayer(
   "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}",
   {
@@ -51,10 +52,18 @@ let Stamen_Toner = L.tileLayer(
   }
 );
 
+// https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+let emptyTile = L.tileLayer("", {
+  zoom: 0,
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
+
 let baseMaps = {
   "B&W": OpenStreetMap_BlackAndWhite,
   Plain: CartoDB_Voyager,
-  Simple: Stamen_Toner
+  Simple: Stamen_Toner,
+  "No Background": emptyTile
 };
 
 let map02 = L.map("mapid_02", {
@@ -76,12 +85,14 @@ let map02 = L.map("mapid_02", {
   }
 });
 
+// Background and Sites layers
 var layerControl = L.control
   .layers(baseMaps, null, {
     collapsed: true // Whether or not control options are displayed
   })
   .addTo(map02);
 
+// Ward boundaries and ward groupings
 var subLayerControl = L.control
   .layers(null, null, {
     collapsed: true
@@ -112,10 +123,13 @@ getGeoData("Data/cyc_wards.geojson")
   .then(function(data) {
     // https://gis.stackexchange.com/questions/272490/styling-individual-features-in-a-geojson-layer
     // https://leafletjs.com/examples/choropleth/
+
+    // This first section is used to add the ward groupings as individual layers
     addWardGroupsToMap(data, map02);
     return data;
   })
   .then(function(data) {
+    // This section adds the ward layer in its entirety along with labels (permanent Tooltip)
     wardLayer = L.geoJSON(data, {
       style: wardsStyle,
       onEachFeature: function(feature, layer) {
@@ -130,7 +144,7 @@ getGeoData("Data/cyc_wards.geojson")
         // layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
         layer.bindTooltip(
           function(layer) {
-            return layer.feature.properties.wd17nm; //merely sets the tooltip text
+            return layer.feature.properties.wd17nm; // sets the tooltip text
           },
           { permanent: true, direction: "center", opacity: 0.5 }
         );
@@ -150,21 +164,23 @@ function addDataToMap(data, map) {
     category;
 
   L.geoJson(data, {
+    // https://leafletjs.com/reference-1.4.0.html#geojson
     pointToLayer: function(feature, latlng) {
-      switch(feature.properties.practice_group) {
-        case 'York Medical Group ':
-      return L.marker(latlng, {
-        icon: arrMarkerIcons[feature.properties.pch_no - 1]
-      })
-      case 'Priory Medical Group ':
-      return L.marker(latlng, {
-        icon: arrCircleIcons[feature.properties.pch_no - 1]
-      })
-      default:
-      return L.marker(latlng, {
-        icon: arrrRectangleIcons[feature.properties.pch_no - 1]
-      })      
-    };
+      // Use different marker styles depending on eg. practice groupings
+      switch (feature.properties.practice_group) {
+        case "York Medical Group ":
+          return L.marker(latlng, {
+            icon: arrMarkerIcons[feature.properties.pch_no - 1]
+          });
+        case "Priory Medical Group ":
+          return L.marker(latlng, {
+            icon: arrCircleIcons[feature.properties.pch_no - 1]
+          });
+        default:
+          return L.marker(latlng, {
+            icon: arrrRectangleIcons[feature.properties.pch_no - 1]
+          });
+      }
     },
     onEachFeature: function(feature, layer) {
       var popupText =
@@ -180,7 +196,7 @@ function addDataToMap(data, map) {
       // Initialize the category array if not already set.
       if (typeof categories[category] === "undefined") {
         categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
-        layerControl.addOverlay(categories[category], category);
+        layerControl.addOverlay(categories[category], "PCH: " + category);
       }
       categories[category].addLayer(layer);
     }
@@ -198,7 +214,10 @@ function addWardGroupsToMap(data, map) {
       // Initialize the category array if not already set.
       if (typeof categories[category] === "undefined") {
         categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
-        subLayerControl.addOverlay(categories[category], category);
+        subLayerControl.addOverlay(
+          categories[category],
+          "Ward Group: " + category
+        );
       }
       categories[category].addLayer(layer);
     }
@@ -240,7 +259,7 @@ function onMapClick(e) {
 
 // map02.on("click", onMapClick);
 
-// for colouring ward groupings
+// for colouring ward groupings (choropleth)
 function getColor(d) {
   return d > 7
     ? "#800026"
@@ -278,3 +297,19 @@ function style(feature) {
   // Add an 'All Points' option that syncs
   https://jsfiddle.net/qkvo7hav/7/
 */
+
+// Home Button
+// https://github.com/CliffCloud/Leaflet.EasyButton
+var home = {
+  lat: 53.9581,
+  lng: -1.0643,
+  zoom: 11
+};
+
+L.easyButton(
+  "fa-home",
+  function(btn, map) {
+    map.setView([home.lat, home.lng], home.zoom);
+  },
+  "Zoom To Home"
+).addTo(map02);
