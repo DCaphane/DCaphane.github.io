@@ -18,7 +18,7 @@ let tile_MB = L.tileLayer(
 // Open Street Map
 // https://leaflet-extras.github.io/leaflet-providers/preview/
 
-var OpenStreetMap_BlackAndWhite = L.tileLayer(
+const OpenStreetMap_BlackAndWhite = L.tileLayer(
   "https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
   {
     minZoom: 0,
@@ -28,7 +28,7 @@ var OpenStreetMap_BlackAndWhite = L.tileLayer(
   }
 );
 
-var CartoDB_Voyager = L.tileLayer(
+const CartoDB_Voyager = L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
   {
     attribution:
@@ -86,20 +86,20 @@ let map02 = L.map("mapid_02", {
 });
 
 // Background and Sites layers
-var layerControl = L.control
+const layerControl = L.control
   .layers(baseMaps, null, {
     collapsed: true // Whether or not control options are displayed
   })
   .addTo(map02);
 
 // Ward boundaries and ward groupings
-var subLayerControl = L.control
+const subLayerControl = L.control
   .layers(null, null, {
     collapsed: true
   })
   .addTo(map02);
 
-var scaleBar = L.control
+const scaleBar = L.control
   .scale({
     // https://leafletjs.com/reference-1.4.0.html#control-scale-option
     position: "bottomleft",
@@ -109,7 +109,7 @@ var scaleBar = L.control
   .addTo(map02);
 
 // Used to style polygons
-var wardsStyle = {
+const wardsStyle = {
   fillColor: "transparent", // fill colour
   // fillOpacity: 0.5,
   color: "#0078ff", // border colour
@@ -118,7 +118,7 @@ var wardsStyle = {
 };
 
 // Used to style labels
-var wardsStyleLabels = {
+const wardsStyleLabels = {
   fillColor: "transparent", // fill colour
   // fillOpacity: 0.5,
   color: "#transparent", // border colour
@@ -203,7 +203,7 @@ function addDataToMap(data, map) {
       }
     },
     onEachFeature: function(feature, layer) {
-      var popupText =
+      const popupText =
         "<h1>PCH: " +
         layer.feature.properties.practice_group +
         "</h1>" +
@@ -266,9 +266,9 @@ async function getGeoData(url) {
   return data;
 }
 
-// Pop Ups
+/* Pop Ups
 // https://leafletjs.com/reference-1.4.0.html#popup
-var popup = L.popup();
+const popup = L.popup();
 
 function onMapClick(e) {
   popup
@@ -277,7 +277,8 @@ function onMapClick(e) {
     .openOn(map02);
 }
 
-// map02.on("click", onMapClick);
+map02.on("click", onMapClick);
+*/
 
 // for colouring ward groupings (choropleth)
 function getColor(d) {
@@ -320,7 +321,7 @@ function style(feature) {
 
 // Home Button
 // https://github.com/CliffCloud/Leaflet.EasyButton
-var home = {
+const home = {
   lat: 53.9581,
   lng: -1.0643,
   zoom: 11
