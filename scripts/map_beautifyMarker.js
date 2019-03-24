@@ -232,3 +232,210 @@ const arrDoughnutIcons = [
   doughnutBrown,
   doughnutPink
 ];
+
+// map marker style - circleDot
+const circleDotRed = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.red[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.red[1] // Text color of marker icon
+  }),
+  circleDotBlue = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.blue[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.blue[1]
+  }),
+  circleDotGreen = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.green[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.green[1]
+  }),
+  circleDotPurple = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.purple[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.purple[1]
+  }),
+  circleDotOrange = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.orange[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.orange[1]
+  }),
+  circleDotYellow = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.yellow[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.yellow[1]
+  }),
+  circleDotBrown = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.brown[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.brown[1]
+  }),
+  circleDotPink = L.BeautifyIcon.icon({
+    iconShape: objMarkers.circleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.pink[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.pink[1]
+  });
+
+const arrCircleDotIcons = [
+  circleDotRed,
+  circleDotBlue,
+  circleDotGreen,
+  circleDotPurple,
+  circleDotOrange,
+  circleDotYellow,
+  circleDotBrown,
+  circleDotPink
+];
+
+// map marker style - rectangle
+const rectangleRed = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.red[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.red[1] // Text color of marker icon
+  }),
+  rectangleBlue = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.blue[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.blue[1]
+  }),
+  rectangleGreen = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.green[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.green[1]
+  }),
+  rectanglePurple = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.purple[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.purple[1]
+  }),
+  rectangleOrange = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.orange[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.orange[1]
+  }),
+  rectangleYellow = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.yellow[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.yellow[1]
+  }),
+  rectangleBrown = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.brown[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.brown[1]
+  }),
+  rectanglePink = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleMarker[0],
+    icon: "square",
+    borderColor: objColours.pink[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.pink[1]
+  });
+
+const arrRectangleIcons = [
+  rectangleRed,
+  rectangleBlue,
+  rectangleGreen,
+  rectanglePurple,
+  rectangleOrange,
+  rectangleYellow,
+  rectangleBrown,
+  rectanglePink
+];
+
+// map marker style - rectangleDot
+const rectangleDotRed = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.red[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.red[1] // Text color of marker icon
+  }),
+  rectangleDotBlue = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.blue[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.blue[1]
+  }),
+  rectangleDotGreen = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.green[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.green[1]
+  }),
+  rectangleDotPurple = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.purple[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.purple[1]
+  }),
+  rectangleDotOrange = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.orange[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.orange[1]
+  }),
+  rectangleDotYellow = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.yellow[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.yellow[1]
+  }),
+  rectangleDotBrown = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.brown[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.brown[1]
+  }),
+  rectangleDotPink = L.BeautifyIcon.icon({
+    iconShape: objMarkers.rectangleDotMarker[0],
+    icon: "square",
+    borderColor: objColours.pink[0],
+    backgroundColor: objColours.white[0],
+    textColor: objColours.pink[1]
+  });
+
+const arrRectangleDotIcons = [
+  rectangleDotRed,
+  rectangleDotBlue,
+  rectangleDotGreen,
+  rectangleDotPurple,
+  rectangleDotOrange,
+  rectangleDotYellow,
+  rectangleDotBrown,
+  rectangleDotPink
+];
