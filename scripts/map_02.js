@@ -117,7 +117,16 @@ var wardsStyle = {
   weight: 2
 };
 
-let wardLayer;
+// Used to style labels
+var wardsStyleLabels = {
+  fillColor: "transparent", // fill colour
+  // fillOpacity: 0.5,
+  color: "#transparent", // border colour
+  opacity: 0,
+  weight: 0
+};
+
+let wardLayer, wardLayerLabels;
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 getGeoData("Data/cyc_wards.geojson")
   .then(function(data) {
@@ -140,6 +149,17 @@ getGeoData("Data/cyc_wards.geojson")
             feature.properties.wd17cd +
             "</p>"
         );
+      }
+    }).addTo(map02);
+
+    subLayerControl.addOverlay(wardLayer, "wards_cyc"); // Adds an overlay (checkbox entry) with the given name to the control.
+    return data;
+  })
+  .then(function(data) {
+    // This section adds the ward layer descriptions (permanent Tooltip)
+    wardLayerLabels = L.geoJSON(data, {
+      style: wardsStyleLabels,
+      onEachFeature: function(feature, layer) {
         // https://leafletjs.com/reference-1.4.0.html#tooltip
         // layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
         layer.bindTooltip(
@@ -151,7 +171,7 @@ getGeoData("Data/cyc_wards.geojson")
       }
     }).addTo(map02);
 
-    subLayerControl.addOverlay(wardLayer, "wards_cyc"); // Adds an overlay (checkbox entry) with the given name to the control.
+    subLayerControl.addOverlay(wardLayerLabels, "wards_labels"); // Adds an overlay (checkbox entry) with the given name to the control.
   });
 
 getGeoData("Data/PrimaryCareHomes.geojson").then(function(data) {
@@ -178,7 +198,7 @@ function addDataToMap(data, map) {
           });
         default:
           return L.marker(latlng, {
-            icon: arrrRectangleIcons[feature.properties.pch_no - 1]
+            icon: arrDoughnutIcons[feature.properties.pch_no - 1]
           });
       }
     },
