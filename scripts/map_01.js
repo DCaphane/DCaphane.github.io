@@ -1,4 +1,4 @@
-var map01 = L.map("mapid_01", {
+const map01 = L.map("mapid_01", {
   preferCanvas: true,
   // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
   center: [53.9581, -1.0643], // centre on York Hospital
@@ -40,7 +40,7 @@ L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(map01);
 
 
-var circle = L.circle([53.96838,-1.08269], {
+const circle = L.circle([53.96838,-1.08269], {
   color: "red",
   fillColor: "#f03",
   fillOpacity: 0.5,
@@ -48,7 +48,7 @@ var circle = L.circle([53.96838,-1.08269], {
 }).addTo(map01);
 circle.bindPopup("York Hospital");
 
-var polygon = L.polygon([
+const polygon = L.polygon([
   [53.98391, -1.10746],
   [53.98508, -1.10502],
   [53.98361, -1.10620],
@@ -58,7 +58,7 @@ polygon.bindPopup("The lake");
 
 // Pop Ups
 // https://leafletjs.com/reference-1.4.0.html#popup
-var popup = L.popup();
+const popup = L.popup();
 
 function onMapClick(e) {
   popup
@@ -71,7 +71,7 @@ map01.on("click", onMapClick);
 
 
 // Used to style ward boundaries
-var wardsStyle = {
+const wardsStyleOrg = {
   color: "#0078ff",
   weight: 2,
   opacity: 0.8
@@ -80,7 +80,7 @@ var wardsStyle = {
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 getGeoData("Data/cyc_wards.geojson").then(function (data) {
   L.geoJSON(data, {
-    style: wardsStyle,
+    style: wardsStyleOrg,
     pane: 'geojsonBoundaryPane',
     onEachFeature: function (feature, layer) {
       layer.bindPopup('<h1>' + feature.properties.wd17nm +
@@ -94,7 +94,7 @@ getGeoData("Data/cyc_wards.geojson").then(function (data) {
 
 
 // Primary Care Home (marker) default styles
-var geojsonMarkerOptions = {
+const geojsonMarkerOptions = {
     radius: 8,
     fillColor: "#ff7800",
     color: "#000",
