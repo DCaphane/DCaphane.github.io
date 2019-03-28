@@ -169,7 +169,7 @@ getGeoData("Data/cyc_wards.geojson")
           { permanent: true, direction: "center", opacity: 0.5 }
         );
       }
-    }).addTo(map02);
+    })//.addTo(map02); // uncomment this to display initial map with labels
 
     subLayerControl.addOverlay(wardLayerLabels, "wards_labels"); // Adds an overlay (checkbox entry) with the given name to the control.
   });
@@ -258,6 +258,7 @@ L.marker([53.96838, -1.08269], {
 })
   .addTo(map02)
   .bindPopup("York Hospital");
+
 
 // Function to import data
 async function getGeoData(url) {

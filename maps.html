@@ -53,7 +53,7 @@
       crossorigin=""
     ></script>
 
-    <!-- Markers 
+    <!-- Markers
 https://github.com/marslan390/BeautifyMarker
 -->
     <link
@@ -82,6 +82,21 @@ https://github.com/marslan390/BeautifyMarker
       href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+
+    <!-- Leaflet Sidebar
+  https://github.com/turbo87/sidebar-v2/
+  https://github.com/nickpeihl/leaflet-sidebar-v2
+  
+    <link rel="stylesheet" type="text/css" href="css\leaflet-sidebar.css" />
+    <script defer src="scripts/leaflet-sidebar.js"></script>
+    -->
+    <!-- Links can be accessed via cdn, https://www.jsdelivr.com/package/npm/leaflet-sidebar-v2?path=css -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"></script>
 
     <script defer src="scripts/navbar_main.js"></script>
     <script defer src="scripts/navbar_side.js"></script>
@@ -151,10 +166,12 @@ https://github.com/marslan390/BeautifyMarker
 
               <div class="tile wide content">
                 <h2>Using Regular Markers</h2>
+
                 <div id="mapid_02" class="map"></div>
+                <div id="sidebar" class="leaflet-sidebar collapsed"></div>
+
                 <footer class="cta">
-                  Markers appear on top of ward boundaries. These are img files.
-                  Consider creating own with color brewer.
+                  Switched to using beautify markers.
                 </footer>
               </div>
 
@@ -225,4 +242,5 @@ https://github.com/marslan390/BeautifyMarker
   <script defer src="scripts/map_beautifyMarker.js"></script>
   <script defer src="scripts/map_01.js"></script>
   <script defer src="scripts/map_02.js"></script>
+  <script defer src="scripts\sidebar_01.js"></script>
 </html>
