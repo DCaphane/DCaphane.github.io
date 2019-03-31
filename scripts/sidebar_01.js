@@ -11,11 +11,33 @@ const sidebar = L.control
   })
   .addTo(map02);
 
+/* Text area
+Considering separting long text for clarity
+*/
+const testText = `<br>
+                    <p>Primary Care Networks...
+                    <p/>
+                    <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et
+                     dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
+                     Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet,
+                     consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+                     sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+                     no sea takimata sanctus est Lorem ipsum dolor sit amet.
+                     </p>
+                     <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et
+                     dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
+                     Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet,
+                     consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+                     sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+                     no sea takimata sanctus est Lorem ipsum dolor sit amet.
+                     </p>
+`;
+
 /* add an overview panel */
 const panelOverview = {
   id: "overview", // UID, used to access the panel
   tab: '<i class="fa fa-bars"></i>', // content can be passed as HTML string,
-  pane: "<br><p>Primary Care Networks...<p/>",
+  pane: testText,
   title: "Overview", // an optional pane header
   position: "top", // optional vertical alignment, defaults to 'top'
   disabled: false
