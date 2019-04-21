@@ -6,8 +6,8 @@
   position: sticky;
   top: 0;
   /*color: #ecf0f1;*/
-  z-index: 2000;
-  background: white;
+  z-index: 3000;
+  background: var(--colourSecondary_Primary);
   border-style: solid none; /*top, bottom are solid; left and right = none */
   border-width: medium;
   border-color: black;
@@ -44,7 +44,7 @@
 
 .nav-main li:last-child {
   margin-left: auto;
-  background: white; /* used for testing initially */
+  /* background: white; used for testing initially */
 }
 
 .nav-main li:not(:first-child) {
@@ -52,7 +52,7 @@
 }
 
 .nav-main li:hover {
-  background: #2980b9;
+  background: var(--colourSecondary_Light);
   color: white;
   -webkit-box-flex: 1.1;
   -ms-flex: 1.1;
@@ -67,9 +67,9 @@
 }
 
 .nav-main .active {
-  background: #2980b9;
+  background: var(--colourSecondary_Dark);
   color: white;
-  border-bottom: 3px solid white;
+  border-bottom: 3px solid var(--colourSecondary_Light);
 }
 
 

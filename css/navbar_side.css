@@ -7,10 +7,11 @@ http://jsfiddle.net/mekwall/up4nu/
   flex-shrink: 0; /*use this to preventing wrapping*/
   position: sticky;
   top: 2.813rem;
-  height: min-content;
-  background-color: var(--colourLight);
+  height: 90vh; /* min-content; */
+  background-color: var(--colourPrimary_Light);
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  z-index: -1;
 }
 
 .nav-side {
@@ -24,13 +25,13 @@ http://jsfiddle.net/mekwall/up4nu/
 }
 
 .nav-side a {
-  color: blue;
+  color: var(--colourPrimary_Dark);
   text-decoration: none;
   transition: all 0.3s ease-in-out;
 }
 
 .nav-side a:hover {
-  color: redd;
+  color: red;
 }
 
 .nav-side .active a {

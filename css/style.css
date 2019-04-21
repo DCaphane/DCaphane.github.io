@@ -12,9 +12,13 @@
 :root {
   font-size: calc(1rem + 0.5vw);
   /* https://material.io/color/ */
-  --colourPrimary: #cfd8dc; /* #1976d2 */
-  --colourLight: #ffffff; /* #63a4ff */
-  --colourDark: #9ea7aa; /* #004ba0 */
+  --colourPrimary_Primary: #b0bec5; /* #1976d2 */
+  --colourPrimary_Light: #e2f1f8; /* #63a4ff */
+  --colourPrimary_Dark: #808e95; /* #004ba0 */
+
+  --colourSecondary_Primary: #ffb74d; 
+  --colourSecondary_Light: #ffe97d; 
+  --colourSecondary_Dark: #c88719; 
 }
 
 /* https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
@@ -49,7 +53,7 @@ body {
   text-align: center;
   font-size: 4rem;
   font-weight: black;
-  color: var(--colourDark);
+  color: var(--colourPrimary_Dark);
 }
 
 a:link,
@@ -65,8 +69,17 @@ a:visited {
   margin-top: -55px;
 }
 
-section {
+.section {
   /* border: 2px dashed rgb(255, 0, 242); */
+}
+
+.section h1 {
+  background: var(--colourPrimary_Light);
+  padding: 0 0 0 10px;
+}
+
+#footer {
+  background: white;
 }
 
 /* Target an element that has all of multiple classes */
@@ -76,13 +89,13 @@ section {
 }
 
 .tile {
-  border: 1px solid var(--colourPrimary);
+  border: 1px solid var(--colourPrimary_Primary);
   border-radius: 5px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .tile h2 {
-  background-color: var(--colourDark);
+  background-color: var(--colourPrimary_Dark);
   color: #fff;
   text-align: center;
   margin: 0;
@@ -96,7 +109,7 @@ section {
 
 .tile footer {
   margin-top: auto;
-  border-top: 1px solid var(--colourPrimary);
+  border-top: 1px solid var(--colourPrimary_Primary);
   padding: 10px;
   text-align: center;
 }
