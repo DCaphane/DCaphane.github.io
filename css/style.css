@@ -80,6 +80,7 @@ a:visited {
 
 #footer {
   background: white;
+  z-index: 2;
 }
 
 /* Target an element that has all of multiple classes */
