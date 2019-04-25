@@ -1,161 +1,118 @@
-/*https://codepen.io/gcampfield/pen/OPvBEj*/
+/*
+Useful Resources:
+
+https://medium.freecodecamp.org/how-to-build-a-responsive-navbar-with-a-toggle-menu-using-flexbox-3438e1d08783
+https://codepen.io/gab/pen/FbdHk
+
+https://codepen.io/smashtheshell/pen/ZBNNEg?editors=1100
+https://codepen.io/gcampfield/pen/OPvBEj
+https://blog.christopherianmurphy.com/2016/01/responsive-pure-css-menu/
+https://css-tricks.com/almanac/selectors/l/last-child/
+
+https://www.w3schools.com/howto/howto_js_topnav_responsive.asp
+*/
 
 .wrapper-nav {
-  /*max-width: 960px;*/
-  /*margin: 0 auto;*/
-  position: sticky;
-  top: 0;
-  /*color: #ecf0f1;*/
-  z-index: 3000;
-  background: var(--colourSecondary_Primary);
-  border-style: solid none; /*top, bottom are solid; left and right = none */
-  border-width: medium;
-  border-color: black;
-  color: black;
-}
-
-#nav-main {
-  /*position: sticky;
-  top: 0;
-  color: white;*/
+	/*max-width: 960px;*/
+	/*margin: 0 auto;*/
+	position: sticky;
+	top: 0;
+	/*color: #ecf0f1;*/
+	z-index: 3000;
+	background: var(--colourSecondary_Primary);
+	border-style: solid none; /*top, bottom are solid; left and right = none */
+	border-width: medium;
+	border-color: black;
+	color: black;
 }
 
 /* Flex Nav Bar */
 .nav-main {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  /*justify-content: flex-start;*/
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-main li {
-  -webkit-box-flex: 1;
-  -ms-flex: 1;
-  flex: 0 1 min-content;
-  text-align: left;
-  color: inherit;
-  padding: 0 10px;
-  -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-
-.nav-main li:last-child {
-  margin-left: auto;
-  /* background: white; used for testing initially */
-}
-
-.nav-main li:not(:first-child) {
-  border-left: 2px solid #ecf0f1;
-}
-
-.nav-main li:hover {
-  background: var(--colourSecondary_Light);
-  color: white;
-  -webkit-box-flex: 1.1;
-  -ms-flex: 1.1;
-  flex: 0;
-}
-
-.nav-main li a {
-  display: block;
-  padding: 10px 0;
-  color: inherit;
-  text-decoration: none;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	/*justify-content: flex-start;*/
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
 }
 
 .nav-main .active {
-  background: var(--colourSecondary_Dark);
-  color: white;
-  border-bottom: 3px solid var(--colourSecondary_Light);
+	background: var(--colourSecondary_Dark);
+	color: white;
+	border-bottom: 3px solid var(--colourSecondary_Light);
 }
 
-
-
-/* Hamburger Icon */
-nav .hamburger {
-  height: 36px;
-  width: 36px;
-  margin: 5px;
-  display: none;
-  border: 3px solid #ecf0f1;
-  border-radius: 5px;
+.nav-main ul {
+	background-color: var(--colourSecondary_Light);
+	display: flex;
+  flex-direction: column;
 }
-nav .hamburger i,
-nav .hamburger i:before,
-nav .hamburger i:after {
-  cursor: pointer;
-  content: "";
-  width: 25px;
-  height: 4px;
-  background: #ecf0f1;
-  border-radius: 4px;
-  -webkit-transition: -webkit-transform 0.2s ease;
-  transition: -webkit-transform 0.2s ease;
-  transition: transform 0.2s ease;
-  transition: transform 0.2s ease, -webkit-transform 0.2s ease;
+.nav-main li {
+  list-style-type: none;
 }
-nav .hamburger i {
-  display: block;
-  position: relative;
-  top: 16px;
-  left: 6px;
-}
-nav .hamburger i:before {
-  position: absolute;
-  top: -8px;
-}
-nav .hamburger i:after {
-  position: absolute;
-  top: 8px;
-}
-nav.active .hamburger {
-  border-radius: 50%;
-}
-nav.active .hamburger i {
-  background: transparent;
-}
-nav.active .hamburger i:before {
-  top: 0;
-  -webkit-transform: rotate(45deg);
-  transform: rotate(45deg);
-}
-nav.active .hamburger i:after {
-  top: 0;
-  -webkit-transform: rotate(-45deg);
-  transform: rotate(-45deg);
+.nav-main li a {
+	padding: 0.4rem 1rem;
+	display: block;
+	text-decoration: none;
+  color: inherit;
+  
 }
 
-@media screen and (max-width: 600px) {
-  .nav-main {
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
+/*
+.nav-main li:last-child {} applies to multiple elements, not just the final one...
+*/
+.nav-main .last-item {
+	margin-left: auto;
+}
+/*
+.nav-main li:not(:first-child) {
+	border-left: 2px solid #ecf0f1;
+}
+*/
+#nav-main ul li:hover,
+#nav-main ul li:focus-within {
+  background: rgba(250, 0, 0, 0.25);
+  color: black;
+  transition: all 0.2s ease;
+}
+
+/*
+li:focus-within a {
+  outline: none;
+}
+*/
+
+@media only screen and (max-width: 480px) {
+	.has-children ul li a {
+		padding-left: 2rem;
+	}
+
+	.has-children ul .has-children ul a {
+		padding-left: 3rem;
+	}
+}
+
+@media only screen and (min-width: 480px) {
+	#nav-main ul li {
+		position: relative;
+		flex: 1 0 content;
+		text-align: left;
+	}
+	.has-children ul,
+	.has-children ul .has-children ul {
+		display: none;
+		width: 100%;
+		position: absolute;
+	}
+	.has-children ul .has-children ul {
+		left: 100%;
+		top: 0;
+	}
+  nav ul li:hover ul,
+  #nav-main ul li:focus-within > ul,
+	.has-children ul .has-children:hover ul {
+		display: flex;
     flex-direction: column;
-  }
-  .nav-main li {
-    display: none;
-    height: 0;
-    -webkit-transition: height 1s ease;
-    transition: height 1s ease;
-    color: transparent;
-  }
-  .nav-main > li:not(:first-child) {
-    border-left: none;
-  }
-
-  .nav-main li:last-child {
-    margin-left: 0;
-  }
-
-  nav .hamburger {
-    display: inline-block;
-  }
-  nav.active .nav-main li {
-    display: block;
-    height: initial;
-    color: inherit;
-  }
+	}
 }
