@@ -118,15 +118,17 @@ function createTreeDom(obj, subCounter) {
 		}
 
 		const anchor = document.createElement('a');
+		// <a href='#...'>key text</a>
 		anchor.setAttribute('href', obj[key][0]);
 		anchor.innerHTML = key;
 
 		let childrenUl = createTreeDom(obj[key][1], subCounter);
 
 		if (childrenUl) {
-			// Use the below to append class to any exisiting classes rather than replacing them
+			// Does the menu heading have any sub-menus
+			// if so, add a has-childnre class
 			li.className += ' ' + 'has-children';
-
+				// then, add an arrow pointing down for sub menu off first level or pointing right for all subsequent levels.
 			if (subCounter === 0) {
 				// appendChild replaces any existing anchor so use insertAdjacentHTML
 				anchor.insertAdjacentHTML('beforeend', textSpanArrowDown);
