@@ -44,16 +44,16 @@
 
 		<link rel="stylesheet" type="text/css" href="css/toTop.css" />
 
-		<!-- Local Scripts -->
+		<!-- Page Structure (Layout) -->
 		<script>
 			const elemActive = 'Home';
 			elemActive.split(' ').join('-'); // remove any spaces and replace with hyphens
 		</script>
-		<script defer src="scripts/components.js"></script>
-		<script defer src="scripts/componentNavSide.js"></script>
-		<!-- <script defer src="scripts/navbar_main.js"></script> -->
-		<script defer src="scripts/navbar_side.js"></script>
-		<script defer src="scripts/toTop.js"></script>
+		<!-- requires font awesome -->
+		<script defer src="scripts\components\navmain.js"></script>
+		<script defer src="scripts\components\navside.js"></script>
+		<script defer src="scripts\components\navside_interactive.js"></script>
+		<script defer src="scripts\components\toTop.js"></script>
 
 		<style></style>
 	</head>
@@ -244,7 +244,7 @@
 			<footer id="footer">
 				Default Footer Text
 			</footer>
-			<a href="#0" class="cd-top js-cd-top" id="btn-to-top">Top</a>
+
 		</div>
 	</body>
 </html>

@@ -151,3 +151,10 @@ img {
 	min-height: 500px;
 	width: 95%;
 }
+
+
+/* Font Awesome - add left side padding */
+.fa-w-8,
+.fa-w-10 {
+	margin-left: 5px;
+}

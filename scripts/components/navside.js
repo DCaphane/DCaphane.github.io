@@ -15,7 +15,8 @@ for (let section of sections) {
   const anchor = document.createElement("a");
 
   anchor.setAttribute("href", "#" + section.id);
-  anchor.innerHTML = section.querySelectorAll("h2")[0].innerText;
+  let str = section.querySelectorAll("h2")[0].innerText;
+  anchor.innerHTML = str.substring(0, 15);
 
   li.appendChild(anchor);
 
