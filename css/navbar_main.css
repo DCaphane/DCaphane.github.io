@@ -38,6 +38,7 @@ https://sundari-webdesign.com/the-perfect-horizontal-dropdown-responsive-css-men
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
+	white-space: nowrap; /* prevents text from going onto new line */
 }
 
 .nav-main .active {
@@ -145,6 +146,7 @@ li:focus-within a {
 	.responsive-button {
 		display: none;
 	}
+
 }
 
 .responsive-button {
