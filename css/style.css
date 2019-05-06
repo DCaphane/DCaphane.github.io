@@ -153,8 +153,10 @@ img {
 }
 
 
-/* Font Awesome - add left side padding */
-.fa-w-8,
-.fa-w-10 {
-	margin-left: 5px;
+/*
+Font Awesome - add left side padding
+Apply to all classes containing fa-w- (font awesome width x)
+*/
+[class*="fa-w-"] {
+	margin-left: 4px;
 }
