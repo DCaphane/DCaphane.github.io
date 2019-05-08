@@ -1,228 +1,247 @@
 <!DOCTYPE html>
 <html lang="en-gb" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!--
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--
       The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
     -->
 
-    <title>Mapping Demo</title>
+		<title>Mapping Demo</title>
 
-    <meta name="author" content="David Caphane" />
-    <meta name="description" content="Understanding Leaflet Maps" />
+		<meta name="author" content="David Caphane" />
+		<meta name="description" content="Understanding Leaflet Maps" />
 
-    <!-- Place "favicon.ico" in the root directory -->
-    <!-- link rel="icon" href="../../favicon.ico" -->
-    <!--
+		<!-- Place "favicon.ico" in the root directory -->
+		<!-- link rel="icon" href="../../favicon.ico" -->
+		<!--
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" integrity="sha256-HxaKz5E/eBbvhGMNwhWRPrAR9i/lG1JeT4mD6hCQ7s4="crossorigin="anonymous" />
     -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
-      integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
-      crossorigin="anonymous"
-    />
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
+			integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
+			crossorigin="anonymous"
+		/>
 
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
-      rel="stylesheet"
-    />
+		<link
+			href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+			rel="stylesheet"
+		/>
 
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/layout.css" />
 
-    <link rel="stylesheet" type="text/css" href="css/navbar_main.css" />
-    <link rel="stylesheet" type="text/css" href="css/navbar_side.css" />
-    <link rel="stylesheet" type="text/css" href="css/loader.css" />
+		<link rel="stylesheet" type="text/css" href="css/navbar_main.css" />
+		<link rel="stylesheet" type="text/css" href="css/navbar_side.css" />
+		<link rel="stylesheet" type="text/css" href="css/toTop.css" />		
+		<link rel="stylesheet" type="text/css" href="css/loader.css" />
 
-    <link rel="stylesheet" type="text/css" href="css/toTop.css" />
+		<!-- Page Structure (Layout) -->
+		<script>
+			const elemActive = 'Home';
+			elemActive.split(' ').join('-'); // remove any spaces and replace with hyphens
+		</script>
+		<script defer src="scripts\components\navmain.js"></script>
+		<script defer src="scripts\components\navside.js"></script>
+		<script defer src="scripts\components\navside_interactive.js"></script>
+		<script defer src="scripts\components\toTop.js"></script>
 
-    <!-- leaflet -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-      integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-      crossorigin=""
-    />
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
-    <script
-      src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-      integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-      crossorigin=""
-    ></script>
 
-    <!-- Markers 
+		<!-- leaflet -->
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+			integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+			crossorigin=""
+		/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script
+			defer
+			src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+			integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+			crossorigin=""
+		></script>
+
+		<!-- Markers
 https://github.com/marslan390/BeautifyMarker
 -->
-    <link
-      rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
-      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="css\leaflet-beautify-marker-icon.css"
-    />
-    <script defer src="scripts/leaflet-beautify-marker-icon.js"></script>
+		<script
+			defer
+			src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
+			integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ"
+			crossorigin="anonymous"
+		></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css\leaflet-beautify-marker-icon.css"
+		/>
+		<script defer src="scripts/leaflet-beautify-marker-icon.js"></script>
 
-    <!-- Add full screen option -->
-    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
-    <link
-      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
-      rel="stylesheet"
-    />
+		<!-- Add full screen option -->
+		<script
+			defer
+			src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
+		></script>
+		<link
+			href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+			rel="stylesheet"
+		/>
 
-    <!-- Home Button -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+		<!-- Home Button -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"
+		/>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"
+		></script>
 
-    <script defer src="scripts/navbar_main.js"></script>
-    <script defer src="scripts/navbar_side.js"></script>
-    <script defer src="scripts/toTop.js"></script>
+		<!-- Leaflet Sidebar
+  https://github.com/turbo87/sidebar-v2/
+  https://github.com/nickpeihl/leaflet-sidebar-v2
+  
+    <link rel="stylesheet" type="text/css" href="css\leaflet-sidebar.css" />
+    <script defer src="scripts/leaflet-sidebar.js"></script>
+    -->
+		<!-- Links can be accessed via cdn, https://www.jsdelivr.com/package/npm/leaflet-sidebar-v2?path=css -->
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
+		/>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
+		></script>
 
-    <style></style>
-  </head>
+		<!--script defer src="scripts/map_default_markers.js"></script -->
+		<script defer src="scripts/map_beautifyMarker.js"></script>
+		<script defer src="scripts/map_01.js"></script>
+		<script defer src="scripts/map_02.js"></script>
+		<script defer src="scripts/leaflet_sidebar_01.js"></script>
+		<style></style>
+	</head>
 
-  <body>
-    <div class="wrapper">
-      <section id="hero">
-        <a href="/" class="logo"> <h1>Map Demo</h1> </a>
-      </section>
+	<body>
+		<div class="wrapper">
+			<section id="hero">
+				<a href="/" class="logo"> <h1>Map Demo</h1> </a>
+			</section>
 
-      <div class="wrapper-nav">
-        <nav id="nav-main">
-          <div class="hamburger">
-            <i></i>
-            <!-- stores icon -->
-          </div>
-          <ul class="nav-main">
-            <li class="active">
-              <a href="#">Home</a>
-              <!-- \Borders.html -->
-            </li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">Plans</a></li>
-            <li><a href="#">FAQ</a></li>
-          </ul>
-        </nav>
-      </div>
+			<div class="wrapper-nav">
+				<nav id="nav-main">
+					<!-- nav bar main imported from components.js -->
+				</nav>
+			</div>
 
-      <nav id="article-left">
-        <ul class="nav-side" id="side-nav">
-          <li class="active"><a href="#sec-intro">Intro</a></li>
-          <li><a href="#sec-time">Time</a></li>
-          <li><a href="#sec-diagnosis">Diagnosis</a></li>
-          <li><a href="#sec-patient">Patient Char</a></li>
-        </ul>
-      </nav>
+			<nav id="article-left">
+			</nav>
 
-      <article id="article-right">
-        <div class="column">
-          <section id="sec-intro" class="section anchor">
-            <h1>Introduction</h1>
-            <p>
-              Ut consequat commodo qui veniam id pariatur do consequat ullamco
-              in do pariatur cupidatat anim. Dolore et occaecat cillum ipsum
-              proident laborum incididunt consequat sit laboris ipsum. Id magna
-              reprehenderit sit aute laborum ullamco occaecat aute id proident
-              minim.
-            </p>
-          </section>
+			<article id="article-right">
+				<div class="column">
+					<section id="sec-intro" class="section anchor">
+						<h2>Introduction</h2>
+						<p>
+							Ut consequat commodo qui veniam id pariatur do
+							consequat ullamco in do pariatur cupidatat anim.
+							Dolore et occaecat cillum ipsum proident laborum
+							incididunt consequat sit laboris ipsum. Id magna
+							reprehenderit sit aute laborum ullamco occaecat aute
+							id proident minim.
+						</p>
+					</section>
 
-          <section id="sec-time" class="section anchor">
-            <h1>Time</h1>
+					<section id="sec-time" class="section anchor">
+						<h2>Time</h2>
 
-            <div id="sectime" class="tiles">
-              <div class="tile wide content">
-                <h2>Using Circle Markers</h2>
-                <div id="mapid_01" class="map"></div>
-                <footer class="cta">
-                  Layers overlap - can only see tooltip for top layer.
-                </footer>
-              </div>
+						<div id="sectime" class="tiles">
+							<div class="tile wide content">
+								<h3>Using Circle Markers</h3>
+								<div id="mapid_01" class="map"></div>
+								<footer class="cta">
+									Layers overlap - can only see tooltip for
+									top layer.
+								</footer>
+							</div>
 
-              <div class="tile wide content">
-                <h2>Using Regular Markers</h2>
-                <div id="mapid_02" class="map"></div>
-                <footer class="cta">
-                  Markers appear on top of ward boundaries. These are img files.
-                  Consider creating own with color brewer.
-                </footer>
-              </div>
+							<div class="tile wide content">
+								<h2>Using Regular Markers</h2>
 
-              <div class="tile content">
-                <h2>Empty</h2>
-                <div id="empty"></div>
-                <footer class="cta"></footer>
-              </div>
-            </div>
-          </section>
+								<div id="mapid_02" class="map"></div>
+								<div
+									id="sidebar"
+									class="leaflet-sidebar collapsed"
+								></div>
 
-          <section id="sec-diagnosis" class="section anchor">
-            <h1>Diagnosis</h1>
+								<footer class="cta">
+									Switched to using beautify markers.
+								</footer>
+							</div>
 
-            <div id="secdiag" class="tiles dcCharts">
-              <div class="tile content">
-                <h2>Diagnosis Main</h2>
-                <div id="mapid_03"></div>
-                <footer class="cta">
-                  Add Description Here
-                </footer>
-              </div>
+							<div class="tile content">
+								<h3>Empty</h3>
+								<div id="empty"></div>
+								<footer class="cta"></footer>
+							</div>
+						</div>
+					</section>
 
-              <div class="tile content">
-                <h2>Diagnoses</h2>
-                <div id="mapid_04"></div>
-                <footer class="cta">
-                  Add Description Here
-                </footer>
-              </div>
-            </div>
-          </section>
+					<section id="sec-diagnosis" class="section anchor">
+						<h2>Diagnosis</h2>
 
-          <section id="sec-patient" class="section anchor">
-            <h1>Patient Characteristics</h1>
+						<div id="secdiag" class="tiles dcCharts">
+							<div class="tile content">
+								<h3>Diagnosis Main</h3>
+								<div id="mapid_03"></div>
+								<footer class="cta">
+									Add Description Here
+								</footer>
+							</div>
 
-            <div id="secpatient" class="tiles dcCharts">
-              <div class="tile content">
-                <h2>Age Band</h2>
-                <div id="mapid_05"></div>
-                <footer class="cta">
-                  Add Description Here
-                </footer>
-              </div>
+							<div class="tile content">
+								<h3>Diagnoses</h3>
+								<div id="mapid_04"></div>
+								<footer class="cta">
+									Add Description Here
+								</footer>
+							</div>
+						</div>
+					</section>
 
-              <div class="tile wide content">
-                <h2>GP Practice</h2>
-                <div id="mapid_06"></div>
-                <footer class="cta">
-                  Add Description Here
-                </footer>
-              </div>
-            </div>
-          </section>
-        </div>
-        <div class="footer"></div>
-        <!-- Test internal footer -->
-      </article>
+					<section id="sec-patient" class="section anchor">
+						<h2>Patient Characteristics</h2>
 
-      <footer id="footer">
-        Built using <a href="https://leafletjs.com/">Leaflet</a>
-      </footer>
-      <a href="#0" class="cd-top js-cd-top" id="btn-to-top">Top</a>
-    </div>
-  </body>
+						<div id="secpatient" class="tiles dcCharts">
+							<div class="tile content">
+								<h3>Age Band</h3>
+								<div id="mapid_05"></div>
+								<footer class="cta">
+									Add Description Here
+								</footer>
+							</div>
 
-  <!--script defer src="scripts/map_default_markers.js"></script -->
-  <script defer src="scripts/map_beautifyMarker.js"></script>
-  <script defer src="scripts/map_01.js"></script>
-  <script defer src="scripts/map_02.js"></script>
+							<div class="tile wide content">
+								<h3>GP Practice</h3>
+								<div id="mapid_06"></div>
+								<footer class="cta">
+									Add Description Here
+								</footer>
+							</div>
+						</div>
+					</section>
+				</div>
+				<div class="footer"></div>
+				<!-- Test internal footer -->
+			</article>
+
+			<footer id="footer">
+				Built using <a href="https://leafletjs.com/">Leaflet</a>
+			</footer>
+
+		</div>
+	</body>
 </html>

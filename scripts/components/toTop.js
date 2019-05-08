@@ -1,3 +1,15 @@
+// Add an anchor (for to top) at end of document, after footer
+    const anchor = document.createElement("a");
+    // <a href='#...'>key text</a>
+	anchor.setAttribute("href", "#");
+	anchor.id = "btn-to-top";
+	anchor.className = "cd-top js-cd-top";
+    anchor.innerHTML = "Top";
+
+	const refNode = document.getElementById("footer");
+	refNode.insertAdjacentElement('afterend', anchor); // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
+
+
 // https://codyhouse.co/gem/back-to-top/
 
 (function(){

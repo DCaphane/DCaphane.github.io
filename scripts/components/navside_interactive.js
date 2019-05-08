@@ -15,9 +15,10 @@ for (let item of itemsList) {
     // toggle selected state on/ off
     let current = document.querySelector("#side-nav > li.active");
 
-	if (current !== null) { // possible that there might not be an active class - returns null
-		current.classList.remove("active");
-	}
+    if (current !== null) {
+      // possible that there might not be an active class - returns null
+      current.classList.remove("active");
+    }
     // }
     this.classList.add("active");
   });
@@ -35,9 +36,8 @@ for (let item of itemsList) {
 // https://developer.mozilla.org/en-US/docs/Web/Events/scroll
 // Reference: http://www.html5rocks.com/en/tutorials/speed/animations/
 
-
 let last_known_scroll_position = 0,
-	ticking = false;
+  ticking = false;
 
 function navHighlight(scroll_pos) {
   // do something with the scroll position
