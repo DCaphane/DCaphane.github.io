@@ -1,0 +1,9 @@
+# paths need to use forward slashes
+Data/org_structure/
+    dataSource.json
+    Org_Structure_190508.pdf
+
+# ignore all jpgs
+*.jpg
+# except the default image
+!img/org_structure/default.jpg

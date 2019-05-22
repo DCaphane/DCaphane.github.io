@@ -152,11 +152,17 @@ img {
 	width: 95%;
 }
 
-
 /*
-Font Awesome - add left side padding
-Apply to all classes containing fa-w- (font awesome width x)
+Font Awesome
 */
-[class*="fa-w-"] {
+
+/* Apply to all classes containing fa-angle- */
+
+[class*='fa-angle-'] {
 	margin-left: 4px;
+}
+
+.fa-envelope,
+.fa-phone {
+	margin-right: 5px;
 }

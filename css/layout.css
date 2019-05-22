@@ -64,6 +64,11 @@
   }
 }
 
+  .tiles .widest {
+    grid-column-end: span 4;
+  }
+}
+
 .column {
   min-height: 100vh;
   display: flex;

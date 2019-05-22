@@ -2,45 +2,45 @@
 // https://plnkr.co/edit/LJbzzvqdwGaf2iojgymr?p=preview
 
 // Object consisting of main headers and a subsequent array of nav link and subsequent links
-const data = {
-  Home: ["#", {}],
-  Navigation: [
-    "#",
-    {
-      "Nav 1": [
-        "#",
-        {
-          "Nav 1a": ["#", {}],
-          "Nav 1b": ["#", {}]
-        }
-      ],
-      "Nav 2": ["#", {}],
-      "Nav 3": [
-        "#",
-        {
-          "Nav 3a": ["#", {}],
-          "Nav 3b": ["#", {}],
-          "Nav 3c": ["#", {}]
-        }
-      ],
-      "Nav 4": ["#", {}],
-      "Nav 5": ["#", {}]
-    }
-  ],
-  FAQ: ["#", {}],
-  Blog: [
-    "#",
-    {
-      "Blog 1": [
-        "#",
-        {
-          "Blog 1a": ["#", {}],
-          "Blog 1b": ["#", {}]
-        }
-      ]
-    }
-  ],
-  Contact: ["#", { "Sub Contact": ["#", {}] }]
+const dataNavMain = {
+	Home: ['index.html', {}],
+	Navigation: [
+		'#',
+		{
+			'Demos': [
+				'#',
+				{
+					'ECDS': ['ecds.html', {}],
+					'PCNs': ['maps.html', {}]
+				}
+			],
+			'Nav 2': ['#', {}],
+			'Nav 3': [
+				'#',
+				{
+					'Nav 3a': ['#', {}],
+					'Nav 3b': ['#', {}],
+					'Nav 3c': ['#', {}]
+				}
+			],
+			'Nav 4': ['#', {}],
+			'Nav 5': ['#', {}]
+		}
+	],
+	FAQ: ['#', {}],
+	Blog: [
+		'#',
+		{
+			'Blog 1': [
+				'#',
+				{
+					'Blog 1a': ['#', {}],
+					'Blog 1b': ['#', {}]
+				}
+			]
+		}
+	],
+	'About Us': ['about_us.html', { 'Sub Contact': ['#', {}] }]
 };
 
 // Tried using appendChild but this replaces existing nodes.
@@ -55,7 +55,7 @@ spanArrowRight.classList = "fas fa-angle-right";
 const textSpanArrowRight = spanArrowRight.outerHTML;
 
 let counter = 0;
-const dataKeysCount = Object.keys(data).length;
+const dataKeysCount = Object.keys(dataNavMain).length;
 
 const container = document.getElementById("nav-main");
 
@@ -76,7 +76,7 @@ input.setAttribute("role", "button");
 input.id = "responsive-button";
 container.append(input);
 
-createTree(container, data);
+createTree(container, dataNavMain);
 
 // The below is used to highlight the active page
 // elemActive is declared in the calling page
