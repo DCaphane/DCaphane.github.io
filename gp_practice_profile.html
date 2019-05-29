@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en-gb" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
+    -->
+
+    <title>GP Practice</title>
+
+    <meta name="author" content="David Caphane" />
+    <meta name="description" content="Contacts Page" />
+
+    <!-- Place "favicon.ico" in the root directory -->
+    <!-- link rel="icon" href="../../favicon.ico" -->
+    <!--
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" integrity="sha256-HxaKz5E/eBbvhGMNwhWRPrAR9i/lG1JeT4mD6hCQ7s4="crossorigin="anonymous" />
+    -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
+      integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
+      crossorigin="anonymous"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+      rel="stylesheet"
+    />
+
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.2/d3.min.js"
+    ></script>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+
+    <link rel="stylesheet" type="text/css" href="css/navbar_main.css" />
+    <link rel="stylesheet" type="text/css" href="css/navbar_side.css" />
+
+    <link rel="stylesheet" type="text/css" href="css/toTop.css" />
+    <link rel="stylesheet" type="text/css" href="css/gp_practice_profile.css" />
+
+    <!-- Page Structure (Layout) -->
+    <script>
+      let elemActive = "Home"; // remove any spaces and replace with hyphens
+      // elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
+    </script>
+    <!-- requires font awesome -->
+    <script defer src="scripts\components\navmain.js"></script>
+    <script defer src="scripts\components\navside.js"></script>
+    <script defer src="scripts\components\navside_interactive.js"></script>
+    <script defer src="scripts\components\toTop.js"></script>
+
+    <!-- leaflet -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+      integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+      crossorigin=""
+    />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script
+      defer
+      src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+      integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+      crossorigin=""
+    ></script>
+
+    <!-- Markers
+https://github.com/marslan390/BeautifyMarker
+-->
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
+      integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css\leaflet-beautify-marker-icon.css"
+    />
+    <script defer src="scripts/leaflet-beautify-marker-icon.js"></script>
+
+    <!-- Add full screen option -->
+    <script
+      defer
+      src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
+    ></script>
+    <link
+      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+      rel="stylesheet"
+    />
+
+    <!-- Home Button -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"
+    ></script>
+
+    <!-- Leaflet Sidebar
+  https://github.com/turbo87/sidebar-v2/
+  https://github.com/nickpeihl/leaflet-sidebar-v2
+  
+    <link rel="stylesheet" type="text/css" href="css\leaflet-sidebar.css" />
+    <script defer src="scripts/leaflet-sidebar.js"></script>
+    -->
+    <!-- Links can be accessed via cdn, https://www.jsdelivr.com/package/npm/leaflet-sidebar-v2?path=css -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
+    ></script>
+
+    <!--script defer src="scripts/map_default_markers.js"></script -->
+    <script defer src="scripts/map_beautifyMarker.js"></script>
+
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"
+    ></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/gp_practice_site_map.js"
+    ></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/gp_popn_trend.js"
+	></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/gp_popn_demographic.js"
+    ></script>	
+    <script defer src="scripts/leaflet_sidebar_01.js"></script>
+
+    <style></style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <section id="hero">
+        <a href="/" class="logo"> <h1>GP Population Profiles</h1> </a>
+      </section>
+
+      <div class="wrapper-nav">
+        <nav id="nav-main">
+          <!-- nav bar main imported from components.js -->
+        </nav>
+      </div>
+
+      <nav id="article-left"></nav>
+
+      <article id="article-right">
+        <div class="column">
+          <section id="sec-00" class="section anchor">
+            <h2>Introduction</h2>
+            <p>
+              Ut consequat commodo qui veniam id pariatur do consequat ullamco
+              in do pariatur cupidatat anim. Dolore et occaecat cillum ipsum
+              proident laborum incididunt consequat sit laboris ipsum. Id magna
+              reprehenderit sit aute laborum ullamco occaecat aute id proident
+              minim.
+              <select id="selPractice" class="selPractice"></select>
+            </p>
+          </section>
+
+          <section id="sec-01" class="section anchor">
+            <h2>Section 01</h2>
+
+            <div id="id01" class="tiles">
+              <div class="tile wide content">
+                <h3>Map</h3>
+                <div id="map"></div>
+                <footer class="cta"></footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Trend</h3>
+                <div id="cht_PopTrend"></div>
+                <footer class="cta">
+                  Change y-axis scale:
+                  <label class="switch">
+                    <input id="trend-yAxis" type="checkbox" />
+                    <span class="slider round"></span>
+                  </label>
+                </footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Population Pyramid</h3>
+                <div id="cht_PopDemo">
+                  <select id="selPracticeCompare" class="selPractice"></select>
+                  <!-- drop down, selection -->
+                </div>
+                <footer class="cta">
+                  <a
+					id="circleOver65"
+					class="circleOver65"
+                    data-toggle="tooltip"
+                    data-placement="auto top"
+                    title="Percent Aged Over 65"
+				  ></a>
+                  <a
+					id="circleOver65Compare"
+					class="circleOver65"
+                    data-toggle="tooltip"
+                    data-placement="auto top"
+                    title="Comparison Aged Over 65"
+                  ></a>
+                </footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-02" class="section anchor">
+            <h2>Section 02</h2>
+
+            <div id="id02" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty004"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-03" class="section anchor">
+            <h2>Section 03</h2>
+
+            <div id="id03" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty008"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-04" class="section anchor">
+            <h2>Section 04</h2>
+
+            <div id="id04" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty012"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-05" class="section anchor">
+            <h2>Section 05</h2>
+
+            <div id="id05" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty016"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="footer"></div>
+        <!-- Test internal footer -->
+      </article>
+
+      <footer id="footer">
+        Default Footer Text
+      </footer>
+    </div>
+  </body>
+</html>

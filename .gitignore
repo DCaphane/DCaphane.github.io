@@ -3,6 +3,8 @@ Data/org_structure/
     dataSource.json
     Org_Structure_190508.pdf
 
+Data/GP_Practice_Populations.csv
+
 # ignore all jpgs
 *.jpg
 # except the default image
