@@ -8,10 +8,10 @@
       The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
     -->
 
-		<title>Template</title>
+		<title>About Us</title>
 
 		<meta name="author" content="David Caphane" />
-		<meta name="description" content="Template for Subsequent Pages" />
+		<meta name="description" content="Contacts Page" />
 
 		<!-- Place "favicon.ico" in the root directory -->
 		<!-- link rel="icon" href="../../favicon.ico" -->
@@ -36,6 +36,15 @@
 			crossorigin="anonymous"
 		></script>
 
+		<script
+			defer
+			src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.2/d3.min.js"
+		></script>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/@observablehq/stdlib"
+		></script>
+
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<link rel="stylesheet" type="text/css" href="css/layout.css" />
 
@@ -46,14 +55,16 @@
 
 		<!-- Page Structure (Layout) -->
 		<script>
-			const elemActive = 'Home';
-			elemActive.split(' ').join('-'); // remove any spaces and replace with hyphens
+			let elemActive = 'About-Us'; // remove any spaces and replace with hyphens
+			// elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
 		</script>
 		<!-- requires font awesome -->
 		<script defer src="scripts\components\navmain.js"></script>
 		<script defer src="scripts\components\navside.js"></script>
 		<script defer src="scripts\components\navside_interactive.js"></script>
 		<script defer src="scripts\components\toTop.js"></script>
+		<script defer src="scripts\org_structure\local_structure.js"></script>
+		<script defer src="scripts\org_structure\structure_chart.js"></script>
 
 		<style></style>
 	</head>
@@ -61,7 +72,7 @@
 	<body>
 		<div class="wrapper">
 			<section id="hero">
-				<a href="/" class="logo"> <h1>Main Text</h1> </a>
+				<a href="/" class="logo"> <h1>About Us</h1> </a>
 			</section>
 
 			<div class="wrapper-nav">
@@ -70,8 +81,7 @@
 				</nav>
 			</div>
 
-			<nav id="article-left">
-			</nav>
+			<nav id="article-left"></nav>
 
 			<article id="article-right">
 				<div class="column">
@@ -91,28 +101,13 @@
 						<h2>Section 01</h2>
 
 						<div id="id01" class="tiles">
-							<div class="tile content">
-								<h3>Standard Tile</h3>
-								<div id="empty000">test delete</div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty001"></div>
-								<footer class="cta">...</footer>
-							</div>
-
 							<div class="tile widest content">
-								<h3>Widest Tile</h3>
-								<div id="empty002"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile content">
-								<h3>Standard Tile</h3>
-								<div id="empty003"></div>
-								<footer class="cta">...</footer>
+								<h3>Structure</h3>
+								<div
+									id="empty000"
+									class="chart-container"
+								></div>
+								<footer class="cta">Based on <a href="https://observablehq.com/@bumbeishvili/d3-v5-organization-chart">this</a> example</footer>
 							</div>
 						</div>
 					</section>
@@ -124,24 +119,6 @@
 							<div class="tile content">
 								<h3>Standard Tile</h3>
 								<div id="empty004"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty005"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty006"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile content">
-								<h3>Standard Tile</h3>
-								<div id="empty007"></div>
 								<footer class="cta">...</footer>
 							</div>
 						</div>
@@ -156,24 +133,6 @@
 								<div id="empty008"></div>
 								<footer class="cta">...</footer>
 							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty009"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty010"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile content">
-								<h3>Standard Tile</h3>
-								<div id="empty011"></div>
-								<footer class="cta">...</footer>
-							</div>
 						</div>
 					</section>
 
@@ -184,24 +143,6 @@
 							<div class="tile content">
 								<h3>Standard Tile</h3>
 								<div id="empty012"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty013"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty014"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile content">
-								<h3>Standard Tile</h3>
-								<div id="empty015"></div>
 								<footer class="cta">...</footer>
 							</div>
 						</div>
@@ -216,24 +157,6 @@
 								<div id="empty016"></div>
 								<footer class="cta">...</footer>
 							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty017"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Wide Tile</h3>
-								<div id="empty018"></div>
-								<footer class="cta">...</footer>
-							</div>
-
-							<div class="tile content">
-								<h3>Standard Tile</h3>
-								<div id="empty019"></div>
-								<footer class="cta">...</footer>
-							</div>
 						</div>
 					</section>
 				</div>
@@ -244,7 +167,6 @@
 			<footer id="footer">
 				Default Footer Text
 			</footer>
-
 		</div>
 	</body>
 </html>

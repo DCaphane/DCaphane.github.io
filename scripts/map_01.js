@@ -16,7 +16,8 @@ const map01 = L.map("mapid_01", {
 map01.createPane('geojsonBoundaryPane');
 map01.getPane('geojsonBoundaryPane').style.zIndex = 375;
 
-
+map01.createPane('geojson03QBoundaryPane');
+map01.getPane('geojson03QBoundaryPane').style.zIndex = 374;
 // Tiles
 
 /* Mapbox
@@ -77,7 +78,23 @@ const wardsStyleOrg = {
   opacity: 0.8
 };
 
+
 // Export geojson data layers as: EPSG: 4326 - WGS 84
+// CCG Boundary
+getGeoData("Data/geo/ccg_boundary_03Q.geojson").then(function (data) {
+  L.geoJSON(data, {
+    style: {
+      color: "#00ff78",
+      weight: 2,
+      opacity: 0.6
+    },
+    pane: 'geojson03QBoundaryPane'
+  }
+  ).addTo(map01);
+});
+
+// Export geojson data layers as: EPSG: 4326 - WGS 84
+// CYC Ward Boundaries associated with PCNs
 getGeoData("Data/cyc_wards.geojson").then(function (data) {
   L.geoJSON(data, {
     style: wardsStyleOrg,

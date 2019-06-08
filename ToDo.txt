@@ -1,0 +1,23 @@
+
+Practice Profiles
+    need a list of practices and names
+        ideally will be js api in furture but temp
+
+    show selectedDate somewhere, selected Practice
+    Move the practice drop down to top and fix relative to top? ie. just below navbar main
+
+
+    Improve the highlighting on selectedPractice
+
+
+PCN
+    given a selected Practice, show additional sites
+
+PCN - click on practice, update the sidebar to show details eg. This practice has several sites...
+    
+    
+    Create an object/ map with key of practice code and html text?
+
+
+
+format tooltip on hover - see guidance?

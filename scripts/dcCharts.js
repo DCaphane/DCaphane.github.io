@@ -706,7 +706,7 @@ Papa.parse("Data/AE_RawData_snomed.csv", {
     missingSnomedCodes["dischStatus"] = dischstatus_set;
     missingSnomedCodes["dischFUP"] = dischfup_set;
     missingSnomedCodes["injDrug"] = injdrug_set;
-    console.log(missingSnomedCodes); // snomed codes that have not been found
+    console.warn(missingSnomedCodes); // snomed codes that have not been found
 
     console.timeEnd("parseTime");
 
@@ -715,7 +715,7 @@ Papa.parse("Data/AE_RawData_snomed.csv", {
     all = cf.groupAll();
 
     // how many rows?
-    console.log("No of Records: " + formatNumber(cf.size()));
+    console.log("%cNo of Records: %s", 'color: blue; background: white', formatNumber(cf.size()));
     // log a random record
     const random = Math.floor(Math.random() * (+cf.size() - +0)) + +0; // random number between 0 and no. records
     console.log(d.data[random]); // console.log(d.data[0]);// example data
@@ -1906,11 +1906,11 @@ d3.json("https://api.github.com/repos/dc-js/dc.js/releases/latest").then(
   function(latestRelease) {
     /* jshint camelcase: false */
     /* jscs:disable */
-    console.log("dc.js version: " + dc.version);
+    console.log("%cdc.js version: %s", 'color: blue; background: white', dc.version);
     console.log("latest dc.js stable release: " + latestRelease.tag_name);
   }
 );
-console.log("Crossfilter version: " + crossfilter.version);
+console.log("%cCrossfilter version: %s", 'color: blue; background: white', crossfilter.version);
 
 // Supporting Functions
 // Used to calculate average by day of the week (overkill but to understand!)
@@ -2046,7 +2046,7 @@ function heatKey(noCells) {
     //new Date(1900, 0, 1, heatmapTDmin.key[0], 0, 0, 0)
     new Date(0).setHours(heatmapTDmin.key[0])
   );
-  console.log("Why do i run twice?");
+  console.warn("Why do i run twice?");
 }
 
 // optional function to adjust hcl parameters
