@@ -1,3 +1,7 @@
+gitignore
+    remove (cache) files that are not being ignored
+    
+
 
 Practice Profiles
     need a list of practices and names
@@ -8,16 +12,6 @@ Practice Profiles
 
 
     Improve the highlighting on selectedPractice
-
-
-PCN
-    given a selected Practice, show additional sites
-
-PCN - click on practice, update the sidebar to show details eg. This practice has several sites...
-    
-    
-    Create an object/ map with key of practice code and html text?
-
 
 
 format tooltip on hover - see guidance?

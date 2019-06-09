@@ -11,7 +11,8 @@ const dataNavMain = {
 				'#',
 				{
 					'ECDS': ['ecds.html', {}],
-					'PCNs': ['maps.html', {}]
+          'PCNs': ['primary_care_networks.html', {}],
+          'GP Profiles': ['gp_practice_profile.html', {}]
 				}
 			],
 			'Nav 2': ['#', {}],

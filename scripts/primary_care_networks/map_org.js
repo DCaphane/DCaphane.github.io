@@ -95,7 +95,7 @@ getGeoData("Data/geo/ccg_boundary_03Q.geojson").then(function (data) {
 
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 // CYC Ward Boundaries associated with PCNs
-getGeoData("Data/cyc_wards.geojson").then(function (data) {
+getGeoData("Data/geo/cyc_wards.geojson").then(function (data) {
   L.geoJSON(data, {
     style: wardsStyleOrg,
     pane: 'geojsonBoundaryPane',
