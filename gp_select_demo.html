@@ -1,0 +1,27 @@
+
+<!--
+Demo using ODS API to populate a datalist (select/ search dropdown)
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JSON API</title>
+
+    <script defer src="https://unpkg.com/fetch-paginate@3.1.0/bundle.js"></script>
+    <script defer src="scripts/ods_api_test.js"></script>
+</head>
+<body>
+    <label for="selPractice">Choose a GP Practice:</label>
+<input list="practice-list" id="selPractice" name="selPractice" />
+    <div id="output"></div>
+
+    <datalist id="practice-list">
+        <!-- <option value="test"> -->
+    </datalist>
+
+</body>
+</html>

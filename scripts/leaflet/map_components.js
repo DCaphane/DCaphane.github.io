@@ -141,6 +141,12 @@ const homeButton = (map) => {
 	).addTo(map);
 };
 
+
+const formatNumber = function(num) {
+	return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+  }
+
+
 // Function to import data
 async function getGeoData(url) {
 	let response = await fetch(url);
@@ -169,7 +175,7 @@ const addPCNToMap = async function addDataToMap(map, control) {
 				'<br>Clinical Director: ' +
 				layer.feature.properties.clinical_director +
 				'<br>Population: ' +
-				'tbc' +
+				formatNumber(layer.feature.properties.list_size) +
 				'</p>';
 
 			layer.bindPopup(popupText);
@@ -406,6 +412,8 @@ const ccgBoundary = async function(map, control) {
 		pane: 'ccg03QBoundaryPane'
 	}).addTo(map);
 	control.addOverlay(ccgBoundary, 'voy_ccg');
+
+
 	// map.fitBounds(ccgBoundary.getBounds());
 };
 /* Useful Links
