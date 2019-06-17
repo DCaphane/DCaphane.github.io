@@ -3,7 +3,7 @@
 	width: 95%;
 }
 
-#cht_PopTrend path {
+.trend-line {
 	stroke: steelblue;
 	stroke-width: 1.5;
 	fill: none;
@@ -26,14 +26,14 @@
 	font-family: sans-serif;
 }
 
-.dot {
+.trend-circle {
 	fill: white;
 	stroke: orange;
 	stroke-width: 2px;
+	opacity: 0.8;
 }
 
-.dot_highlight {
-	/* opacity: 0.8; */
+.trend-circle.highlight {
 	stroke: red;
 	stroke-width: 4px;
 	fill: orange;
@@ -41,18 +41,22 @@
 	cursor: pointer;
 }
 
+.trend-circle.highlight.toTop {
+	stroke: blue
+}
+
 /* For the demographic bars */
 .bar {
-	fill-opacity: 0.6;
+	fill-opacity: 0.7;
 	cursor: pointer;
 }
 
 .bar.left {
-	fill: #1f77b4;
+	fill: #00239C;
 }
 
 .bar.right {
-	fill: #e377c2;
+	fill: #E10600;
 }
 
 .bar.hover {
@@ -60,14 +64,21 @@
 	fill: orangered;
 }
 
-.barComp {
+.bar-comp {
 	fill: none;
 	/*stroke-opacity: 0.3;*/
-	stroke-width: 1;
-	stroke: rgb(110, 110, 110);
+	stroke-width: 2;
 	stroke-dasharray: 2;
-	
 }
+
+.bar-comp.left {
+	stroke: #8ABAD3;
+}
+
+.bar-comp.right {
+	stroke: #E683A9;
+}
+
 
 /* Drop down selection */
 .selPractice {

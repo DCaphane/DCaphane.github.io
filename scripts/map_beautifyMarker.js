@@ -1,19 +1,23 @@
-// https://github.com/marslan390/BeautifyMarker
-// https://fontawesome.com/start
-// https://fontawesome.com/license/free
+/*
+ https://github.com/marslan390/BeautifyMarker
+ https://fontawesome.com/start
+ https://fontawesome.com/license/free
+ 
+ animation: https://l-lin.github.io/font-awesome-animation/
+*/
 
 // default settings
 // https://stackoverflow.com/questions/21341274/leaflet-js-api-icons-why-do-iconanchor-and-popupanchor-have-different-coordinat
 const defaultOptions = {
-	backgroundColor: 'hsla(360, 100%, 100%, 1)',
-	popupAnchor: [14, 0], // point from which the popup should open relative to the iconAnchor
-	iconSize: [28, 28],
-	iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-	innerIconAnchor: [-2, 5],
-	isAlphaNumericIcon: true, // enables text, set below
-	text: 'test',
-	borderColor: null,
-	textColor: null
+  backgroundColor: "hsla(360, 100%, 100%, 1)",
+  popupAnchor: [14, 0], // point from which the popup should open relative to the iconAnchor
+  iconSize: [28, 28],
+  iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
+  innerIconAnchor: [-2, 5],
+  isAlphaNumericIcon: true, // enables text, set below
+  text: "test",
+  borderColor: null,
+  textColor: null
 };
 
 // const markerDefault = Object.create(defaultOptions);
@@ -62,7 +66,8 @@ const highlightDefault = {
   borderWidth: 5,
   backgroundColor: "hsla(360, 100%, 100%, 0)", // transparent
   iconSize: [45, 45],
-  iconAnchor: [8, 6]
+  iconAnchor: [8, 6],
+  customClasses: "faa-flash animated faa-fast" // flash is only one that works, can add faa-fast or faa-slow to control speed
 };
 
 // Colours
