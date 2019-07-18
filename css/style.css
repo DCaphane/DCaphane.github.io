@@ -1,118 +1,118 @@
 /* for testing only */
 * {
-	/* Background: rgba(255,0,0,0.1); */
-	/* outline: 1px solid red; */
+  /* Background: rgba(255,0,0,0.1); */
+  /* outline: 1px solid red; */
 }
 
 * {
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 :root {
-	font-size: calc(1rem + 0.5vw);
-	/* https://material.io/color/ */
-	--colourPrimary_Primary: #b0bec5; /* #1976d2 */
-	--colourPrimary_Light: #e2f1f8; /* #63a4ff */
-	--colourPrimary_Dark: #808e95; /* #004ba0 */
+  font-size: calc(1rem + 0.5vw);
+  /* https://material.io/color/ */
+  --colourPrimary_Primary: #b0bec5; /* #1976d2 */
+  --colourPrimary_Light: #e2f1f8; /* #63a4ff */
+  --colourPrimary_Dark: #808e95; /* #004ba0 */
 
-	--colourSecondary_Primary: #ffb74d;
-	--colourSecondary_Light: #ffe97d;
-	--colourSecondary_Dark: #c88719;
+  --colourSecondary_Primary: #ffb74d;
+  --colourSecondary_Light: #ffe97d;
+  --colourSecondary_Dark: #c88719;
 }
 
 /* https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
 html {
-	box-sizing: border-box;
-	scroll-behavior: smooth;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 
 *,
 *::before,
 *::after {
-	box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 body {
-	font-family: Roboto, sans-serif; /* regular (400), medium (500), black (700) */
+  font-family: Roboto, sans-serif; /* regular (400), medium (500), black (700) */
 }
 
 #article-right {
-	width: calc(100% - 40px);
-	max-width: 1600px;
-	margin: 0 auto;
+  width: calc(100% - 40px);
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
 #hero {
-	width: 100%;
-	margin: 0;
-	padding: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 #hero h1 {
-	text-align: center;
-	font-size: 4rem;
-	font-weight: black;
-	color: var(--colourPrimary_Dark);
+  text-align: center;
+  font-size: 4rem;
+  font-weight: black;
+  color: var(--colourPrimary_Dark);
 }
 
 a:link,
 a:visited {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 /* https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
     Needed to account for sticky navbar at top
 */
 .anchor:target {
-	padding-top: 55px;
-	margin-top: -55px;
+  padding-top: 55px;
+  margin-top: -55px;
 }
 
 .section {
-	/* border: 2px dashed rgb(255, 0, 242); */
+  /* border: 2px dashed rgb(255, 0, 242); */
 }
 
 h2 {
-	background: var(--colourPrimary_Light);
-	padding: 0 0 0 10px;
+  background: var(--colourPrimary_Light);
+  padding: 0 0 0 10px;
 }
 
 #footer {
-	background: white;
-	z-index: 2;
+  background: white;
+  z-index: 2;
 }
 
 /* Target an element that has all of multiple classes */
 .dcCharts {
-	visibility: hidden;
-	/*display: none; */
+  visibility: hidden;
+  /*display: none; */
 }
 
 .tile {
-	border: 1px solid var(--colourPrimary_Primary);
-	border-radius: 5px;
-	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  border: 1px solid var(--colourPrimary_Primary);
+  border-radius: 5px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .tile h3 {
-	background-color: var(--colourPrimary_Dark);
-	color: #fff;
-	text-align: center;
-	margin: 0;
-	padding: 10px;
+  background-color: var(--colourPrimary_Dark);
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 10px;
 }
 
 .tile .body {
-	padding: 0.5rem;
-	overscroll-behavior: none;
+  padding: 0.5rem;
+  overscroll-behavior: none;
 }
 
 .tile footer {
-	margin-top: auto;
-	border-top: 1px solid var(--colourPrimary_Primary);
-	padding: 10px;
-	text-align: center;
+  margin-top: auto;
+  border-top: 1px solid var(--colourPrimary_Primary);
+  padding: 10px;
+  text-align: center;
 }
 
 /* to make the image auto resize to the max width of the boundary */
@@ -128,9 +128,9 @@ img {
 
 /* Used to make tile clickable - doesn't cover footer */
 .clickable a {
-	display: inline-block;
-	height: 100%;
-	width: 100%; /*  fill the parent  */
+  display: inline-block;
+  height: 100%;
+  width: 100%; /*  fill the parent  */
 }
 
 /* below is for pre tiles method only
@@ -144,12 +144,12 @@ img {
 */
 
 .leaflet-container {
-	margin: auto; /* center map in div */
+  margin: auto; /* center map in div */
 }
 
 .map {
-	min-height: 500px;
-	width: 95%;
+  min-height: 500px;
+  width: 95%;
 }
 
 /*
@@ -158,15 +158,14 @@ Font Awesome
 
 /* Apply to all classes containing fa-angle- */
 
-[class*='fa-angle-'] {
-	margin-left: 4px;
+[class*="fa-angle-"] {
+  margin-left: 4px;
 }
 
 .fa-envelope,
 .fa-phone {
-	margin-right: 5px;
+  margin-right: 5px;
 }
-
 
 /* On/ Off toggle */
 /* The switch - the box around the slider */
@@ -193,8 +192,8 @@ Font Awesome
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .slider:before {
@@ -205,16 +204,16 @@ Font Awesome
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #2196f3;
 }
 
 input:checked + .slider:before {

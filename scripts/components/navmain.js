@@ -11,7 +11,8 @@ const dataNavMain = {
 				'#',
 				{
 					'ECDS': ['ecds.html', {}],
-					'PCNs': ['maps.html', {}]
+          'PCNs': ['primary_care_networks.html', {}],
+          'GP Profiles': ['gp_practice_profile.html', {}]
 				}
 			],
 			'Nav 2': ['#', {}],
@@ -57,7 +58,8 @@ const textSpanArrowRight = spanArrowRight.outerHTML;
 let counter = 0;
 const dataKeysCount = Object.keys(dataNavMain).length;
 
-const container = document.getElementById("nav-main");
+const navMain = document.getElementById("nav-main");
+const container = document.createDocumentFragment();
 
 // The label and input will create our responsive button that becomes visible instead of the menu in small screen sizes
 const label = document.createElement("label");
@@ -67,7 +69,7 @@ label.setAttribute("for", "responsive-button");
 const new_i = document.createElement("i");
 new_i.className = "fas fa-bars";
 
-label.appendChild(new_i);
+label.append(new_i);
 container.prepend(label);
 
 const input = document.createElement("input");
@@ -77,6 +79,7 @@ input.id = "responsive-button";
 container.append(input);
 
 createTree(container, dataNavMain);
+navMain.append(container);
 
 // The below is used to highlight the active page
 // elemActive is declared in the calling page
@@ -140,7 +143,7 @@ function createTreeDom(obj, subCounter) {
         anchor.insertAdjacentHTML("beforeend", textSpanArrowRight);
       }
     }
-    li.appendChild(anchor);
+    li.append(anchor);
 
     if (childrenUl) {
       li.append(childrenUl);

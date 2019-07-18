@@ -32,17 +32,31 @@
 
     <script
       defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.2/d3.min.js"
+      src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.min.js"
     ></script>
 
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
 
-    <link rel="stylesheet" type="text/css" href="css/navbar_main.css" />
-    <link rel="stylesheet" type="text/css" href="css/navbar_side.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/navbar_main.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/navbar_side.css"
+    />
 
-    <link rel="stylesheet" type="text/css" href="css/toTop.css" />
+    <link rel="stylesheet" type="text/css" href="css/components/toTop.css" />
     <link rel="stylesheet" type="text/css" href="css/gp_practice_profile.css" />
+    <!-- https://l-lin.github.io/font-awesome-animation/ -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/fontawesome_animation.css"
+    />
 
     <!-- Page Structure (Layout) -->
     <script>
@@ -54,6 +68,15 @@
     <script defer src="scripts\components\navside.js"></script>
     <script defer src="scripts\components\navside_interactive.js"></script>
     <script defer src="scripts\components\toTop.js"></script>
+
+    <!-- Awesomplete (https://leaverou.github.io/awesomplete/) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.4/awesomplete.min.css"
+    />
+    <link rel="stylesheet" href="css/components/awesomplete.css" />
+    <!-- causes problems if try to defer awesomplete... -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.4/awesomplete.min.js"></script>
 
     <!-- leaflet -->
     <link
@@ -126,24 +149,38 @@ https://github.com/marslan390/BeautifyMarker
 
     <!--script defer src="scripts/map_default_markers.js"></script -->
     <script defer src="scripts/map_beautifyMarker.js"></script>
+    <script defer src="scripts/leaflet/map_components.js"></script>
 
     <script
       defer
       src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"
     ></script>
-    <script
-      defer
-      src="scripts/gp_practice_profile/gp_practice_site_map.js"
-    ></script>
-    <script
-      defer
-      src="scripts/gp_practice_profile/gp_popn_trend.js"
-	></script>
+
+    <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
+
+    <script defer src="scripts/gp_practice_profile/gp_popn_trend.js"></script>
+
     <script
       defer
       src="scripts/gp_practice_profile/gp_popn_demographic.js"
-    ></script>	
-    <script defer src="scripts/leaflet_sidebar_01.js"></script>
+    ></script>
+
+    <script
+      defer
+      src="scripts/gp_practice_profile/gp_practice_Mainsite_map.js"
+    ></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/map_GPPractice_sites.js"
+    ></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
+    ></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/component_practice_dropdown.js"
+    ></script>
 
     <style></style>
   </head>
@@ -172,7 +209,22 @@ https://github.com/marslan390/BeautifyMarker
               proident laborum incididunt consequat sit laboris ipsum. Id magna
               reprehenderit sit aute laborum ullamco occaecat aute id proident
               minim.
-              <select id="selPractice" class="selPractice"></select>
+              <label for="selPractice">Choose a GP Practice:</label>
+              <input
+                type="search"
+                autocomplete="off"
+                list="practice-list"
+                class="dropdown-input"
+                id="selPractice"
+                placeholder="code or name"
+                name="selPractice"
+              />
+              <!-- https://github.com/LeaVerou/awesomplete/issues/17117 -->
+              <button id="btn-selPractice" class="dropdown-btn" type="button">
+                <i class="fas fa-caret-down"></i>
+              </button>
+              <datalist id="practice-list" class="dropdown practice">
+              </datalist>
             </p>
           </section>
 
@@ -181,9 +233,12 @@ https://github.com/marslan390/BeautifyMarker
 
             <div id="id01" class="tiles">
               <div class="tile wide content">
-                <h3>Map</h3>
-                <div id="map"></div>
-                <footer class="cta"></footer>
+                <h3>GP Practice - Main Site by PCN</h3>
+                <div id="mapMain" class="map"></div>
+                <div id="sidebar" class="leaflet-sidebar collapsed"></div>
+                <footer id="selectedMarker" class="cta">
+                  Select a marker for details
+                </footer>
               </div>
 
               <div class="tile wide content">
@@ -201,24 +256,51 @@ https://github.com/marslan390/BeautifyMarker
               <div class="tile wide content">
                 <h3>Population Pyramid</h3>
                 <div id="cht_PopDemo">
-                  <select id="selPracticeCompare" class="selPractice"></select>
-                  <!-- drop down, selection -->
+                  <label for="selPractice">Practice to compare:</label>
+                  <input
+                    type="search"
+                    autocomplete="off"
+                    list="practice-list2"
+                    class="dropdown-input"
+                    id="selPracticeCompare"
+                    name="selPractice"
+                    placeholder="code or name"
+                  />
+                  <button
+                    id="btn-selPracticeCompare"
+                    class="dropdown-btn"
+                    type="button"
+                  >
+                    <i class="fas fa-caret-down"></i>
+                  </button>
+                  <datalist id="practice-list2" class="dropdown practice">
+                    <option value="None"></option>
+                  </datalist>
                 </div>
                 <footer class="cta">
                   <a
-					id="circleOver65"
-					class="circleOver65"
+                    id="circleOver65"
+                    class="circleOver65"
                     data-toggle="tooltip"
                     data-placement="auto top"
                     title="Percent Aged Over 65"
-				  ></a>
+                  ></a>
                   <a
-					id="circleOver65Compare"
-					class="circleOver65"
+                    id="circleOver65Compare"
+                    class="circleOver65"
                     data-toggle="tooltip"
                     data-placement="auto top"
                     title="Comparison Aged Over 65"
                   ></a>
+                </footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>GP Practice Sites</h3>
+                <div id="mapSites" class="map"></div>
+                <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
+                <footer id="selectedSite" class="cta">
+                  Associated Sites
                 </footer>
               </div>
             </div>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>ODS API</title>
+		<meta name="author" content="dc" />
+		<meta
+			name="description"
+			content="Demo using ODS API to populate a datalist (select/ search dropdown)"
+		/>
+
+		<script
+			defer
+			src="https://unpkg.com/fetch-paginate@3.1.0/bundle.js"
+		></script>
+		<script defer src="scripts/ods_api_test.js"></script>
+	</head>
+	<body>
+		<div id="ready">Waiting...</div>
+		<label for="selPractice">Choose a GP Practice:</label>
+		<input
+			list="practice-list"
+			id="selPractice"
+			name="selPractice"
+			type="text"
+			autocomplete="on"
+			required
+		/>
+		<div id="output"></div>
+
+		<datalist id="practice-list">
+			<!-- <option value="test"> -->
+		</datalist>
+
+		<br />
+		<iframe
+			src="https://api-bridge.azurewebsites.net/findservices/?uid=ZGF2aWRjYXBoYW5lQG5ocy5uZXQ=&w=300&o=1,2&a=1&e=1"
+			style="border: none; height: 500px; width: 400px;"
+		></iframe>
+	</body>
+</html>

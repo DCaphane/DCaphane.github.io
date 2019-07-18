@@ -1,0 +1,170 @@
+/*
+Useful Resources:
+
+https://medium.freecodecamp.org/how-to-build-a-responsive-navbar-with-a-toggle-menu-using-flexbox-3438e1d08783
+https://codepen.io/gab/pen/FbdHk
+
+https://codepen.io/smashtheshell/pen/ZBNNEg?editors=1100
+https://codepen.io/gcampfield/pen/OPvBEj
+https://blog.christopherianmurphy.com/2016/01/responsive-pure-css-menu/
+https://css-tricks.com/almanac/selectors/l/last-child/
+
+https://codepen.io/rafonzoo/pen/bqeeyj
+https://www.w3schools.com/howto/howto_js_topnav_responsive.asp
+https://sundari-webdesign.com/the-perfect-horizontal-dropdown-responsive-css-menu-tutorial/
+*/
+
+.wrapper-nav {
+  /*max-width: 960px;*/
+  /*margin: 0 auto;*/
+  position: sticky;
+  top: 0;
+  /*color: #ecf0f1;*/
+  z-index: 3000;
+  background: var(--colourSecondary_Primary);
+  border-style: solid none; /*top, bottom are solid; left and right = none */
+  border-width: medium;
+  border-color: black;
+  color: black;
+  margin-bottom: 10px;
+}
+
+/* Flex Nav Bar */
+.nav-main {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  /*justify-content: flex-start;*/
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap; /* prevents text from going onto new line */
+}
+
+.nav-main .active {
+  background: var(--colourSecondary_Dark);
+  color: white;
+  border-bottom: 3px solid var(--colourSecondary_Light);
+}
+
+.nav-main ul {
+  background-color: var(--colourSecondary_Light);
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-main li {
+  list-style-type: none;
+}
+.nav-main li a {
+  padding: 0.4rem 1rem;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/*
+.nav-main li:last-child {} applies to multiple elements, not just the final one...
+*/
+.nav-main .last-item {
+  margin-left: auto;
+}
+/*
+.nav-main li:not(:first-child) {
+	border-left: 2px solid #ecf0f1;
+}
+*/
+#nav-main ul li:hover,
+#nav-main ul li:focus-within {
+  background: rgba(250, 0, 0, 0.25);
+  color: black;
+  transition: all 0.4s ease;
+}
+
+/*
+li:focus-within a {
+  outline: none;
+}
+*/
+
+@media only screen and (max-width: 600px) {
+  .wrapper-nav,
+  .nav-main {
+    flex-direction: column;
+    /* width: max-content;*/
+  }
+
+  .nav-main ul,
+  .nav-main ul ul {
+    position: relative;
+    display: none;
+    margin-left: 30px;
+    border-left: 2px solid #ecf0f1;
+  }
+
+  #nav-main ul li:hover > ul {
+    display: block;
+    transition: all 0.4s ease;
+  }
+
+  .responsive-button {
+    display: block;
+  }
+
+  .nav-main {
+    display: none;
+  }
+
+  .nav-main .last-item {
+    margin-left: 0;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  #nav-main ul li {
+    position: relative;
+    flex: 1 0 content;
+    text-align: left;
+	}
+	
+	.nav-main .last-item {
+		padding-right: 20px;
+	}
+
+  .has-children ul,
+  .has-children ul .has-children ul {
+    display: none;
+    width: 100%;
+    position: absolute;
+  }
+  .has-children ul .has-children ul {
+    left: 100%;
+    top: 0;
+  }
+  nav ul li:hover ul,
+  #nav-main ul li:focus-within > ul,
+  .has-children ul .has-children:hover ul {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .responsive-button {
+    display: none;
+  }
+}
+
+.responsive-button {
+  padding: 2px;
+  color: white;
+  font-weight: bold;
+  margin-left: 5px;
+  text-align: left;
+}
+
+input[id="responsive-button"] {
+  display: none;
+}
+
+input[id="responsive-button"]:checked ~ .nav-main {
+  display: block;
+}

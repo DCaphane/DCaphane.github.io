@@ -1,0 +1,51 @@
+/* Additional Awesomplete to override defaults*/
+
+/* Used to hide the default arrow for input list */
+input::-webkit-calendar-picker-indicator {
+	opacity: 0;
+}
+
+/* z-index to ensure appears above eg. leaflet map layers */
+.awesomplete > ul {
+	z-index: 500; /* increase until the dropdown list is no longer hidden */
+}
+
+/* Remove the arrow pointer - untested
+.awesomplete > ul:before {
+	display: none;
+}
+*/
+
+/* Add a scroll to the pop-up
+https://github.com/LeaVerou/awesomplete/issues/16875
+*/
+.awesomplete > ul {
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.dropdown-input {
+	margin-right: 0;
+	border-radius: 5px;
+}
+
+.dropdown-input:focus {
+	box-shadow: 0 0 15px 5px #b0e0ee;
+	border: 2px solid #bebede;
+}
+
+.dropdown-btn {
+	position: relative;
+	left: -5px;
+	border-left: none;
+}
+
+/*
+Cancel Button
+https://css-tricks.com/webkit-html5-search-inputs/#article-header-id-5
+https://stackoverflow.com/questions/2803532/how-do-i-put-a-clear-button-inside-my-html-text-input-box-like-the-iphone-does
+*/
+input[type='search']::-webkit-search-cancel-button {
+	/* Remove default */
+	-webkit-appearance: searchfield-cancel-button;
+}

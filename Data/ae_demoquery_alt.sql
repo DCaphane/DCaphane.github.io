@@ -1,4 +1,6 @@
 
+-- Remove data headings! --
+
 /*
 Starting records: 37,274
 Link to diagnosis table (needs refreshing...): 37,274
@@ -7,7 +9,7 @@ Link to diagnosis descriptions: 37,274 (need to account for duplicate snomed id 
 
 To Consider:
 	Firsts only?
-	Suburst for ECDS_Diagnosis_Group1 to 3 and diagnosis?
+	Sunburst for ECDS_Diagnosis_Group1 to 3 and diagnosis?
 
 
 
@@ -50,6 +52,12 @@ values
 */
 
 set datefirst 1; -- Mon as day 1
+
+declare @startPeriod date = '2018-05-01';
+-- end date will be a year less one day
+declare @endPeriod date = dateadd(dd, -1, dateadd(yy, 1, @startPeriod));
+
+-- print @endPeriod
 
 select -- cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arrival_DateTime'
     -- cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime) + cast(arrival_time as datetime)) AS BIGINT) * 1000 as 'Arrival_DateTime_ms'
@@ -167,7 +175,7 @@ from [Customer_VOYCCG].[eMBED].[AnalystTableAAELive] ae
 --left join [customer].[ref_ec_inj_activity] inj_activity
 --	on main.[Emergency Care Injury Activity Type SNOMED CT] = inj_activity.SNOMED_Code
 where
-	ae.period between '20180101' and '20181231'
+	ae.period between @startPeriod and @endPeriod
     and (coalesce(nullif(left(ae.CCG_Code, 3), 'X26'), left(ae.provider_purchaser_id, 3)) = '03Q' -- When unknown practice, default to provider purchaser
     or left(ae.provider_purchaser_id, 3) = '03Q')
     and isnull(diag.[dmicSequenceNumber], 1) = 1
