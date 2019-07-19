@@ -5,9 +5,21 @@ input::-webkit-calendar-picker-indicator {
 	opacity: 0;
 }
 
-/* Style the placeholder */
+/* Style the placeholder -
+::placeholder styles the placeholder text
+::placeholder is a pseudo element (a visible thing that isn't really in the DOM)
+*/
 ::-webkit-input-placeholder {
 	color: orangered;
+}
+
+/*
+:placeholder-shown is for selecting the input itself when it's placeholder text is being shown.
+:placeholder-shown is a pseudo class (it's an element in a particular state)
+*/
+input:placeholder-shown {
+    border-color: orangered;
+	text-overflow: ellipsis;
 }
 
 /* z-index to ensure appears above eg. leaflet map layers */
