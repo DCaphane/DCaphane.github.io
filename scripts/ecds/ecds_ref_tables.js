@@ -9,7 +9,7 @@ const map_diagnosis_groups = new Map([
   // tried using map to use array as key but this doesn't appear to work, dificult to get values when key is an array...
   diagnosis_set = new Set(); // used to log any unmatched snomed codes that may need  eg. old codes that have since been dropped
 
-Papa.parse("Data/ecds_ref_tables/ref_diagnosis.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_diagnosis.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -67,7 +67,7 @@ Papa.parse("Data/ecds_ref_tables/ref_diagnosis.csv", {
 let acuityRefObj = {};
 const acuity_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_acuity.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_acuity.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -89,7 +89,7 @@ const map_attdSource_groups = new Map([
   ]),
   attdSource_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_attd_source.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_attd_source.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -129,7 +129,7 @@ const map_complaint_groups = new Map([
   ]),
   complaint_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_complaint.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_complaint.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -169,7 +169,7 @@ const map_dischdest_groups = new Map([
   ]),
   dischdest_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_discharge_destination.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_discharge_destination.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -209,7 +209,7 @@ const map_dischfup_groups = new Map([
   ]),
   dischfup_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_discharge_followup.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_discharge_followup.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -250,7 +250,7 @@ const map_dischstatus_groups = new Map([
   ]),
   dischstatus_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_discharge_status.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_discharge_status.csv", {
   download: true,
   header: true,
   delimiter: ",",
@@ -290,7 +290,7 @@ const map_injdrug_groups = new Map([
   ]),
   injdrug_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds_ref_tables/ref_inj_drug.csv", {
+Papa.parse("Data/ecds/ecds_ref_tables/ref_inj_drug.csv", {
   download: true,
   header: true,
   delimiter: ",",

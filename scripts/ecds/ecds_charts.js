@@ -114,7 +114,7 @@ const missingSnomedCodes = Object.create(null);
 // The main data
 //d3.csv("Data/AE_RawData_snomed.csv").then(
 
-Papa.parse("Data/AE_RawData_snomed.csv", {
+Papa.parse("Data/ecds/AE_RawData_snomed.csv", {
   download: true,
   header: false,
   delimiter: ",",
