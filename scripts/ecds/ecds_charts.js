@@ -113,42 +113,73 @@ const missingSnomedCodes = Object.create(null);
 
 // The main data
 
-    // Following used to identify order of columns returned in sql query
-    // Could return this in sql, import as csv --> array...
-    const sqlCols = {
-      // arrivalDateTime: 0, // this is not needed?
-      arrivalDate: 0, // Arrival_Date_ms
-      period: 1, // Period_ms
-      weekday: 2, // WeekdayNo
-      hour: 3, // Hour
-      duration: 4, // Duration_ms
-      ageBand: 5, // AgeBand
-      refSource: 6, // snomed_attd (attd source)
-      diagnosis: 7, // snomed_diagnosis
-      complaint: 8, // snomed_complaint
-      acuity: 9, // snomed_acuity
-      injDrug: 10, // snomed_injdrug
-      dischStatus: 11, // snomed_dischargestatus
-      dischDest: 12, // snomed_dischargedest
-      dischFUP: 13, // snomed_dischargeFU
-      commSerial: 14, // Comm_Serial
-      practice: 15, // practice_code
-      lsoa: 16 // lsoa
-    };
-      
-  const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d){
-    return {
-      duration: Math.min(+d.Duration_ms, maxDuration), // Fix max duration at source
-      ageBand: arrAgeBand.indexOf(d.AgeBand),
-      practice: (practiceObj[d.practice_code] !== undefined) ? d.practice_code : 0,
-  
+// Following used to identify order of columns returned in sql query
+// Could return this in sql, import as csv --> array...
+const sqlCols = {
+  // arrivalDateTime: 0, // this is not needed?
+  arrivalDate: 0, // Arrival_Date_ms
+  period: 1, // Period_ms
+  weekday: 2, // WeekdayNo
+  hour: 3, // Hour
+  duration: 4, // Duration_ms
+  ageBand: 5, // AgeBand
+  refSource: 6, // snomed_attd (attd source)
+  diagnosis: 7, // snomed_diagnosis
+  complaint: 8, // snomed_complaint
+  acuity: 9, // snomed_acuity
+  injDrug: 10, // snomed_injdrug
+  dischStatus: 11, // snomed_dischargestatus
+  dischDest: 12, // snomed_dischargedest
+  dischFUP: 13, // snomed_dischargeFU
+  commSerial: 14, // Comm_Serial
+  practice: 15, // practice_code
+  lsoa: 16 // lsoa
+};
+
+// testing d3.csv
+let test;
+const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d) {
+
+  // Capture codes not included in the lookup tables
+  if (diagnosisRefObj[+d.snomed_diagnosis] === undefined) {
+    if (+d.snomed_diagnosis !== 0) {
+      diagnosis_set.add(+d[sqlCols.diagnosis]);
     }
-    /*
-    let test; 
-    mainData.then(function(d) {test = d})
-    console.log(test)
-     */
-  });
+  }
+
+  if (attdSourceRefObj[d.Snomed_attd] === undefined){
+    if (d.Snomed_attd !== 0) {
+    attdSource_set.add(d[sqlCols.refSource]);
+    }
+  }
+
+  return {
+    duration: Math.min(+d.Duration_ms, maxDuration), // Fix max duration at source
+    ageBand: arrAgeBand.indexOf(d.AgeBand),
+    practice: practiceObj[d.practice_code] !== undefined ? d.practice_code : 0,
+    Diagnoses:
+      diagnosisRefObj[+d.snomed_diagnosis] !== undefined
+        ? diagnosisRefObj[+d.snomed_diagnosis]
+        : +d.snomed_diagnosis === 0
+        ? [0]
+        : [999], // diagnosis_set.add(+d[sqlCols.diagnosis]); // log the unknown code here to update in ref tables
+    DiagnosisMainGroup:
+      diagnosisRefObj[+d.snomed_diagnosis] !== undefined
+        ? diagnosisRefObj[+d.snomed_diagnosis][0]
+        : +d.snomed_diagnosis === 0
+        ? 0
+        : 999,
+    attdSource:
+      attdSourceRefObj[+d.snomed_attd] !== undefined
+        ? attdSourceRefObj[+d.snomed_attd]
+        : [0]
+  };
+});
+
+mainData.then(function(d) {
+  test = d;
+  console.log(test);
+});
 
 Papa.parse("Data/ecds/AE_RawData_snomed.csv", {
   download: true,
