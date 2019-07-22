@@ -7,72 +7,8 @@
 console.time("ProcessTime");
 
 // Settings
-// https://dc-js.github.io/dc.js/docs/html/dc.config.html#defaultColors__anchor
-// colour options: https://github.com/d3/d3-scale-chromatic
-// examples: d3.schemeCategory20c, d3.schemeSet1, d3.schemeBlues[9], d3.schemeBrBG[7]
-dc.config.defaultColors(d3.schemeSet2);
 
-// d3.schemeCategory20b has been removed from D3v5
-const d3SchemeCategory20b = [
-  "#393b79",
-  "#5254a3",
-  "#6b6ecf",
-  "#9c9ede",
-  "#637939",
-  "#8ca252",
-  "#b5cf6b",
-  "#cedb9c",
-  "#8c6d31",
-  "#bd9e39",
-  "#e7ba52",
-  "#e7cb94",
-  "#843c39",
-  "#ad494a",
-  "#d6616b",
-  "#e7969c",
-  "#7b4173",
-  "#a55194",
-  "#ce6dbd",
-  "#de9ed6"
-];
-
-// Global Variables
-const arrWeekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  arrMonths = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
-  ],
-  arrAgeBand = [
-    "00-04",
-    "05-09",
-    "10-14",
-    "15-19",
-    "20-24",
-    "25-29",
-    "30-34",
-    "35-39",
-    "40-44",
-    "45-49",
-    "50-54",
-    "55-59",
-    "60-64",
-    "65-69",
-    "70-74",
-    "75-79",
-    "80-84",
-    "85+"
-  ],
-  // sqlDayZero = new Date(1900, 0, 1), // months are 0 based, 0 = Jan
+const // sqlDayZero = new Date(1900, 0, 1), // months are 0 based, 0 = Jan
   jsDayZero = new Date(0),
   // Currently see time spent in A&E up to 24 hours - set anything above 8 hours to 8
   maxDuration = +d3.timeMinute.offset(jsDayZero, 60 * 8),
@@ -137,29 +73,65 @@ const sqlCols = {
 };
 
 // testing d3.csv
-let test;
+let test; // only used for testing loading and formatting of data
 const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d) {
+  /*
+  Capture codes not included in the lookup tables
+  The below are used to log any codes that do not have a valid lookup
+  Consider including in the reference tables (might need a default description/ invalid)
+  */
 
-  // Capture codes not included in the lookup tables
   if (diagnosisRefObj[+d.snomed_diagnosis] === undefined) {
     if (+d.snomed_diagnosis !== 0) {
-      diagnosis_set.add(+d[sqlCols.diagnosis]);
+      diagnosis_set.add(+d.snomed_diagnosis);
     }
   }
 
-  if (attdSourceRefObj[d.Snomed_attd] === undefined){
-    if (d.Snomed_attd !== 0) {
-    attdSource_set.add(d[sqlCols.refSource]);
+  if (attdSourceRefObj[+d.snomed_attd] === undefined) {
+    if (+d.snomed_attd !== 0) {
+      attdSource_set.add(+d.snomed_attd);
     }
   }
 
+  if (complaintRefObj[+d.snomed_complaint] === undefined) {
+    if (+d.snomed_complaint !== 0) {
+      complaint_set.add(+d.snomed_complaint);
+    }
+  }
+
+  if (dischdestRefObj[+d.snomed_dischargedest] === undefined) {
+    if (+d.snomed_dischargedest !== 0) {
+      dischdest_set.add(+d.snomed_dischargedest);
+    }
+  }
+
+  if (dischdestRefObj[+d.snomed_dischargestatus] === undefined) {
+    if (+d.snomed_dischargestatus !== 0) {
+      dischstatus_set.add(+d.snomed_dischargestatus);
+    }
+  }
+
+  if (dischfupRefObj[+d.snomed_dischargeFU] === undefined) {
+    if (+d.snomed_dischargeFU !== 0) {
+      dischfup_set.add(+d.snomed_dischargeFU);
+    }
+  }
+
+  if (injdrugRefObj[+d.snomed_injdrug] === undefined) {
+    if (+d.snomed_injdrug !== 0) {
+      injdrug_set.add(+d.snomed_injdrug);
+    }
+  }
+
+
+  // Main Data Output
   return {
     duration: Math.min(+d.Duration_ms, maxDuration), // Fix max duration at source
     ageBand: arrAgeBand.indexOf(d.AgeBand),
     practice: practiceObj[d.practice_code] !== undefined ? d.practice_code : 0,
     Diagnoses:
       diagnosisRefObj[+d.snomed_diagnosis] !== undefined
-        ? diagnosisRefObj[+d.snomed_diagnosis]
+        ? diagnosisRefObj[+d.snomed_diagnosis] // ie. snomed code has been found...
         : +d.snomed_diagnosis === 0
         ? [0]
         : [999], // diagnosis_set.add(+d[sqlCols.diagnosis]); // log the unknown code here to update in ref tables
@@ -172,6 +144,26 @@ const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d) {
     attdSource:
       attdSourceRefObj[+d.snomed_attd] !== undefined
         ? attdSourceRefObj[+d.snomed_attd]
+        : [0],
+    Complaint:
+      complaintRefObj[+d.snomed_complaint] !== undefined
+        ? complaintRefObj[+d.snomed_complaint]
+        : [0],
+    dischDest:
+      dischdestRefObj[+d.snomed_dischargedest] !== undefined
+        ? dischdestRefObj[+d.snomed_dischargedest]
+        : [0],
+    dischStatus:
+      dischstatusRefObj[+d.snomed_dischargestatus] !== undefined
+        ? dischstatusRefObj[+d.snomed_dischargestatus]
+        : [0],
+    dischFUP:
+      dischfupRefObj[+d.snomed_dischargeFU] !== undefined
+        ? dischfupRefObj[+d.snomed_dischargeFU]
+        : [0],
+    injdrug:
+      injdrugRefObj[+d.snomed_injdrug] !== undefined
+        ? injdrugRefObj[+d.snomed_injdrug]
         : [0]
   };
 });
@@ -179,6 +171,15 @@ const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d) {
 mainData.then(function(d) {
   test = d;
   console.log(test);
+
+  missingSnomedCodes["diagnosis"] = diagnosis_set;
+  missingSnomedCodes["complaint"] = complaint_set;
+  missingSnomedCodes["attdSource"] = attdSource_set;
+  missingSnomedCodes["dischDest"] = dischdest_set;
+  missingSnomedCodes["dischStatus"] = dischstatus_set;
+  missingSnomedCodes["dischFUP"] = dischfup_set;
+  missingSnomedCodes["injDrug"] = injdrug_set;
+  console.warn(missingSnomedCodes); // snomed codes that have not been found    
 });
 
 Papa.parse("Data/ecds/AE_RawData_snomed.csv", {
@@ -190,59 +191,11 @@ Papa.parse("Data/ecds/AE_RawData_snomed.csv", {
   complete: d => {
     console.timeEnd("dataImport");
     // Formatting
-    const // parseDate = d3.utcParse('%Y-%m-%d %H:%M:%S.%L'), // import format, previously timeParse
-      // https://github.com/d3/d3-time-format/blob/master/README.md#timeParse
-      formatDaily = d3.timeFormat("%d-%b-%y"),
-      formatPeriod = d3.timeFormat("%b-%y"),
-      // formatMonth = d3.timeFormat('%b'), // %m - month as a decimal number [01,12]
-      // formatMonthNo = d3.timeFormat('%m'),
-      // formatWeekday = d3.timeFormat('%a'),
-      // %w - Sunday-based weekday as a decimal number [0,6]
-      formatWeekdayNo = d3.timeFormat("%u"), // %u - Monday-based (ISO 8601) weekday as a decimal number [1,7]
-      // consider week number for weekly trends?
-      // formatHour24 = d3.timeFormat('%H'), // %H - hour (24-hour clock)
-      // formatTime = d3.timeFormat("%H:%M"),
-      formatNumber = d3.format(",d"), // for display purposes
-      formatDuration = d3.utcFormat("%H:%M");
-    // timeScaleDuration = d3
-    // 	.scaleTime()
-    // 	.domain([
-    // 		sqlDayZero,
-    // 		d3.timeDay.offset(sqlDayZero, 1)
-    // 	]) // d3.timeDay.ceil(sqlDayZero)
-    // 	.range([0, 60 * 24]);
-    // timeScaleDuration.invert(200) ie. 200 minutes = 3hrs and 20 mins
-    // Mon Jan 01 1900 03:20:00
 
-    const chtWidthStd = 400,
-      chtHeightStd = 400,
-      chtWidthWide = 500,
-      chtHeightTall = 700,
-      chtHeightShort = 250;
     console.time("parseTime");
 
     // Following used to identify order of columns returned in sql query
     // Could return this in sql, import as csv --> array...
-    const sqlCols = {
-      // arrivalDateTime: 0, // this is not needed?
-      arrivalDate: 0,
-      period: 1,
-      weekday: 2,
-      hour: 3,
-      duration: 4,
-      ageBand: 5,
-      refSource: 6, // attd source
-      diagnosis: 7,
-      complaint: 8,
-      acuity: 9,
-      injDrug: 10,
-      dischStatus: 11,
-      dischDest: 12,
-      dischFUP: 13,
-      commSerial: 14,
-      practice: 15,
-      lsoa: 16
-    };
 
     d.data.forEach(function(d) {
       // Time formatting
@@ -394,14 +347,14 @@ Papa.parse("Data/ecds/AE_RawData_snomed.csv", {
       }
     });
 
-    missingSnomedCodes["diagnosis"] = diagnosis_set;
-    missingSnomedCodes["complaint"] = complaint_set;
-    missingSnomedCodes["attdSource"] = attdSource_set;
-    missingSnomedCodes["dischDest"] = dischdest_set;
-    missingSnomedCodes["dischStatus"] = dischstatus_set;
-    missingSnomedCodes["dischFUP"] = dischfup_set;
-    missingSnomedCodes["injDrug"] = injdrug_set;
-    console.warn(missingSnomedCodes); // snomed codes that have not been found
+    // missingSnomedCodes["diagnosis"] = diagnosis_set;
+    // missingSnomedCodes["complaint"] = complaint_set;
+    // missingSnomedCodes["attdSource"] = attdSource_set;
+    // missingSnomedCodes["dischDest"] = dischdest_set;
+    // missingSnomedCodes["dischStatus"] = dischstatus_set;
+    // missingSnomedCodes["dischFUP"] = dischfup_set;
+    // missingSnomedCodes["injDrug"] = injdrug_set;
+    // console.warn(missingSnomedCodes); // snomed codes that have not been found
 
     console.timeEnd("parseTime");
 
@@ -1755,61 +1708,4 @@ function heatKey(noCells) {
     new Date(0).setHours(heatmapTDmin.key[0])
   );
   console.warn("Why do i run twice?");
-}
-
-// optional function to adjust hcl parameters
-function saturate(colour, k = 1) {
-  const { h, c, l } = d3.hcl(colour);
-  return d3.hcl(h, c + 18 * k, l);
-}
-
-function sunburstColours(inColour) {
-  // Base Colours (originally designed around diagnosis codes)
-  // http://colorbrewer2.org/?type=sequential&scheme=BuPu&n=9#type=qualitative&scheme=Paired&n=12
-  const mapColours = new Map([
-    [11, "#a6cee3"],
-    [21, "#1f78b4"],
-    [31, "#b2df8a"],
-    [35, "#ff0000"], // new
-    [41, "#33a02c"],
-    [51, "#fb9a99"],
-    [55, "#00ff00"], // new
-    [61, "#e31a1c"],
-    [71, "#fdbf6f"],
-    [75, "#0000ff"], // new
-    [81, "#ff7f00"],
-    [91, "#cab2d6"],
-    [97, "#6a3d9a"],
-    [99, "#ffff99"],
-    [0, "#808080"], // unknown, grey
-    [999, "#ffff00"] // old code, grey
-  ]);
-
-  // Sunburst Colours
-  // http://bl.ocks.org/sathomas/4a3b74228d9cb11eb486
-  let colour, // Main colour based on top layer key (eg. s1 = 11)
-    startColour,
-    endColour;
-
-  const colours = d3
-    .scaleLinear()
-    .interpolate(d3.interpolateHcl)
-    .domain([10, 90]);
-
-  // Take the inputted string eg. 111213 and split in to an array every two characters ['11', '12', '13']
-  const arr = String(inColour).match(/.{1,2}/g);
-
-  // Base Colour
-  colour = startColour = endColour = d3.hcl(mapColours.get(+arr[0])); // lightGreenFirstPalette[x]
-
-  if (arr.length === 1) {
-    return colour;
-  } else {
-    for (let i = 2; i <= arr.length; i++) {
-      (startColour = startColour.darker()), (endColour = endColour.brighter());
-    }
-
-    colours.range([startColour, endColour]);
-    return colours(arr[arr.length - 1]); //  the last item in the array
-  }
 }

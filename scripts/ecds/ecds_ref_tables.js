@@ -369,3 +369,5 @@ fetch("https://www.gov.uk/bank-holidays.json")
       bankHolidayMap.set(+bankHol, d.title); // add bank holiday date to the map as an integer
     });
   });
+
+
