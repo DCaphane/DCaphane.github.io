@@ -9,6 +9,8 @@ const map_diagnosis_groups = new Map([
   // tried using map to use array as key but this doesn't appear to work, dificult to get values when key is an array...
   diagnosis_set = new Set(); // used to log any unmatched snomed codes that may need  eg. old codes that have since been dropped
 
+console.time("importTime");
+
 Papa.parse("Data/ecds/ecds_ref_tables/ref_diagnosis.csv", {
   download: true,
   header: true,
@@ -369,5 +371,3 @@ fetch("https://www.gov.uk/bank-holidays.json")
       bankHolidayMap.set(+bankHol, d.title); // add bank holiday date to the map as an integer
     });
   });
-
-

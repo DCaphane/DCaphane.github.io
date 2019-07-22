@@ -152,3 +152,15 @@ function sunburstColours(inColour) {
     return colours(arr[arr.length - 1]); //  the last item in the array
   }
 }
+
+
+
+// Main Dimensions as global variables
+let dimDaily,
+groupDaily,
+dimPeriod,
+groupPeriod,
+minDateTS,
+maxDateTS,
+minDate,
+maxDate;
