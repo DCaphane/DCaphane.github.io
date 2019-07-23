@@ -15,32 +15,32 @@ const // sqlDayZero = new Date(1900, 0, 1), // months are 0 based, 0 = Jan
   // Most formatting declared in function but this is used outside? Could just write it twice!
   formatHour12 = d3.timeFormat("%I %p"); // %I hour (12-hour clock) as a decimal number [01,12], %p - either AM or PM
 
-let cf, all, groupTimeofDay; // used for heat key calcs
+var cf, all, groupTimeofDay; // used for heat key calcs
 
 // Charting - these need to be in global scope eg. for reset
 const // Time Charts
-  chtDayofWeek = dc.pieChart("#day-of-week-chart"),
-  heatmapTimeDay = dc.heatMap("#heatmapTimeDay"),
+  // chtDayofWeek = dc.pieChart("#day-of-week-chart"),
+  // heatmapTimeDay = dc.heatMap("#heatmapTimeDay"),
   seriesDaily = dc.lineChart("#daily-trend-chart"),
-  seriesPeriod = dc.barChart("#period-trend-chart"),
+  seriesPeriod = dc.barChart("#period-trend-chart");
   // Diagnosis Charts
-  chtDiagMain = dc.rowChart("#diagMain-chart"),
-  chtDiagnoses = dc.sunburstChart("#diagnosis-chart-wide"),
-  chtComplaint = dc.sunburstChart("#complaint-chart"),
-  chtAcuity = dc.pieChart("#acuity-chart"),
-  // Patient Characteristic Charts
-  chtAgeBand = dc.rowChart("#ageband-chart"),
-  dropGPPractice = dc.selectMenu("#gppractice-drop"),
-  // Other
-  chtRefSource = dc.sunburstChart("#refSource-chart"),
-  cBoxEDFD = dc.cboxMenu("#EDFD-cbox"), // How to build in streamed into disposal... the following should just be one
-  chtDischDest = dc.sunburstChart("#dischDest-chart"),
-  chtDischStatus = dc.sunburstChart("#dischStatus-chart"),
-  chtDischFUP = dc.sunburstChart("#dischFUP-chart"),
-  chtDrugAlcohol = dc.sunburstChart("#drugalcohol-chart"),
-  chtDuration = dc.lineChart("#duration-chart"),
-  boxPlotDuration = dc.boxPlot("#box-test"),
-  mapLSOA = dc_leaflet.choroplethChart("#map-test");
+  // chtDiagMain = dc.rowChart("#diagMain-chart"),
+  // chtDiagnoses = dc.sunburstChart("#diagnosis-chart-wide"),
+  // chtComplaint = dc.sunburstChart("#complaint-chart"),
+  // chtAcuity = dc.pieChart("#acuity-chart"),
+  // // Patient Characteristic Charts
+  // chtAgeBand = dc.rowChart("#ageband-chart"),
+  // dropGPPractice = dc.selectMenu("#gppractice-drop"),
+  // // Other
+  // chtRefSource = dc.sunburstChart("#refSource-chart"),
+  // cBoxEDFD = dc.cboxMenu("#EDFD-cbox"), // How to build in streamed into disposal... the following should just be one
+  // chtDischDest = dc.sunburstChart("#dischDest-chart"),
+  // chtDischStatus = dc.sunburstChart("#dischStatus-chart"),
+  // chtDischFUP = dc.sunburstChart("#dischFUP-chart"),
+  // chtDrugAlcohol = dc.sunburstChart("#drugalcohol-chart"),
+  // chtDuration = dc.lineChart("#duration-chart"),
+  // boxPlotDuration = dc.boxPlot("#box-test"),
+  // mapLSOA = dc_leaflet.choroplethChart("#map-test");
 // Import Reference Tables and Data
 // https://github.com/d3/d3-fetch/blob/master/README.md#dsv
 
@@ -144,13 +144,18 @@ const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d) {
   };
 });
 
+// let ecdsData;
+// mainData.then(function(data) {
+//   ecdsData = data;
+// })
+
 mainData
-  .then(function(data) {
+  .then((ecdsData) => {
     console.timeEnd("importTime");
     // console.log(data);
 
     // Run the data through crossfilter and load the cf_data
-    cf = crossfilter(data);
+    cf = crossfilter(ecdsData);
     all = cf.groupAll();
 
     // Used to present total number of records and number of filtered records
@@ -172,23 +177,23 @@ mainData
 
     // Daily and Period Charts are closely linked
 
-    dimDaily = cf.dimension(function(d) {
+    var dimDaily = cf.dimension(function(d) {
       return +d.Arrival_Date_ms;
     }),
     groupDaily = dimDaily.group();
 
   // https://stackoverflow.com/questions/31808718/dc-js-barchart-first-and-last-bar-not-displaying-fully
   // check what the first set of square brackets are for
-  minDateTS = dimDaily.bottom(1)[0]["Arrival_Date_ms"],
+  let minDateTS = dimDaily.bottom(1)[0]["Arrival_Date_ms"],
     maxDateTS = dimDaily.top(1)[0]["Arrival_Date_ms"];
 
-  minDate = new Date(minDateTS),
+  let minDate = new Date(minDateTS),
     maxDate = new Date(maxDateTS);
 
   // minDate.setHours(minDate.getHours() - 1);
   // maxDate.setHours(maxDate.getHours() + 1);
 
-  dimPeriod = cf.dimension(function(d) {
+  var dimPeriod = cf.dimension(function(d) {
       return d.Period;
     }),
     groupPeriod = dimPeriod.group();
@@ -387,14 +392,14 @@ seriesPeriod.render();
   document.getElementById("bl-sectime").style.display = "none";
   document.getElementById("sectime").style.visibility = "visible";
 
-
-    return data;
+  console.timeEnd("ProcessTime");
+    return ecdsData;
   })
   // .then(data => {
     
   //   return data;
   // })
-  .then(data => {
+  .then((ecdsData) => {
     // supplementary information, can comment out for speed...
     // how many rows?
     console.log(
@@ -404,7 +409,7 @@ seriesPeriod.render();
     );
     // log a random record
     const random = Math.floor(Math.random() * (+cf.size() - +0)) + +0; // random number between 0 and no. records
-    console.log(data[random]); // console.log(data[0]);// example data
+    console.log(ecdsData[random]); // console.log(data[0]);// example data
 
     missingSnomedCodes["diagnosis"] = diagnosis_set;
     missingSnomedCodes["complaint"] = complaint_set;

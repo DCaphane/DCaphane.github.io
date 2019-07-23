@@ -155,12 +155,4 @@ function sunburstColours(inColour) {
 
 
 
-// Main Dimensions as global variables
-let dimDaily,
-groupDaily,
-dimPeriod,
-groupPeriod,
-minDateTS,
-maxDateTS,
-minDate,
-maxDate;
+
