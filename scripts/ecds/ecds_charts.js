@@ -175,9 +175,10 @@ mainData
           "All records selected. Please click on the charts to apply filters."
       });
 
-    return ecdsData;
-  })
-  .then(ecdsData => {
+
+  });
+
+mainData.then(ecdsData => {
     /* Time Related Charting */
     console.time("timeCharts");
     // Daily and Period Charts are closely linked
@@ -466,9 +467,10 @@ mainData
 	document.getElementById("sectime").style.visibility = "visible";
 	
     console.timeEnd("timeCharts");
-    return ecdsData;
-  })
-  .then(ecdsData => {
+
+  });
+
+mainData.then(ecdsData => {
 	  console.time("chartGroup2")
 
 // Diagnosis Charts
@@ -562,9 +564,10 @@ mainData
       document.getElementById("secdiag").style.visibility = "visible";
 
 	  console.timeEnd("chartGroup2")
-    return ecdsData;
-  })
-  .then(ecdsData => {
+
+  });
+
+mainData.then(ecdsData => {
     // supplementary information, can comment out for speed...
     // how many rows?
     console.log(
