@@ -789,9 +789,9 @@ function heatKey(noCells) {
 				enter
 					.append('text')
 					.text(function(d, i) {
-						if (i % 2 === 0 || i === noCells - 1) {
+						// if (i % 2 === 0 || i === noCells - 1) {
 							return heatmapTDScale(d);
-						}
+						// }
 					})
 					.attr('class', 'heatLabel')
 					.attr('x', function(d, i) {
@@ -800,7 +800,14 @@ function heatKey(noCells) {
 					.attr('dx', 5)
 					.attr('y', 0)
 					.attr('font-size', '0.15em')
-					.attr('fill', '#999')
+          .attr('fill', '#999')
+          .style('opacity', function(d, i) {
+						if (i % 2 === 0 || i === noCells - 1) {
+							return 1;
+						} else {
+              return 0.2;
+            }
+					})
 					.attr('text-anchor', 'middle')
 					.call((enter) =>
 						enter
