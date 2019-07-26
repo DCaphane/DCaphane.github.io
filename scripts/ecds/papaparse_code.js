@@ -1366,3 +1366,127 @@ Papa.parse("Data/ecds/AE_RawData_snomed.csv", {
       console.timeEnd("ProcessTime");
     }
   });
+
+
+  
+function heatKey(noCells) {
+  //console.trace();
+  //debugger;
+  // https://stackoverflow.com/questions/22392134/is-there-a-way-to-attach-callback-what-fires-whenever-a-crossfilter-dimension-fi
+  const margin = {
+      top: 5,
+      right: 5,
+      bottom: 5,
+      left: 5
+    },
+    width = 200 - margin.left - margin.right,
+    height = 20 - margin.top - margin.bottom;
+  let arrCells = [];
+
+  // from a number between 0 and 1, return a colour from the colour scale
+  const sequentialScale = d3
+    .scaleSequential()
+    .domain([0, 1])
+    .interpolator(d3.interpolateOrRd);
+
+  // this sorts the day time in dscending order
+  const heatmapGroup = groupTimeofDay.top(groupTimeofDay.size()); // 24 hours by 7 days = 168 - this returns an array of all records, # sorted descending #
+
+  // Returns the top record
+  let heatmapTDmax = heatmapGroup[0];
+  console.log(heatmapTDmax); // returns the object only {key: [hour, day], value: x}
+  // console.log(heatmapTDmax.key); // to extract the key only, [hour, day]
+  // console.log(heatmapTDmax.value); // to extract the value only, x
+
+  // Using the below to return the last record
+  let heatmapTDmin = heatmapGroup[groupTimeofDay.size() - 1]; // +Object.keys(heatmapGroup).length;
+  console.log(heatmapTDmin);
+
+  let heatmapTDRange = heatmapTDmax.value - heatmapTDmin.value;
+  // from a number between 0 and 1, returns a value between the min and max values
+  const heatmapTDScale = d3.interpolateRound(
+    heatmapTDmin.value,
+    heatmapTDmax.value
+  );
+
+  if (noCells === undefined) {
+    // console.log(heatmapTDRange)
+    if (heatmapTDRange > 100) {
+      noCells = 10;
+    } else {
+      noCells = 5;
+    }
+  }
+
+  for (let i = 0; i < noCells; i++) {
+    arrCells.push(i / (noCells - 1));
+  }
+  // console.log(arrCells);
+
+  d3.select("#legend")
+    .selectAll("svg")
+    //.data(arrCells)
+    //.exit()
+    .remove();
+
+  let svg = d3
+    .select("#legend")
+    .append("svg")
+    // .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (60)); // height + margin.top + margin.bottom
+    .attr("viewBox", "0 5 200 20"); // height + margin.top + margin.bottom
+
+// update this to join transition (d3.v5 - see practice profile charts as example)
+// https://stackoverflow.com/questions/52337854/interactive-update-does-not-work-in-heatmap
+  let heatKeyCells = svg
+    .selectAll("g")
+    .data(arrCells)
+    .enter()
+    .append("g")
+    .attr("transform", "translate(" + 5 + "," + 5 + ")"); // (height / 2)
+
+  heatKeyCells
+    .append("rect")
+    .attr("x", function(d, i) {
+      return i * 10;
+    })
+    .attr("class", "heatCell")
+    .attr("y", 0)
+    .attr("width", 9)
+    .attr("height", 9)
+    .style("fill", function(d) {
+      return sequentialScale(d);
+    });
+
+  heatKeyCells
+    .append("text")
+    .text(function(d, i) {
+      if (i % 2 === 0 || i === noCells - 1) {
+        return heatmapTDScale(d);
+      }
+    })
+    .attr("class", "heatLabel")
+    .merge(heatKeyCells)
+    .attr("x", function(d, i) {
+      return i * 10;
+    })
+    .attr("dx", 5)
+    .attr("y", 15)
+    .attr("font-size", "0.15em")
+    .attr("fill", "#009")
+    .attr("text-anchor", "middle");
+
+  // Insert text into html
+  document.getElementById("heatDayMax").textContent =
+    arrWeekDays[heatmapTDmax.key[1]];
+  document.getElementById("heatTimeMax").textContent = formatHour12(
+    new Date(0).setHours(heatmapTDmax.key[0])
+  );
+
+  document.getElementById("heatDayMin").textContent =
+    arrWeekDays[heatmapTDmin.key[1]];
+  document.getElementById("heatTimeMin").textContent = formatHour12(
+    //new Date(1900, 0, 1, heatmapTDmin.key[0], 0, 0, 0)
+    new Date(0).setHours(heatmapTDmin.key[0])
+  );
+  console.warn("Why do i run twice? Update to d3.v5 join transition");
+}
