@@ -637,195 +637,195 @@ function average_map(m) {
 }
 
 const heatmapLegend = d3
-.select("#legend")
-.append("svg")
-.attr("viewBox", "0 5 200 20") // height + margin.top + margin.bottom
-.attr("transform", "translate(" + 50 + "," + 5 + ")"); // (height / 2)
-
+	.select('#legend')
+	.append('svg')
+	.attr('viewBox', '0 5 200 20') // height + margin.top + margin.bottom
+	.attr('transform', 'translate(' + 50 + ',' + 5 + ')'); // (height / 2)
 
 function heatKey(noCells) {
-  //console.trace();
-  //debugger;
-  // https://stackoverflow.com/questions/22392134/is-there-a-way-to-attach-callback-what-fires-whenever-a-crossfilter-dimension-fi
+	//console.trace();
+	//debugger;
+	// https://stackoverflow.com/questions/22392134/is-there-a-way-to-attach-callback-what-fires-whenever-a-crossfilter-dimension-fi
 
-  let arrCells = [];
+	let arrCells = [];
 
-  // from a number between 0 and 1, return a colour from the colour scale
-  const sequentialScale = d3
-    .scaleSequential()
-    .domain([0, 1])
-    .interpolator(d3.interpolateOrRd);
+	// from a number between 0 and 1, return a colour from the colour scale
+	const sequentialScale = d3
+		.scaleSequential()
+		.domain([0, 1])
+		.interpolator(d3.interpolateOrRd);
 
-  // this sorts the day time in dscending order
-  const heatmapGroup = groupTimeofDay.top(groupTimeofDay.size()); // 24 hours by 7 days = 168 - this returns an array of all records, # sorted descending #
+	// this sorts the day time in dscending order
+	const heatmapGroup = groupTimeofDay.top(groupTimeofDay.size()); // 24 hours by 7 days = 168 - this returns an array of all records, # sorted descending #
 
-  // Returns the top record
-  let heatmapTDmax = heatmapGroup[0];
-  console.log(heatmapTDmax); // returns the object only {key: [hour, day], value: x}
-  // console.log(heatmapTDmax.key); // to extract the key only, [hour, day]
-  // console.log(heatmapTDmax.value); // to extract the value only, x
+	// Returns the top record
+	let heatmapTDmax = heatmapGroup[0];
+	console.log(heatmapTDmax); // returns the object only {key: [hour, day], value: x}
+	// console.log(heatmapTDmax.key); // to extract the key only, [hour, day]
+	// console.log(heatmapTDmax.value); // to extract the value only, x
 
-  // Using the below to return the last record
-  let heatmapTDmin = heatmapGroup[groupTimeofDay.size() - 1]; // +Object.keys(heatmapGroup).length;
-  console.log(heatmapTDmin);
+	// Using the below to return the last record
+	let heatmapTDmin = heatmapGroup[groupTimeofDay.size() - 1]; // +Object.keys(heatmapGroup).length;
+	console.log(heatmapTDmin);
 
-  let heatmapTDRange = heatmapTDmax.value - heatmapTDmin.value;
-  // from a number between 0 and 1, returns a value between the min and max values
-  const heatmapTDScale = d3.interpolateRound(
-    heatmapTDmin.value,
-    heatmapTDmax.value
-  );
+	let heatmapTDRange = heatmapTDmax.value - heatmapTDmin.value;
+	// from a number between 0 and 1, returns a value between the min and max values
+	const heatmapTDScale = d3.interpolateRound(
+		heatmapTDmin.value,
+		heatmapTDmax.value
+	);
 
-  if (noCells === undefined) {
-    // console.log(heatmapTDRange)
-    if (heatmapTDRange > 100) {
-      noCells = 10;
-    } else {
-      noCells = 5;
-    }
-  }
+	if (noCells === undefined) {
+		// console.log(heatmapTDRange)
+		if (heatmapTDRange > 100) {
+			noCells = 10;
+		} else {
+			noCells = 5;
+		}
+	}
 
-  for (let i = 0; i < noCells; i++) {
-    arrCells.push(i / (noCells - 1));
-  }
-  // console.log(arrCells);
+	for (let i = 0; i < noCells; i++) {
+		arrCells.push(i / (noCells - 1));
+	}
+	// console.log(arrCells);
 
-  // update this to join transition (d3.v5 - see practice profile charts as example)
-  // https://stackoverflow.com/questions/52337854/interactive-update-does-not-work-in-heatmap
-  // https://observablehq.com/@d3/selection-join
-  // heatmap Legend
+	// update this to join transition (d3.v5 - see practice profile charts as example)
+	// https://stackoverflow.com/questions/52337854/interactive-update-does-not-work-in-heatmap
+	// https://observablehq.com/@d3/selection-join
+	// heatmap Legend
 
-  // d3 transition
-  const t = d3
-    .transition()
-    .duration(500) // 750 too slow and results in incomplete transition
-    .ease(d3.easeBounce);
+	// d3 transition
+	const t = d3
+		.transition()
+		.duration(500) // 750 too slow and results in incomplete transition
+		.ease(d3.easeBounce);
 
-/*
+	/*
 https://bl.ocks.org/mbostock/3808234
 https://stackoverflow.com/questions/24912274/d3-update-data-with-multiple-elements-in-a-group
 
 */
 
-  // JOIN new data with old elements.
-  var heatCellGroup = heatmapLegend.selectAll("g").data(arrCells, (d, i) => i);
+	// JOIN new data with old elements.
+	var heatCellGroup = heatmapLegend
+		.selectAll('g')
+		.data(arrCells, (d, i) => i);
 
-  // EXIT old elements not present in new data.
-  heatCellGroup
-    .exit()
-    .transition(t)
-    .attr("transform", "translate(0, 30)") // rect drop down
-    .remove();
+	// EXIT old elements not present in new data.
+	heatCellGroup
+		.exit()
+		.transition(t)
+		.attr('transform', 'translate(0, 30)') // rect drop down
+		.remove();
 
-  // enter selection
-  var heatCellGroup = heatCellGroup.enter().append("g");
-  heatCellGroup.append("rect").attr("class", "heatCell");
-  heatCellGroup.append("text").attr("class", "heatCellLabel");
-  heatCellGroup.append("svg:title").attr("class", "heatCellHover"); //simple tooltip
+	// enter selection
+	var heatCellGroup = heatCellGroup.enter().append('g');
+	heatCellGroup.append('rect').attr('class', 'heatCell');
+	heatCellGroup.append('text').attr('class', 'heatCellLabel');
+	heatCellGroup.append('svg:title').attr('class', 'heatCellHover'); //simple tooltip
 
-  // update selection -- this will also contain the newly appended elements
-  // don't appear to need this
-  // heatCellGroup.select("rect")
-  //   .attr("class", "heatCell");
+	// update selection -- this will also contain the newly appended elements
+	// don't appear to need this
+	// heatCellGroup.select("rect")
+	//   .attr("class", "heatCell");
 
-  // ENTER new elements present in new data.
-  heatCellGroup
-    .enter()
-    .append("rect")
-    .attr("class", "heatCell");
+	// ENTER new elements present in new data.
+	heatCellGroup
+		.enter()
+		.append('rect')
+		.attr('class', 'heatCell');
 
-  heatCellGroup
-    .enter()
-    .append("text")
-    .attr("class", "heatCellLabel");
+	heatCellGroup
+		.enter()
+		.append('text')
+		.attr('class', 'heatCellLabel');
 
-  heatCellGroup
-    .enter()
-    .append("svg:title")
-    .attr("class", "heatCellHover");
+	heatCellGroup
+		.enter()
+		.append('svg:title')
+		.attr('class', 'heatCellHover');
 
-  heatmapLegend
-    .selectAll(".heatCell")
-    .data(arrCells)
-    // .attr("width", 9)
-    // .attr("height", 0)
-    // .attr('opacity', 0)
-    .attr("y", 7)
-    // for mouseover event
-    .style("stroke-width", 0.5)
-    .style("stroke-opacity", 0)
-    .style("stroke", "black")
-    .on("mouseover", function(d) {
-      d3.select(this).style("stroke-opacity", 1);
-    })
-    .on("mouseout", function(d) {
-      d3.select(this).style("stroke-opacity", 0);
-    })
-    .transition(t)
-    .delay(function(d, i) {
-      // a different delay for each rect
-      return i * 50;
-    })
-    // .attr('opacity', 1)
-    .attr("transform", function(d, i) {
-      return "translate(" + i * 10 + ")";
-    })
-    .attr("width", 9)
-    .attr("height", 9)
-    .style("fill", function(d) {
-      return sequentialScale(d);
-    });
+	heatmapLegend
+		.selectAll('.heatCell')
+		.data(arrCells)
+		// .attr("width", 9)
+		// .attr("height", 0)
+		// .attr('opacity', 0)
+		.attr('y', 7)
+		// for mouseover event
+		.style('stroke-width', 0.5)
+		.style('stroke-opacity', 0)
+		.style('stroke', 'black')
+		.on('mouseover', function(d) {
+			d3.select(this).style('stroke-opacity', 1);
+		})
+		.on('mouseout', function(d) {
+			d3.select(this).style('stroke-opacity', 0);
+		})
+		.transition(t)
+		.delay(function(d, i) {
+			// a different delay for each rect
+			return i * 50;
+		})
+		// .attr('opacity', 1)
+		.attr('transform', function(d, i) {
+			return 'translate(' + i * 10 + ')';
+		})
+		.attr('width', 9)
+		.attr('height', 9)
+		.style('fill', function(d) {
+			return sequentialScale(d);
+		});
 
-  heatmapLegend
-    .selectAll(".heatCellLabel")
-    .data(arrCells)
-    .text(function(d) {
-      return heatmapTDScale(d);
-    })
-    .attr("font-size", "0.2em")
-    .attr("fill", "#999")
-    .style("opacity", function(d, i) {
-      if (i % 2 === 0 || i === noCells - 1) {
-        return 1;
-      } else {
-        return 0.2;
-      }
-    })
-    .attr("x", 0)
-    .attr("text-anchor", "start")
-    .attr("dx", 1)
-    .attr("y", 0)
-    .transition(t)
-    .delay(function(d, i) {
-      // a different delay for each label
-      return i * 50;
-    })
-    .attr("x", function(d, i) {
-      return i * 10;
-    })
-    .attr("y", 22);
+	heatmapLegend
+		.selectAll('.heatCellLabel')
+		.data(arrCells)
+		.text(function(d) {
+			return heatmapTDScale(d);
+		})
+		.attr('font-size', '0.2em')
+		.attr('fill', '#999')
+		.style('opacity', function(d, i) {
+			if (i % 2 === 0 || i === noCells - 1) {
+				return 1;
+			} else {
+				return 0.2;
+			}
+		})
+		.attr('x', 0)
+		.attr('text-anchor', 'start')
+		.attr('dx', 1)
+		.attr('y', 0)
+		.transition(t)
+		.delay(function(d, i) {
+			// a different delay for each label
+			return i * 50;
+		})
+		.attr('x', function(d, i) {
+			return i * 10;
+		})
+		.attr('y', 22);
 
-  // Simple tooltip
-  heatmapLegend
-    .selectAll(".heatCellHover")
-    .data(arrCells)
-    .text(function(d) {
-      return heatmapTDScale(d);
-    });
+	// Simple tooltip
+	heatmapLegend
+		.selectAll('.heatCellHover')
+		.data(arrCells)
+		.text(function(d) {
+			return heatmapTDScale(d);
+		});
 
+	// Insert text into html
+	document.getElementById('heatDayMax').textContent =
+		arrWeekDays[heatmapTDmax.key[1]];
+	document.getElementById('heatTimeMax').textContent = formatHour12(
+		new Date(0).setHours(heatmapTDmax.key[0])
+	);
 
-  // Insert text into html
-  document.getElementById("heatDayMax").textContent =
-    arrWeekDays[heatmapTDmax.key[1]];
-  document.getElementById("heatTimeMax").textContent = formatHour12(
-    new Date(0).setHours(heatmapTDmax.key[0])
-  );
-
-  document.getElementById("heatDayMin").textContent =
-    arrWeekDays[heatmapTDmin.key[1]];
-  document.getElementById("heatTimeMin").textContent = formatHour12(
-    //new Date(1900, 0, 1, heatmapTDmin.key[0], 0, 0, 0)
-    new Date(0).setHours(heatmapTDmin.key[0])
-  );
-  //console.warn('Why do i run twice?');
+	document.getElementById('heatDayMin').textContent =
+		arrWeekDays[heatmapTDmin.key[1]];
+	document.getElementById('heatTimeMin').textContent = formatHour12(
+		//new Date(1900, 0, 1, heatmapTDmin.key[0], 0, 0, 0)
+		new Date(0).setHours(heatmapTDmin.key[0])
+	);
+	//console.warn('Why do i run twice?');
 }
