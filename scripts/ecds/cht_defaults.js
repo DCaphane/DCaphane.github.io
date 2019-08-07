@@ -152,7 +152,3 @@ function sunburstColours(inColour) {
     return colours(arr[arr.length - 1]); //  the last item in the array
   }
 }
-
-
-
-
