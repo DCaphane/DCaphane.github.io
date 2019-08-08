@@ -35,7 +35,11 @@ function log(message, style = ["blue", "white"]) {
       );
     } else {
       // for anything other than strings
-      console.log(message);
+      // console.log(message);
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Console/log#Logging_objects
+      const strObj = JSON.parse(JSON.stringify(message, null, 4)); // JSON.stringify(message)
+      console.log(strObj);
     }
   }
 }
