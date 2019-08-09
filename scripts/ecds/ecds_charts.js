@@ -598,11 +598,11 @@ dropGPPractice
 	.height(chtHeightStd)
 	.dimension(dimGPPractice)
 	.group(groupGPPractice) //dimGPPractice.group()
-	.multiple(true)
-	.numberVisible(18)
+	.multiple(false)
+	// .numberVisible(18)
 	.turnOnControls()
 	.controlsUseVisibility(true)
-	.promptText("Select All")
+	.promptText("Select All Practices")
 	.order(function(a, b) {
 		return b.value > a.value ? 1 : a.value > b.value ? -1 : 0;
 	})
