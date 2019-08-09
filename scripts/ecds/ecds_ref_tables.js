@@ -328,16 +328,10 @@ Papa.parse("Data/ecds/ecds_ref_tables/ref_inj_drug.csv", {
 let practiceObj = {},
   practiceArr = [];
 
-Papa.parse("Data/ref_gppractice.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
+d3.csv("Data/ref_gppractice.csv").then(function(data) {
     // https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript
     // https://medium.com/dailyjs/rewriting-javascript-converting-an-array-of-objects-to-an-object-ec579cafbfc7
-    practiceObj = d.data.reduce(
+    practiceObj = data.reduce(
       (obj, item) => (
         (obj[item.PracticeCode_Mapped] = [
           item.ID, // PapaParse auto set to int
@@ -351,7 +345,6 @@ Papa.parse("Data/ref_gppractice.csv", {
 
     // Returns the practice codes as an array for subsequent lookup
     practiceArr = Object.keys(practiceObj);
-  }
 });
 
 // Bank Holidays

@@ -25,12 +25,12 @@ let // Time Charts
 	seriesPeriod,
 	// Diagnosis Charts
 	chtDiagMain,
-	chtDiagnoses;
+	chtDiagnoses,
 // chtComplaint = dc.sunburstChart("#complaint-chart"),
 // chtAcuity = dc.pieChart("#acuity-chart"),
 // // Patient Characteristic Charts
 // chtAgeBand = dc.rowChart("#ageband-chart"),
-// dropGPPractice = dc.selectMenu("#gppractice-drop"),
+dropGPPractice; // = dc.selectMenu("#gppractice-drop"),
 // // Other
 // chtRefSource = dc.sunburstChart("#refSource-chart"),
 // cBoxEDFD = dc.cboxMenu("#EDFD-cbox"), // How to build in streamed into disposal... the following should just be one
@@ -107,7 +107,9 @@ const mainData = d3.csv("Data/ecds/AE_RawData_snomed_incHead.csv", function(d) {
 		duration: Math.min(+d.Duration_ms, maxDuration), // Fix max duration at source
 		ageBand: arrAgeBand.indexOf(d.AgeBand),
 		practice:
-			practiceObj[d.practice_code] !== undefined ? d.practice_code : 0,
+			practiceObj[d.practice_code] !== undefined
+				? +practiceObj[d.practice_code][0] // d.practice_code, format as numeric
+				: 0,
 		Diagnoses:
 			diagnosisRefObj[+d.snomed_diagnosis] !== undefined
 				? diagnosisRefObj[+d.snomed_diagnosis] // ie. snomed code has been found...
@@ -578,6 +580,56 @@ mainData.then((ecdsData) => {
 
 	console.timeEnd("chartGroup2");
 });
+
+
+mainData.then(()=> {
+console.time("Other Charts");
+
+	dropGPPractice = dc.selectMenu("#gppractice-drop");
+
+const dimGPPractice = cf.dimension(function(d) {
+		return d.practice;
+	}),
+	groupGPPractice = dimGPPractice.group();
+
+dropGPPractice
+	.useViewBoxResizing(true)
+	.width(chtWidthWide)
+	.height(chtHeightStd)
+	.dimension(dimGPPractice)
+	.group(groupGPPractice) //dimGPPractice.group()
+	.multiple(true)
+	.numberVisible(18)
+	.turnOnControls()
+	.controlsUseVisibility(true)
+	.promptText("Select All")
+	.order(function(a, b) {
+		return b.value > a.value ? 1 : a.value > b.value ? -1 : 0;
+	})
+	.title(function(d) {
+		if (+d.key !== 0) {
+			const pCode = practiceArr[d.key - 1],
+				pDetails = practiceObj[pCode];
+
+			return [
+				pCode,
+				pDetails[1],
+				pDetails[2],
+				formatNumber(d.value)
+			].join(": ");
+		} else {
+			return "Other: " + formatNumber(d.value);
+		}
+	})
+	.render();
+
+	document.getElementById("bl-secpatient").style.display = "none";
+	document.getElementById("secpatient").style.visibility = "visible";
+
+	console.timeEnd("Other Charts");
+
+})
+
 
 mainData.then((ecdsData) => {
 	// supplementary information, can comment out for speed...
