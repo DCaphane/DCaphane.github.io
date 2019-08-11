@@ -1,3 +1,10 @@
+/*
+Removed dependancy on papaparse
+    if any issues check:
+        • papaparse auto converted to + from string
+        •
+*/
+
 const colourUnknown = "#bbbbbb",
   colourOldCode = "#7b615c";
 
@@ -11,78 +18,65 @@ const map_diagnosis_groups = new Map([
 
 console.time("importTime");
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_diagnosis.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    diagnosisRefObj = d.data.reduce(
-      (obj, item) => (
-        (obj[item.SNOMED_Code] = [item.Sort1, item.Sort2, item.Sort3]), obj
-      ),
-      {}
-    );
-    //test = Object.entries(d);
-    /*
+// https://stackoverflow.com/questions/49599691/how-to-load-data-from-a-csv-file-in-d3-v5
+async function refDataDiagnosis() {
+  const data = await d3.csv("Data/ecds/ecds_ref_tables/ref_diagnosis.csv");
+
+  diagnosisRefObj = data.reduce(
+    (obj, item) => (
+      (obj[item.SNOMED_Code] = [item.Sort1, item.Sort2, item.Sort3]), obj
+    ),
+    {}
+  );
+  //test = Object.entries(d);
+  /*
             Destructuring Assignment
             Unpack the original array of objects into objects with the SNOMED_Code as the key for lookup
             https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
         */
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2, s3; // variables to contain Sort1, Sort2 and Sort 3 only from full table
-      ({ s1, s2, s3 } = {
-        s1: d.Sort1,
-        s2: d.Sort2,
-        s3: d.Sort3
-      }); // unpack the selected variables
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2, s3; // variables to contain Sort1, Sort2 and Sort 3 only from full table
+    ({ s1, s2, s3 } = {
+      s1: d.Sort1,
+      s2: d.Sort2,
+      s3: d.Sort3
+    }); // unpack the selected variables
 
-      // Create a map key with the Sort descriptions for chart lookups
+    // Create a map key with the Sort descriptions for chart lookups
 
-      const strS2 = "" + s1 + s2,
-        strS3 = "" + s1 + s2 + s3;
+    const strS2 = "" + s1 + s2,
+      strS3 = "" + s1 + s2 + s3;
 
-      if (!map_diagnosis_groups.has(s1)) {
-        map_diagnosis_groups.set(s1, [d.ECDS_Group1, sunburstColours(s1)]);
-      } // eg. 11 (int format rather than string)
+    if (!map_diagnosis_groups.has(+s1)) {
+      map_diagnosis_groups.set(+s1, [d.ECDS_Group1, sunburstColours(s1)]);
+    } // eg. 11 (int format rather than string)
 
-      if (!map_diagnosis_groups.has(+strS2)) {
-        map_diagnosis_groups.set(+strS2, [
-          d.ECDS_Group2,
-          sunburstColours(strS2)
-        ]);
-      } // eg. 1112
+    if (!map_diagnosis_groups.has(+strS2)) {
+      map_diagnosis_groups.set(+strS2, [d.ECDS_Group2, sunburstColours(strS2)]);
+    } // eg. 1112
 
-      if (!map_diagnosis_groups.has(+strS3)) {
-        map_diagnosis_groups.set(+strS3, [
-          d.ECDS_Group3,
-          sunburstColours(strS3)
-        ]);
-      } // eg. 111213
-    });
-  }
-});
+    if (!map_diagnosis_groups.has(+strS3)) {
+      map_diagnosis_groups.set(+strS3, [d.ECDS_Group3, sunburstColours(strS3)]);
+    } // eg. 111213
+  });
+}
+refDataDiagnosis();
 
 let acuityRefObj = {};
 const acuity_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_acuity.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    acuityRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = item.ECDS_Description), obj),
-      {}
-    );
-    acuityRefObj[0] = "0 - Unknown";
-  }
-});
+async function refDataAcuity() {
+  const data = await d3.csv("Data/ecds/ecds_ref_tables/ref_acuity.csv");
+
+  acuityRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = item.ECDS_Description), obj),
+    {}
+  );
+  acuityRefObj[0] = "0 - Unknown";
+}
+refDataAcuity();
 
 let attdSourceRefObj = {};
 const map_attdSource_groups = new Map([
@@ -91,38 +85,34 @@ const map_attdSource_groups = new Map([
   ]),
   attdSource_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_attd_source.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    attdSourceRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
-      {}
-    );
+async function refDataAttdSource() {
+  const data = await d3.csv("Data/ecds/ecds_ref_tables/ref_attd_source.csv");
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2; // variables to contain Sort1, Sort2 only from full table
-      ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+  attdSourceRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
+    {}
+  );
 
-      const strS2 = "" + s1 + s2;
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2; // variables to contain Sort1, Sort2 only from full table
+    ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
 
-      // Create a map key with the Sort descriptions for chart lookups
-      if (!map_attdSource_groups.has(s1)) {
-        map_attdSource_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
-      }
-      if (!map_attdSource_groups.has(+strS2)) {
-        map_attdSource_groups.set(+strS2, [
-          d.ECDS_Description,
-          sunburstColours(strS2)
-        ]);
-      }
-    });
-  }
-});
+    const strS2 = "" + s1 + s2;
+
+    // Create a map key with the Sort descriptions for chart lookups
+    if (!map_attdSource_groups.has(s1)) {
+      map_attdSource_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    }
+    if (!map_attdSource_groups.has(+strS2)) {
+      map_attdSource_groups.set(+strS2, [
+        d.ECDS_Description,
+        sunburstColours(strS2)
+      ]);
+    }
+  });
+}
+refDataAttdSource();
 
 let complaintRefObj = {};
 const map_complaint_groups = new Map([
@@ -131,38 +121,36 @@ const map_complaint_groups = new Map([
   ]),
   complaint_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_complaint.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    complaintRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
-      {}
-    );
+async function refDataComplaint() {
+  const data = await d3.csv(
+    "Data/ecds/ecds_ref_tables/ref_discharge_destination.csv"
+  );
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2; // variables to contain Sort1, Sort2 only from full table
-      ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+  complaintRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
+    {}
+  );
 
-      const strS2 = "" + s1 + s2;
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2; // variables to contain Sort1, Sort2 only from full table
+    ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
 
-      // Create a map key with the Sort descriptions for chart lookups
-      if (!map_complaint_groups.has(s1)) {
-        map_complaint_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
-      }
-      if (!map_complaint_groups.has(+strS2)) {
-        map_complaint_groups.set(+strS2, [
-          d.ECDS_Description,
-          sunburstColours(strS2)
-        ]);
-      }
-    });
-  }
-});
+    const strS2 = "" + s1 + s2;
+
+    // Create a map key with the Sort descriptions for chart lookups
+    if (!map_complaint_groups.has(s1)) {
+      map_complaint_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    }
+    if (!map_complaint_groups.has(+strS2)) {
+      map_complaint_groups.set(+strS2, [
+        d.ECDS_Description,
+        sunburstColours(strS2)
+      ]);
+    }
+  });
+}
+refDataComplaint();
 
 let dischdestRefObj = {};
 const map_dischdest_groups = new Map([
@@ -171,38 +159,36 @@ const map_dischdest_groups = new Map([
   ]),
   dischdest_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_discharge_destination.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    dischdestRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
-      {}
-    );
+async function refDataDischDest() {
+  const data = await d3.csv(
+    "Data/ecds/ecds_ref_tables/ref_discharge_destination.csv"
+  );
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2; // variables to contain Sort1, Sort2 only from full table
-      ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+  dischdestRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
+    {}
+  );
 
-      const strS2 = "" + s1 + s2;
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2; // variables to contain Sort1, Sort2 only from full table
+    ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
 
-      // Create a map key with the Sort descriptions for chart lookups
-      if (!map_dischdest_groups.has(s1)) {
-        map_dischdest_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
-      }
-      if (!map_dischdest_groups.has(+strS2)) {
-        map_dischdest_groups.set(+strS2, [
-          d.ECDS_Description,
-          sunburstColours(strS2)
-        ]);
-      }
-    });
-  }
-});
+    const strS2 = "" + s1 + s2;
+
+    // Create a map key with the Sort descriptions for chart lookups
+    if (!map_dischdest_groups.has(s1)) {
+      map_dischdest_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    }
+    if (!map_dischdest_groups.has(+strS2)) {
+      map_dischdest_groups.set(+strS2, [
+        d.ECDS_Description,
+        sunburstColours(strS2)
+      ]);
+    }
+  });
+}
+refDataDischDest();
 
 let dischfupRefObj = {};
 const map_dischfup_groups = new Map([
@@ -211,39 +197,37 @@ const map_dischfup_groups = new Map([
   ]),
   dischfup_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_discharge_followup.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    dischfupRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
-      {}
-    );
-    dischfupRefObj[3780001] = [91];
+async function refDataDischFUP() {
+  const data = await d3.csv(
+    "Data/ecds/ecds_ref_tables/ref_discharge_followup.csv"
+  );
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2; // variables to contain Sort1, Sort2 only from full table
-      ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+  dischfupRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
+    {}
+  );
+  dischfupRefObj[3780001] = [91];
 
-      const strS2 = "" + s1 + s2;
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2; // variables to contain Sort1, Sort2 only from full table
+    ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
 
-      // Create a map key with the Sort descriptions for chart lookups
-      if (!map_dischfup_groups.has(s1)) {
-        map_dischfup_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
-      }
-      if (!map_dischfup_groups.has(+strS2)) {
-        map_dischfup_groups.set(+strS2, [
-          d.ECDS_Description,
-          sunburstColours(strS2)
-        ]);
-      }
-    });
-  }
-});
+    const strS2 = "" + s1 + s2;
+
+    // Create a map key with the Sort descriptions for chart lookups
+    if (!map_dischfup_groups.has(s1)) {
+      map_dischfup_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    }
+    if (!map_dischfup_groups.has(+strS2)) {
+      map_dischfup_groups.set(+strS2, [
+        d.ECDS_Description,
+        sunburstColours(strS2)
+      ]);
+    }
+  });
+}
+refDataDischFUP();
 
 let dischstatusRefObj = {};
 const map_dischstatus_groups = new Map([
@@ -252,38 +236,36 @@ const map_dischstatus_groups = new Map([
   ]),
   dischstatus_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_discharge_status.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    dischstatusRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
-      {}
-    );
-    dischstatusRefObj[182992009] = [11];
+async function refDataDischStatus() {
+  const data = await d3.csv(
+    "Data/ecds/ecds_ref_tables/ref_discharge_status.csv"
+  );
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2; // variables to contain Sort1, Sort2 only from full table
-      ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+  dischstatusRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
+    {}
+  );
+  dischstatusRefObj[182992009] = [11];
 
-      const strS2 = "" + s1 + s2;
-      // Create a map key with the Sort descriptions for chart lookups
-      if (!map_dischstatus_groups.has(s1)) {
-        map_dischstatus_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
-      }
-      if (!map_dischstatus_groups.has(+strS2)) {
-        map_dischstatus_groups.set(+strS2, [
-          d.ECDS_Description,
-          sunburstColours(strS2)
-        ]);
-      }
-    });
-  }
-});
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2; // variables to contain Sort1, Sort2 only from full table
+    ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+
+    const strS2 = "" + s1 + s2;
+    // Create a map key with the Sort descriptions for chart lookups
+    if (!map_dischstatus_groups.has(s1)) {
+      map_dischstatus_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    }
+    if (!map_dischstatus_groups.has(+strS2)) {
+      map_dischstatus_groups.set(+strS2, [
+        d.ECDS_Description,
+        sunburstColours(strS2)
+      ]);
+    }
+  });
+}
+refDataDischStatus();
 
 let injdrugRefObj = {};
 const map_injdrug_groups = new Map([
@@ -292,60 +274,60 @@ const map_injdrug_groups = new Map([
   ]),
   injdrug_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
-Papa.parse("Data/ecds/ecds_ref_tables/ref_inj_drug.csv", {
-  download: true,
-  header: true,
-  delimiter: ",",
-  dynamicTyping: true,
-  skipEmptyLines: true,
-  complete: d => {
-    injdrugRefObj = d.data.reduce(
-      (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
-      {}
-    );
+async function refDataInjDrug() {
+  const data = await d3.csv("Data/ecds/ecds_ref_tables/ref_inj_drug.csv");
 
-    d.data.forEach(d => {
-      // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
-      let s1, s2; // variables to contain Sort1, Sort2 only from full table
-      ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+  injdrugRefObj = data.reduce(
+    (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
+    {}
+  );
 
-      const strS2 = "" + s1 + s2;
-      // Create a map key with the Sort descriptions for chart lookups
-      if (!map_injdrug_groups.has(s1)) {
-        map_injdrug_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
-      }
-      if (!map_injdrug_groups.has(+strS2)) {
-        map_injdrug_groups.set(+strS2, [
-          d.ECDS_Description,
-          sunburstColours(strS2)
-        ]);
-      }
-    });
-  }
-});
+  data.forEach(d => {
+    // return Sort values from original object as an array, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values
+    let s1, s2; // variables to contain Sort1, Sort2 only from full table
+    ({ s1, s2 } = { s1: d.Sort1, s2: d.Sort2 }); // unpack the selected variables
+
+    const strS2 = "" + s1 + s2;
+    // Create a map key with the Sort descriptions for chart lookups
+    if (!map_injdrug_groups.has(s1)) {
+      map_injdrug_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    }
+    if (!map_injdrug_groups.has(+strS2)) {
+      map_injdrug_groups.set(+strS2, [
+        d.ECDS_Description,
+        sunburstColours(strS2)
+      ]);
+    }
+  });
+}
+refDataInjDrug();
 
 // Practice Look Up
 let practiceObj = {},
   practiceArr = [];
 
-d3.csv("Data/ref_gppractice.csv").then(function(data) {
-    // https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript
-    // https://medium.com/dailyjs/rewriting-javascript-converting-an-array-of-objects-to-an-object-ec579cafbfc7
-    practiceObj = data.reduce(
-      (obj, item) => (
-        (obj[item.PracticeCode_Mapped] = [
-          item.ID, // PapaParse auto set to int
-          item.Practice_Name,
-          item.Locality
-        ]),
-        obj
-      ),
-      {}
-    );
+async function uniquePractices() {
+  const data = await d3.csv("Data/ref_gppractice.csv");
 
-    // Returns the practice codes as an array for subsequent lookup
-    practiceArr = Object.keys(practiceObj);
-});
+  // https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript
+  // https://medium.com/dailyjs/rewriting-javascript-converting-an-array-of-objects-to-an-object-ec579cafbfc7
+  // Convert an array of Objects into one Object
+  practiceObj = data.reduce(
+    (obj, item) => (
+      (obj[item.PracticeCode_Mapped] = [
+        item.ID,
+        item.Practice_Name,
+        item.Locality
+      ]),
+      obj
+    ),
+    {}
+  );
+
+  // Returns the practice codes as an array for subsequent lookup
+  practiceArr = Object.keys(practiceObj);
+}
+uniquePractices();
 
 // Bank Holidays
 // https://medium.com/@nkhilv/how-to-use-the-javascript-fetch-api-to-get-uk-bank-holidays-step-by-step-dbb4357236ff

@@ -506,13 +506,13 @@ mainData.then((ecdsData) => {
 		}) // sort descending
 		.label(function(d) {
 			return [
-				map_diagnosis_groups.get(d.key)[0],
+				map_diagnosis_groups.get(+d.key)[0],
 				formatNumber(d.value)
 			].join(": ");
 		})
 		.title(function(d) {
 			return [
-				map_diagnosis_groups.get(d.key)[0],
+				map_diagnosis_groups.get(+d.key)[0],
 				formatNumber(d.value)
 			].join(": ");
 		})
@@ -599,7 +599,7 @@ dropGPPractice
 	.dimension(dimGPPractice)
 	.group(groupGPPractice) //dimGPPractice.group()
 	.multiple(false)
-	// .numberVisible(18)
+	// .numberVisible(18) // number of rows when multiple set to true
 	.turnOnControls()
 	.controlsUseVisibility(true)
 	.promptText("Select All Practices")
