@@ -51,110 +51,144 @@ const missingSnomedCodes = Object.create(null);
 async function ecdsCharts() {
   const ecdsData = await d3.csv(
     "Data/ecds/AE_RawData_snomed_incHead.csv",
-    function(d) {
-      /*
-  Capture codes not included in the lookup tables
-  The below are used to log any codes that do not have a valid lookup
-  Consider including in the reference tables (might need a default description/ invalid)
-  */
-
-      if (diagnosisRefObj[+d.snomed_diagnosis] === undefined) {
-        if (+d.snomed_diagnosis !== 0) {
-          diagnosis_set.add(+d.snomed_diagnosis);
-        }
-      }
-
-      if (attdSourceRefObj[+d.snomed_attd] === undefined) {
-        if (+d.snomed_attd !== 0) {
-          attdSource_set.add(+d.snomed_attd);
-        }
-      }
-
-      if (complaintRefObj[+d.snomed_complaint] === undefined) {
-        if (+d.snomed_complaint !== 0) {
-          complaint_set.add(+d.snomed_complaint);
-        }
-      }
-
-      if (dischdestRefObj[+d.snomed_dischargedest] === undefined) {
-        if (+d.snomed_dischargedest !== 0) {
-          dischdest_set.add(+d.snomed_dischargedest);
-        }
-      }
-
-      if (dischdestRefObj[+d.snomed_dischargestatus] === undefined) {
-        if (+d.snomed_dischargestatus !== 0) {
-          dischstatus_set.add(+d.snomed_dischargestatus);
-        }
-      }
-
-      if (dischfupRefObj[+d.snomed_dischargeFU] === undefined) {
-        if (+d.snomed_dischargeFU !== 0) {
-          dischfup_set.add(+d.snomed_dischargeFU);
-        }
-      }
-
-      if (injdrugRefObj[+d.snomed_injdrug] === undefined) {
-        if (+d.snomed_injdrug !== 0) {
-          injdrug_set.add(+d.snomed_injdrug);
-        }
-      }
-
-      // Main Data Output
-      return {
-        Arrival_Date_ms: +d.Arrival_Date_ms,
-        Period: +d.Period_ms,
-        Hour: +d.Hour,
-        WeekdayNo: +d.WeekdayNo,
-        duration: Math.min(+d.Duration_ms, maxDuration), // Fix max duration at source
-        ageBand: arrAgeBand.indexOf(d.AgeBand),
-        practice:
-          practiceObj[d.practice_code] !== undefined
-            ? +practiceObj[d.practice_code][0] // d.practice_code, format as numeric
-            : 0,
-        Diagnoses:
-          diagnosisRefObj[+d.snomed_diagnosis] !== undefined
-            ? diagnosisRefObj[+d.snomed_diagnosis] // ie. snomed code has been found...
-            : +d.snomed_diagnosis === 0
-            ? [0]
-            : [999], // diagnosis_set.add(+d[sqlCols.diagnosis]); // log the unknown code here to update in ref tables
-        DiagnosisMainGroup:
-          diagnosisRefObj[+d.snomed_diagnosis] !== undefined
-            ? diagnosisRefObj[+d.snomed_diagnosis][0]
-            : +d.snomed_diagnosis === 0
-            ? 0
-            : 999,
-        attdSource:
-          attdSourceRefObj[+d.snomed_attd] !== undefined
-            ? attdSourceRefObj[+d.snomed_attd]
-            : [0],
-        Complaint:
-          complaintRefObj[+d.snomed_complaint] !== undefined
-            ? complaintRefObj[+d.snomed_complaint]
-            : [0],
-        dischDest:
-          dischdestRefObj[+d.snomed_dischargedest] !== undefined
-            ? dischdestRefObj[+d.snomed_dischargedest]
-            : [0],
-        dischStatus:
-          dischstatusRefObj[+d.snomed_dischargestatus] !== undefined
-            ? dischstatusRefObj[+d.snomed_dischargestatus]
-            : [0],
-        dischFUP:
-          dischfupRefObj[+d.snomed_dischargeFU] !== undefined
-            ? dischfupRefObj[+d.snomed_dischargeFU]
-            : [0],
-        injdrug:
-          injdrugRefObj[+d.snomed_injdrug] !== undefined
-            ? injdrugRefObj[+d.snomed_injdrug]
-            : [0]
-      };
-    }
+    processRow // this function is applied to each row of the imported data
   );
+
   console.timeEnd("importTime");
 
   log(ecdsData.columns);
 
+  cfOverview(ecdsData);
+  timeCharts();
+  diagnosisCharts();
+  otherDetails();
+
+  dc.renderAll();
+  // End of ECDS Charts
+  console.timeEnd("ProcessTime");
+}
+
+ecdsCharts();
+
+// https://stackoverflow.com/questions/49599691/how-to-load-data-from-a-csv-file-in-d3-v5?noredirect=1&lq=1
+// https://stackoverflow.com/questions/49239474/load-multiple-files-using-the-d3-fetch-module
+
+const versioning = "Current Versions";
+console.groupCollapsed(versioning);
+// Libraries and Versions
+d3.json("https://api.github.com/repos/dc-js/dc.js/releases/latest").then(
+  function(latestRelease) {
+    /* jshint camelcase: false */
+    /* jscs:disable */
+    log(`dc.js version: ${dc.version}`);
+    log(`latest dc.js stable release: ${latestRelease.tag_name}`);
+
+    log(`Crossfilter version: ${crossfilter.version}`);
+    console.groupEnd(versioning);
+  }
+);
+
+function processRow(d, index, columnKeys) {
+  /*
+Capture codes not included in the lookup tables
+The below are used to log any codes that do not have a valid lookup
+Consider including in the reference tables (might need a default description/ invalid)
+*/
+
+  if (diagnosisRefObj[+d.snomed_diagnosis] === undefined) {
+    if (+d.snomed_diagnosis !== 0) {
+      diagnosis_set.add(+d.snomed_diagnosis);
+    }
+  }
+
+  if (attdSourceRefObj[+d.snomed_attd] === undefined) {
+    if (+d.snomed_attd !== 0) {
+      attdSource_set.add(+d.snomed_attd);
+    }
+  }
+
+  if (complaintRefObj[+d.snomed_complaint] === undefined) {
+    if (+d.snomed_complaint !== 0) {
+      complaint_set.add(+d.snomed_complaint);
+    }
+  }
+
+  if (dischdestRefObj[+d.snomed_dischargedest] === undefined) {
+    if (+d.snomed_dischargedest !== 0) {
+      dischdest_set.add(+d.snomed_dischargedest);
+    }
+  }
+
+  if (dischdestRefObj[+d.snomed_dischargestatus] === undefined) {
+    if (+d.snomed_dischargestatus !== 0) {
+      dischstatus_set.add(+d.snomed_dischargestatus);
+    }
+  }
+
+  if (dischfupRefObj[+d.snomed_dischargeFU] === undefined) {
+    if (+d.snomed_dischargeFU !== 0) {
+      dischfup_set.add(+d.snomed_dischargeFU);
+    }
+  }
+
+  if (injdrugRefObj[+d.snomed_injdrug] === undefined) {
+    if (+d.snomed_injdrug !== 0) {
+      injdrug_set.add(+d.snomed_injdrug);
+    }
+  }
+
+  // Main Data Output
+  return {
+    Arrival_Date_ms: +d.Arrival_Date_ms,
+    Period: +d.Period_ms,
+    Hour: +d.Hour,
+    WeekdayNo: +d.WeekdayNo,
+    duration: Math.min(+d.Duration_ms, maxDuration), // Fix max duration at source
+    ageBand: arrAgeBand.indexOf(d.AgeBand),
+    practice:
+      practiceObj[d.practice_code] !== undefined
+        ? +practiceObj[d.practice_code][0] // d.practice_code, format as numeric
+        : 0,
+    Diagnoses:
+      diagnosisRefObj[+d.snomed_diagnosis] !== undefined
+        ? diagnosisRefObj[+d.snomed_diagnosis] // ie. snomed code has been found...
+        : +d.snomed_diagnosis === 0
+        ? [0]
+        : [999], // diagnosis_set.add(+d[sqlCols.diagnosis]); // log the unknown code here to update in ref tables
+    DiagnosisMainGroup:
+      diagnosisRefObj[+d.snomed_diagnosis] !== undefined
+        ? diagnosisRefObj[+d.snomed_diagnosis][0]
+        : +d.snomed_diagnosis === 0
+        ? 0
+        : 999,
+    attdSource:
+      attdSourceRefObj[+d.snomed_attd] !== undefined
+        ? attdSourceRefObj[+d.snomed_attd]
+        : [0],
+    Complaint:
+      complaintRefObj[+d.snomed_complaint] !== undefined
+        ? complaintRefObj[+d.snomed_complaint]
+        : [0],
+    dischDest:
+      dischdestRefObj[+d.snomed_dischargedest] !== undefined
+        ? dischdestRefObj[+d.snomed_dischargedest]
+        : [0],
+    dischStatus:
+      dischstatusRefObj[+d.snomed_dischargestatus] !== undefined
+        ? dischstatusRefObj[+d.snomed_dischargestatus]
+        : [0],
+    dischFUP:
+      dischfupRefObj[+d.snomed_dischargeFU] !== undefined
+        ? dischfupRefObj[+d.snomed_dischargeFU]
+        : [0],
+    injdrug:
+      injdrugRefObj[+d.snomed_injdrug] !== undefined
+        ? injdrugRefObj[+d.snomed_injdrug]
+        : [0]
+  };
+}
+
+function cfOverview(ecdsData) {
   // Run the data through crossfilter and load the cf_data
   cf = crossfilter(ecdsData);
   all = cf.groupAll();
@@ -208,7 +242,9 @@ async function ecdsCharts() {
         " | <a href='javascript:dc.filterAll(); dc.redrawAll();'>Reset All</a>", // dc.renderAll
       all: "All records selected. Please click on the charts to apply filters."
     });
+}
 
+function timeCharts() {
   /* Time Related Charting */
   console.time("timeCharts");
   // Daily and Period Charts are closely linked
@@ -501,7 +537,9 @@ async function ecdsCharts() {
   document.getElementById("sectime").style.visibility = "visible";
 
   console.timeEnd("timeCharts");
+}
 
+function diagnosisCharts() {
   console.time("chartGroup2");
 
   // Diagnosis Charts
@@ -600,7 +638,9 @@ async function ecdsCharts() {
   document.getElementById("secdiag").style.visibility = "visible";
 
   console.timeEnd("chartGroup2");
+}
 
+function otherDetails() {
   console.time("Other Charts");
 
   dropGPPractice = dc.selectMenu("#gppractice-drop");
@@ -642,31 +682,7 @@ async function ecdsCharts() {
   document.getElementById("secpatient").style.visibility = "visible";
 
   console.timeEnd("Other Charts");
-
-  dc.renderAll();
-  // End of ECDS Charts
-  console.timeEnd("ProcessTime");
 }
-
-ecdsCharts();
-
-// https://stackoverflow.com/questions/49599691/how-to-load-data-from-a-csv-file-in-d3-v5?noredirect=1&lq=1
-// https://stackoverflow.com/questions/49239474/load-multiple-files-using-the-d3-fetch-module
-
-const versioning = "Current Versions";
-console.groupCollapsed(versioning);
-// Libraries and Versions
-d3.json("https://api.github.com/repos/dc-js/dc.js/releases/latest").then(
-  function(latestRelease) {
-    /* jshint camelcase: false */
-    /* jscs:disable */
-    log(`dc.js version: ${dc.version}`);
-    log(`latest dc.js stable release: ${latestRelease.tag_name}`);
-
-    log(`Crossfilter version: ${crossfilter.version}`);
-    console.groupEnd(versioning);
-  }
-);
 
 // Supporting Functions
 // Used to calculate average by day of the week (overkill but to understand!)
