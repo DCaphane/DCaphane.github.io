@@ -1,14 +1,14 @@
 /*
 Removed dependancy on papaparse
     if any issues check:
-        • papaparse auto converted to + from string
+        • papaparse auto converted to + from string - this may be an issue in the reference tables
         •
 */
 
 const colourUnknown = "#bbbbbb",
   colourOldCode = "#7b615c";
 
-let diagnosisRefObj = {}; // Object that will contain snomed code (string) as key and groups as values
+let diagnosisRefObj = {}; // Object that will contain snomed code (string) as key and groups as an array of values
 const map_diagnosis_groups = new Map([
     [0, ["Unknown", colourUnknown]],
     [999, ["Old Code", colourOldCode]]
@@ -101,8 +101,8 @@ async function refDataAttdSource() {
     const strS2 = "" + s1 + s2;
 
     // Create a map key with the Sort descriptions for chart lookups
-    if (!map_attdSource_groups.has(s1)) {
-      map_attdSource_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    if (!map_attdSource_groups.has(+s1)) {
+      map_attdSource_groups.set(+s1, [d.ECDS_Group, sunburstColours(s1)]);
     }
     if (!map_attdSource_groups.has(+strS2)) {
       map_attdSource_groups.set(+strS2, [
@@ -122,9 +122,7 @@ const map_complaint_groups = new Map([
   complaint_set = new Set(); // used to log any unmatched snomed codes that may need adding
 
 async function refDataComplaint() {
-  const data = await d3.csv(
-    "Data/ecds/ecds_ref_tables/ref_discharge_destination.csv"
-  );
+  const data = await d3.csv("Data/ecds/ecds_ref_tables/ref_complaint.csv");
 
   complaintRefObj = data.reduce(
     (obj, item) => ((obj[item.SNOMED_Code] = [item.Sort1, item.Sort2]), obj),
@@ -139,8 +137,8 @@ async function refDataComplaint() {
     const strS2 = "" + s1 + s2;
 
     // Create a map key with the Sort descriptions for chart lookups
-    if (!map_complaint_groups.has(s1)) {
-      map_complaint_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    if (!map_complaint_groups.has(+s1)) {
+      map_complaint_groups.set(+s1, [d.ECDS_Group, sunburstColours(s1)]);
     }
     if (!map_complaint_groups.has(+strS2)) {
       map_complaint_groups.set(+strS2, [
@@ -177,8 +175,8 @@ async function refDataDischDest() {
     const strS2 = "" + s1 + s2;
 
     // Create a map key with the Sort descriptions for chart lookups
-    if (!map_dischdest_groups.has(s1)) {
-      map_dischdest_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    if (!map_dischdest_groups.has(+s1)) {
+      map_dischdest_groups.set(+s1, [d.ECDS_Group, sunburstColours(s1)]);
     }
     if (!map_dischdest_groups.has(+strS2)) {
       map_dischdest_groups.set(+strS2, [
@@ -216,8 +214,8 @@ async function refDataDischFUP() {
     const strS2 = "" + s1 + s2;
 
     // Create a map key with the Sort descriptions for chart lookups
-    if (!map_dischfup_groups.has(s1)) {
-      map_dischfup_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    if (!map_dischfup_groups.has(+s1)) {
+      map_dischfup_groups.set(+s1, [d.ECDS_Group, sunburstColours(s1)]);
     }
     if (!map_dischfup_groups.has(+strS2)) {
       map_dischfup_groups.set(+strS2, [
@@ -254,8 +252,8 @@ async function refDataDischStatus() {
 
     const strS2 = "" + s1 + s2;
     // Create a map key with the Sort descriptions for chart lookups
-    if (!map_dischstatus_groups.has(s1)) {
-      map_dischstatus_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    if (!map_dischstatus_groups.has(+s1)) {
+      map_dischstatus_groups.set(+s1, [d.ECDS_Group, sunburstColours(s1)]);
     }
     if (!map_dischstatus_groups.has(+strS2)) {
       map_dischstatus_groups.set(+strS2, [
@@ -289,8 +287,8 @@ async function refDataInjDrug() {
 
     const strS2 = "" + s1 + s2;
     // Create a map key with the Sort descriptions for chart lookups
-    if (!map_injdrug_groups.has(s1)) {
-      map_injdrug_groups.set(s1, [d.ECDS_Group, sunburstColours(s1)]);
+    if (!map_injdrug_groups.has(+s1)) {
+      map_injdrug_groups.set(+s1, [d.ECDS_Group, sunburstColours(s1)]);
     }
     if (!map_injdrug_groups.has(+strS2)) {
       map_injdrug_groups.set(+strS2, [
@@ -328,6 +326,14 @@ async function uniquePractices() {
   practiceArr = Object.keys(practiceObj);
 }
 uniquePractices();
+
+// Geography Tables
+let refGeogLSOAs;
+
+async function geogLSOASimple50() {
+  refGeogLSOAs = await d3.json("Data/geo/lsoas_simple50.geojson");
+}
+geogLSOASimple50();
 
 // Bank Holidays
 // https://medium.com/@nkhilv/how-to-use-the-javascript-fetch-api-to-get-uk-bank-holidays-step-by-step-dbb4357236ff

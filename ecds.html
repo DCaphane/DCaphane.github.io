@@ -57,7 +57,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.0/dc.min.css"
     />
-    <link rel="stylesheet" type="text/css" href="css/dcAlt.css" />
+    <link rel="stylesheet" type="text/css" href="css/ecds.css" />
 
     <script
       defer
@@ -75,21 +75,23 @@
     ></script>
 
     <!-- leaflet -->
+    <!-- https://leafletjs.com/download.html -->
     <link
       defer
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-      integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+      href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
       crossorigin=""
     />
-    <link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script
       defer
-      src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-      integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+      src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+      integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
       crossorigin=""
     ></script>
+    <!-- local css -->
+    <link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
+
     <script defer src="scripts/leaflet/dc.leaflet.min.js"></script>
     <!-- http://dc-js.github.io/dc.leaflet.js/js/dc.leaflet.js -->
 
@@ -346,7 +348,7 @@
           </section>
 
           <section id="sec-patient" class="section anchor">
-            <h2>Patient Characteristics</h2>
+            <h2>Patient Demographic</h2>
 
             <div id="bl-secpatient" class="bouncing-loader">
               <div></div>
@@ -367,6 +369,22 @@
                 </div>
                 <footer class="cta">
                   Add Description Here
+                </footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Map Testing</h3>
+                <div id="map-lsoa">
+                  <span class="reset" style="visibility: hidden;"> </span>
+                  <a
+                    class="reset"
+                    href="javascript:mapLSOA.filterAll();dc.redrawAll();"
+                    style="visibility: hidden;"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">
+                  Some descriptive text here.
                 </footer>
               </div>
 
@@ -479,7 +497,7 @@
           </section>
 
           <section id="sec-test" class="section anchor">
-            <h2>Test Area</h2>
+            <h2>Experimental</h2>
 
             <div id="bl-sectest" class="bouncing-loader">
               <div></div>
@@ -489,15 +507,12 @@
 
             <div id="sectest" class="tiles dcCharts">
               <div class="tile wide content">
-                <h3>BoxPlot Testing</h3>
-                <div id="box-test">
-                  <span class="reset" style="visibility: hidden;">
-                    Current filter:
-                    <span class="filter"></span>
-                  </span>
+                <h3>Simple Map</h3>
+                <div id="map-simple">
+                  <span class="reset" style="visibility: hidden;"> </span>
                   <a
                     class="reset"
-                    href="javascript:boxPlotDuration.filterAll();dc.redrawAll();"
+                    href="javascript:simpleMap.filterAll();dc.redrawAll();"
                     style="visibility: hidden;"
                     >reset</a
                   >
@@ -508,12 +523,15 @@
               </div>
 
               <div class="tile wide content">
-                <h3>Map Testing</h3>
-                <div id="map-test">
-                  <span class="reset" style="visibility: hidden;"> </span>
+                <h3>BoxPlot Testing</h3>
+                <div id="box-test">
+                  <span class="reset" style="visibility: hidden;">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
                   <a
                     class="reset"
-                    href="javascript:mapLSOA.filterAll();dc.redrawAll();"
+                    href="javascript:boxPlotDuration.filterAll();dc.redrawAll();"
                     style="visibility: hidden;"
                     >reset</a
                   >

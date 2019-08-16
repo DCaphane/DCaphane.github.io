@@ -149,6 +149,13 @@ function sunburstColours(inColour) {
     }
 
     colours.range([startColour, endColour]);
+    // const hcl = colours(arr[arr.length - 1]);
+    // const h = hcl.h,
+    //   c = hcl.c,
+    //   l = hcl.l;
+
+    // const str = `d3.hcl(${h}, ${c}, ${l}, 1)`;
+    // return str;
     return colours(arr[arr.length - 1]); //  the last item in the array
   }
 }
