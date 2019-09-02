@@ -32,6 +32,7 @@ let // Time Charts
   // Patient Characteristic Charts
   chtAgeBand, // = dc.rowChart("#ageband-chart"),
   dropGPPractice, // = dc.selectMenu("#gppractice-drop"),
+  chtGPPractice,
   // Other
   chtRefSource, // = dc.sunburstChart("#refSource-chart"),
   cBoxEDFD, // = dc.cboxMenu("#EDFD-cbox"), // How to build in streamed into disposal... the following should just be one
@@ -948,6 +949,79 @@ function otherDetails() {
         return "Other: " + formatNumber(d.value);
       }
     });
+
+  chtGPPractice = dc.bubbleChart("#cht_PracticeBubble");
+
+  /*
+Bubbles outside boundary
+colours need work
+chart doesn't filter other charts...
+
+*/
+
+  chtGPPractice
+    .width(chtWidthWide)
+    .height(chtHeightStd * 1.02)
+    .margins({
+      top: 40,
+      right: 30,
+      bottom: 2,
+      left: 50
+    })
+    .transitionDuration(500)
+    .dimension(dimGPPractice)
+    .group(groupGPPractice)
+    .keyAccessor(function(d) {
+      return practiceArr[d.key - 1]; // x-axis, label
+      // return practicePopn.get(practiceArr[d.key - 1]) // x-axis, population
+    })
+    .valueAccessor(function(d) {
+      return d.value; // y-axis, attendances
+    })
+    .radiusValueAccessor(function(d) {
+      return practicePopn.get(practiceArr[d.key - 1]); // radius size
+    })
+    .maxBubbleRelativeSize(0.1)
+    .x(d3.scaleBand())
+    //.x(d3.scaleLinear().domain([minPopn, maxPopn * 1.1]))
+    .xUnits(dc.units.ordinal)
+    .elasticY(true)
+    .y(d3.scaleLinear().domain([0, 20000]))
+    .elasticRadius(true)
+    .r(d3.scaleSqrt())
+    .title(function(d) {
+      if (+d.key !== 0) {
+        const pCode = practiceArr[d.key - 1],
+          pDetails = practiceObj[pCode],
+          pop = practicePopn.get(pCode);
+
+        return [
+          pCode,
+          pDetails[1],
+          pDetails[2],
+          "Attd: " + formatNumber(d.value),
+          "Popn: " + formatNumber(pop)
+        ].join("\n");
+      } else {
+        return "Other: " + formatNumber(d.value);
+      }
+    })
+    //.renderLabel(true)
+    .label(function(d) {
+      if (+d.key !== 0) {
+        const pCode = practiceArr[d.key - 1];
+        return pCode;
+      } else {
+        return "Other ";
+      }
+    })
+    .colors(d3.scaleSequential(d3.interpolateOrRd))
+    .colorDomain([0, 20000]) //d3.extent(data, function(d) { return d.value; })
+    .colorAccessor(function(d) {
+      return d.value;
+    })
+    .sortBubbleSize(true);
+  // hide axis labels
 
   // Patient Characteristics
 

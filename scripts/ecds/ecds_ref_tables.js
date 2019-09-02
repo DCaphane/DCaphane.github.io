@@ -327,6 +327,49 @@ async function uniquePractices() {
 }
 uniquePractices();
 
+let practicePopn = new Map(),
+  maxPopn,
+  minPopn;
+
+async function practicePopulation() {
+  const popData = await d3
+    .csv("Data/GP_Practice_Populations.csv", function row(d) {
+      // Loop through the raw data to:
+      // i. identify unique practices
+      let practiceItem = d.Practice_Mapped.substring(0, 6);
+      const parseDate = d3.timeParse("%b-%y");
+      if (!practicePopn.has(practiceItem)) {
+        practicePopn.set(practiceItem, 0);
+      }
+
+      return {
+        Practice: practiceItem, // d.Practice_Mapped
+        // Locality: d.Locality,
+        // Age_Band: d.Age_Band,
+        Period: +parseDate(d.Period),
+        // Male_Pop: +d.Male,
+        // Female_Pop: +d.Female,
+        Total_Pop: +d.Total
+      };
+    })
+    .then(function(d) {
+      const selectedDate = d3.max(d, function(d) {
+        return d.Period;
+      });
+      // console.log(selectedDate)
+
+      d.forEach(function(d) {
+        if (d.Period === selectedDate) {
+          const subPopn = practicePopn.get(d.Practice);
+          practicePopn.set(d.Practice, subPopn + d.Total_Pop);
+        }
+      });
+      maxPopn = Math.max(...practicePopn.values());
+      minPopn = Math.min(...practicePopn.values());
+    });
+}
+practicePopulation();
+
 // Geography Tables
 let refGeogLSOAs;
 
