@@ -953,28 +953,31 @@ function otherDetails() {
   chtGPPractice = dc.bubbleChart("#cht_PracticeBubble");
 
   /*
-Bubbles outside boundary
-colours need work
-chart doesn't filter other charts...
-
-*/
+  Bubbles outside boundary
+  colours need work
+  Spread circles out to fit space (make chart wider?)
+  */
 
   chtGPPractice
     .width(chtWidthWide)
-    .height(chtHeightStd * 1.02)
+    .height(chtHeightStd)
     .margins({
       top: 40,
-      right: 30,
-      bottom: 2,
-      left: 50
+      right: 0,
+      bottom: 2, // hides x-axis labels
+      left: 40
     })
     .transitionDuration(500)
     .dimension(dimGPPractice)
     .group(groupGPPractice)
-    .keyAccessor(function(d) {
-      return practiceArr[d.key - 1]; // x-axis, label
-      // return practicePopn.get(practiceArr[d.key - 1]) // x-axis, population
-    })
+    // .keyAccessor(function(d) {
+    //   if (d.key === 0) {
+    //     return 'Other'
+    //   } else {
+    //   return practiceArr[d.key - 1]; // x-axis, label
+    //   // return practicePopn.get(practiceArr[d.key - 1]) // x-axis, population
+    //   }
+    // })
     .valueAccessor(function(d) {
       return d.value; // y-axis, attendances
     })
@@ -982,15 +985,22 @@ chart doesn't filter other charts...
       return practicePopn.get(practiceArr[d.key - 1]); // radius size
     })
     .maxBubbleRelativeSize(0.1)
-    .x(d3.scaleBand())
+    .x(
+      d3
+        .scaleBand()
+        .range([0, chtWidthWide])
+        .round(true)
+        .padding(5000) // no effect, how to space circles out?
+    )
     //.x(d3.scaleLinear().domain([minPopn, maxPopn * 1.1]))
     .xUnits(dc.units.ordinal)
+    .elasticX(true)
     .elasticY(true)
     .y(d3.scaleLinear().domain([0, 20000]))
     .elasticRadius(true)
     .r(d3.scaleSqrt())
     .title(function(d) {
-      if (+d.key !== 0) {
+      if (d.key !== 0) {
         const pCode = practiceArr[d.key - 1],
           pDetails = practiceObj[pCode],
           pop = practicePopn.get(pCode);
@@ -1015,13 +1025,14 @@ chart doesn't filter other charts...
         return "Other ";
       }
     })
-    .colors(d3.scaleSequential(d3.interpolateOrRd))
+    .colors(d3.scaleSequential(d3.interpolateRainbow))
     .colorDomain([0, 20000]) //d3.extent(data, function(d) { return d.value; })
     .colorAccessor(function(d) {
       return d.value;
     })
+    .xAxisPadding(3)
+    .yAxisPadding(3000)
     .sortBubbleSize(true);
-  // hide axis labels
 
   // Patient Characteristics
 
