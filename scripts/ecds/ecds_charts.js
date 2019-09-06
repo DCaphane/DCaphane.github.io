@@ -971,6 +971,7 @@ function otherDetails() {
   After applying a filter, why do some bubbles become negative - additional function required?
   colours need work
   
+
   */
 
 	chtGPPractice
@@ -985,14 +986,9 @@ function otherDetails() {
 		.transitionDuration(500)
 		.dimension(dimGPPractice)
 		.group(groupGPPractice)
-		// .keyAccessor(function(d) {
-		//   if (d.key === 0) {
-		//     return 'Other'
-		//   } else {
-		//   return practiceArr[d.key - 1]; // x-axis, label
-		//   // return practicePopn.get(practiceArr[d.key - 1]) // x-axis, population
-		//   }
-		// })
+		.keyAccessor(function (d) {
+			return d.key;
+		})
 		// X-Axis
 		.x(
 			d3
@@ -1006,14 +1002,14 @@ function otherDetails() {
 		.xAxisPadding(3)
 		.elasticX(true)
 		// Y-Axis
-		.valueAccessor(function(d) {
+		.valueAccessor(function (d) {
 			return d.value; // y-axis, attendances
 		})
 		.y(d3.scaleLinear().domain([0, 20000]))
 		.yAxisPadding(3000)
 		.elasticY(true)
 		// All things radius
-		.radiusValueAccessor(function(d) {
+		.radiusValueAccessor(function (d) {
 			return practicePopn.get(practiceArr[d.key - 1]); // radius size
 		})
 		.maxBubbleRelativeSize(0.06) // Get or set the maximum relative size of a bubble to the length of x axis. Default is 0.3
@@ -1025,10 +1021,10 @@ function otherDetails() {
 		// Colours
 		.colors(d3.scaleSequential(d3.interpolateRainbow))
 		.colorDomain([0, 20000]) //d3.extent(data, function(d) { return d.value; })
-		.colorAccessor(function(d) {
+		.colorAccessor(function (d) {
 			return d.value;
 		})
-		.title(function(d) {
+		.title(function (d) {
 			if (d.key !== 0) {
 				const pCode = practiceArr[d.key - 1],
 					pDetails = practiceObj[pCode],
@@ -1045,13 +1041,17 @@ function otherDetails() {
 			}
 		})
 		//.renderLabel(true)
-		.label(function(d) {
+		.label(function (d) {
 			if (+d.key !== 0) {
 				const pCode = practiceArr[d.key - 1];
 				return pCode;
 			} else {
 				return "Other ";
 			}
+		})
+		// https://stackoverflow.com/questions/37681777/how-to-choose-x-and-y-axis-in-a-bubble-chart-dc-js
+		.on('renderlet', function (chart, filter) {
+			chart.svg().select(".chart-body").attr("clip-path", null);
 		});
 
 	// Patient Characteristics
