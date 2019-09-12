@@ -313,7 +313,7 @@ async function uniquePractices() {
   practiceObj = data.reduce(
     (obj, item) => (
       (obj[item.PracticeCode_Mapped] = [
-        item.ID,
+        +item.ID,
         item.Practice_Name,
         item.Locality
       ]),

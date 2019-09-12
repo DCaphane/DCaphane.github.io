@@ -15,7 +15,7 @@ const // sqlDayZero = new Date(1900, 0, 1), // months are 0 based, 0 = Jan
 	// Most formatting declared in function but this is used outside? Could just write it twice!
 	formatHour12 = d3.timeFormat("%I %p"); // %I hour (12-hour clock) as a decimal number [01,12], %p - either AM or PM
 
-var cf, all, groupTimeofDay; // used for heat key calcs
+let cf, all, groupTimeofDay; // used for heat key calcs
 
 // Charting - these need to be in global scope eg. for reset
 let // Time Charts
@@ -29,7 +29,7 @@ let // Time Charts
 	chtComplaint, // = dc.sunburstChart("#complaint-chart"),
 	chtAcuity, // = dc.pieChart("#acuity-chart"),
 	chtDrugAlcohol, // = dc.sunburstChart("#drugalcohol-chart"),
-	// Patient Characteristic Charts
+	// Patient Demographic Charts
 	chtAgeBand, // = dc.rowChart("#ageband-chart"),
 	dropGPPractice, // = dc.selectMenu("#gppractice-drop"),
 	chtGPPractice,
@@ -164,10 +164,10 @@ Consider including in the reference tables (might need a default description/ in
 			roundDuration(+d.Duration_ms, durationBand),
 			maxDuration
 		), // Duration in mins rounded to durationBand mins. Also, fix max duration at source
-		ageBand: +d.AgeBand, // arrAgeBand.indexOf(d.AgeBand),
+		ageBand: +d.AgeBand,
 		practice:
 			practiceObj[d.practice_code] !== undefined
-				? +practiceObj[d.practice_code][0] // d.practice_code, format as numeric
+				? practiceObj[d.practice_code][0] // returns a numeric ID
 				: 0,
 		Diagnoses:
 			diagnosisRefObj[+d.snomed_diagnosis] !== undefined
@@ -274,8 +274,8 @@ function timeCharts() {
 	console.time("timeCharts");
 	// Daily and Period Charts are closely linked
 
-	var dimDaily = cf.dimension(function(d) {
-			return +d.Arrival_Date_ms;
+	const dimDaily = cf.dimension(function(d) {
+			return d.Arrival_Date_ms;
 		}),
 		groupDaily = dimDaily.group();
 
@@ -290,7 +290,7 @@ function timeCharts() {
 	// minDate.setHours(minDate.getHours() - 1);
 	// maxDate.setHours(maxDate.getHours() + 1);
 
-	var dimPeriod = cf.dimension(function(d) {
+	const dimPeriod = cf.dimension(function(d) {
 			return d.Period;
 		}),
 		groupPeriod = dimPeriod.group();
@@ -924,19 +924,22 @@ function diagnosisCharts() {
 function otherDetails() {
 	console.time("Other Charts");
 
-	dropGPPractice = dc.selectMenu("#gppractice-drop");
-
 	const dimGPPractice = cf.dimension(function(d) {
 			return d.practice;
 		}),
-		groupGPPractice = dimGPPractice.group();
+		groupGPPractice = dimGPPractice.group().reduceCount();
+
+	dropGPPractice = dc.selectMenu("#gppractice-drop");
 
 	dropGPPractice
 		.useViewBoxResizing(true)
 		.width(chtWidthWide)
 		.height(chtHeightStd)
 		.dimension(dimGPPractice)
-		.group(groupGPPractice) //dimGPPractice.group()
+		.group(groupGPPractice)
+		.keyAccessor(function(d) {
+			return d.key;
+		})
 		.multiple(false)
 		// .numberVisible(18) // number of rows when multiple set to true
 		.turnOnControls()
@@ -946,7 +949,7 @@ function otherDetails() {
 			return b.value > a.value ? 1 : a.value > b.value ? -1 : 0;
 		})
 		.title(function(d) {
-			if (+d.key !== 0) {
+			if (d.key !== 0) {
 				const pCode = practiceArr[d.key - 1],
 					pDetails = practiceObj[pCode];
 
@@ -967,18 +970,28 @@ function otherDetails() {
   https://dc-js.github.io/dc.js/docs/html/dc.bubbleMixin.html
   https://dc-js.github.io/dc.js/docs/html/dc.bubbleChart.html
 
-  Domains (y-axis and colour) are hard coded - how to determine max, pluck values?
-  After applying a filter, why do some bubbles become negative - additional function required?
-  colours need work
-  
+  Consider colours:
+		• Could be by category eg. central, north, south...
+		• Crude Rate/ Att'd etc ideally something not already shown
 
   */
+
+	chtGPPractice.on("preRender", function(chart) {
+		chart.colorDomain(
+			d3.extent(chart.group().all(), chart.valueAccessor())
+		);
+	});
+	chtGPPractice.on("preRedraw", function(chart) {
+		chart.colorDomain(
+			d3.extent(chart.group().all(), chart.valueAccessor())
+		);
+	});
 
 	chtGPPractice
 		.width(chtWidthWide)
 		.height(chtHeightStd)
 		.margins({
-			top: 40,
+			top: 30,
 			right: 0,
 			bottom: 2, // hides x-axis labels
 			left: 40
@@ -986,7 +999,7 @@ function otherDetails() {
 		.transitionDuration(500)
 		.dimension(dimGPPractice)
 		.group(groupGPPractice)
-		.keyAccessor(function (d) {
+		.keyAccessor(function(d) {
 			return d.key;
 		})
 		// X-Axis
@@ -995,36 +1008,58 @@ function otherDetails() {
 				.scaleBand()
 				.range([0, chtWidthWide])
 				.round(true)
-				.padding(5000) // no effect, how to space circles out?
+			// .padding(5000) // no effect, how to spread circles out?
 		)
 		//.x(d3.scaleLinear().domain([minPopn, maxPopn * 1.1]))
 		.xUnits(dc.units.ordinal)
 		.xAxisPadding(3)
 		.elasticX(true)
 		// Y-Axis
-		.valueAccessor(function (d) {
+		.valueAccessor(function(d) {
 			return d.value; // y-axis, attendances
 		})
-		.y(d3.scaleLinear().domain([0, 20000]))
-		.yAxisPadding(3000)
+		.y(d3.scaleLinear()) // .domain([0, 20000])
+		.yAxisPadding(100) // note that padding is added to the top and bottom of the axis
 		.elasticY(true)
 		// All things radius
-		.radiusValueAccessor(function (d) {
-			return practicePopn.get(practiceArr[d.key - 1]); // radius size
+		.radiusValueAccessor(function(d) {
+			const popn = practicePopn.get(practiceArr[d.key - 1]),
+				attd = d.value;
+			return attd / popn;
+			//return practicePopn.get(practiceArr[d.key - 1]); // radius size
 		})
 		.maxBubbleRelativeSize(0.06) // Get or set the maximum relative size of a bubble to the length of x axis. Default is 0.3
 		.minRadius(1) // This will be used to initialize the radius scale's range
-		.minRadiusWithLabel(10) // If a bubble's radius is less than this value then no label will be rendered.
 		.r(d3.scaleSqrt())
 		.elasticRadius(true)
+		/*
 		.sortBubbleSize(true)
+			The brings smaller bubbles to the front.
+			However, issue identified as this causes sorting issues in the original data source
+			https://stackoverflow.com/questions/50609432/dc-js-grouping-for-bubble-chart-removing-from-wrong-groups
+			https://github.com/dc-js/dc.js/issues/1450
+
+		Use following data function as temporary fix
+		*/
+		.data(function(group) {
+			var data = group.all().slice(0);
+			if (true) {
+				// (_sortBubbleSize) {
+				// sort descending so smaller bubbles are on top
+				var radiusAccessor = chtGPPractice.radiusValueAccessor();
+				data.sort(function(a, b) {
+					return d3.descending(radiusAccessor(a), radiusAccessor(b));
+				});
+			}
+			return data;
+		})
 		// Colours
 		.colors(d3.scaleSequential(d3.interpolateRainbow))
-		.colorDomain([0, 20000]) //d3.extent(data, function(d) { return d.value; })
-		.colorAccessor(function (d) {
+		.colorDomain(d3.extent(groupGPPractice.all(), dc.pluck("value")))
+		.colorAccessor(function(d) {
 			return d.value;
 		})
-		.title(function (d) {
+		.title(function(d) {
 			if (d.key !== 0) {
 				const pCode = practiceArr[d.key - 1],
 					pDetails = practiceObj[pCode],
@@ -1034,14 +1069,15 @@ function otherDetails() {
 					pCode + ": " + pDetails[1],
 					"Locality: " + pDetails[2],
 					"Attd: " + formatNumber(d.value),
-					"Popn: " + formatNumber(pop)
+					"Total Pop'n: " + formatNumber(pop)
 				].join("\n");
 			} else {
 				return "Other: " + formatNumber(d.value);
 			}
 		})
 		//.renderLabel(true)
-		.label(function (d) {
+		.minRadiusWithLabel(20) // If a bubble's radius is less than this value then no label will be rendered.
+		.label(function(d) {
 			if (+d.key !== 0) {
 				const pCode = practiceArr[d.key - 1];
 				return pCode;
@@ -1050,9 +1086,14 @@ function otherDetails() {
 			}
 		})
 		// https://stackoverflow.com/questions/37681777/how-to-choose-x-and-y-axis-in-a-bubble-chart-dc-js
-		.on('renderlet', function (chart, filter) {
-			chart.svg().select(".chart-body").attr("clip-path", null);
-		});
+		.on("renderlet", function(chart, filter) {
+			chart
+				.svg()
+				.select(".chart-body")
+				.attr("clip-path", null);
+		})
+		.turnOnControls(true)
+		.controlsUseVisibility(true);
 
 	// Patient Characteristics
 
@@ -1751,7 +1792,7 @@ https://stackoverflow.com/questions/24912274/d3-update-data-with-multiple-elemen
 */
 
 	// JOIN new data with old elements.
-	var heatCellGroup = heatmapLegend
+	let heatCellGroup = heatmapLegend
 		.selectAll("g")
 		.data(arrCells, (d, i) => i);
 
@@ -1763,7 +1804,7 @@ https://stackoverflow.com/questions/24912274/d3-update-data-with-multiple-elemen
 		.remove();
 
 	// enter selection
-	var heatCellGroup = heatCellGroup.enter().append("g");
+	heatCellGroup = heatCellGroup.enter().append("g");
 	heatCellGroup.append("rect").attr("class", "heatCell");
 	heatCellGroup.append("text").attr("class", "heatCellLabel");
 	heatCellGroup.append("svg:title").attr("class", "heatCellHover"); //simple tooltip
