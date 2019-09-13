@@ -46,7 +46,7 @@ values
 
 set datefirst 1; -- Mon as day 1
 
-declare @startPeriod date = '2018-07-01';
+declare @startPeriod date = '2018-08-01';
 -- end date will be a year less one day
 declare @endPeriod date = dateadd(dd, -1, dateadd(yy, 1, @startPeriod));
 
