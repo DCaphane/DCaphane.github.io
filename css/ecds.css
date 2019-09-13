@@ -63,3 +63,16 @@
 .leaflet-container .leaflet-tile-pane img {
 	filter: grayscale(0.9);
   }
+
+  /* Change Font size and color for axis labels */
+  text.x-axis-label, .y-axis-label {
+    fill: #777;
+    font-size: 0.7em;
+  } 
+
+/* To remove a chart axis entirely */
+/*
+#cht_PracticeBubble g.axis.x {
+	display: none;
+  }
+*/
