@@ -136,7 +136,7 @@ Consider including in the reference tables (might need a default description/ in
 		}
 	}
 
-	if (dischdestRefObj[+d.snomed_dischargestatus] === undefined) {
+	if (dischstatusRefObj[+d.snomed_dischargestatus] === undefined) {
 		if (+d.snomed_dischargestatus !== 0) {
 			dischstatus_set.add(+d.snomed_dischargestatus);
 		}
