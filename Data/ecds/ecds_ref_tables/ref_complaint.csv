@@ -1,4 +1,4 @@
-﻿Sort1,Sort2,Sort3,ECDS_Group,ECDS_Description,SNOMED_Code,SNOMED_Description
+Sort1,Sort2,Sort3,ECDS_Group,ECDS_Description,SNOMED_Code,SNOMED_Description
 11,11,10,Airway / breathing,Short of breath,267036007,Dyspnea (finding)
 11,12,10,Airway / breathing,Difficulty breathing,230145002,Difficulty breathing (finding)
 11,13,10,Airway / breathing,Noisy breathing,70407001,Stridor (finding)
@@ -12,7 +12,7 @@
 21,24,10,Circulation / chest,Collapse / fainting episode with loss of consciousness,271594007,Syncope (disorder)
 21,35,10,Circulation / chest,Swollen legs (both),762898005,Swelling of bilateral lower limbs (finding)
 21,36,10,Circulation / chest,Swollen leg (single),162784002,Unilateral leg edema (situation)
-21,44,10,Circulation / chest,Cold painful limb,21631000119105,Limb ischemia (disorder)
+21,44,10,Circulation / chest,Cold painful limb,2.1631E+13,Limb ischemia (disorder)
 21,51,10,Circulation / chest,Cardiac arrest,410429000,Cardiac arrest (disorder)
 21,52,10,Circulation / chest,Cardiac arrest due to trauma,422970001,Cardiac arrest due to trauma (disorder)
 31,11,10,Gastrointestinal,Abdominal pain,21522001,Abdominal pain (finding)
@@ -183,7 +183,7 @@
 61,41,21,Not applicable to child terms,Not applicable to child terms,432754003,Injury of sternum (disorder)
 61,41,31,Not applicable to child terms,Not applicable to child terms,65978000,Injury of chest wall (disorder)
 61,53,11,Not applicable to child terms,Not applicable to child terms,45326000,Shoulder pain (finding)
-61,53,21,Not applicable to child terms,Not applicable to child terms,1088071000000108,Pain in upper arm (finding)
+61,53,21,Not applicable to child terms,Not applicable to child terms,1.08807E+15,Pain in upper arm (finding)
 61,53,31,Not applicable to child terms,Not applicable to child terms,74323005,Pain in elbow (finding)
 61,53,41,Not applicable to child terms,Not applicable to child terms,444899003,Pain in forearm (finding)
 61,53,51,Not applicable to child terms,Not applicable to child terms,56608008,Pain in wrist (finding)
@@ -223,3 +223,11 @@
 97,35,11,Not applicable to child terms,Not applicable to child terms,473023007,Complication associated with device (disorder)
 97,69,11,Not applicable to child terms,Not applicable to child terms,162743000,Blue lips (finding)
 99,11,11,Not applicable to child terms,Not applicable to child terms,288945004,Difficulty swallowing food (finding)
+21,35,99,Circulation / chest,Swollen legs (both),275319005,
+31,16,99,Gastrointestinal,Abdominal distension,41931001,
+41,32,99,Skin,Localised swelling / redness / lumps / bumps,95320005,
+51,31,99,Head and neck,Nose : bleeding from nose,12441001,
+71,81,99,Genitourinary,Problem related to penis,33958003,
+75,61,99,ObGyn,Problem related to vagina,25658005,
+75,71,99,ObGyn,Problem related to breast,79604008,
+91,51,99,Mental health / D&A,Depression,35489007,
