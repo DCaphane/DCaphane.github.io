@@ -4,8 +4,10 @@
 // If no need to paginate, switch to fetch
 
 let resultsMap = new Map();
-let url =
-  "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000";
+let urls = [
+	"https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000",
+	"https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03M&RelStatus=active&Limit=1000"
+];
 // 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?NonPrimaryRoleId=RO76&OrgRecordClass=RC1&Status=Active';
 // let url1 = "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?NonPrimaryRoleId=RO76&OrgRecordClass=RC1&Status=Active&Limit=1000&Offset=1000"
 
@@ -20,37 +22,41 @@ let outputMap = new Map();
 console.time("import");
 const start = window.performance.now();
 
-fetch(url)
-  .then(response => response.json())
-  .then(data => {
-    console.timeEnd("import");
-    console.time("loop");
+urls.forEach((url) => {
+	fetch(url)
+		.then((response) => response.json())
+		.then((data) => {
+			console.timeEnd("import");
+			console.time("loop");
 
-    // console.log(data)
-    const organisations = data.Organisations;
-    // console.log(organisations);
+			// console.log(data)
+			const organisations = data.Organisations;
+			// console.log(organisations);
 
-    organisations.forEach(d => {
-      const orgID = d["OrgId"];
-      const orgName = d["Name"];
-      let option = document.createElement("option");
-      option.value = [orgID, orgName].join(": ");
+			organisations.forEach((d) => {
+				const orgID = d["OrgId"];
+				const orgName = d["Name"];
+				let option = document.createElement("option");
+				option.value = [orgID, orgName].join(": ");
 
-      if (orgID.substring(0, 2) === "B8") {
-        outputMap.set(orgID, orgName); // add bank holiday date to the map as an integer
-        fragment.appendChild(option);
-      }
+				if (orgID.substring(0, 2) === "B8") {
+					outputMap.set(orgID, orgName); // add bank holiday date to the map as an integer
+					fragment.appendChild(option);
+				}
 
-      dataListPractice.append(fragment);
-    });
+				dataListPractice.append(fragment);
+			});
 
-    console.timeEnd("loop");
-    console.log("Ready!");
-    const end = window.performance.now();
-    const timeTaken = end - start;
-    readyDiv.innerHTML =
-      "Ready. Time taken to load: " + +(timeTaken / 1000).toFixed(1) + "sec";
-  });
+			console.timeEnd("loop");
+			console.log("Ready!");
+			const end = window.performance.now();
+			const timeTaken = end - start;
+			readyDiv.innerHTML =
+				"Ready. Time taken to load: " +
+				+(timeTaken / 1000).toFixed(1) +
+				"sec";
+		});
+});
 
 /*
 fetchPaginate
@@ -125,26 +131,26 @@ https://www.jotform.com/blog/html5-datalists-what-you-need-to-know-78024/
 // Find all inputs on the DOM which are bound to a datalist via their list attribute.
 const inputs = document.querySelectorAll("input[list]");
 for (let i = 0; i < inputs.length; i++) {
-  // When the value of the input changes...
-  // inputs[i].setAttribute('novalidate', true);
-  inputs[i].addEventListener("change", function() {
-    let optionFound = false,
-      datalist = this.list;
-    // Determine whether an option exists with the current value of the input.
-    for (let j = 0; j < datalist.options.length; j++) {
-      if (this.value == datalist.options[j].value) {
-        optionFound = true;
-        break;
-      }
-    }
-    // use the setCustomValidity function of the Validation API
-    // to provide an user feedback if the value does not exist in the datalist
-    if (optionFound) {
-      this.setCustomValidity("");
-      console.log("happy");
-    } else {
-      this.setCustomValidity("Please select a practice from the list.");
-      console.log("sad");
-    }
-  });
+	// When the value of the input changes...
+	// inputs[i].setAttribute('novalidate', true);
+	inputs[i].addEventListener("change", function() {
+		let optionFound = false,
+			datalist = this.list;
+		// Determine whether an option exists with the current value of the input.
+		for (let j = 0; j < datalist.options.length; j++) {
+			if (this.value == datalist.options[j].value) {
+				optionFound = true;
+				break;
+			}
+		}
+		// use the setCustomValidity function of the Validation API
+		// to provide an user feedback if the value does not exist in the datalist
+		if (optionFound) {
+			this.setCustomValidity("");
+			console.log("happy");
+		} else {
+			this.setCustomValidity("Please select a practice from the list.");
+			console.log("sad");
+		}
+	});
 }
