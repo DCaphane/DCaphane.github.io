@@ -829,7 +829,7 @@ function diagnosisCharts() {
 		.dimension(dimAcuity)
 		.group(groupAcuity)
 		.ordering(function(d) {
-			return acuityRefObj[d.key];
+			return +acuityRefObj[d.key].substring(0,1);
 		})
 		.label(function(d) {
 			return acuityRefObj[d.key];
