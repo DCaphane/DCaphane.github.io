@@ -20,11 +20,16 @@ input::-webkit-calendar-picker-indicator {
 input:placeholder-shown {
 	border-color: orangered;
 	text-overflow: ellipsis;
+	/* font-size: 1em; */
 }
 
-/* z-index to ensure appears above eg. leaflet map layers */
+/* Below formats the drop down text */
 .awesomplete > ul {
-	z-index: 500; /* increase until the dropdown list is no longer hidden */
+	z-index: 10000; /* z-index to ensure appears above eg. leaflet map layers. Trial and error... */
+	max-height: 80vh;
+	overflow-y: auto;
+	white-space: nowrap; /* stops practice names going onto new lines */
+	font-size: 0.75em;
 }
 
 /* Remove the arrow pointer - untested
@@ -36,14 +41,12 @@ input:placeholder-shown {
 /* Add a scroll to the pop-up
 https://github.com/LeaVerou/awesomplete/issues/16875
 */
-.awesomplete > ul {
-	max-height: 80vh;
-	overflow-y: auto;
-}
 
 .dropdown-input {
 	margin-right: 0;
 	border-radius: 5px;
+	width: 470px;
+	font-size: 0.85em;
 }
 
 .dropdown-input:focus {

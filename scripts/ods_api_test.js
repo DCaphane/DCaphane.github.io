@@ -3,7 +3,7 @@
 
 // If no need to paginate, switch to fetch
 
-let resultsMap = new Map();
+// let resultsMap = new Map();
 let urls = [
 	"https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000",
 	"https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03M&RelStatus=active&Limit=1000"
