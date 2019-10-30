@@ -44,14 +44,21 @@ values
     ,('14' ,'Other' ,'Other');
 */
 
+Use Customer_VOYCCG;
+
 set datefirst 1; -- Mon as day 1
 
-declare @startPeriod date = '2018-09-01';
+declare @startPeriod date = '2018-10-01';
 -- end date will be a year less one day
 declare @endPeriod date = dateadd(dd, -1, dateadd(yy, 1, @startPeriod));
 
 -- print @endPeriod
 
+with lsoaFilter as (
+    select distinct LSOA
+    from  [Info-UK-Health-Dimensions].[ODS].[Postcode_Grid_Refs_Eng_Wal_Sco_And_NI_SCD]
+    where Primary_Care_Organisation = '03Q'
+)
 select -- cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Arrival_DateTime'
     -- cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime) + cast(arrival_time as datetime)) AS BIGINT) * 1000 as 'Arrival_DateTime_ms'
     cast(Datediff(s, '1970-01-01', cast(arrival_date as datetime)) AS BIGINT) * 1000 as 'Arrival_Date_ms'
@@ -138,7 +145,11 @@ select -- cast(arrival_date as datetime) + cast(arrival_time as datetime) as 'Ar
 		else 0
 		end as 'Comm_Serial'
 	 ,practice_code
-     ,isnull(LSOA, 0) as 'lsoa'
+     -- the following lsoas do not appear in the (old?) ukhd ref table
+     ,case when ae.lsoa in ('E01033068','E01033069','E01033070','E01033067') then ae.lsoa 
+        else isnull(l.lsoa, -- if the lsoa is in 03Q patch, use this else
+            round(row_number() over(order by newid()), -3) -- use a random number and round to nearest 1,000 (this prevents any big group in gis chart) round(X, -3)
+            ) end as 'lsoa'
 from [Customer_VOYCCG].[eMBED].[AnalystTableAAELive] ae
     left join [Info-UK-Health-Dimensions].[dbo].[ref_Dates] bh
     on ae.Arrival_Date = bh.Full_Date
@@ -171,6 +182,8 @@ from [Customer_VOYCCG].[eMBED].[AnalystTableAAELive] ae
     on main.[Emergency Care Attendance Source SNOMED CT] = attd.SNOMED_Code
 --left join [customer].[ref_ec_inj_activity] inj_activity
 --	on main.[Emergency Care Injury Activity Type SNOMED CT] = inj_activity.SNOMED_Code
+    left join lsoaFilter l
+    on ae.LSOA = l.lsoa
 where
 	ae.period between @startPeriod and @endPeriod
     and (coalesce(nullif(left(ae.CCG_Code, 3), 'X26'), left(ae.provider_purchaser_id, 3)) = '03Q' -- When unknown practice, default to provider purchaser

@@ -60,7 +60,7 @@ function roundDuration(n, x = 5) {
 
 async function ecdsCharts() {
 	const ecdsData = await d3.csv(
-		"Data/ecds/AE_RawData_snomed_incHead.csv",
+		"Data/ecds/ecds_data.csv",
 		processRow // this function is applied to each row of the imported data
 	);
 

@@ -1,0 +1,191 @@
+﻿specCode,specDesc
+100,General surgery
+101,Urology
+102,Transplantation surgery
+103,Breast surgery
+104,Colorectal surgery
+105,Hepatobiliary & pancreatic surgery
+106,Upper gastrointestinal surgery
+107,Vascular surgery
+108,Spinal surgery service
+110,Trauma & orthopaedics
+120,Ent
+130,Ophthalmology
+140,Oral surgery
+141,Restorative dentistry
+142,Paediatric dentistry
+143,Orthodontics
+144,Maxillo-facial surgery
+145,Oral & maxillo facial surgery
+146,Endodontics
+147,Periodontics
+148,Prosthodontics
+149,Surgical dentistry
+150,Neurosurgery
+160,Plastic surgery
+161,Burns care
+170,Cardiothoracic surgery
+171,Paediatric surgery
+172,Cardiac surgery
+173,Thoracic surgery
+174,Cardiothoracic transplantation
+180,Accident & emergency
+190,Anaesthetics
+191,Pain management
+192,Critical care medicine
+199,"Non-UK provider; specialty function not known, treatment mainly surgical"
+199,"Non-UK provider; treatment function not known, treatment mainly surgical"
+211,Paediatric urology
+212,Paediatric transplantation surgery
+213,Paediatric gastrointestinal surgery
+214,Paediatric trauma and orthopaedics
+215,Paediatric ear nose and throat
+216,Paediatric ophthalmology
+217,Paediatric maxillo-facial surgery
+218,Paediatric neurosurgery
+219,Paediatric plastic surgery
+220,Paediatric burns care
+221,Paediatric cardiac surgery
+222,Paediatric thoracic surgery
+223,Paediatric epilepsy
+241,Paediatric pain management
+242,Paediatric intensive care
+251,Paediatric gastroenterology
+252,Paediatric endocrinology
+253,Paediatric clinical haematology
+254,Paediatric audiological medicine
+255,Paediatric clinical immunology and allergy
+256,Paediatric infectious diseases
+257,Paediatric dermatology
+258,Paediatric respiratory medicine
+259,Paediatric nephrology
+260,Paediatric medical oncology
+261,Paediatric metabolic disease
+262,Paediatric rheumatology
+263,Paediatric diabetic medicine
+264,Paediatric cystic fibrosis
+280,Paediatric interventional radiology
+290,Community paediatrics
+291,Paediatric neuro-disability
+300,General medicine
+301,Gastroenterology
+302,Endocrinology
+303,Clinical haematology
+304,Clinical physiology
+305,Clinical pharmacology
+306,Hepatology
+307,Diabetic medicine
+308,Blood and marrow transplantation
+309,Haemophilia service
+310,Audiological medicine
+311,Clinical genetics
+312,Clinical cytogenetics and molecular genetics
+313,Clinical immunology and allergy
+313,Clinical immunology and allergy service
+314,Rehabilitation
+314,Rehabilitation service
+315,Palliative medicine
+316,Clinical immunology
+317,Allergy service
+318,Intermediate care
+319,Respite care
+320,Cardiology
+321,Paediatric cardiology
+322,Clinical microbiology
+323,Spinal injuries
+324,Anticoagulant service
+325,Sport and exercise medicine
+325,Sports and exercise medicine
+326,Acute internal medicine
+327,Cardiac rehabilitation
+328,Stroke medicine
+329,Transient ischaemic attack
+330,Dermatology
+331,Congenital heart disease service
+340,Respiratory medicine
+340,Respiratory medicine (also known as thoracic medicine)
+341,Respiratory physiology
+342,Programmed pulmonary rehabilitation
+343,Adult cystic fibrosis
+344,Complex specialised rehabilitation service
+345,Specialist rehabilitation service
+346,Local specialist rehabilitation service
+350,Infectious diseases
+352,Tropical medicine
+360,Genitourinary medicine
+361,Nephrology
+370,Medical oncology
+371,Nuclear medicine
+400,Neurology
+401,Clinical neurophysiology
+401,Clinical neuro-physiology
+410,Rheumatology
+420,Paediatrics
+421,Paediatric neurology
+422,Neonatology
+424,Well babies
+430,Geriatric medicine
+450,Dental medicine specialties
+451,Special care dentistry
+460,Medical ophthalmology
+499,"Non-UK provider; specialty function not known, treatment mainly medical"
+499,"Non-UK provider; treatment function not known, treatment mainly medical"
+500,Obstetrics and gynaecology
+501,Obstetrics
+502,Gynaecology
+503,Gynaecological oncology
+504,Community sexual and reproductive health
+560,Midwife episode
+560,Midwifery service
+600,General medical practice
+601,General dental practice
+650,Physiotherapy
+651,Occupational therapy
+652,Speech and language therapy
+653,Podiatry
+654,Dietetics
+655,Orthoptics
+656,Clinical psychology
+657,Prosthetics
+658,Orthotics
+659,Dramatherapy
+660,Art therapy
+661,Music therapy
+662,Optometry
+663,Podiatric surgery
+700,Learning disability
+710,Adult mental illness
+711,Child and adolescent psychiatry
+712,Forensic psychiatry
+713,Psychotherapy
+715,Old age psychiatry
+720,Eating disorders
+721,Addiction services
+722,Liaison psychiatry
+723,Psychiatric intensive care
+724,Perinatal psychiatry
+725,Mental health recovery and rehabilitation service
+726,Mental health dual diagnosis service
+727,Dementia assessment service
+800,Clinical oncology (previously radiotherapy)
+810,Radiology
+811,Interventional radiology
+812,Diagnostic imaging
+820,General pathology
+821,Blood transfusion
+822,Chemical pathology
+823,Haematology
+824,Histopathology
+830,Immunopathology
+831,Medical microbiology and virology
+833,Medical microbiology (also known as microbiology and bacteriology)
+834,Medical virology
+840,Audiology
+900,Community medicine
+901,Occupational medicine
+902,Community health services dental
+903,Public health medicine
+904,Public health dental
+920,Diabetic education service
+950,Nursing episode
+960,Allied health professional episode

@@ -5,7 +5,7 @@ https://www.codebyamir.com/blog/suppressing-console-log-messages-in-production
 https://stackoverflow.com/questions/7505623/colors-in-javascript-console/42551926#42551926
 https://stackoverflow.com/questions/957537/how-can-i-display-a-javascript-object
 */
-const debug = true;
+const debug = false;
 
 function log(message, style = ["blue", "white"]) {
 	if (debug) {

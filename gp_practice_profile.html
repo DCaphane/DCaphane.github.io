@@ -20,8 +20,8 @@
     -->
 		<link
 			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
-			integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
+			integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
 			crossorigin="anonymous"
 		/>
 
@@ -30,10 +30,9 @@
 			rel="stylesheet"
 		/>
 
-		<script
-			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.min.js"
-		></script>
+		<!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
+		<script defer src="https://d3js.org/d3.v5.min.js"></script>
+		<!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
 
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<link rel="stylesheet" type="text/css" href="css/layout.css" />
@@ -68,7 +67,7 @@
 
 		<!-- Page Structure (Layout) -->
 		<script>
-			let elemActive = 'Home'; // remove any spaces and replace with hyphens
+			let elemActive = "Home"; // remove any spaces and replace with hyphens
 			// elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
 		</script>
 		<!-- requires font awesome -->
@@ -224,6 +223,7 @@ https://github.com/marslan390/BeautifyMarker
 							incididunt consequat sit laboris ipsum. Id magna
 							reprehenderit sit aute laborum ullamco occaecat aute
 							id proident minim.
+							<br />
 							<label for="selPractice"
 								>Choose a GP Practice:</label
 							>
