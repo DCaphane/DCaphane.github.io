@@ -994,6 +994,7 @@ function otherDetails() {
 	});
 
 	chtGPPractice
+		.useViewBoxResizing(true)
 		.width(chtWidthWide)
 		.height(chtHeightStd)
 		.margins({
@@ -1182,7 +1183,7 @@ function otherDetails() {
 	// https://github.com/yurukov/dc.leaflet.js/blob/master/README.md
 	mapLSOA
 		.useViewBoxResizing(true)
-		.width(600) // When you pass null when calling .width() and .height(), it will use width and height of the anchor element
+		.width(null) // When you pass null when calling .width() and .height(), it will use width and height of the anchor element
 		.height(570)
 		.dimension(dimLSOA)
 		.group(groupLSOA)
