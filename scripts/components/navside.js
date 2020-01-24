@@ -16,7 +16,7 @@ for (let section of sections) {
 
   anchor.setAttribute("href", "#" + section.id);
   let str = section.querySelectorAll("h2")[0].innerText;
-  anchor.innerHTML = str.substring(0, 15);
+  anchor.innerHTML = str // .substring(0, 15); originally used to truncate long text
 
   li.appendChild(anchor);
 
