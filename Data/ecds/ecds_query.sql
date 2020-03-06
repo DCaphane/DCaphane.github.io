@@ -48,9 +48,9 @@ Use Customer_VOYCCG;
 
 set datefirst 1; -- Mon as day 1
 
-declare @startPeriod date = '2018-10-01';
--- end date will be a year less one day
-declare @endPeriod date = dateadd(dd, -1, dateadd(yy, 1, @startPeriod));
+declare @startPeriod date = '2018-12-01';
+-- end date will be a year less one day ie. 364 days
+declare @endPeriod date = dateadd(dd, 364, @startPeriod);
 
 -- print @endPeriod
 

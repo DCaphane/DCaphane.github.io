@@ -22,6 +22,12 @@ const // parseDate = d3.utcParse('%Y-%m-%d %H:%M:%S.%L'), // import format, prev
 // timeScaleDuration.invert(200) ie. 200 minutes = 3hrs and 20 mins
 // Mon Jan 01 1900 03:20:00
 
+function roundFmt(value, precision) {
+	// https://stackoverflow.com/questions/7342957/how-do-you-round-to-1-decimal-place-in-javascript
+	var multiplier = Math.pow(10, precision || 0);
+	return Math.round(value * multiplier) / multiplier;
+}
+
 const chtWidthStd = 400,
 	chtHeightStd = 400,
 	chtWidthWide = 500,

@@ -669,13 +669,13 @@ function timeCharts() {
 		.title(function(d) {
 			return [
 				arrWeekDays[d.key],
-				formatNumber(average_map(d.value.map))
+				Math.round(average_map(d.value.map) * 10) / 10 // round to 1dp
 			].join(": ");
 		})
 		.label(function(d) {
 			return [
 				arrWeekDays[d.key],
-				formatNumber(average_map(d.value.map))
+				Math.round(average_map(d.value.map) * 10) / 10 // round to 1dp
 			].join(": ");
 		})
 		.elasticX(true)
