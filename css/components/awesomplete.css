@@ -5,9 +5,31 @@ input::-webkit-calendar-picker-indicator {
 	opacity: 0;
 }
 
-/* z-index to ensure appears above eg. leaflet map layers */
+/* Style the placeholder -
+::placeholder styles the placeholder text
+::placeholder is a pseudo element (a visible thing that isn't really in the DOM)
+*/
+::-webkit-input-placeholder {
+	color: orangered;
+}
+
+/*
+:placeholder-shown is for selecting the input itself when it's placeholder text is being shown.
+:placeholder-shown is a pseudo class (it's an element in a particular state)
+*/
+input:placeholder-shown {
+	border-color: orangered;
+	text-overflow: ellipsis;
+	/* font-size: 1em; */
+}
+
+/* Below formats the drop down text */
 .awesomplete > ul {
-	z-index: 500; /* increase until the dropdown list is no longer hidden */
+	z-index: 10000; /* z-index to ensure appears above eg. leaflet map layers. Trial and error... */
+	max-height: 80vh;
+	overflow-y: auto;
+	white-space: nowrap; /* stops practice names going onto new lines */
+	font-size: 0.75em;
 }
 
 /* Remove the arrow pointer - untested
@@ -19,14 +41,12 @@ input::-webkit-calendar-picker-indicator {
 /* Add a scroll to the pop-up
 https://github.com/LeaVerou/awesomplete/issues/16875
 */
-.awesomplete > ul {
-	max-height: 80vh;
-	overflow-y: auto;
-}
 
 .dropdown-input {
 	margin-right: 0;
 	border-radius: 5px;
+	width: 470px;
+	font-size: 0.85em;
 }
 
 .dropdown-input:focus {
@@ -40,12 +60,40 @@ https://github.com/LeaVerou/awesomplete/issues/16875
 	border-left: none;
 }
 
+/* Used so search icon is not hidden and can click on it and cursor will appear */
+input[type='search'] {
+	background: transparent;
+}
+
+/* Magnifying Glass Icon */
+.fa-search {
+	position: relative;
+	left: 7px;
+	font-size: 15px;
+}
+
+.search {
+	position: relative;
+}
+.search input {
+	text-indent: 30px;
+}
+.search .fa-search {
+	position: absolute;
+	top: 7px;
+	left: 7px;
+	font-size: 0.7em;
+}
+
 /*
 Cancel Button
 https://css-tricks.com/webkit-html5-search-inputs/#article-header-id-5
 https://stackoverflow.com/questions/2803532/how-do-i-put-a-clear-button-inside-my-html-text-input-box-like-the-iphone-does
 */
 input[type='search']::-webkit-search-cancel-button {
+	position: relative;
+	right: -15px; /* the cancel incon (X) is offset. Shift it to the right, need to apply z-index to bring it to the front
 	/* Remove default */
 	-webkit-appearance: searchfield-cancel-button;
+	z-index: 1;
 }

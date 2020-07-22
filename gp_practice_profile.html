@@ -1,366 +1,410 @@
 <!DOCTYPE html>
 <html lang="en-gb" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!--
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--
       The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
     -->
 
-    <title>GP Practice</title>
+		<title>GP Practice</title>
 
-    <meta name="author" content="David Caphane" />
-    <meta name="description" content="Contacts Page" />
+		<meta name="author" content="David Caphane" />
+		<meta name="description" content="Contacts Page" />
 
-    <!-- Place "favicon.ico" in the root directory -->
-    <!-- link rel="icon" href="../../favicon.ico" -->
-    <!--
+		<!-- Place "favicon.ico" in the root directory -->
+		<!-- link rel="icon" href="../../favicon.ico" -->
+		<!--
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" integrity="sha256-HxaKz5E/eBbvhGMNwhWRPrAR9i/lG1JeT4mD6hCQ7s4="crossorigin="anonymous" />
     -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
-      integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
-      crossorigin="anonymous"
-    />
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
+			integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
+			crossorigin="anonymous"
+		/>
 
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
-      rel="stylesheet"
-    />
+		<link
+			href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+			rel="stylesheet"
+		/>
 
-    <script
-      defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.min.js"
-    ></script>
+		<!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
+		<script defer src="https://d3js.org/d3.v5.min.js"></script>
+		<!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
 
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/layout.css" />
 
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="css/components/navbar_main.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="css/components/navbar_side.css"
-    />
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/navbar_main.css"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/navbar_side.css"
+		/>
 
-    <link rel="stylesheet" type="text/css" href="css/components/toTop.css" />
-    <link rel="stylesheet" type="text/css" href="css/gp_practice_profile.css" />
-    <!-- https://l-lin.github.io/font-awesome-animation/ -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="css/components/fontawesome_animation.css"
-    />
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/toTop.css"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/gp_practice_profile.css"
+		/>
+		<!-- https://l-lin.github.io/font-awesome-animation/ -->
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/fontawesome_animation.css"
+		/>
 
-    <!-- Page Structure (Layout) -->
-    <script>
-      let elemActive = "Home"; // remove any spaces and replace with hyphens
-      // elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
-    </script>
-    <!-- requires font awesome -->
-    <script defer src="scripts\components\navmain.js"></script>
-    <script defer src="scripts\components\navside.js"></script>
-    <script defer src="scripts\components\navside_interactive.js"></script>
-    <script defer src="scripts\components\toTop.js"></script>
+		<!-- Page Structure (Layout) -->
+		<script>
+			let elemActive = "Home"; // remove any spaces and replace with hyphens
+			// elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
+		</script>
+		<!-- requires font awesome -->
+		<script defer src="scripts\components\navmain.js"></script>
+		<script defer src="scripts\components\navside.js"></script>
+		<script defer src="scripts\components\navside_interactive.js"></script>
+		<script defer src="scripts\components\toTop.js"></script>
 
-    <!-- Awesomplete (https://leaverou.github.io/awesomplete/) -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.4/awesomplete.min.css"
-    />
-    <link rel="stylesheet" href="css/components/awesomplete.css" />
-    <!-- causes problems if try to defer awesomplete... -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.4/awesomplete.min.js"></script>
+		<!-- Awesomplete (https://leaverou.github.io/awesomplete/) -->
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.4/awesomplete.min.css"
+		/>
+		<link rel="stylesheet" href="css/components/awesomplete.css" />
+		<!-- causes problems if try to defer awesomplete... -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.4/awesomplete.min.js"></script>
 
-    <!-- leaflet -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-      integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-      crossorigin=""
-    />
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
-    <script
-      defer
-      src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-      integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-      crossorigin=""
-    ></script>
+		<!-- leaflet -->
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+			integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+			crossorigin=""
+		/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script
+			defer
+			src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+			integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+			crossorigin=""
+		></script>
 
-    <!-- Markers
+		<!-- Markers
 https://github.com/marslan390/BeautifyMarker
 -->
-    <script
-      defer
-      src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
-      integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ"
-      crossorigin="anonymous"
-    ></script>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="css\leaflet-beautify-marker-icon.css"
-    />
-    <script defer src="scripts/leaflet-beautify-marker-icon.js"></script>
+		<script
+			defer
+			src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
+			integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ"
+			crossorigin="anonymous"
+		></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css\leaflet-beautify-marker-icon.css"
+		/>
+		<script defer src="scripts/leaflet-beautify-marker-icon.js"></script>
 
-    <!-- Add full screen option -->
-    <script
-      defer
-      src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
-    ></script>
-    <link
-      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
-      rel="stylesheet"
-    />
+		<!-- Add full screen option -->
+		<script
+			defer
+			src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
+		></script>
+		<link
+			href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+			rel="stylesheet"
+		/>
 
-    <!-- Home Button -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"
-    />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"
-    ></script>
+		<!-- Home Button -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"
+		/>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"
+		></script>
 
-    <!-- Leaflet Sidebar
+		<!-- Leaflet Sidebar
   https://github.com/turbo87/sidebar-v2/
   https://github.com/nickpeihl/leaflet-sidebar-v2
   
     <link rel="stylesheet" type="text/css" href="css\leaflet-sidebar.css" />
     <script defer src="scripts/leaflet-sidebar.js"></script>
     -->
-    <!-- Links can be accessed via cdn, https://www.jsdelivr.com/package/npm/leaflet-sidebar-v2?path=css -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
-    />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
-    ></script>
+		<!-- Links can be accessed via cdn, https://www.jsdelivr.com/package/npm/leaflet-sidebar-v2?path=css -->
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
+		/>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
+		></script>
 
-    <!--script defer src="scripts/map_default_markers.js"></script -->
-    <script defer src="scripts/map_beautifyMarker.js"></script>
-    <script defer src="scripts/leaflet/map_components.js"></script>
+		<!--script defer src="scripts/map_default_markers.js"></script -->
+		<script defer src="scripts/map_beautifyMarker.js"></script>
+		<script defer src="scripts/leaflet/map_components.js"></script>
 
-    <script
-      defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"
-    ></script>
+		<script
+			defer
+			src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"
+		></script>
 
-    <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/cht_defaults.js"
+		></script>
 
-    <script defer src="scripts/gp_practice_profile/gp_popn_trend.js"></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/gp_popn_trend.js"
+		></script>
 
-    <script
-      defer
-      src="scripts/gp_practice_profile/gp_popn_demographic.js"
-    ></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/gp_popn_demographic.js"
+		></script>
 
-    <script
-      defer
-      src="scripts/gp_practice_profile/gp_practice_Mainsite_map.js"
-    ></script>
-    <script
-      defer
-      src="scripts/gp_practice_profile/map_GPPractice_sites.js"
-    ></script>
-    <script
-      defer
-      src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
-    ></script>
-    <script
-      defer
-      src="scripts/gp_practice_profile/component_practice_dropdown.js"
-    ></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/gp_practice_Mainsite_map.js"
+		></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/map_GPPractice_sites.js"
+		></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
+		></script>
+		<script
+			defer
+			src="scripts/gp_practice_profile/component_practice_dropdown.js"
+		></script>
 
-    <style></style>
-  </head>
+		<style></style>
+	</head>
 
-  <body>
-    <div class="wrapper">
-      <section id="hero">
-        <a href="/" class="logo"> <h1>GP Population Profiles</h1> </a>
-      </section>
+	<body>
+		<div class="wrapper">
+			<section id="hero">
+				<a href="/" class="logo"> <h1>GP Population Profiles</h1> </a>
+			</section>
 
-      <div class="wrapper-nav">
-        <nav id="nav-main">
-          <!-- nav bar main imported from components.js -->
-        </nav>
-      </div>
+			<div class="wrapper-nav">
+				<nav id="nav-main">
+					<!-- nav bar main imported from components.js -->
+				</nav>
+			</div>
 
-      <nav id="article-left"></nav>
+			<nav id="article-left"></nav>
 
-      <article id="article-right">
-        <div class="column">
-          <section id="sec-00" class="section anchor">
-            <h2>Introduction</h2>
-            <p>
-              Ut consequat commodo qui veniam id pariatur do consequat ullamco
-              in do pariatur cupidatat anim. Dolore et occaecat cillum ipsum
-              proident laborum incididunt consequat sit laboris ipsum. Id magna
-              reprehenderit sit aute laborum ullamco occaecat aute id proident
-              minim.
-              <label for="selPractice">Choose a GP Practice:</label>
-              <input
-                type="search"
-                autocomplete="off"
-                list="practice-list"
-                class="dropdown-input"
-                id="selPractice"
-                placeholder="code or name"
-                name="selPractice"
-              />
-              <!-- https://github.com/LeaVerou/awesomplete/issues/17117 -->
-              <button id="btn-selPractice" class="dropdown-btn" type="button">
-                <i class="fas fa-caret-down"></i>
-              </button>
-              <datalist id="practice-list" class="dropdown practice">
-              </datalist>
-            </p>
-          </section>
+			<article id="article-right">
+				<div class="column">
+					<section id="sec-00" class="section anchor">
+						<h2>Introduction</h2>
+						<p>
+							Ut consequat commodo qui veniam id pariatur do
+							consequat ullamco in do pariatur cupidatat anim.
+							Dolore et occaecat cillum ipsum proident laborum
+							incididunt consequat sit laboris ipsum. Id magna
+							reprehenderit sit aute laborum ullamco occaecat aute
+							id proident minim.
+							<br />
+							<label for="selPractice"
+								>Choose a GP Practice:</label
+							>
+							<span class="search">
+								<i class="fas fa-search"></i>
+								<input
+									type="search"
+									autocomplete="off"
+									list="practice-list"
+									class="dropdown-input"
+									id="selPractice"
+									placeholder="code or name"
+									name="selPractice"
+								/>
+								<!-- https://github.com/LeaVerou/awesomplete/issues/17117 -->
+								<button
+									id="btn-selPractice"
+									class="dropdown-btn"
+									type="button"
+								>
+									<i class="fas fa-caret-down"></i>
+								</button>
+								<datalist
+									id="practice-list"
+									class="dropdown practice"
+								>
+								</datalist>
+							</span>
+						</p>
+					</section>
 
-          <section id="sec-01" class="section anchor">
-            <h2>Section 01</h2>
+					<section id="sec-01" class="section anchor">
+						<h2>Section 01</h2>
 
-            <div id="id01" class="tiles">
-              <div class="tile wide content">
-                <h3>GP Practice - Main Site by PCN</h3>
-                <div id="mapMain" class="map"></div>
-                <div id="sidebar" class="leaflet-sidebar collapsed"></div>
-                <footer id="selectedMarker" class="cta">
-                  Select a marker for details
-                </footer>
-              </div>
+						<div id="id01" class="tiles">
+							<div class="tile wide content">
+								<h3>GP Practice - Main Site by PCN</h3>
+								<div id="mapMain" class="map"></div>
+								<div
+									id="sidebar"
+									class="leaflet-sidebar collapsed"
+								></div>
+								<footer id="selectedMarker" class="cta">
+									Select a marker for details
+								</footer>
+							</div>
 
-              <div class="tile wide content">
-                <h3>Trend</h3>
-                <div id="cht_PopTrend"></div>
-                <footer class="cta">
-                  Change y-axis scale:
-                  <label class="switch">
-                    <input id="trend-yAxis" type="checkbox" />
-                    <span class="slider round"></span>
-                  </label>
-                </footer>
-              </div>
+							<div class="tile wide content">
+								<h3>Trend</h3>
+								<div id="cht_PopTrend"></div>
+								<footer class="cta">
+									Change y-axis scale:
+									<label class="switch">
+										<input
+											id="trend-yAxis"
+											type="checkbox"
+										/>
+										<span class="slider round"></span>
+									</label>
+								</footer>
+							</div>
 
-              <div class="tile wide content">
-                <h3>Population Pyramid</h3>
-                <div id="cht_PopDemo">
-                  <label for="selPractice">Practice to compare:</label>
-                  <input
-                    type="search"
-                    autocomplete="off"
-                    list="practice-list2"
-                    class="dropdown-input"
-                    id="selPracticeCompare"
-                    name="selPractice"
-                    placeholder="code or name"
-                  />
-                  <button
-                    id="btn-selPracticeCompare"
-                    class="dropdown-btn"
-                    type="button"
-                  >
-                    <i class="fas fa-caret-down"></i>
-                  </button>
-                  <datalist id="practice-list2" class="dropdown practice">
-                    <option value="None"></option>
-                  </datalist>
-                </div>
-                <footer class="cta">
-                  <a
-                    id="circleOver65"
-                    class="circleOver65"
-                    data-toggle="tooltip"
-                    data-placement="auto top"
-                    title="Percent Aged Over 65"
-                  ></a>
-                  <a
-                    id="circleOver65Compare"
-                    class="circleOver65"
-                    data-toggle="tooltip"
-                    data-placement="auto top"
-                    title="Comparison Aged Over 65"
-                  ></a>
-                </footer>
-              </div>
+							<div class="tile wide content">
+								<h3>Population Pyramid</h3>
+								<div id="cht_PopDemo">
+									<label for="selPractice"
+										>Practice to compare:</label
+									>
+									<span class="search">
+										<i class="fas fa-search"></i>
+										<input
+											type="search"
+											autocomplete="off"
+											list="practice-list2"
+											class="dropdown-input"
+											id="selPracticeCompare"
+											name="selPractice"
+											placeholder="code or name"
+										/>
+										<button
+											id="btn-selPracticeCompare"
+											class="dropdown-btn"
+											type="button"
+										>
+											<i class="fas fa-caret-down"></i>
+										</button>
+									</span>
+									<datalist
+										id="practice-list2"
+										class="dropdown practice"
+									>
+										<option value="None"></option>
+									</datalist>
+								</div>
+								<footer class="cta">
+									<a
+										id="circleOver65"
+										class="circleOver65"
+										data-toggle="tooltip"
+										data-placement="auto top"
+										title="Percent Aged Over 65"
+									></a>
+									<a
+										id="circleOver65Compare"
+										class="circleOver65"
+										data-toggle="tooltip"
+										data-placement="auto top"
+										title="Comparison Aged Over 65"
+									></a>
+								</footer>
+							</div>
 
-              <div class="tile wide content">
-                <h3>GP Practice Sites</h3>
-                <div id="mapSites" class="map"></div>
-                <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
-                <footer id="selectedSite" class="cta">
-                  Associated Sites
-                </footer>
-              </div>
-            </div>
-          </section>
+							<div class="tile wide content">
+								<h3>GP Practice Sites</h3>
+								<div id="mapSites" class="map"></div>
+								<div
+									id="sidebar2"
+									class="leaflet-sidebar collapsed"
+								></div>
+								<footer id="selectedSite" class="cta">
+									Associated Sites
+								</footer>
+							</div>
+						</div>
+					</section>
 
-          <section id="sec-02" class="section anchor">
-            <h2>Section 02</h2>
+					<section id="sec-02" class="section anchor">
+						<h2>Section 02</h2>
 
-            <div id="id02" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty004"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
+						<div id="id02" class="tiles">
+							<div class="tile content">
+								<h3>Standard Tile</h3>
+								<div id="empty004"></div>
+								<footer class="cta">...</footer>
+							</div>
+						</div>
+					</section>
 
-          <section id="sec-03" class="section anchor">
-            <h2>Section 03</h2>
+					<section id="sec-03" class="section anchor">
+						<h2>Section 03</h2>
 
-            <div id="id03" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty008"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
+						<div id="id03" class="tiles">
+							<div class="tile content">
+								<h3>Standard Tile</h3>
+								<div id="empty008"></div>
+								<footer class="cta">...</footer>
+							</div>
+						</div>
+					</section>
 
-          <section id="sec-04" class="section anchor">
-            <h2>Section 04</h2>
+					<section id="sec-04" class="section anchor">
+						<h2>Section 04</h2>
 
-            <div id="id04" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty012"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
+						<div id="id04" class="tiles">
+							<div class="tile content">
+								<h3>Standard Tile</h3>
+								<div id="empty012"></div>
+								<footer class="cta">...</footer>
+							</div>
+						</div>
+					</section>
 
-          <section id="sec-05" class="section anchor">
-            <h2>Section 05</h2>
+					<section id="sec-05" class="section anchor">
+						<h2>Section 05</h2>
 
-            <div id="id05" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty016"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
-        </div>
-        <div class="footer"></div>
-        <!-- Test internal footer -->
-      </article>
+						<div id="id05" class="tiles">
+							<div class="tile content">
+								<h3>Standard Tile</h3>
+								<div id="empty016"></div>
+								<footer class="cta">...</footer>
+							</div>
+						</div>
+					</section>
+				</div>
+				<div class="footer"></div>
+				<!-- Test internal footer -->
+			</article>
 
-      <footer id="footer">
-        Default Footer Text
-      </footer>
-    </div>
-  </body>
+			<footer id="footer">
+				Default Footer Text
+			</footer>
+		</div>
+	</body>
 </html>

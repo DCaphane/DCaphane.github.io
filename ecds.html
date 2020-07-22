@@ -20,8 +20,8 @@
     -->
 		<link
 			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
-			integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
+			integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
 			crossorigin="anonymous"
 		/>
 
@@ -31,9 +31,7 @@
 		/>
 
 		<script
-			defer
-			src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
-			integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ"
+			src="https://kit.fontawesome.com/0e64dfdf0b.js"
 			crossorigin="anonymous"
 		></script>
 
@@ -63,60 +61,60 @@
 		/>
 		<link
 			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.0/dc.min.css"
+			href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.min.css"
 		/>
-		<link rel="stylesheet" type="text/css" href="css/dcAlt.css" />
+		<link rel="stylesheet" type="text/css" href="css/ecds.css" />
 
-		<!-- PapaParse -->
-		<script
-			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.0.0/papaparse.min.js"
-		></script>
-		<script
-			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.min.js"
-		></script>
+		<!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
+		<script defer src="https://d3js.org/d3.v5.min.js"></script>
+		<!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
+
 		<!-- Crossfilter -->
 		<script
 			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.7/crossfilter.min.js"
+			src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.min.js"
 		></script>
 		<!-- dc.js -->
 		<script
 			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.0/dc.min.js"
+			src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.min.js"
 		></script>
 
 		<!-- leaflet -->
+		<!-- https://leafletjs.com/download.html -->
 		<link
 			defer
 			rel="stylesheet"
-			href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-			integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+			href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+			integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
 			crossorigin=""
 		/>
-		<link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
-		<!-- Make sure you put this AFTER Leaflet's CSS -->
 		<script
 			defer
-			src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-			integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+			src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+			integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
 			crossorigin=""
 		></script>
+		<!-- local css -->
+		<link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
+
 		<script defer src="scripts/leaflet/dc.leaflet.min.js"></script>
 		<!-- http://dc-js.github.io/dc.leaflet.js/js/dc.leaflet.js -->
 
-		<script defer src="scripts/ecds_charts.js"></script>
+		<script defer src="scripts/generic.js"></script>
+		<script defer src="scripts/dc/cht_defaults.js"></script>
+		<script defer src="scripts/ecds/ecds_ref_tables.js"></script>
+		<script defer src="scripts/ecds/ecds_charts.js"></script>
 
 		<!-- Page Structure (Layout) -->
 		<script>
-			const elemActive = 'Home';
-			elemActive.split(' ').join('-'); // remove any spaces and replace with hyphens
+			const elemActive = "Home";
+			elemActive.split(" ").join("-"); // remove any spaces and replace with hyphens
 		</script>
-		<script defer src="scripts\components\navmain.js"></script>
-		<script defer src="scripts\components\navside.js"></script>
-		<script defer src="scripts\components\navside_interactive.js"></script>
-		<script defer src="scripts\components\toTop.js"></script>
+		<script defer src="scripts/components/navmain.js"></script>
+		<script defer src="scripts/components/navside.js"></script>
+		<script defer src="scripts/components/navside_interactive.js"></script>
+		<script defer src="scripts/components/toTop.js"></script>
 
 		<style></style>
 	</head>
@@ -149,7 +147,17 @@
 						</p>
 						<p id="counter">
 							<!-- This is used to display total and filtered record count -->
+							Charts loading...
 						</p>
+						<div id="gppractice-drop">
+							<a
+								class="reset"
+								href="javascript:dropGPPractice.filterAll();dc.redrawAll();"
+								style="visibility: hidden;"
+								>reset</a
+							>
+						</div>
+						<br />
 					</section>
 
 					<section id="sec-time" class="section anchor">
@@ -328,7 +336,7 @@
 							</div>
 
 							<div class="tile content">
-								<h2>Complaint</h2>
+								<h3>Complaint</h3>
 								<div id="complaint-chart">
 									<a
 										class="reset"
@@ -360,7 +368,7 @@
 					</section>
 
 					<section id="sec-patient" class="section anchor">
-						<h2>Patient Characteristics</h2>
+						<h2>Patient Demographic</h2>
 
 						<div id="bl-secpatient" class="bouncing-loader">
 							<div></div>
@@ -385,11 +393,26 @@
 							</div>
 
 							<div class="tile wide content">
-								<h3>GP Practice</h3>
-								<div id="gppractice-drop">
+								<h3>by LSOA</h3>
+								<div id="map-lsoa">
 									<a
 										class="reset"
-										href="javascript:dropGPPractice.filterAll();dc.redrawAll();"
+										href="javascript:mapLSOA.filterAll();dc.redrawAll();"
+										style="visibility: hidden;"
+										>reset</a
+									>
+								</div>
+								<footer class="cta">
+									Some descriptive text here.
+								</footer>
+							</div>
+
+							<div class="tile wide content">
+								<h3>GP Practice</h3>
+								<div id="cht_PracticeBubble">
+									<a
+										class="reset"
+										href="javascript:chtGPPractice.filterAll();dc.redrawAll();"
 										style="visibility: hidden;"
 										>reset</a
 									>
@@ -398,6 +421,21 @@
 									Add Description Here
 								</footer>
 							</div>
+
+							<!-- <div class="tile wide content">
+                <h3>GP Practice</h3>
+                <div id="gppractice-drop">
+                  <a
+                    class="reset"
+                    href="javascript:dropGPPractice.filterAll();dc.redrawAll();"
+                    style="visibility: hidden;"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">
+                  Add Description Here
+                </footer>
+              </div> -->
 
 							<div class="tile content">
 								<h3>Filter: EDFD</h3>
@@ -496,7 +534,7 @@
 					</section>
 
 					<section id="sec-test" class="section anchor">
-						<h2>Test Area</h2>
+						<h2>Experimental</h2>
 
 						<div id="bl-sectest" class="bouncing-loader">
 							<div></div>
@@ -505,6 +543,26 @@
 						</div>
 
 						<div id="sectest" class="tiles dcCharts">
+							<div class="tile wide content">
+								<h3>Simple Map</h3>
+								<div id="map-simple">
+									<span
+										class="reset"
+										style="visibility: hidden;"
+									>
+									</span>
+									<a
+										class="reset"
+										href="javascript:simpleMap.filterAll();dc.redrawAll();"
+										style="visibility: hidden;"
+										>reset</a
+									>
+								</div>
+								<footer class="cta">
+									Some descriptive text here.
+								</footer>
+							</div>
+
 							<div class="tile wide content">
 								<h3>BoxPlot Testing</h3>
 								<div id="box-test">
@@ -518,26 +576,6 @@
 									<a
 										class="reset"
 										href="javascript:boxPlotDuration.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Some descriptive text here.
-								</footer>
-							</div>
-
-							<div class="tile wide content">
-								<h3>Map Testing</h3>
-								<div id="map-test">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-									</span>
-									<a
-										class="reset"
-										href="javascript:mapLSOA.filterAll();dc.redrawAll();"
 										style="visibility: hidden;"
 										>reset</a
 									>

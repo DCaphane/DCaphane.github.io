@@ -3,45 +3,50 @@
 
 // Object consisting of main headers and a subsequent array of nav link and subsequent links
 const dataNavMain = {
-	Home: ['index.html', {}],
+	Home: ["index.html", {}],
 	Navigation: [
-		'#',
+		"#",
 		{
-			'Demos': [
-				'#',
+			"dc Demos": [
+				"#",
 				{
-					'ECDS': ['ecds.html', {}],
-          'PCNs': ['primary_care_networks.html', {}],
-          'GP Profiles': ['gp_practice_profile.html', {}]
+					ECDS: ["ecds.html", {}],
+					Referrals: ["referrals.html", {}],
 				}
 			],
-			'Nav 2': ['#', {}],
-			'Nav 3': [
-				'#',
+			"Map Demos": [
+				"#",
 				{
-					'Nav 3a': ['#', {}],
-					'Nav 3b': ['#', {}],
-					'Nav 3c': ['#', {}]
+					PCNs: ["primary_care_networks.html", {}],
+					"GP Profiles": ["gp_practice_profile.html", {}],
 				}
 			],
-			'Nav 4': ['#', {}],
-			'Nav 5': ['#', {}]
+			"Nav 3": [
+				"#",
+				{
+					"Nav 3a": ["#", {}],
+					"Nav 3b": ["#", {}],
+					"Nav 3c": ["#", {}]
+				}
+			],
+			"Nav 4": ["#", {}],
+			"Nav 5": ["#", {}]
 		}
 	],
-	FAQ: ['#', {}],
+	FAQ: ["#", {}],
 	Blog: [
-		'#',
+		"#",
 		{
-			'Blog 1': [
-				'#',
+			"Blog 1": [
+				"#",
 				{
-					'Blog 1a': ['#', {}],
-					'Blog 1b': ['#', {}]
+					"Blog 1a": ["#", {}],
+					"Blog 1b": ["#", {}]
 				}
 			]
 		}
 	],
-	'About Us': ['about_us.html', { 'Sub Contact': ['#', {}] }]
+	"About Us": ["about_us.html", { "Sub Contact": ["#", {}] }]
 };
 
 // Tried using appendChild but this replaces existing nodes.
@@ -116,8 +121,8 @@ function createTreeDom(obj, subCounter) {
 
     // add an id to the main headings only - this can then be selected to highlight as class active
     if (subCounter === 0) {
-      li.setAttribute("id", key.split(" ").join("-")); // remove any spaces and replace with
-      if (counter === dataKeysCount) {
+      li.setAttribute("id", key.split(" ").join("-")); // remove any spaces and replace with a hyphen
+      if (counter === dataKeysCount + 1) { // Changed the navbar and needed to add +1, not sure why...
         // Used to identify the last main item which will have a class applied to align right
         // this was previously done is css but trickier with multi level headings
         li.className += " " + "last-item";

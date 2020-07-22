@@ -20,8 +20,8 @@
     -->
 		<link
 			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-reboot.css"
-			integrity="sha256-qt0HBm6NjfeYscsqC47HIkMZbTp4n6w0xK/d/qbNK/M="
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
+			integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
 			crossorigin="anonymous"
 		/>
 
@@ -36,10 +36,10 @@
 			crossorigin="anonymous"
 		></script>
 
-		<script
-			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.2/d3.min.js"
-		></script>
+		<!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
+		<script defer src="https://d3js.org/d3.v5.min.js"></script>
+		<!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
+
 		<script
 			defer
 			src="https://cdn.jsdelivr.net/npm/@observablehq/stdlib"
@@ -48,14 +48,26 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<link rel="stylesheet" type="text/css" href="css/layout.css" />
 
-		<link rel="stylesheet" type="text/css" href="css/components/navbar_main.css" />
-		<link rel="stylesheet" type="text/css" href="css/components/navbar_side.css" />
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/navbar_main.css"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/navbar_side.css"
+		/>
 
-		<link rel="stylesheet" type="text/css" href="css/components/toTop.css" />
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="css/components/toTop.css"
+		/>
 
 		<!-- Page Structure (Layout) -->
 		<script>
-			let elemActive = 'About-Us'; // remove any spaces and replace with hyphens
+			let elemActive = "About-Us"; // remove any spaces and replace with hyphens
 			// elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
 		</script>
 		<!-- requires font awesome -->
@@ -107,7 +119,14 @@
 									id="empty000"
 									class="chart-container"
 								></div>
-								<footer class="cta">Based on <a href="https://observablehq.com/@bumbeishvili/d3-v5-organization-chart">this</a> example</footer>
+								<footer class="cta">
+									Based on
+									<a
+										href="https://observablehq.com/@bumbeishvili/d3-v5-organization-chart"
+										>this</a
+									>
+									example
+								</footer>
 							</div>
 						</div>
 					</section>

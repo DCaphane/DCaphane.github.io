@@ -12,6 +12,8 @@ http://jsfiddle.net/mekwall/up4nu/
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   z-index: 1;
+  min-width: 100px;
+  max-width: 250px;
 }
 
 .nav-side {
@@ -22,6 +24,12 @@ http://jsfiddle.net/mekwall/up4nu/
 
 .nav-side li {
   padding: 5px 10px 5px 5px;
+  /* https://css-tricks.com/snippets/css/truncate-string-with-ellipsis/ 
+      https://ishadeed.com/article/min-max-css/
+  */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .nav-side a {
