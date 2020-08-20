@@ -76,7 +76,7 @@ let uniquePracticesOrg = new Map(),
 
 // Format the data as appropriate
 var promise1 = d3
-	.csv("data/GP_Practice_Populations.csv", function row(d) {
+	.csv("Data/GP_Practice_Populations.csv", function row(d) {
 		// Loop through the raw data to:
 		// i. identify unique practices
 		let practiceItem = d.Practice_Mapped.substring(0, 6);
