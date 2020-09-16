@@ -21,15 +21,22 @@ const dataNavMain = {
 					"GP Profiles": ["gp_practice_profile.html", {}],
 				}
 			],
-			"Nav 3": [
+			"D3 Learning": [
 				"#",
 				{
-					"Nav 3a": ["#", {}],
-					"Nav 3b": ["#", {}],
+					"Nav 3a": ["d3_learning_colours.html", {}],
+					"Nav 3b": ["d3_learning_axis.html", {}],
 					"Nav 3c": ["#", {}]
 				}
 			],
-			"Nav 4": ["#", {}],
+			"Nav 4": [
+				"#",
+				{
+					"Nav 4a": ["#", {}],
+					"Nav 4b": ["#", {}],
+					"Nav 4c": ["#", {}]
+				}
+			],
 			"Nav 5": ["#", {}]
 		}
 	],
