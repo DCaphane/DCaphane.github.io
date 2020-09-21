@@ -84,28 +84,28 @@ const mapSites = L.map("mapSites", {
   }
 });
 
-const layerControl2 = L.control.layers(baseMaps1, null, {
+const layerControl1 = L.control.layers(baseMaps1, null, {
   collapsed: true, // Whether or not control options are displayed
   sortLayers: true
 });
-mapSites.addControl(layerControl2);
+mapSites.addControl(layerControl1);
 
 // Ward boundaries and ward groupings
-const subLayerControl2 = L.control.layers(null, null, {
+const subLayerControl1 = L.control.layers(null, null, {
   collapsed: true,
   sortLayers: true
 });
-mapSites.addControl(subLayerControl2);
+mapSites.addControl(subLayerControl1);
 
-const scaleBar2 = L.control.scale({
+const scaleBar1 = L.control.scale({
   // https://leafletjs.com/reference-1.4.0.html#control-scale-option
   position: "bottomleft",
   metric: true,
   imperial: true
 });
-scaleBar2.addTo(mapSites);
+scaleBar1.addTo(mapSites);
 
-var sidebarSites = sidebarLeft(mapSites, "sidebar2");
+const sidebarSites = sidebarLeft(mapSites, "sidebar2");
 
 homeButton(mapSites);
 yorkTrust(mapSites);
@@ -118,8 +118,8 @@ mapSites.createPane("ccg03QBoundaryPane");
 mapSites.getPane("ccg03QBoundaryPane").style.zIndex = 374;
 
 // ccg boundary
-ccgBoundary(mapSites, subLayerControl2);
-wardData(mapSites, subLayerControl2);
+ccgBoundary(mapSites, subLayerControl1);
+wardData(mapSites, subLayerControl1);
 
 getGeoData("Data/geo/pcn/primary_care_network_sites.geojson").then(function(
   data
