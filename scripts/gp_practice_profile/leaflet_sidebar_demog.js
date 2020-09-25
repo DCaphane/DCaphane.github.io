@@ -31,6 +31,7 @@ const panelOverview = {
 };
 sidebarPCN.addPanel(panelOverview);
 sidebarSites.addPanel(panelOverview);
+sidebarPopn.addPanel(panelOverview);
 
 const panelSpecific = {
 	id: "pcnSpecific", // UID, used to access the panel

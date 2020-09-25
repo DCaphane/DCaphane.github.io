@@ -567,7 +567,7 @@ const ccgBoundary = async function(map, control) {
   }).addTo(map);
   control.addOverlay(ccgBoundary, "voy_ccg");
 
-  // map.fitBounds(ccgBoundary.getBounds());
+  map.fitBounds(ccgBoundary.getBounds());
 };
 /* Useful Links
 

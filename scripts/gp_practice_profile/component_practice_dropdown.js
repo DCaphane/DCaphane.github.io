@@ -20,7 +20,7 @@ For restyling dropdowns, improved functionality:
   https://codepen.io/rpsthecoder/embed/yJvRPE/?height=421&theme-id=12825&default-tab=result&embed-version=2
 */
 
-promise1.then(() => {
+function updateDropdowns() {
 	const dropDowns = document.getElementsByClassName("dropdown practice"); // select all elements with these classes
 
 	for (let i = 0; i < dropDowns.length; i++) {
@@ -113,7 +113,7 @@ promise1.then(() => {
 		console.log("Compare: " + selectedPracticeCompare);
 		updateChtDemog(selectedPractice, selectedPracticeCompare);
 	});
-});
+};
 
 // Function to create a given element eg. option and in this case, the map key, k (practice code)
 function createElem(elemType, text) {

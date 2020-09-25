@@ -2,7 +2,7 @@
 Based on this example:
     https://stackoverflow.com/questions/25044997/creating-population-pyramid-with-d3-js/25050764#25050764
     https://codepen.io/netkuy/pen/KzPaBe
-    
+
     Transitions: https://gist.github.com/martinjc/7fa5deb1782da2fc6da15c3fad02c88b
     */
 
@@ -14,7 +14,7 @@ const marginDemog = {
   right: 15,
   bottom: 40,
   left: 15,
-  middle: 20
+  middle: 20,
 };
 
 // Demographic breakdown (age, sex)
@@ -54,20 +54,14 @@ let leftBarGroup, rightBarGroup;
 //   .range([0, regionWidth]) // can add an adjustment here but bars need adjusting...
 //   .nice();
 
-const xScaleLeft = d3
-  .scaleLinear()
-  .range([regionWidth, 0])
-  .nice(); //  this reverses the direction of the scale (n to 0)
-const xScaleRight = d3
-  .scaleLinear()
-  .range([0, regionWidth])
-  .nice(); // (0 to n)
+const xScaleLeft = d3.scaleLinear().range([regionWidth, 0]).nice(); //  this reverses the direction of the scale (n to 0)
+const xScaleRight = d3.scaleLinear().range([0, regionWidth]).nice(); // (0 to n)
 const xAxisAdj = 0.0005; // used to prevent cut off of the xAxis labels
 
 let xAxisLeft = d3
   .axisBottom(xScaleLeft) // xScale.copy().range([pointA, 0])
   // Reverse the x-axis scale on the left side by reversing the range
-  .tickFormat(function(d) {
+  .tickFormat(function (d) {
     if (maxValue < 0.1) {
       return formatPercent1dp(d);
     } else {
@@ -75,7 +69,7 @@ let xAxisLeft = d3
     }
   });
 
-let xAxisRight = d3.axisBottom(xScaleRight).tickFormat(function(d) {
+let xAxisRight = d3.axisBottom(xScaleRight).tickFormat(function (d) {
   if (maxValue < 0.1) {
     return formatPercent1dp(d);
   } else {
@@ -127,55 +121,11 @@ const ageBands = [
   "70-74",
   "75-79",
   "80-84",
-  "85+"
+  "85+",
 ];
 
 yScale.domain(ageBands);
 const emptyDemog = emptyDemographic();
-
-// tooltip
-let tipDemoF = d3
-  .tip()
-  .attr("class", "d3-tip")
-  .direction("n")
-  .offset([-10, 0])
-  .html(function(d, i) {
-    return (
-      "<strong>Female</strong><br>Age: " +
-      d.key +
-      '<br><span style="color:red">' +
-      "Population: " +
-      formatNumber(d.value.female) +
-      "</span>" +
-      '<br><span style="color:red">' +
-      "% Total: " +
-      formatPercent1dp(d.value.female / totalPop1) +
-      "</span>"
-    );
-  });
-
-let tipDemoM = d3
-  .tip()
-  .attr("class", "d3-tip")
-  .direction("n")
-  .offset([-10, 0])
-  .html(function(d, i) {
-    return (
-      "<strong>Male</strong><br>Age: " +
-      d.key +
-      '<br><span style="color:red">' +
-      "Population: " +
-      formatNumber(d.value.male) +
-      "</span>" +
-      '<br><span style="color:red">' +
-      "% Total: " +
-      formatPercent1dp(d.value.male / totalPop1) +
-      "</span>"
-    );
-  });
-
-svgDemog.call(tipDemoF);
-svgDemog.call(tipDemoM);
 
 svgDemog
   .append("g")
@@ -201,22 +151,14 @@ svgDemog
   .attr("class", "axis x right")
   .attr("transform", translation(pointB, chtHeightShort));
 
-promise1.then(data => {
-  let chtDataDemog = [];
-
-  data.forEach(function(d) {
-    if (d.Period.getTime() === selectedDate.getTime())
-      chtDataDemog.push(d.values);
-  });
-
-  chartDemogDraw(chtDataDemog[0]);
-});
+function fnChartDemogData(data) {
+  let chtDataDemog = data.get(selectedDate);
+  // console.log(chtDataDemog);
+  chartDemogDraw(chtDataDemog);
+}
 
 function updateChtDemog(practiceMain, practiceComp) {
-  const unfmtDataP1 = [],
-    unfmtDataP2 = [],
-    chtDataP1 = [],
-    chtDataP2 = [];
+  let chtDataP1, chtDataP2;
 
   // Main Practice Data
   if (selectedPractice === "Default") {
@@ -226,86 +168,66 @@ function updateChtDemog(practiceMain, practiceComp) {
   if (!practiceMain || practiceMain === "All Practices") {
     practiceMain = undefined;
     // no practice selected, undefined - use the original data source (All Practices)
-    data_DemoInit.forEach(function(d) {
-      if (d.Period.getTime() === selectedDate.getTime())
-        // comparing dates
-        chtDataP1.push(d.values);
-    });
+    chtDataP1 = data_DemoInit.get(selectedDate);
   } else {
-    dataLevel_04.forEach(function(d) {
-      if (d.key === practiceMain) {
-        unfmtDataP1.push(d.values);
-
-        unfmtDataP1[0].forEach(function(d) {
-          if (new Date(d.key).getTime() === selectedDate.getTime())
-            chtDataP1.push(d.values);
-        });
-      }
-    });
+    chtDataP1 = dataLevel_04.get(practiceMain).get(selectedDate);
   }
 
   // Comparison Practice Data
-  if (!practiceComp) {
+  if (!practiceComp || practiceComp === "None") {
     practiceComp = undefined;
     // no practice comparison selected
-    emptyDemog.forEach(function(d) {
-      chtDataP2.push(d.values);
-    });
+    chtDataP2 = emptyDemog;
   } else if (practiceComp === "All Practices") {
-    data_DemoInit.forEach(function(d) {
-      if (d.Period.getTime() === selectedDate.getTime())
-        // comparing dates
-        chtDataP2.push(d.values);
-    });
+    chtDataP2 = data_DemoInit.get(selectedDate);
   } else {
-    dataLevel_04.forEach(function(d) {
-      if (d.key === practiceComp) {
-        unfmtDataP2.push(d.values);
-
-        unfmtDataP2[0].forEach(function(d) {
-          if (new Date(d.key).getTime() === selectedDate.getTime())
-            chtDataP2.push(d.values);
-        });
-      }
-    });
+    chtDataP2 = dataLevel_04.get(practiceComp).get(selectedDate);
   }
 
-  chartDemogDraw(chtDataP1[0], chtDataP2[0]);
+  chartDemogDraw(chtDataP1, chtDataP2);
 }
 
 function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
   // d3 transition
-  let t = d3
-    .transition()
-    .duration(750)
-    .ease(d3.easeBounce); // https://bl.ocks.org/d3noob/1ea51d03775b9650e8dfd03474e202fe
+  let t = d3.transition().duration(750).ease(d3.easeBounce); // https://bl.ocks.org/d3noob/1ea51d03775b9650e8dfd03474e202fe
 
-  totalPop1 = fnTotalPopulation(dataP1);
-  const totalPop2 = fnTotalPopulation(dataP2);
+  let tooltipL = Tooltip("#cht_PopDemo"),
+    tooltipR = Tooltip("#cht_PopDemo");
+
+  tooltipL.style("height", "60px");
+  tooltipR.style("height", "60px");
+
+  const totalPop1 = fnTotalPopulation(dataP1),
+    totalPop2 = fnTotalPopulation(dataP2);
+  // console.log({pop1: totalPop1, pop2: totalPop2})
 
   // find the maximum data value on either side
   // since this will be shared by both of the x-axes
+
+  let popn1MaxMale = 0,
+    popn1MaxFemale = 0,
+    popn2MaxMale = 0,
+    popn2MaxFemale = 0;
+
+  for (let value of dataP1.values()) {
+    // totalPop += value.total;
+    popn1MaxMale = Math.max(popn1MaxMale, value.male / totalPop1);
+    popn1MaxFemale = Math.max(popn1MaxFemale, value.female / totalPop1);
+  }
+
+  if (totalPop2 > 0) {
+    for (let value of dataP2.values()) {
+      // totalPop += value.total;
+      popn2MaxMale = Math.max(popn2MaxMale, value.male / totalPop2);
+      popn2MaxFemale = Math.max(popn2MaxFemale, value.female / totalPop2);
+    }
+  }
+
   maxValue = Math.max(
-    d3.max(dataP1, function(d) {
-      return d.value.male / totalPop1;
-    }),
-    d3.max(dataP1, function(d) {
-      return d.value.female / totalPop1;
-    }),
-    d3.max(dataP2, function(d) {
-      if (totalPop2 > 0) {
-        return d.value.male / totalPop2;
-      } else {
-        return 0;
-      }
-    }),
-    d3.max(dataP2, function(d) {
-      if (totalPop2 > 0) {
-        return d.value.female / totalPop2;
-      } else {
-        return 0;
-      }
-    })
+    popn1MaxMale,
+    popn1MaxFemale,
+    popn2MaxMale,
+    popn2MaxFemale
   );
   // console.log(maxValue);
 
@@ -337,12 +259,12 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
     .attr("dy", ".35em") // shifts text left (+) or right
     .attr("transform", "rotate(-90)")
     .style("text-anchor", "end");
-    
+
   // https://observablehq.com/@d3/selection-join
   svgDemog
     .selectAll(".bar.left")
-    .data(dataP1, function(d) {
-      return d.key;
+    .data(dataP1.keys(), function (d) {
+      return d;
     })
     .join(
       (
@@ -350,57 +272,82 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
       ) =>
         enter
           .append("rect")
+          .datum(function (d, i) {
+            let x, y;
+            [x, y, i] = [dataP1.get(d), d, i];
+            // console.log([x, y, i])
+            return [x, y, i];
+          })
           .attr("class", "bar left")
           // mouse events need to go before any transitions
-          .on("mouseenter", tipDemoM.show)
-          .on("mouseover", function(d) {
-            d3.select(this).attr("class", "bar hover");
+          .on("click", function (event, [x, y, i]) {
+            console.log("selAge:", y);
           })
-          .on("mouseout", function(d) {
-            d3.select(this).attr("class", "bar left");
+          .on("mouseover", function (d) {
+            const sel = d3.select(this);
+            sel.attr("class", "bar hover");
+            mouseover(sel, tooltipL);
           })
-          .on("mouseleave", tipDemoM.hide)
+          .on("mousemove", function (event, [x, y, i]) {
+            const str = `<strong>Male: ${y} yrs</strong><br>
+            <span style="color:red">
+              Popn: ${formatNumber(x.male)}
+              </span><br>
+            % Popn: ${formatPercent1dp(x.male / totalPop1)}
+              `;
+            tooltipText(tooltipL, str, event);
+          })
+          .on("mouseout", function (d) {
+            const sel = d3.select(this);
+            sel.attr("class", "bar left");
+          })
+          .on("mouseleave", function () {
+            const item = d3.select(this);
+            mouseleave(item, tooltipL);
+          })
           .attr("transform", translation(pointA, 0) + "scale(-1, 1)")
-          .attr("y", function(d) {
-            return yScale(d.key);
+          .attr("y", function ([x, y, i]) {
+            return yScale(y);
           })
-          .call(enter =>
+          .call((enter) =>
             enter
               .transition(t)
-              // .delay(function(d, i) { // a different delay for each bar
-              //   if (d.key.indexOf("-") > 0) {
-              //   return d.key.substring(0, d.key.indexOf("-")) * 10;
-              //   } else {
-              //     return (85 * 10);
-              //   }
-              // })
-              .attr("width", function(d) {
-                return xScaleRight(d.value.male / totalPop1); // not sure why but xScaleLeft reverses this!
+              .delay(function ([x, y, i]) {
+                // a different delay for each bar
+                if (y.indexOf("-") > 0) {
+                  return y.substring(0, y.indexOf("-")) * 10;
+                } else {
+                  return 85 * 10;
+                }
+              })
+              .attr("width", function ([x, y, i]) {
+                // console.log(x.male)
+                return xScaleRight(x.male / totalPop1); // not sure why but xScaleLeft reverses this!
               })
               .attr("height", yScale.bandwidth())
           ),
       (
         update // UPDATE old elements present in new data.
       ) =>
-        update.call(update =>
+        update.call((update) =>
           update
             .transition(t)
-            .attr("width", function(d) {
-              return xScaleRight(d.value.male / totalPop1); // not sure why left reverses this!
+            .attr("width", function ([x, y, i]) {
+              return xScaleRight(x.male / totalPop1); // not sure why left reverses this!
             })
-            .attr("y", function(d) {
-              return yScale(d.key);
+            .attr("y", function ([x, y, i]) {
+              return yScale(y);
             })
         ),
       (
         exit // EXIT old elements not present in new data.
-      ) => exit.call(exit => exit.transition(t).remove())
+      ) => exit.call((exit) => exit.transition(t).remove())
     );
 
   svgDemog
     .selectAll(".bar.right")
-    .data(dataP1, function(d) {
-      return d.key;
+    .data(dataP1.keys(), function (d) {
+      return d;
     })
     .join(
       (
@@ -408,57 +355,82 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
       ) =>
         enter
           .append("rect")
+          .datum(function (d, i) {
+            let x, y;
+            [x, y, i] = [dataP1.get(d), d, i];
+            // console.log([x, y, i])
+            return [x, y, i];
+          })
           .attr("class", "bar right")
-          .on("mouseenter", tipDemoF.show)
-          .on("mouseover", function(d) {
-            d3.select(this).attr("class", "bar hover");
+          .on("click", function (event, [x, y, i]) {
+            console.log("selAge:", y);
           })
-          .on("mouseout", function(d) {
-            d3.select(this).attr("class", "bar right");
+          .on("mouseover", function (d) {
+            const sel = d3.select(this);
+            sel.attr("class", "bar hover");
+            mouseover(sel, tooltipR);
           })
-          .on("mouseleave", tipDemoF.hide)
+          .on("mousemove", function (event, [x, y, i]) {
+            const str = `<strong>Female: ${y} yrs</strong><br>
+            <span style="color:red">
+              Popn: ${formatNumber(x.female)}
+              </span><br>
+            % Popn: ${formatPercent1dp(x.female / totalPop1)}
+              `;
+            tooltipText(tooltipR, str, event);
+          })
+          .on("mouseout", function (d) {
+            const sel = d3.select(this);
+            sel.attr("class", "bar right");
+          })
+          .on("mouseleave", function () {
+            const item = d3.select(this);
+            mouseleave(item, tooltipR);
+          })
           .attr("transform", translation(pointB, 0))
-          .attr("y", function(d) {
-            return yScale(d.key);
+          .attr("y", function ([x, y, i]) {
+            return yScale(y);
           })
-          .call(enter =>
+          .call((enter) =>
             enter
               .transition(t)
-              // .delay(function(d, i) { // a different delay for each bar
-              //   if (d.key.indexOf("-") > 0) {
-              //   return d.key.substring(0, d.key.indexOf("-")) * 10;
-              //   } else {
-              //     return (85 * 10);
-              //   }
-              // })
-              .attr("width", function(d) {
-                return xScaleRight(d.value.female / totalPop1); // not sure why but xScaleLeft reverses this!
+              .delay(function ([x, y, i]) {
+                // a different delay for each bar
+                if (y.indexOf("-") > 0) {
+                  return y.substring(0, y.indexOf("-")) * 10;
+                } else {
+                  return 85 * 10;
+                }
+              })
+              .attr("width", function ([x, y, i]) {
+                // console.log(x.female)
+                return xScaleRight(x.female / totalPop1); // not sure why but xScaleLeft reverses this!
               })
               .attr("height", yScale.bandwidth())
           ),
       (
         update // UPDATE old elements present in new data.
       ) =>
-        update.call(update =>
+        update.call((update) =>
           update
             .transition(t)
-            .attr("width", function(d) {
-              return xScaleRight(d.value.female / totalPop1); // not sure why left reverses this!
+            .attr("width", function ([x, y, i]) {
+              return xScaleRight(x.female / totalPop1); // not sure why left reverses this!
             })
-            .attr("y", function(d) {
-              return yScale(d.key);
+            .attr("y", function ([x, y, i]) {
+              return yScale(y);
             })
         ),
       (
         exit // EXIT old elements not present in new data.
-      ) => exit.call(exit => exit.transition(t).remove())
+      ) => exit.call((exit) => exit.transition(t).remove())
     );
 
   // Comparison Bars
   svgDemog
     .selectAll(".bar-comp.left")
-    .data(dataP2, function(d) {
-      return d.key;
+    .data(dataP2.keys(), function (d) {
+      return d;
     })
     .join(
       (
@@ -466,42 +438,56 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
       ) =>
         enter
           .append("rect")
+          .datum(function (d, i) {
+            let x, y;
+            [x, y, i] = [dataP2.get(d), d, i];
+            // console.log([x, y, i])
+            return [x, y, i];
+          })
           .attr("class", "bar-comp left")
           // any mouse events required go here
           .attr("transform", translation(pointA, 0) + "scale(-1, 1)")
-          .attr("y", function(d) {
-            return yScale(d.key) + 1;
+          .attr("y", function ([x, y, i]) {
+            return yScale(y) + 1;
           })
-          .call(enter =>
+          .call((enter) =>
             enter
               .transition(t)
-              .attr("width", function(d) {
-                return xScaleRight(d.value.male / totalPop2); // not sure why but xScaleLeft reverses this!
+              .attr("width", function ([x, y, i]) {
+                if (totalPop2 > 0) {
+                  return xScaleRight(x.male / totalPop2); // not sure why but xScaleLeft reverses this!
+                } else {
+                  return 0;
+                }
               })
               .attr("height", yScale.bandwidth() - 2)
           ),
       (
         update // UPDATE old elements present in new data.
       ) =>
-        update.call(update =>
+        update.call((update) =>
           update
             .transition(t)
-            .attr("width", function(d) {
-              return xScaleRight(d.value.male / totalPop2); // not sure why left reverses this!
+            .attr("width", function ([x, y, i]) {
+              if (totalPop2 > 0) {
+                return xScaleRight(x.male / totalPop2); // not sure why but xScaleLeft reverses this!
+              } else {
+                return 0;
+              }
             })
-            .attr("y", function(d) {
-              return yScale(d.key) + 1;
+            .attr("y", function ([x, y, i]) {
+              return yScale(y) + 1;
             })
         ),
       (
         exit // EXIT old elements not present in new data.
-      ) => exit.call(exit => exit.transition(t).remove())
+      ) => exit.call((exit) => exit.transition(t).remove())
     );
 
   svgDemog
     .selectAll(".bar-comp.right")
-    .data(dataP2, function(d) {
-      return d.key;
+    .data(dataP2.keys(), function (d) {
+      return d;
     })
     .join(
       (
@@ -509,35 +495,49 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
       ) =>
         enter
           .append("rect")
+          .datum(function (d, i) {
+            let x, y;
+            [x, y, i] = [dataP2.get(d), d, i];
+            // console.log([x, y, i])
+            return [x, y, i];
+          })
           .attr("class", "bar-comp right")
           .attr("transform", translation(pointB, 0))
-          .attr("y", function(d) {
-            return yScale(d.key) + 1;
+          .attr("y", function ([x, y, i]) {
+            return yScale(y) + 1;
           })
-          .call(enter =>
+          .call((enter) =>
             enter
               .transition(t)
-              .attr("width", function(d) {
-                return xScaleRight(d.value.female / totalPop2); // not sure why but xScaleLeft reverses this!
+              .attr("width", function ([x, y, i]) {
+                if (totalPop2 > 0) {
+                  return xScaleRight(x.female / totalPop2); // not sure why but xScaleLeft reverses this!
+                } else {
+                  return 0;
+                }
               })
               .attr("height", yScale.bandwidth() - 2)
           ),
       (
         update // UPDATE old elements present in new data.
       ) =>
-        update.call(update =>
+        update.call((update) =>
           update
             .transition(t)
-            .attr("width", function(d) {
-              return xScaleRight(d.value.female / totalPop2); // not sure why left reverses this!
+            .attr("width", function ([x, y, i]) {
+              if (totalPop2 > 0) {
+                return xScaleRight(x.female / totalPop2); // not sure why but xScaleLeft reverses this!
+              } else {
+                return 0;
+              }
             })
-            .attr("y", function(d) {
-              return yScale(d.key) + 1;
+            .attr("y", function ([x, y, i]) {
+              return yScale(y) + 1;
             })
         ),
       (
         exit // EXIT old elements not present in new data.
-      ) => exit.call(exit => exit.transition(t).remove())
+      ) => exit.call((exit) => exit.transition(t).remove())
     );
 
   // Population over eg. 65
@@ -559,37 +559,41 @@ function translation(x, y) {
 
 function fnTotalPopulation(data) {
   // Get the total population size and create a function for returning the percentage
-  const x = d3.sum(data, function(d) {
-    return d.value.total;
-  });
-  // console.log(totalPop1)
-  return x;
+  let totalPop = 0;
+
+  if (data.size > 0) {
+    for (let value of data.values()) {
+      totalPop += value.total;
+    }
+  }
+
+  return totalPop;
 }
 
 function subPopulation(age = 0, data) {
-  let populationOver = 0;
-  data.forEach(function(d) {
-    if (d.key.substring(0, d.key.indexOf("-")) >= age) {
-      populationOver += d.value.total;
-    }
-  });
-  // console.log('Over65s: ' + populationOver)
-  // console.log('% 65s: ' + formatPercent(populationOver / totalPop1))
+  let populationOverAge = 0;
 
-  return populationOver;
+  if (data.size > 0) {
+    for (let [key, value] of data) {
+      if (key.substring(0, key.indexOf("-")) >= age) {
+        populationOverAge += value.total;
+      }
+    }
+  }
+
+  // console.log('Over65s: ' + populationOverAge)
+  // console.log('% 65s: ' + formatPercent(populationOverAge / totalPop1))
+
+  return populationOverAge;
 }
 
 function emptyDemographic() {
-  let demog = [];
+  const demog = new Map();
   let empty = { total: 0, male: 0, female: 0 };
 
   // create an empty
-  ageBands.forEach(item => {
-    const subGroup = {};
-    subGroup.key = item;
-    subGroup.value = empty;
-
-    demog.push(subGroup);
+  ageBands.forEach((item) => {
+    demog.set(item, empty);
   });
 
   return demog;
