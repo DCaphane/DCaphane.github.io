@@ -154,10 +154,7 @@ https://github.com/marslan390/BeautifyMarker
       defer
       src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"
     ></script> -->
-    <script
-      defer
-      src="scripts/components/tooltip.js"
-    ></script>
+    <script defer src="scripts/components/tooltip.js"></script>
     <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
 
     <script defer src="scripts/gp_practice_profile/gp_popn_trend.js"></script>
@@ -167,6 +164,7 @@ https://github.com/marslan390/BeautifyMarker
       src="scripts/gp_practice_profile/gp_popn_demographic.js"
     ></script>
 
+    <script defer src="scripts/gp_practice_profile/gp_popn_bar.js"></script>
 
     <script defer src="scripts/gp_practice_profile/map_GP_MainSite.js"></script>
     <script defer src="scripts/gp_practice_profile/map_GP_sites.js"></script>
@@ -305,6 +303,12 @@ https://github.com/marslan390/BeautifyMarker
                 <div id="mapSites" class="map"></div>
                 <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
                 <footer id="selectedSite" class="cta">Associated Sites</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Bar Chart</h3>
+                <div id="cht_PopBar"></div>
+                <footer class="cta"></footer>
               </div>
 
               <div class="tile wide content">
