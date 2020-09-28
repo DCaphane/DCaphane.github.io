@@ -150,10 +150,6 @@ https://github.com/marslan390/BeautifyMarker
     <script defer src="scripts/map_beautifyMarker.js"></script>
     <script defer src="scripts/leaflet/map_components.js"></script>
 
-    <!-- <script
-      defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"
-    ></script> -->
     <script defer src="scripts/components/tooltip.js"></script>
     <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
 
@@ -307,7 +303,9 @@ https://github.com/marslan390/BeautifyMarker
 
               <div class="tile wide content">
                 <h3>Bar Chart</h3>
-                <div id="cht_PopBar"></div>
+                <div id="cht_PopBar">
+                  <span class="search" id="barOrder"> Sort By: </span>
+                </div>
                 <footer class="cta"></footer>
               </div>
 
@@ -315,7 +313,7 @@ https://github.com/marslan390/BeautifyMarker
                 <h3>Population by LSOA</h3>
                 <div id="mapPopnLSOA" class="map"></div>
                 <div id="sidebar3" class="leaflet-sidebar collapsed"></div>
-                <footer id="selectedSite" class="cta">under development</footer>
+                <footer id="selectedSite" class="cta"></footer>
               </div>
             </div>
           </section>

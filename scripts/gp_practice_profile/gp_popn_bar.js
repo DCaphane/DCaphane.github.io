@@ -1,153 +1,265 @@
-const svgBar = d3
-  .select("#cht_PopBar")
-  .append("svg")
-  .attr(
-    "viewBox",
-    "0 0 " +
-      (chtWidthWide + marginDemog.left + marginDemog.right) +
-      " " +
-      (chtHeightStd + marginDemog.top + marginDemog.bottom)
-  );
-
-const bar = svgBar
-  .append("g")
-  .attr("fill", "steelblue")
-  .style("mix-blend-mode", "multiply");
-
-const xBar = d3
-  .scaleBand()
-  .range([margin.left, chtWidthWide - margin.right])
-  .padding(0.1);
-
-const yBar = d3
-  .scaleLinear()
-  .nice()
-  .range([chtHeightStd - margin.bottom, margin.top]);
-
-const xAxis = (g) =>
-  g
-    .attr("transform", `translate(0,${chtHeightStd - margin.bottom})`)
-    .call(d3.axisBottom(xBar).tickSizeOuter(0));
-
-const yAxisBar = (g) =>
-  g
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(yBar))
-    .call((g) => g.select(".domain").remove());
-
-// const gx = svgBar.append("g").call(xAxis);
-svgBar
-  .append("g")
-  .attr("class", "axis bottom")
-  .attr("transform", translation(0, chtHeightStd));
-
-
-svgBar
-  .append("g")
-  .attr("class", "y axis")
-  .attr("id", "axis--yBar")
-  .call(yAxisBar)
-  // text label for the y axis
-  .append("text")
-  .attr("transform", "rotate(-90)")
-  .attr("y", 10 - margin.left)
-  .attr("x", 0 - chtHeightStd / 2)
-  .attr("dy", "1em")
-  .style("text-anchor", "middle")
-  .style("font-weight", "bold")
-  .text("Population");
-// bar
-//   .data(data, (d) => d.name)
-//   .order()
-//   .transition(t)
-//   .delay((d, i) => i * 20)
-//   .attr("x", (d) => x(d.name));
-
-// gx.transition(t)
-//   .call(xAxis)
-//   .selectAll(".tick")
-//   .delay((d, i) => i * 20);
-
-
-function fnChartBarData(data) {
-
+function fnChartBarData(dataImport) {
+  // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const d = d3.rollup(
-    data,
+    dataImport,
     (v) => d3.sum(v, (d) => d.Total_Pop),
     (d) => +d.Period,
     (d) => d.Practice
   );
 
-  redrawBarChart(d.get(selectedDate));
-}
+  const newData = d.get(selectedDate);
 
+  var svg = d3
+    .select("#cht_PopBar")
+    .append("svg")
+    .attr(
+      "viewBox",
+      `0 0
+      ${chtWidthWide + margin.left + margin.right}
+${chtHeightStd + margin.top + margin.bottom}`
+    );
 
-function redrawBarChart(data) {
+  let tooltipPopnBar = Tooltip("#cht_PopBar");
+  tooltipPopnBar.style("height", "65px").style("width", "150px");
 
-  let t = d3.transition().duration(750).ease(d3.easeBounce);
-    xBar.domain(data.keys()) // practice codes
-    // xBar.domain(data.sort(order).map(data.keys()));
-    yBar.domain([0, d3.max(data.values())])
+  var x = d3
+    .scaleBand()
+    .domain(
+      newData.keys()
+      // data.map(function (d) {
+      //   return d[0];
+      // })
+    )
+    .range([margin.left, chtWidthWide - margin.right])
+    .padding(0.1);
 
-    svgBar
-    .select(".axis.bottom")
-    .transition(t)
-    .call(xAxis)
-    .selectAll("text")
-    .attr("y", 0)
-    .attr("x", -7) // shifts text up (+) or down (-)
-    .attr("dy", ".35em") // shifts text left (+) or right
+  // max y value used for domain and colour scheme so calculate once here
+  const yMax = d3.max(newData.values());
+  var y = d3
+    .scaleLinear()
+    .nice()
+    .domain([
+      0,
+      yMax,
+      //   data, function (d) {
+      //   return d.value;
+      // }
+      // ),
+    ])
+    .range([chtHeightStd, margin.top]);
+
+  var yAxis = d3.axisLeft().scale(y);
+
+  svg
+    .append("g")
+    .attr("class", "y axis")
+    .attr("id", "axis--yBar")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(yAxis)
+    // text label for the y axis
+    .append("text")
     .attr("transform", "rotate(-90)")
-    .style("text-anchor", "end");
+    .attr("y", 10 - margin.left)
+    .attr("x", 0 - chtHeightStd / 2)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .text("Population");
 
-  svgBar.select("#axis--yBar").transition(t).call(yAxisBar).selectAll("text");
-
-    bar
+  svg
     .selectAll("rect")
-      .data(data.keys(), function (d) {
-      return d; // practice code
+    .data(newData)
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .classed("barPopn highlight", function (d) {
+      return d[0] === selectedPractice;
     })
-    .join(
-      (
-        enter // ENTER new elements present in new data.
-      ) =>
-        enter
-          .append("rect")
-          .datum(function (d, i) {
-            let x, y; // x = practice, y = value, i = index (irrelevant)
-            [x, y, i] = [d, data.get(d), i];
-            // console.log([x, y, i])
-            return [x, y, i];
-          })
-          .attr("x", ([x, y, i]) => xBar(x))
-                .attr("y", ([x, y, i]) => yBar(y))
-                .attr("width", xBar.bandwidth())
-          .attr("height", ([x, y, i]) => yBar(0) - yBar(y))
-          // .attr("class", "trend-circle faa-vertical animated-hover")
-          // .classed("highlight animated", function ([x, y, i]) {
-          //   return null;
-          // })
-          .call((enter) =>
-          enter
-            .transition(t)
-            .delay(function ([x, y, i]) {
-              // a different delay for each circle
-              return i * 50;
-            })
-            .attr("cy", function ([x, y, i]) {
-              return yBar(y);
-            })
-        ),
-    (
-      update // UPDATE old elements present in new data.
-    ) =>
-      update.call((update) =>
-        update.transition(t).attr("cy", function ([x, y, i]) {
-          return y;
-        })
-      ),
-    (
-      exit // EXIT old elements not present in new data.
-    ) => exit.call((exit) => exit.transition(t).remove())
-  );
+    .on("click", function (event, d) {
+      console.log("selPractice:", d[0]);
+    })
+    .on("mouseenter", function () {
+      const sel = d3.select(this);
+      sel.attr("fill", "red");
+      mouseover(sel, tooltipPopnBar);
+    })
+    .on("mousemove", function (event, d) {
+      const str = `<strong>Code: ${d[0]}</strong><br>
+      <span style="color:red">
+        ${practiceLookup.get(d[0])}
+        </span><br>
+      Popn: ${formatNumber(d[1])}
+        `;
+      tooltipText(tooltipPopnBar, str, event);
+    })
+    .on("mouseleave", function () {
+      const sel = d3.select(this);
+      mouseleave(sel, tooltipPopnBar);
+      sel
+        .transition()
+        .duration(250)
+        .attr("fill", function (d) {
+          return d3.interpolateGreys(d3.max([1.0 - d[1] / yMax, 0.4]));
+        });
+    })
+
+    .attr("fill", function (d) {
+      return d3.interpolateGreys(d3.max([1.0 - d[1] / yMax, 0.4]));
+    })
+
+    .attr("x", function (d, i) {
+      return x(d[0]);
+    })
+    .attr("width", x.bandwidth())
+    .attr("y", chtHeightStd)
+
+    .transition("bars")
+    .delay(function (d, i) {
+      return i * 50;
+    })
+    .duration(1000)
+
+    .attr("y", function (d, i) {
+      return y(d[1]);
+    })
+    .attr("height", function (d, i) {
+      return chtHeightStd - y(d[1]);
+    });
+
+  // svg
+  //   .selectAll("rect")
+  //   .append("title")
+  //   .text(function (d) {
+  //     return `${d[0]}\n${practiceLookup.get(d[0])}\n${formatNumber(d[1])}`;
+  //   });
+
+  // svg
+  //   .selectAll(".val-label")
+  //   .data(newData)
+  //   .enter()
+  //   .append("text")
+  //   .classed("val-label", true)
+
+  // .attr("x", function (d, i) {
+  //   return x(d[0]) + x.bandwidth() / 2;
+  // })
+  // .attr("y", chtHeightStd)
+
+  // .transition("label")
+  // .delay(function (d, i) {
+  //   return i * 50; // gives it a smoother effect
+  // })
+  // .duration(1000)
+
+  // .attr("y", function (d, i) {
+  //   return y(d[1]) - 4;
+  // })
+  // .attr("text-anchor", "middle")
+  // .text(function (d) {
+  //   return d[1];
+  // });
+
+  // const xAxis = (g) =>
+  // g
+  //   .attr("transform", `translate(0,${chtHeightStd})`)
+  //   .call(d3.axisBottom(x).tickSizeOuter(0));
+
+  //   const gx = svg.append("g").call(xAxis);
+  //   svg
+  //     .append("g")
+  //     .attr("class", "axis bottom")
+  //     .attr("transform", translation(0, chtHeightStd));
+
+  svg
+    .selectAll(".bar-label")
+    .data(newData)
+    .enter()
+    .append("text")
+    .attr("class", "axis bottom")
+    .classed("bar-label", true)
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "0.75rem")
+    .attr("transform", function (d, i) {
+      return `translate(
+        ${x(d[0]) + x.bandwidth() / 2 - 5},
+      ${chtHeightStd + 30})
+         rotate(-60)`;
+    })
+
+    .attr("text-anchor", "middle")
+    .text(function (d) {
+      return d[0];
+    });
+
+  // Add a drop down
+  const divBarOrder = document.querySelector("#barOrder"),
+    frag = document.createDocumentFragment(),
+    select = document.createElement("select");
+
+  select.setAttribute("id", "test");
+  select.setAttribute("class", "dropdown-input");
+
+  // Option constructor: args text, value, defaultSelected, selected
+  select.options.add(new Option("Alphabetical (Code)", 0, true, true));
+  // select.options.add(new Option("Alphabetical (Name)", 0, true, true));
+  select.options.add(new Option("Popn Asc", 1));
+  select.options.add(new Option("Popn Desc", 2));
+
+  frag.appendChild(select);
+  divBarOrder.appendChild(frag);
+
+  d3.select("#test").on("change", function () {
+    let mapOrdered, sortStringValues;
+    // let t = d3.transition().duration(750).ease(d3.easeBounce);
+
+    const sortType = +eval(d3.select(this).property("value")),
+      sortDesc = d3.select("#test option:checked").text();
+
+    switch (sortType) {
+      case 0: // alphabetical A-Z
+        mapOrdered = [...newData.keys()].sort(); // map keys to array and then sort
+        x.domain(mapOrdered);
+        break;
+      case 1: // volume ascending
+        // https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
+        sortStringValues = (a, b) =>
+          (a[1] > b[1] && 1) || (a[1] === b[1] ? 0 : -1);
+        mapOrdered = new Map([...newData].sort(sortStringValues));
+        x.domain(mapOrdered.keys()); // volume
+        break;
+      case 2: // volume descending
+        sortStringValues = (b, a) =>
+          (a[1] > b[1] && 1) || (a[1] === b[1] ? 0 : -1);
+        mapOrdered = new Map([...newData].sort(sortStringValues));
+        x.domain(mapOrdered.keys()); // volume
+        break;
+    }
+
+    svg
+      .selectAll(".bar")
+      .transition()
+      .duration(500)
+      .attr("x", function (d, i) {
+        return x(d[0]);
+      });
+
+    // svg
+    //   .selectAll(".val-label")
+    //   .transition()
+    //   .duration(500)
+    //   .attr("x", function (d, i) {
+    //     return x(d[0]) + x.bandwidth() / 2;
+    //   });
+
+    svg
+      .selectAll(".bar-label")
+      .transition()
+      .duration(500)
+      .attr("transform", function (d, i) {
+        return `translate(
+          ${x(d[0]) + x.bandwidth() / 2 - 5},
+        ${chtHeightStd + 30})
+           rotate(-60)`;
+      });
+  });
 }
