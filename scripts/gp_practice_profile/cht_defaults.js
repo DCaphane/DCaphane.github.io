@@ -18,7 +18,8 @@ const selPracticeDropDown = document.getElementById("selPractice"),
   selPracticeCompareDropDown = document.getElementById("selPracticeCompare");
 
 // Load the initial data and then variations on this for subsequent filtering
-let dataLevel_01, // by period
+let dataImport,
+  dataLevel_01, // by period
   dataLevel_02, // by practice by period
   dataLevel_03 = [], // by age/ sex, latest period (init chart)
   dataLevel_04, // by age/ sex, by practice by period
@@ -72,6 +73,7 @@ async function loadData() {
     processRow // this function is applied to each row of the imported data
   );
 
+  dataImport = data;
   setDefaults(data);
   dataLevel_01 = fnDataLevel01(data); // // Total by Period for initial Trend Chart
   dataLevel_02 = fnDataLevel02(data); // Practices by Period - Trend Chart Filtered
@@ -80,7 +82,10 @@ async function loadData() {
   dataLevel_04 = fnDataLevel04(data); // Practices by Period by Age/Sex - Demographic Chart Filtered
   fnChartTrendData();
   fnChartDemogData(data_DemoInit);
+  fnChartBarData(data);
   updateDropdowns();
+
+  return data;
 }
 loadData();
 
@@ -176,22 +181,6 @@ function fnDataDemoInit(data) {
   return d;
 }
 
-// function fnDataLevel03(data) {
-//   // const d = data.forEach(function (d) {
-//   //   d.Period = new Date(d.key);
-//   //   // d.Population = d.values;
-//   //   if (d.Period.getTime() === selectedDate.getTime()) {
-//   //     // comparing dates
-//   //     Array.prototype.push.apply(dataLevel_03, d.values);
-//   //     //dataLevel_03.push(d.values);
-//   //   }
-//   // });
-
-//   // console.log(data)
-//   // console.log(selectedDate)
-//   // console.log(d);
-//   return data.get(+selectedDate)
-// }
 
 function fnDataLevel04(data) {
   // Practices by Period by Age/Sex - Demographic Chart Filtered
@@ -215,7 +204,7 @@ function fnDataLevel04(data) {
     (d) => +d.Period,
     (d) => d.Age_Band
   );
-  // console.log(d)
+
   return d;
 }
 
@@ -235,7 +224,3 @@ String.prototype.toProperCase = function () {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 };
-
-// function formatDataStructure(dataLevel_00) {
-//   return data_DemoInit;
-// }

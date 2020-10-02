@@ -1,157 +1,165 @@
 #map {
-	min-height: 500px;
-	width: 95%;
+  min-height: 500px;
+  width: 95%;
 }
 
 .trend-line {
-	stroke: steelblue;
-	stroke-width: 1.5;
-	fill: none;
-	stroke-linejoin: round;
-	stroke-linecap: round;
+  stroke: steelblue;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 
 .axis path,
 .axis line {
-	fill: none;
-	stroke: #777;
-	stroke-opacity: 0.7;
-	/* stroke-width: 1; */
-	shape-rendering: crispEdges;
+  fill: none;
+  stroke: #777;
+  stroke-opacity: 0.7;
+  /* stroke-width: 1; */
+  shape-rendering: crispEdges;
 }
 
 .axis text {
-	font-size: 1.2em;
-	fill: #555;
-	font-family: sans-serif;
+  font-size: 1.2em;
+  fill: #555;
+  font-family: sans-serif;
 }
 
 .trend-circle {
-	fill: white;
-	stroke: orange;
-	stroke-width: 2px;
-	opacity: 0.8;
+  fill: white;
+  stroke: orange;
+  stroke-width: 2px;
+  opacity: 0.8;
 }
 
 .trend-circle.highlight {
-	stroke: red;
-	stroke-width: 4px;
-	fill: orange;
-	/* stroke-opacity: 0.75; */
-	cursor: pointer;
+  stroke: red;
+  stroke-width: 4px;
+  fill: orange;
+  /* stroke-opacity: 0.75; */
+  cursor: pointer;
 }
 
 .trend-circle.highlight.toTop {
-	stroke: blue
+  stroke: blue;
 }
 
 /* For the demographic bars */
 .bar {
-	fill-opacity: 0.7;
-	cursor: pointer;
+  fill-opacity: 0.7;
+  cursor: pointer;
 }
 
 .bar.left {
-	fill: #00239C;
+  fill: #00239c;
 }
 
 .bar.right {
-	fill: #E10600;
+  fill: #e10600;
 }
 
 .bar.hover {
-	opacity: 1;
-	fill: orangered;
+  opacity: 1;
+  fill: orangered;
 }
 
 .bar-comp {
-	fill: none;
-	/*stroke-opacity: 0.3;*/
-	stroke-width: 2;
-	stroke-dasharray: 2;
+  fill: none;
+  /*stroke-opacity: 0.3;*/
+  stroke-width: 2;
+  stroke-dasharray: 2;
 }
 
 .bar-comp.left {
-	stroke: #8ABAD3;
+  stroke: #8abad3;
 }
 
 .bar-comp.right {
-	stroke: #E683A9;
+  stroke: #e683a9;
 }
 
+/* For the population bars */
+.barPopn {
+  fill: steelblue;
+}
+
+.barPopn.highlight {
+  fill: pink;
+}
 
 /* Drop down selection */
 .selPractice {
-	float: left;
+  float: left;
 }
 
 .circleOver65 {
-	position: relative;
-	margin: 20px auto auto;
-	height: 50px;
-	width: 50px;
-	display: table-cell;
-	/* block */
-	text-align: center;
-	vertical-align: middle;
-	border-radius: 50%;
-	background: yellow;
-	/* background:linear-gradient(to bottom, #40b3ff, #09f)}; */
+  position: relative;
+  margin: 20px auto auto;
+  height: 50px;
+  width: 50px;
+  display: table-cell;
+  /* block */
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: yellow;
+  /* background:linear-gradient(to bottom, #40b3ff, #09f)}; */
 }
 
 .d3-tip {
-	line-height: 1;
-	font-weight: bold;
-	padding: 8px;
-	background: rgba(0, 0, 0, 0.8);
-	color: #fff;
-	border-radius: 1px;
+  line-height: 1;
+  font-weight: bold;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 1px;
 }
 
 /* Creates a small triangle extender for the tooltip */
 .d3-tip:after {
-	box-sizing: border-box;
-	display: inline;
-	font-size: 10px;
-	width: 100%;
-	line-height: 1;
-	color: rgba(0, 0, 0, 0.8);
-	content: '\25BC';
-	position: absolute;
-	text-align: center;
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  /* width: 100%; */
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
 }
 /* Style northward tooltips differently */
 
 /* Northward tooltips */
 .d3-tip.n:after {
-	content: "\25BC";
-	margin: -1px 0 0 0;
-	top: 100%;
-	left: 0;
-	text-align: center;
-  }
-  
-  /* Eastward tooltips */
-  .d3-tip.e:after {
-	content: "\25C0";
-	margin: -4px 0 0 0;
-	top: 50%;
-	left: -8px;
-  }
-  
-  /* Southward tooltips */
-  .d3-tip.s:after {
-	content: "\25B2";
-	margin: 0 0 1px 0;
-	top: -8px;
-	left: 0;
-	text-align: center;
-  }
-  
-  /* Westward tooltips */
-  .d3-tip.w:after {
-	content: "\25B6";
-	margin: -4px 0 0 -1px;
-	top: 50%;
-	left: 100%;
-  }
+  content: "\25BC";
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+  text-align: center;
+}
+
+/* Eastward tooltips */
+.d3-tip.e:after {
+  content: "\25C0";
+  margin: -4px 0 0 0;
+  top: 50%;
+  left: -8px;
+}
+
+/* Southward tooltips */
+.d3-tip.s:after {
+  content: "\25B2";
+  margin: 0 0 1px 0;
+  top: -8px;
+  left: 0;
+  text-align: center;
+}
+
+/* Westward tooltips */
+.d3-tip.w:after {
+  content: "\25B6";
+  margin: -4px 0 0 -1px;
+  top: 50%;
+  left: 100%;
+}
