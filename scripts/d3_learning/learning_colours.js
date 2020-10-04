@@ -1,5 +1,4 @@
-"use strict";
-import { Tooltip, mouseover, tooltipText, mouseleave, click, mousedowned } from '../modules/tooltip.mjs';
+import { Tooltip } from "../modules/tooltip.mjs";
 /*
 Useful resources re: changes to eg. mouse events
 Specifically, how to capture the index, i
@@ -36,7 +35,7 @@ async function learningColourCharts() {
 
   // console.log(data);
   colourCharts01(data);
-  colourCharts01a(data);
+  colourCharts01a(data); // duplicate of above, used for testing toolbar
   colourCharts02(data);
 }
 
@@ -65,7 +64,8 @@ function colourCharts01(data) {
   const length = data.length;
 
   const svg = appendSVG("#img_Colour_01");
-  let tooltip = Tooltip("#img_Colour_01");
+  const tooltip = Tooltip();
+  const tip = tooltip.createTooltip("#img_Colour_01");
 
   /* Define the data for the circles */
   var elem = svg.selectAll("g").data(data);
@@ -96,20 +96,20 @@ function colourCharts01(data) {
     .style("fill", (d, i) => colour_01(i))
     .on("mouseover", function () {
       const item = d3.select(this);
-      mouseover(item, tooltip);
+      tooltip.mouseover(item, tip);
     })
     .on("mousemove", function (event, [d, n, i]) {
       const str = `<strong>${i}: ${d}</strong><br>
       <span style="color:red">
         ${d3.rgb(colour_01(i))}
         </span>`;
-      tooltipText(tooltip, str, event);
+      tooltip.text(tip, str, event);
     })
     .on("mouseleave", function () {
       const item = d3.select(this);
-      mouseleave(item, tooltip);
+      tooltip.mouseleave(item, tip);
     })
-    .on("click", click)
+    .on("click", tooltip.click)
     .append("title")
     .text((d, i) => d, i);
 
@@ -127,11 +127,12 @@ function colourCharts01(data) {
 function colourCharts01a(data) {
   const defaultRadius = 15,
     formatNumber = d3.format(",.2f");
-  const colour_01 = d3.scaleOrdinal(d3.schemeSpectral[11]);
+  const colour_01 = d3.scaleOrdinal(d3.schemeOrRd[9]);
   const length = data.length;
 
   const svg = appendSVG("#img_Colour_01a");
-  let tooltip = Tooltip("#img_Colour_01a");
+  const tooltip = Tooltip();
+  const tip = tooltip.createTooltip("#img_Colour_01a");
 
   const g = svg
     .append("g")
@@ -156,20 +157,20 @@ function colourCharts01a(data) {
     .attr("fill", ([, , i]) => colour_01(i))
     .on("mouseover", function () {
       const item = d3.select(this);
-      mouseover(item, tooltip);
+      tooltip.mouseover(item, tip);
     })
     .on("mousemove", function (event, [d, n, i]) {
       const str = `<strong>${i}: ${d}</strong><br>
       <span style="color:red">
         ${d3.rgb(colour_01(i))}
         </span>`;
-      tooltipText(tooltip, str, event);
+      tooltip.text(tip, str, event);
     })
     .on("mouseleave", function () {
       const item = d3.select(this);
-      mouseleave(item, tooltip);
+      tooltip.mouseleave(item, tip);
     })
-    .on("click", click);
+    .on("click", tooltip.click);
   // // .append("title")
   // // .text((d, i) => d, i)
 
@@ -245,7 +246,8 @@ function colourCharts02(data) {
   const length = data.length;
 
   const svg = appendSVG("#img_Colour_02");
-  let tooltip = Tooltip("#img_Colour_02");
+  const tooltip = Tooltip();
+  const tip = tooltip.createTooltip("#img_Colour_02");
 
   /* Define the data for the circles */
   var elem = svg.selectAll("g").data(data);
@@ -276,20 +278,20 @@ function colourCharts02(data) {
     .style("fill", (d, i) => colour_02(i)) //  ([, , i]) => colour_02(i))
     .on("mouseover", function () {
       const item = d3.select(this);
-      mouseover(item, tooltip);
+      tooltip.mouseover(item, tip);
     })
     .on("mousemove", function (event, [d, n, i]) {
       const str = `<strong>${i}: ${d}</strong><br>
       <span style="color:red">
         ${d3.rgb(colour_02(i))}
         </span>`;
-      tooltipText(tooltip, str, event);
+      tooltip.text(tip, str, event);
     })
     .on("mouseleave", function () {
       const item = d3.select(this);
-      mouseleave(item, tooltip);
+      tooltip.mouseleave(item, tip);
     })
-    .on("click", click)
+    .on("click", tooltip.click)
     .append("title")
     .text((d, i) => d, i);
 
@@ -303,7 +305,6 @@ function colourCharts02(data) {
       return d.Letter;
     });
 }
-
 
 // Execute
 learningColourCharts();
@@ -327,6 +328,8 @@ function d3ChartDemo() {
     .select("#img_Colour_03")
     .append("svg")
     .attr("viewBox", [0, 0, width, height]);
+
+  const tooltip = Tooltip();
 
   const g = svg.append("g").attr("class", "circles");
 
@@ -354,8 +357,8 @@ function d3ChartDemo() {
     .attr("cy", ([, y]) => y)
     .attr("r", radius)
     .attr("fill", ([, , i]) => d3.interpolateRainbow(i / 360))
-    .on("mousedown", mousedowned)
-    .on("click", click)
+    .on("mousedown", tooltip.mousedowned)
+    .on("click", tooltip.click)
     .append("title")
     .text((d, i) => d[0]); //`circle ${i}`);
 
