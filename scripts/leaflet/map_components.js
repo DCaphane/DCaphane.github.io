@@ -8,6 +8,7 @@ let selectedPractice,
   subCategory,
   siteData,
   defaultSites,
+  lsoaLayer,
   geoDataPractice, // used to store Practice geo data to use in function
   highlightPractice; // used to allow removal of layer
 /*
@@ -22,19 +23,17 @@ Reusable map components:
 https://github.com/nickpeihl/leaflet-sidebar-v2
 */
 
-const sidebarLeft = (map, test) => {
-  return new L.control.sidebar({
-    autopan: false, // whether to maintain the centered map point when opening the sidebar
-    closeButton: true, // whether to add a close button to the panes
-    container: test, // the DOM container or #ID of a predefined sidebar container that should be used
-    position: "left", // left or right
-  }).addTo(map);
+const formatNumber = function (num) {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
 
+const basemap = Basemaps();
+const mapInitialise = defaultMapSetUp();
+
 // Formatting Styles
-function style(feature) {
+function styleWard(feature) {
   return {
-    fillColor: getColor(feature.properties.pcn_ward_group),
+    fillColor: getColourWard(feature.properties.pcn_ward_group),
     weight: 2,
     opacity: 1,
     color: "red",
@@ -44,7 +43,7 @@ function style(feature) {
 }
 
 // for colouring ward groupings (choropleth)
-function getColor(d) {
+function getColourWard(d) {
   return d > 7
     ? "#800026"
     : d > 6
@@ -67,7 +66,7 @@ function addWardGroupsToMap(data, map, control) {
     category;
 
   L.geoJson(data, {
-    style: style,
+    style: styleWard,
     pane: "wardBoundaryPane",
     onEachFeature: function (feature, layer) {
       category = feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -81,7 +80,7 @@ function addWardGroupsToMap(data, map, control) {
   });
 }
 
-const ccgStyle = {
+const styleCCG = {
   color: "#00ff78",
   weight: 2,
   opacity: 0.6,
@@ -138,10 +137,6 @@ const homeButton = (map) => {
     },
     "Zoom To Home"
   ).addTo(map);
-};
-
-const formatNumber = function (num) {
-  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
 
 // Function to import data
@@ -204,19 +199,9 @@ async function addPracticeToMap(map, control) {
         // update other charts
         (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
           (practiceName = feature.properties.practice_name);
-        console.log(selectedPractice + " - " + practiceName);
+        // console.log(selectedPractice + " - " + practiceName);
         document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
-        highlightFeature(selectedPractice);
-        updateChtTrend(selectedPractice);
-        updateChtDemog(selectedPractice, selectedPracticeCompare);
-
-        filterFunctionPractice(siteData, mapSites, layerControl2);
-        // updateTextPractice();
-        // updateTextPCN();
-        updateSidebarText(
-          "pcnSpecific",
-          layer.feature.properties.practice_code
-        );
+        refreshChartsPostPracticeChange(selectedPractice);
       });
 
       category = feature.properties.locality; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -356,7 +341,7 @@ function filterFunctionPCN(data, map, control) {
       }
 
       /* -- match on practice
-			if (selectedPractice !== undefined) {
+			if ((selectedPractice !== undefined && selectedPractice !== "All Practices")) {
 				if (
 					strPractice.substring(0, 6) ===
 					selectedPractice.substring(0, 6)
@@ -374,9 +359,11 @@ function filterFunctionPCN(data, map, control) {
   map.fitBounds(gpSites.getBounds());
 }
 
-function filterFunctionPractice(data, map, control) {
-  map.removeLayer(defaultSites);
-  for (let sc in subCategories) {
+function filterFunctionPractice(data, map) {
+
+    map.removeLayer(defaultSites);
+
+  for (const sc in subCategories) {
     if (map.hasLayer(subCategories[sc])) {
       map.removeLayer(subCategories[sc]);
     }
@@ -429,27 +416,23 @@ function filterFunctionPractice(data, map, control) {
     filter: function (d) {
       // console.log(d.properties.organisation_code)
       const strPractice = d.properties.organisation_code;
-      const strPCN = d.properties.pcn_name;
       /*
-			if (selectedPCN !== undefined) {
-				if (strPCN === selectedPCN) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return true;
-			}
-*/
-      // match on practice
-      if (selectedPractice !== undefined) {
-        if (strPractice.substring(0, 6) === selectedPractice.substring(0, 6)) {
+      const strPCN = d.properties.pcn_name;
+      if (selectedPCN !== undefined) {
+        if (strPCN === selectedPCN) {
           return true;
         } else {
           return false;
         }
       } else {
         return true;
+      }
+*/
+      // match on practice
+      if (selectedPractice !== undefined && selectedPractice !== "All Practices") {
+        return ((strPractice.substring(0, 6) === selectedPractice.substring(0, 6)) ? true : false);
+      } else {
+        return true; // return all practice sites if none selected
       }
     },
   });
@@ -560,9 +543,9 @@ async function wardData(map, control) {
 
 // CCG Boundary
 async function ccgBoundary(map, control) {
-  const data = await getGeoData("Data/geo/ccg_boundary_03Q.geojson");
+  const data = await getGeoData("Data/geo/ccg_boundary_03Q_simple20.geojson");
   const ccgBoundary = L.geoJSON(data, {
-    style: ccgStyle,
+    style: styleCCG,
     pane: "ccg03QBoundaryPane",
   }).addTo(map);
   control.addOverlay(ccgBoundary, "voy_ccg");
@@ -572,51 +555,48 @@ async function ccgBoundary(map, control) {
 
 function styleLsoa(feature) {
   return {
-    fillColor: getColorLsoa(feature.properties.lsoa11cd),
-    weight: 2,
+    fillColor: "#ff0000", // background
+    fillOpacity: 0, // transparent
+    weight: 1, // border
+    color: "red", // border
     opacity: 1,
-    color: "steelblue",
     dashArray: "3",
-    fillOpacity: 0.7,
   };
 }
 
-function getColorLsoa(d) {
-  return d3.interpolateOrRd(d3.max([+d.substr(-2) / 100, 0.1])); // dummy test change colour
-}
-
 async function lsoaBoundary(map, control) {
-  let lsoaLayer, lsoaLayerLabels;
+  // let lsoaLayerLabels;
 
-  const data = await getGeoData("Data/geo/lsoas_simple50.geojson");
+  const data = await getGeoData("Data/geo/lsoa_gp_selected_simple20cp6.geojson");
 
-  // This section adds the ward layer in its entirety along with labels (permanent Tooltip)
+  // This section adds the lsoa layer in its entirety along with labels (permanent Tooltip)
   lsoaLayer = L.geoJSON(data, {
-    style: styleLsoa,
-    onEachFeature: function (feature, layer) {
-      layer.bindPopup(`<h1>${feature.properties.lsoa11cd}</h1>`);
-    },
+    // style: styleLsoa, // default colour scheme for lsoa boundaries
+    // onEachFeature: function (feature, layer) {
+    //   layer.bindPopup(`<h1>${feature.properties.lsoa}</h1>`);
+    // },
   }).addTo(map);
 
   // Add an overlay (checkbox entry) with the given name to the control
   control.addOverlay(lsoaLayer, "lsoa_voyccg");
 
-  // This section adds the ward layer descriptions (permanent Tooltip)
-  lsoaLayerLabels = L.geoJSON(data, {
-    // style: wardsStyleLabels,
-    onEachFeature: function (feature, layer) {
-      // https://leafletjs.com/reference-1.4.0.html#tooltip
-      // layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
-      layer.bindTooltip(
-        function (layer) {
-          return layer.feature.properties.lsoa11cd; // sets the tooltip text
-        },
-        { permanent: true, direction: "center", opacity: 0.5 }
-      );
-    },
-  }); //.addTo(map); // uncomment this to display initial map with labels
+  // This section adds the lsoa layer descriptions (permanent Tooltip)
+  // lsoaLayerLabels = L.geoJSON(data, {
+  //   // style: wardsStyleLabels,
+  //   onEachFeature: function (feature, layer) {
+  //     // https://leafletjs.com/reference-1.4.0.html#tooltip
+  //     // layer.bindTooltip('<h1>' + feature.properties.wd17nm + '</h1><p>Code: ' + feature.properties.wd17cd + '</p>');
+  //     layer.bindTooltip(
+  //       function (layer) {
+  //         return layer.feature.properties.lsoa; // sets the tooltip text
+  //       },
+  //       { permanent: true, direction: "center", opacity: 0.5 }
+  //     );
+  //   },
+  // }); //.addTo(map); // uncomment this to display initial map with labels
 
-  control.addOverlay(lsoaLayerLabels, "lsoa_labels"); // Adds an overlay (checkbox entry) with the given name to the control.
+  // control.addOverlay(lsoaLayerLabels, "lsoa_labels"); // Adds an overlay (checkbox entry) with the given name to the control.
+  recolourLSOA();
 }
 
 function Basemaps() {
@@ -673,6 +653,86 @@ function Basemaps() {
     Stamen_Toner: Stamen_Toner,
   };
 }
+
+function defaultMapSetUp() {
+  function mapInit(mapName, background) {
+    return L.map(mapName, {
+      preferCanvas: true,
+      // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
+      center: [53.9581, -1.0643], // centre on York Hospital
+      zoom: 11,
+      minZoom: 6, // how far out eg. 0 = whole world
+      maxZoom: 14, // how far in, eg. to the detail (max = 18)
+      // https://leafletjs.com/reference-1.3.4.html#latlngbounds
+      maxBounds: [
+        [50.0, 1.6232], //south west
+        [59.79, -10.239], //north east
+      ],
+      layers: background, // default basemap that will appear first
+      fullscreenControl: {
+        // https://github.com/Leaflet/Leaflet.fullscreen
+        pseudoFullscreen: true, // if true, fullscreen to page width and height
+      },
+    });
+  }
+
+  function layerControl(basemap) {
+    return L.control.layers(basemap, null, {
+      collapsed: true, // Whether or not control options are displayed
+      sortLayers: true,
+    });
+  }
+
+  function subLayerControl() {
+    return L.control.layers(null, null, {
+      collapsed: true,
+      sortLayers: true,
+    });
+  }
+
+  function scaleBar(position) {
+    return L.control.scale({
+      // https://leafletjs.com/reference-1.4.0.html#control-scale-option
+      position: position,
+      metric: true,
+      imperial: true,
+    });
+  }
+
+  function sidebarLeft(map, test) {
+    return new L.control.sidebar({
+      autopan: false, // whether to maintain the centered map point when opening the sidebar
+      closeButton: true, // whether to add a close button to the panes
+      container: test, // the DOM container or #ID of a predefined sidebar container that should be used
+      position: "left", // left or right
+    }).addTo(map);
+  }
+
+  return {
+    mapInit: mapInit,
+    layerControl: layerControl,
+    subLayerControl: subLayerControl,
+    scaleBar: scaleBar,
+    sidebarLeft: sidebarLeft,
+  };
+}
+
+
+function refreshChartsPostPracticeChange(practice) {
+  console.log(practice);
+  highlightFeature(practice); // console.log(event.text.label, event.text.value)
+  updateChtTrend(practice);
+  updateChtDemog(practice, selectedPracticeCompare);
+
+  filterFunctionPractice(siteData, mapSites, layerControl1);
+  // filterFunctionPractice(siteData, mapPopn, layerControl2);
+  recolourLSOA();
+  barChart.fnRedrawBarChart();
+  // updateTextPractice();
+  // updateTextPCN();
+  updateSidebarText("pcnSpecific", practice);
+}
+
 
 /* Useful Links
 

@@ -22,11 +22,22 @@
 
         iconColor: '#1EB300',
 
+        iconSize: {
+            'marker': [28, 28]
+            , 'circle': [22, 22]
+            , 'circle-dot': [2, 2]
+            , 'rectangle-dot': [2, 2]
+            , 'doughnut': [15, 15]
+        },
+
+        /* To prevent marker from moving around (on pan/ zoom), specify the size of the marker and the 'anchor'point
+        Size is [x, y] so typically want x / 2. Y depends on shape (circle, y / 2, marker, y = y to place tip at bottom)
+        */
         iconAnchor: {
-            'marker': [14, 36]
-            , 'circle': [11, 10]
-            , 'circle-dot': [5, 5]
-            , 'rectangle-dot': [5, 6]
+            'marker': [14, 28]
+            , 'circle': [11, 11]
+            , 'circle-dot': [1, 1]
+            , 'rectangle-dot': [1, 1]
             , 'doughnut': [8, 8]
         },
 
@@ -41,14 +52,6 @@
         innerIconAnchor: {
             'marker': [-2, 5]
             , 'circle': [0, 2]
-        },
-
-        iconSize: {
-            'marker': [28, 28]
-            , 'circle': [22, 22]
-            , 'circle-dot': [2, 2]
-            , 'rectangle-dot': [2, 2]
-            , 'doughnut': [15, 15]
         }
     };
 
@@ -119,9 +122,9 @@
 
                 iconDiv.innerHTML = !options.html ? this.createIconInnerHtml() : options.html;
                 this._setIconStyles(iconDiv);
-                
+
                 // having a marker requires an extra parent div for rotation correction
-                if (this.options.iconShape === 'marker') { 
+                if (this.options.iconShape === 'marker') {
                     var wrapperDiv = document.createElement('div');
                     wrapperDiv.className = 'beautify-marker';
                     wrapperDiv.appendChild(iconDiv);

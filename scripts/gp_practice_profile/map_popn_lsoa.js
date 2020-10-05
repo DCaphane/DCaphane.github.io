@@ -30,48 +30,19 @@ const baseMaps2 = {
   "No Background": emptyTile2,
 };
 
-const mapPopn = L.map("mapPopnLSOA", {
-  preferCanvas: true,
-  // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
-  center: [53.9581, -1.0643], // centre on York Hospital
-  zoom: 11,
-  //
-  minZoom: 6, // how far out eg. 0 = whole world
-  maxZoom: 14, // how far in, eg. to the detail (max = 18)
-  // https://leafletjs.com/reference-1.3.4.html#latlngbounds
-  maxBounds: [
-    [50.0, 1.6232], //south west
-    [59.79, -10.239], //north east
-  ],
-  layers: Stamen_Toner2, // default basemap that will appear first
-  fullscreenControl: {
-    // https://github.com/Leaflet/Leaflet.fullscreen
-    pseudoFullscreen: true, // if true, fullscreen to page width and height
-  },
-});
+const mapPopn = mapInitialise.mapInit("mapPopnLSOA", Stamen_Toner2);
 
-const layerControl2 = L.control.layers(baseMaps2, null, {
-  collapsed: true, // Whether or not control options are displayed
-  sortLayers: true,
-});
+const layerControl2 = mapInitialise.layerControl(baseMaps2);
 mapPopn.addControl(layerControl2);
 
 // Ward boundaries and ward groupings
-const subLayerControl2 = L.control.layers(null, null, {
-  collapsed: true,
-  sortLayers: true,
-});
+const subLayerControl2 = mapInitialise.subLayerControl();
 mapPopn.addControl(subLayerControl2);
 
-const scaleBar2 = L.control.scale({
-  // https://leafletjs.com/reference-1.4.0.html#control-scale-option
-  position: "bottomleft",
-  metric: true,
-  imperial: true,
-});
+const scaleBar2 = mapInitialise.scaleBar("bottomleft");
 scaleBar2.addTo(mapPopn);
 
-const sidebarPopn = sidebarLeft(mapPopn, "sidebar3");
+const sidebarPopn = mapInitialise.sidebarLeft(mapPopn, "sidebar3");
 
 homeButton(mapPopn);
 yorkTrust(mapPopn);
@@ -111,3 +82,83 @@ lsoaBoundary(mapPopn, subLayerControl2);
 
 //   mapPopn.addLayer(highlightPractice);
 // }
+
+/*
+GP by LSOA population data published quarterly
+Use the below to match the selected dates to the quarterly dates
+Function to determine nearest value in array
+*/
+const nearestValue = (arr, val) =>
+  arr.reduce(
+    (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
+    Infinity
+  ) + val;
+
+function recolourLSOA() {
+  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+  const maxValue =
+    (selectedPractice !== undefined && selectedPractice !== "All Practices")
+      ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
+      : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+
+  lsoaLayer.eachLayer(function (layer) {
+    propertyValue = layer.feature.properties.lsoa;
+
+    let value =
+    (selectedPractice !== undefined && selectedPractice !== "All Practices")
+        ? data_popnGPLsoa
+            .get(nearestDate)
+            .get(selectedPractice)
+            .get(propertyValue)
+        : data_popnGPLsoa.get(nearestDate).get("All").get(propertyValue);
+
+    if (value === undefined) {
+      value = 0;
+    }
+
+    if (value > 20) {
+      layer.setStyle({
+        // https://github.com/d3/d3-scale-chromatic
+        fillColor: d3.interpolateYlGnBu(value / maxValue),
+        fillOpacity: 0.9,
+        weight: 1, // border
+        color: "red", // border
+        opacity: 1,
+        dashArray: "3",
+      })
+    } else {
+      layer.setStyle({
+        fillColor: "#ff0000", // background
+        fillOpacity: 0, // transparent
+        weight: 0, // border
+        color: "red", // border
+        opacity: 0,
+      })
+    }
+
+    layer.bindPopup(
+      `<h1>${layer.feature.properties.lsoa}</h1>
+      Pop'n: ${formatNumber(value)}
+      `
+    );
+  });
+}
+
+// function getColorLsoa(d) {
+// const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+// let maxValue =
+//   selectedPractice !== undefined
+//     ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
+//     : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+
+// let value =
+//   selectedPractice !== undefined
+//     ? data_popnGPLsoa.get(nearestDate).get(selectedPractice).get(d)
+//     : data_popnGPLsoa.get(nearestDate).get("All").get(d);
+
+//   return d3.interpolateOrRd(value / maxValue); // dummy test change colour
+// }
+
+// Example returns map iterator of values for selected date and practice
+// data_popnGPLsoa.get(1593558000000).get("B81036").values()
+// d3.max(data_popnGPLsoa.get(1593558000000).get("B81036").values())
