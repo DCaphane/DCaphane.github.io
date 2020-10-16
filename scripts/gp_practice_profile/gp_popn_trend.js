@@ -132,7 +132,8 @@ function chartTrendDraw(data) {
           })
           // mouse events need to go before any transitions
           .on("click", function (event, [x, y, i]) {
-            console.log("selectedPeriod:", formatPeriod(x)); // selectedDate
+            selectedDate = x;
+            console.log("selectedDate:", formatPeriod(x)); // selectedDate
             // line below needs to be selectAll (2 instances, current and new?)
             // this removes any previously applied formatting
             d3.selectAll(".trend-circle.highlight").attr(
@@ -143,6 +144,8 @@ function chartTrendDraw(data) {
             sel.raise();
             sel.classed("highlight", true);
             updateChtDemog(selectedPractice, selectedPracticeCompare);
+            recolourLSOA();
+            // fnInitChartBarData(dataImport);
           })
           .on("mouseover", function () {
             const sel = d3.select(this);
@@ -154,8 +157,8 @@ function chartTrendDraw(data) {
             const sel = d3.select(this);
             sel.lower();
             sel.attr("class", "trend-circle faa-vertical animated-hover");
-            sel.classed("highlight animated", function (d) {
-              return d === selectedDate;
+            sel.classed("highlight animated", function ([x, y, i]) {
+              return x === selectedDate;
             });
           })
           .on("mouseleave", function () {

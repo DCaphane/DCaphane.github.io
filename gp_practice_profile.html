@@ -106,7 +106,10 @@ https://github.com/marslan390/BeautifyMarker
       type="text/css"
       href="css\leaflet-beautify-marker-icon.css"
     />
-    <script defer src="scripts/leaflet-beautify-marker-icon.js"></script>
+    <script
+      defer
+      src="scripts/leaflet/markers/leaflet-beautify-marker-icon.js"
+    ></script>
 
     <!-- Add full screen option -->
     <script
@@ -147,7 +150,7 @@ https://github.com/marslan390/BeautifyMarker
     ></script>
 
     <!--script defer src="scripts/map_default_markers.js"></script -->
-    <script defer src="scripts/map_beautifyMarker.js"></script>
+    <script defer src="scripts/leaflet/markers/map_beautifyMarker.js"></script>
     <script defer src="scripts/leaflet/map_components.js"></script>
 
     <script defer src="scripts/components/tooltip.js"></script>
@@ -303,9 +306,7 @@ https://github.com/marslan390/BeautifyMarker
 
               <div class="tile wide content">
                 <h3>Bar Chart</h3>
-                <div id="cht_PopBar">
-                  <span class="search" id="barOrder"> Sort By: </span>
-                </div>
+                <div id="cht_PopBar"></div>
                 <footer class="cta"></footer>
               </div>
 

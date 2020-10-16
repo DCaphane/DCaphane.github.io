@@ -17,133 +17,148 @@ let tile_MB = L.tileLayer(
 	}
 );
 */
-const osm_bw2 = L.tileLayer(
-    "https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
-    {
-      minZoom: 0,
-      maxZoom: 18,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }
-  );
+// const basemap = Basemaps();
+const osm_bw2 = basemap.osm_bw();
+const CartoDB_Voyager2 = basemap.CartoDB_Voyager();
+const Stamen_Toner2 = basemap.Stamen_Toner();
+const emptyTile2 = basemap.emptyTile();
 
-  const CartoDB_Voyager2 = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: "abcd",
-      minZoom: 0,
-      maxZoom: 19
-    }
-  );
+const baseMaps2 = {
+  "Black and White": osm_bw2,
+  Default: CartoDB_Voyager2,
+  Stamen_Toner: Stamen_Toner2,
+  "No Background": emptyTile2,
+};
 
-  // http://maps.stamen.com/#watercolor/12/37.7706/-122.3782
-  const Stamen_Toner2 = L.tileLayer(
-    "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}",
-    {
-      attribution:
-        'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      subdomains: "abcd",
-      minZoom: 0,
-      maxZoom: 20,
-      ext: "png"
-    }
-  );
+const mapPopn = mapInitialise.mapInit("mapPopnLSOA", Stamen_Toner2);
 
-  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-  const emptyTile2 = L.tileLayer("", {
-    zoom: 0,
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  });
+const layerControl2 = mapInitialise.layerControl(baseMaps2);
+mapPopn.addControl(layerControl2);
 
-  const baseMaps2 = {
-    "Black and White": osm_bw,
-    Default: CartoDB_Voyager,
-    Stamen_Toner: Stamen_Toner,
-    "No Background": emptyTile
-  };
+// Ward boundaries and ward groupings
+const subLayerControl2 = mapInitialise.subLayerControl();
+mapPopn.addControl(subLayerControl2);
 
-  const mapPopn = L.map("mapPopnLSOA", {
-    preferCanvas: true,
-    // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
-    center: [53.9581, -1.0643], // centre on York Hospital
-    zoom: 11,
-    //
-    minZoom: 6, // how far out eg. 0 = whole world
-    maxZoom: 14, // how far in, eg. to the detail (max = 18)
-    // https://leafletjs.com/reference-1.3.4.html#latlngbounds
-    maxBounds: [
-      [50.0, 1.6232], //south west
-      [59.79, -10.239] //north east
-    ],
-    layers: Stamen_Toner, // default basemap that will appear first
-    fullscreenControl: {
-      // https://github.com/Leaflet/Leaflet.fullscreen
-      pseudoFullscreen: true // if true, fullscreen to page width and height
-    }
-  });
+const scaleBar2 = mapInitialise.scaleBar("bottomleft");
+scaleBar2.addTo(mapPopn);
 
-  const layerControl2 = L.control.layers(baseMaps2, null, {
-    collapsed: true, // Whether or not control options are displayed
-    sortLayers: true
-  });
-  mapPopn.addControl(layerControl2);
+const sidebarPopn = mapInitialise.sidebarLeft(mapPopn, "sidebar3");
 
-  // Ward boundaries and ward groupings
-  const subLayerControl2 = L.control.layers(null, null, {
-    collapsed: true,
-    sortLayers: true
-  });
-  mapPopn.addControl(subLayerControl2);
+homeButton(mapPopn);
+yorkTrust(mapPopn);
 
-  const scaleBar2 = L.control.scale({
-    // https://leafletjs.com/reference-1.4.0.html#control-scale-option
-    position: "bottomleft",
-    metric: true,
-    imperial: true
-  });
-  scaleBar2.addTo(mapPopn);
+// Panes to control zIndex of geoJson layers
+mapPopn.createPane("lsoaBoundaryPane");
+mapPopn.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
-  const sidebarPopn = sidebarLeft(mapPopn, "sidebar3");
+mapPopn.createPane("ccg03QBoundaryPane");
+mapPopn.getPane("ccg03QBoundaryPane").style.zIndex = 374;
 
-  homeButton(mapPopn);
-  yorkTrust(mapPopn);
-
-  // Panes to control zIndex of geoJson layers
-  mapPopn.createPane("wardBoundaryPane");
-  mapPopn.getPane("wardBoundaryPane").style.zIndex = 375;
-
-  mapPopn.createPane("ccg03QBoundaryPane");
-  mapPopn.getPane("ccg03QBoundaryPane").style.zIndex = 374;
-
-  // ccg boundary
-
+// ccg boundary
 ccgBoundary(mapPopn, subLayerControl2);
-  // wardData(mapPopn, subLayerControl2);
-  // addPracticeToMap(mapPopn, layerControl2);
+lsoaBoundary(mapPopn, subLayerControl2);
+// addPracticeToMap(mapPopn, layerControl2);
 
-  // const select = document.getElementById("selPractice");
-  // select.addEventListener("change", function() {
-  //   highlightFeature(select.value);
-  // });
+// const select = document.getElementById("selPractice");
+// select.addEventListener("change", function() {
+//   highlightFeature(select.value);
+// });
 
-  // function highlightFeature(selPractice) {
-  //   if (typeof highlightPractice !== "undefined") {
-  //     mapPopn.removeLayer(highlightPractice);
-  //   }
+// function highlightFeature(selPractice) {
+//   if (typeof highlightPractice !== "undefined") {
+//     mapPopn.removeLayer(highlightPractice);
+//   }
 
-  //   highlightPractice = L.geoJSON(geoDataPractice, {
-  //     pointToLayer: function(feature, latlng) {
-  //       if (feature.properties.practice_code === selPractice) {
-  //         return (markerLayer = L.marker(latlng, {
-  //           icon: arrHighlightIcons[5],
-  //           zIndexOffset: -5
-  //         }));
-  //       }
-  //     }
-  //   });
+//   highlightPractice = L.geoJSON(geoDataPractice, {
+//     pointToLayer: function(feature, latlng) {
+//       if (feature.properties.practice_code === selPractice) {
+//         return (markerLayer = L.marker(latlng, {
+//           icon: arrHighlightIcons[5],
+//           zIndexOffset: -5
+//         }));
+//       }
+//     }
+//   });
 
-  //   mapPopn.addLayer(highlightPractice);
-  // }
+//   mapPopn.addLayer(highlightPractice);
+// }
+
+/*
+GP by LSOA population data published quarterly
+Use the below to match the selected dates to the quarterly dates
+Function to determine nearest value in array
+*/
+const nearestValue = (arr, val) =>
+  arr.reduce(
+    (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
+    Infinity
+  ) + val;
+
+function recolourLSOA() {
+  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+  const maxValue =
+    (selectedPractice !== undefined && selectedPractice !== "All Practices")
+      ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
+      : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+
+  lsoaLayer.eachLayer(function (layer) {
+    propertyValue = layer.feature.properties.lsoa;
+
+    let value =
+    (selectedPractice !== undefined && selectedPractice !== "All Practices")
+        ? data_popnGPLsoa
+            .get(nearestDate)
+            .get(selectedPractice)
+            .get(propertyValue)
+        : data_popnGPLsoa.get(nearestDate).get("All").get(propertyValue);
+
+    if (value === undefined) {
+      value = 0;
+    }
+
+    if (value > 20) {
+      layer.setStyle({
+        // https://github.com/d3/d3-scale-chromatic
+        fillColor: d3.interpolateYlGnBu(value / maxValue),
+        fillOpacity: 0.9,
+        weight: 1, // border
+        color: "red", // border
+        opacity: 1,
+        dashArray: "3",
+      })
+    } else {
+      layer.setStyle({
+        fillColor: "#ff0000", // background
+        fillOpacity: 0, // transparent
+        weight: 0, // border
+        color: "red", // border
+        opacity: 0,
+      })
+    }
+
+    layer.bindPopup(
+      `<h1>${layer.feature.properties.lsoa}</h1>
+      Pop'n: ${formatNumber(value)}
+      `
+    );
+  });
+}
+
+// function getColorLsoa(d) {
+// const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+// let maxValue =
+//   selectedPractice !== undefined
+//     ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
+//     : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+
+// let value =
+//   selectedPractice !== undefined
+//     ? data_popnGPLsoa.get(nearestDate).get(selectedPractice).get(d)
+//     : data_popnGPLsoa.get(nearestDate).get("All").get(d);
+
+//   return d3.interpolateOrRd(value / maxValue); // dummy test change colour
+// }
+
+// Example returns map iterator of values for selected date and practice
+// data_popnGPLsoa.get(1593558000000).get("B81036").values()
+// d3.max(data_popnGPLsoa.get(1593558000000).get("B81036").values())
