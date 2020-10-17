@@ -26,7 +26,7 @@ let dataImport,
   data_DemoInit, // used to initialise demographic data
   data_popnGPLsoa;
 let arrayGPLsoaDates;
-let barChart;
+let trendChart, barChart;
 
 let selectedPracticeCompare = "None",
   selectedDate;
@@ -83,12 +83,14 @@ async function loadPopulationData() {
   dataImport = data;
   setDefaults(data);
   practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
-  dataLevel_01 = fnDataLevel01(data); // Total by Period for initial Trend Chart
-  dataLevel_02 = fnDataLevel02(data); // Practices by Period - Trend Chart Filtered
+  trendChart = initTrendChart(data, "cht_PopTrend")
+  trendChart.chartTrendDraw()
+  // dataLevel_01 = fnDataLevel01(data); // Total by Period for initial Trend Chart
+  // dataLevel_02 = fnDataLevel02(data); // Practices by Period - Trend Chart Filtered
   data_DemoInit = fnDataDemoInit(data); // Total by Period and Age Band
   dataLevel_03 = data_DemoInit.get(+selectedDate); //fnDataLevel03(data_DemoInit);
   dataLevel_04 = fnDataLevel04(data); // Practices by Period by Age/Sex - Demographic Chart Filtered
-  fnChartTrendData();
+  // fnChartTrendData();
   fnChartDemogData(data_DemoInit);
   barChart = initPopnBarChart(data, "cht_PopBar");
   barChart.fnRedrawBarChart();
@@ -154,29 +156,29 @@ function setDefaults(data) {
   // console.log(selectedDate)
 }
 
-function fnDataLevel01(data) {
-  // Total by Period for initial Trend Chart
+// function fnDataLevel01(data) {
+//   // Total by Period for initial Trend Chart
 
-  const d = d3.rollup(
-    data,
-    (v) => d3.sum(v, (d) => d.Total_Pop),
-    (d) => d.Period
-  );
-  return d;
-}
+//   const d = d3.rollup(
+//     data,
+//     (v) => d3.sum(v, (d) => d.Total_Pop),
+//     (d) => d.Period
+//   );
+//   return d;
+// }
 
-function fnDataLevel02(data) {
-  // Practices by Period - Trend Chart Filtered
+// function fnDataLevel02(data) {
+//   // Practices by Period - Trend Chart Filtered
 
-  const d = d3.rollup(
-    data,
-    (v) => d3.sum(v, (d) => d.Total_Pop),
-    (d) => d.Practice,
-    (d) => +d.Period
-  );
+//   const d = d3.rollup(
+//     data,
+//     (v) => d3.sum(v, (d) => d.Total_Pop),
+//     (d) => d.Practice,
+//     (d) => +d.Period
+//   );
 
-  return d;
-}
+//   return d;
+// }
 
 function fnDataDemoInit(data) {
   // Period and Age Band - Trend Chart Filtered

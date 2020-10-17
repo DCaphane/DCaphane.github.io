@@ -336,7 +336,6 @@ rotate(-60)`;
   }
 
   return {
-    fnRedrawBarChart: fnRedrawBarChart,
-    sortType: sortType,
+    fnRedrawBarChart: fnRedrawBarChart
   };
 }

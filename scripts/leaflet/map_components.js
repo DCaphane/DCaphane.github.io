@@ -721,7 +721,7 @@ function defaultMapSetUp() {
 function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
   highlightFeature(practice); // console.log(event.text.label, event.text.value)
-  updateChtTrend(practice);
+  trendChart.chartTrendDraw()
   updateChtDemog(practice, selectedPracticeCompare);
 
   filterFunctionPractice(siteData, mapSites, layerControl1);
