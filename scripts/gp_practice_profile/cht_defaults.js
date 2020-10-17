@@ -19,14 +19,14 @@ const selPracticeDropDown = document.getElementById("selPractice"),
 
 // Load the initial data and then variations on this for subsequent filtering
 let dataImport,
-  dataLevel_01, // by period
-  dataLevel_02, // by practice by period
   dataLevel_03 = [], // by age/ sex, latest period (init chart)
   dataLevel_04, // by age/ sex, by practice by period
   data_DemoInit, // used to initialise demographic data
   data_popnGPLsoa;
+
 let arrayGPLsoaDates;
 let trendChart, barChart;
+const newTooltip = createTooltip();
 
 let selectedPracticeCompare = "None",
   selectedDate;
@@ -83,8 +83,8 @@ async function loadPopulationData() {
   dataImport = data;
   setDefaults(data);
   practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
-  trendChart = initTrendChart(data, "cht_PopTrend")
-  trendChart.chartTrendDraw()
+  trendChart = initTrendChart(data, "cht_PopTrend");
+  trendChart.chartTrendDraw();
   // dataLevel_01 = fnDataLevel01(data); // Total by Period for initial Trend Chart
   // dataLevel_02 = fnDataLevel02(data); // Practices by Period - Trend Chart Filtered
   data_DemoInit = fnDataDemoInit(data); // Total by Period and Age Band

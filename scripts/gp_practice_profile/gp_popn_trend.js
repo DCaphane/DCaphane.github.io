@@ -42,10 +42,6 @@ Line and marker transitions
   const xAxisPeriod = d3.axisBottom(xPeriod),
     yAxis = d3.axisLeft(yValue);
 
-
-
-
-
   svgTrend
     .append("g")
     .attr("class", "x axis")
@@ -80,8 +76,16 @@ Line and marker transitions
 
   svgTrend.append("g").append("path").attr("class", "trend-line");
 
-  // Define the div for the tooltip
-  let tooltipTrendBar = Tooltip(id);
+  const plotLine = d3
+  .line()
+  // https://bl.ocks.org/d3noob/ced1b9b18bd8192d2c898884033b5529
+  .curve(d3.curveMonotoneX)
+  .x(function (d) {
+    return xPeriod(d.period);
+  })
+  .y(function (d) {
+    return yValue(d.population);
+  });
 
   // Toggle the y-axis on the trend chart to show 0 or nice
   const trendYAxisZero = document.getElementById("trend-yAxis");
@@ -89,6 +93,11 @@ Line and marker transitions
     yAxisZero = trendYAxisZero.checked;
     chartTrendDraw();
   });
+
+  // Define the div for the tooltip
+
+  const tooltip = newTooltip.tooltip(div);
+  tooltip.style("height", "40px");
 
   function chartTrendDraw() {
     let newData;
@@ -108,9 +117,6 @@ Line and marker transitions
     // d3 transition
     const t = d3.transition("trend").duration(750).ease(d3.easeQuadInOut);
 
-    const tooltip = Tooltip(div);
-    tooltip.style("height", "40px");
-
     svgTrend
       .select("#axis--x")
       .transition(t)
@@ -123,11 +129,7 @@ Line and marker transitions
       yValue.domain(d3.extent(newData.values())).nice();
     }
 
-    svgTrend
-      .select("#axis--y")
-      .transition(t)
-      .call(yAxis)
-      .selectAll("text");
+    svgTrend.select("#axis--y").transition(t).call(yAxis).selectAll("text");
 
     // https://observablehq.com/@d3/selection-join
     // Circle Markers
@@ -168,7 +170,7 @@ Line and marker transitions
               const sel = d3.select(this);
               sel.raise(); // brings the marker to the top
               sel.classed("highlight toTop", true);
-              mouseover(sel, tooltipTrendBar);
+              newTooltip.mouseover(sel, tooltip);
             })
             .on("mouseout", function (d) {
               const sel = d3.select(this);
@@ -180,7 +182,7 @@ Line and marker transitions
             })
             .on("mouseleave", function () {
               const item = d3.select(this);
-              mouseleave(item, tooltipTrendBar);
+              newTooltip.mouseleave(item, tooltip);
             })
             .on("mousemove", function (event, d) {
               const str = `<strong>${formatPeriod(
@@ -189,7 +191,7 @@ Line and marker transitions
             <span style="color:red">
               ${formatNumber(d.population)}
               </span>`;
-              tooltipText(tooltipTrendBar, str, event);
+              newTooltip.tooltipText(tooltip, str, event);
             })
             .call((enter) =>
               enter
@@ -228,46 +230,23 @@ Line and marker transitions
       });
 
 
-  const plotLine = d3
-    .line()
-    // https://bl.ocks.org/d3noob/ced1b9b18bd8192d2c898884033b5529
-    .curve(d3.curveMonotoneX)
-    .x(function (d) {
-      return xPeriod(d.period);
-    })
-    .y(function (d) {
-      return yValue(d.population);
-    });
-
-
     svgTrend
       .selectAll(".trend-line")
       .data([arr])
       .join(
         (
           enter // ENTER new elements present in new data.
-        ) =>
-          enter.call((enter) =>
-            enter.append("path")
-          ),
+        ) => enter.call((enter) => enter.append("path")),
         (
           update // UPDATE old elements present in new data.
         ) => update.call((update) => update),
         (
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
-    )
-    .attr("class", "trend-line")
+      )
+      .attr("class", "trend-line")
       .transition(t)
-      .attr("d", d3.line()
-      // https://bl.ocks.org/d3noob/ced1b9b18bd8192d2c898884033b5529
-      .curve(d3.curveMonotoneX)
-      .x(function (d) {
-        return xPeriod(d.period);
-      })
-      .y(function (d) {
-        return yValue(d.population);
-      }))
+      .attr("d", plotLine);
   }
 
   return {

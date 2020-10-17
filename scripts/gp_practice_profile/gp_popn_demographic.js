@@ -191,8 +191,8 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
   // d3 transition
   let t = d3.transition().duration(750).ease(d3.easeBounce); // https://bl.ocks.org/d3noob/1ea51d03775b9650e8dfd03474e202fe
 
-  let tooltipL = Tooltip("#cht_PopDemo"),
-    tooltipR = Tooltip("#cht_PopDemo");
+  const tooltipL = newTooltip.tooltip("#cht_PopDemo"),
+    tooltipR = newTooltip.tooltip("#cht_PopDemo");
 
   tooltipL.style("height", "60px");
   tooltipR.style("height", "60px");
@@ -286,7 +286,7 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
           .on("mouseover", function (d) {
             const sel = d3.select(this);
             sel.attr("class", "bar hover");
-            mouseover(sel, tooltipL);
+            newTooltip.mouseover(sel, tooltipL);
           })
           .on("mousemove", function (event, [x, y, i]) {
             const str = `<strong>Male: ${y} yrs</strong><br>
@@ -295,7 +295,7 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
               </span><br>
             % Popn: ${formatPercent1dp(x.male / totalPop1)}
               `;
-            tooltipText(tooltipL, str, event);
+            newTooltip.tooltipText(tooltipL, str, event);
           })
           .on("mouseout", function (d) {
             const sel = d3.select(this);
@@ -303,7 +303,7 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
           })
           .on("mouseleave", function () {
             const item = d3.select(this);
-            mouseleave(item, tooltipL);
+            newTooltip.mouseleave(item, tooltipL);
           })
           .attr("transform", translation(pointA, 0) + "scale(-1, 1)")
           .attr("y", function ([x, y, i]) {
@@ -368,7 +368,7 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
           .on("mouseover", function (d) {
             const sel = d3.select(this);
             sel.attr("class", "bar hover");
-            mouseover(sel, tooltipR);
+            newTooltip.mouseover(sel, tooltipR);
           })
           .on("mousemove", function (event, [x, y, i]) {
             const str = `<strong>Female: ${y} yrs</strong><br>
@@ -377,7 +377,7 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
               </span><br>
             % Popn: ${formatPercent1dp(x.female / totalPop1)}
               `;
-            tooltipText(tooltipR, str, event);
+            newTooltip.tooltipText(tooltipR, str, event);
           })
           .on("mouseout", function (d) {
             const sel = d3.select(this);
@@ -385,7 +385,7 @@ function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
           })
           .on("mouseleave", function () {
             const item = d3.select(this);
-            mouseleave(item, tooltipR);
+            newTooltip.mouseleave(item, tooltipR);
           })
           .attr("transform", translation(pointB, 0))
           .attr("y", function ([x, y, i]) {

@@ -46,7 +46,7 @@ ${chtHeightStd + margin.top + margin.bottom}`
 
   let sortType = 0;
 
-  let tooltipPopnBar = Tooltip(id);
+  let tooltipPopnBar = newTooltip.tooltip(div);
   tooltipPopnBar.style("height", "65px").style("width", "150px");
 
   let x = d3
@@ -133,7 +133,7 @@ ${chtHeightStd + margin.top + margin.bottom}`
             .on("mouseenter", function () {
               const sel = d3.select(this);
               sel.attr("fill", "red");
-              mouseover(sel, tooltipPopnBar);
+              newTooltip.mouseover(sel, tooltipPopnBar);
             })
             .on("mousemove", function (event, d) {
               const str = `<strong>Code: ${d.practice}</strong><br>
@@ -142,11 +142,11 @@ ${chtHeightStd + margin.top + margin.bottom}`
         </span><br>
       Popn: ${formatNumber(d.population)}
         `;
-              tooltipText(tooltipPopnBar, str, event);
+              newTooltip.tooltipText(tooltipPopnBar, str, event);
             })
             .on("mouseleave", function () {
               const sel = d3.select(this);
-              mouseleave(sel, tooltipPopnBar);
+              newTooltip.mouseleave(sel, tooltipPopnBar);
               sel
                 .transition("tempFill")
                 .duration(250)
@@ -336,6 +336,6 @@ rotate(-60)`;
   }
 
   return {
-    fnRedrawBarChart: fnRedrawBarChart
+    fnRedrawBarChart: fnRedrawBarChart,
   };
 }
