@@ -722,7 +722,7 @@ function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
   highlightFeature(practice); // console.log(event.text.label, event.text.value)
   trendChart.chartTrendDraw()
-  updateChtDemog(practice, selectedPracticeCompare);
+  demographicChart.updateChtDemog(practice, selectedPracticeCompare);
 
   filterFunctionPractice(siteData, mapSites, layerControl1);
   // filterFunctionPractice(siteData, mapPopn, layerControl2);

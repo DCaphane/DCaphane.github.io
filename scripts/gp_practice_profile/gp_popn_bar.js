@@ -144,7 +144,7 @@ ${chtHeightStd + margin.top + margin.bottom}`
         `;
               newTooltip.tooltipText(tooltipPopnBar, str, event);
             })
-            .on("mouseleave", function () {
+            .on("mouseout", function () {
               const sel = d3.select(this);
               newTooltip.mouseleave(sel, tooltipPopnBar);
               sel

@@ -100,7 +100,7 @@ function updateDropdowns() {
     }
 
     console.log("Compare: " + selectedPracticeCompare);
-    updateChtDemog(selectedPractice, selectedPracticeCompare);
+    demographicChart.updateChtDemog(selectedPractice, selectedPracticeCompare);
   });
 }
 

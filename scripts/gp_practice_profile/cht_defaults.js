@@ -18,19 +18,18 @@ const selPracticeDropDown = document.getElementById("selPractice"),
   selPracticeCompareDropDown = document.getElementById("selPracticeCompare");
 
 // Load the initial data and then variations on this for subsequent filtering
-let dataImport,
-  dataLevel_03 = [], // by age/ sex, latest period (init chart)
-  dataLevel_04, // by age/ sex, by practice by period
-  data_DemoInit, // used to initialise demographic data
-  data_popnGPLsoa;
+let data_popnGPLsoa,
+  arrayGPLsoaDates,
+  trendChart,
+  barChart,
+  demographicChart,
+  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
-let arrayGPLsoaDates;
-let trendChart, barChart;
+const practiceLookup = new Map();
 const newTooltip = createTooltip();
 
 let selectedPracticeCompare = "None",
   selectedDate;
-// selectedPractice
 
 // https://github.com/d3/d3-time-format
 const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
@@ -44,12 +43,6 @@ const formatPercent1dp = d3.format(".1%"), // for x-axis to reduce overlap - sti
 // const formatNumber = function (num) {
 //     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 // };
-
-// sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
-let uniquePractices;
-
-// For Practice Lookups
-const practiceLookup = new Map();
 
 function practiceDetailsDropDown() {
   let urls = [
@@ -80,18 +73,15 @@ async function loadPopulationData() {
     processRow // this function is applied to each row of the imported data
   );
 
-  dataImport = data;
+  // dataImport = data;
   setDefaults(data);
   practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
   trendChart = initTrendChart(data, "cht_PopTrend");
   trendChart.chartTrendDraw();
-  // dataLevel_01 = fnDataLevel01(data); // Total by Period for initial Trend Chart
-  // dataLevel_02 = fnDataLevel02(data); // Practices by Period - Trend Chart Filtered
-  data_DemoInit = fnDataDemoInit(data); // Total by Period and Age Band
-  dataLevel_03 = data_DemoInit.get(+selectedDate); //fnDataLevel03(data_DemoInit);
-  dataLevel_04 = fnDataLevel04(data); // Practices by Period by Age/Sex - Demographic Chart Filtered
-  // fnChartTrendData();
-  fnChartDemogData(data_DemoInit);
+
+  demographicChart = initChartDemog(data, "cht_PopDemo");
+  demographicChart.updateChtDemog();
+
   barChart = initPopnBarChart(data, "cht_PopBar");
   barChart.fnRedrawBarChart();
 }
@@ -154,81 +144,6 @@ function setDefaults(data) {
     return d.Period;
   });
   // console.log(selectedDate)
-}
-
-// function fnDataLevel01(data) {
-//   // Total by Period for initial Trend Chart
-
-//   const d = d3.rollup(
-//     data,
-//     (v) => d3.sum(v, (d) => d.Total_Pop),
-//     (d) => d.Period
-//   );
-//   return d;
-// }
-
-// function fnDataLevel02(data) {
-//   // Practices by Period - Trend Chart Filtered
-
-//   const d = d3.rollup(
-//     data,
-//     (v) => d3.sum(v, (d) => d.Total_Pop),
-//     (d) => d.Practice,
-//     (d) => +d.Period
-//   );
-
-//   return d;
-// }
-
-function fnDataDemoInit(data) {
-  // Period and Age Band - Trend Chart Filtered
-
-  const d = d3.rollup(
-    data,
-    function (v) {
-      return {
-        total: d3.sum(v, function (d) {
-          return d.Total_Pop;
-        }),
-        male: d3.sum(v, function (d) {
-          return d.Male_Pop;
-        }),
-        female: d3.sum(v, function (d) {
-          return d.Female_Pop;
-        }),
-      };
-    },
-    (d) => +d.Period,
-    (d) => d.Age_Band
-  );
-
-  return d;
-}
-
-function fnDataLevel04(data) {
-  // Practices by Period by Age/Sex - Demographic Chart Filtered
-
-  const d = d3.rollup(
-    data,
-    function (v) {
-      return {
-        total: d3.sum(v, function (d) {
-          return d.Total_Pop;
-        }),
-        male: d3.sum(v, function (d) {
-          return d.Male_Pop;
-        }),
-        female: d3.sum(v, function (d) {
-          return d.Female_Pop;
-        }),
-      };
-    },
-    (d) => d.Practice,
-    (d) => +d.Period,
-    (d) => d.Age_Band
-  );
-
-  return d;
 }
 
 function titleCase(str) {

@@ -163,7 +163,7 @@ Line and marker transitions
               const sel = d3.select(this);
               sel.raise();
               sel.classed("highlight", true);
-              updateChtDemog(selectedPractice, selectedPracticeCompare);
+              demographicChart.updateChtDemog(selectedPractice, selectedPracticeCompare);
               recolourLSOA();
             })
             .on("mouseover", function () {
