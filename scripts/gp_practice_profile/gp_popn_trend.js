@@ -77,15 +77,15 @@ Line and marker transitions
   svgTrend.append("g").append("path").attr("class", "trend-line");
 
   const plotLine = d3
-  .line()
-  // https://bl.ocks.org/d3noob/ced1b9b18bd8192d2c898884033b5529
-  .curve(d3.curveMonotoneX)
-  .x(function (d) {
-    return xPeriod(d.period);
-  })
-  .y(function (d) {
-    return yValue(d.population);
-  });
+    .line()
+    // https://bl.ocks.org/d3noob/ced1b9b18bd8192d2c898884033b5529
+    .curve(d3.curveMonotoneX)
+    .x(function (d) {
+      return xPeriod(d.period);
+    })
+    .y(function (d) {
+      return yValue(d.population);
+    });
 
   // Toggle the y-axis on the trend chart to show 0 or nice
   const trendYAxisZero = document.getElementById("trend-yAxis");
@@ -96,8 +96,8 @@ Line and marker transitions
 
   // Define the div for the tooltip
 
-  const tooltip = newTooltip.tooltip(div);
-  tooltip.style("height", "40px");
+  const tooltipTrend = newTooltip.tooltip(div);
+  tooltipTrend.style("height", "40px");
 
   function chartTrendDraw() {
     let newData;
@@ -163,36 +163,43 @@ Line and marker transitions
               const sel = d3.select(this);
               sel.raise();
               sel.classed("highlight", true);
-              demographicChart.updateChtDemog(selectedPractice, selectedPracticeCompare);
+              demographicChart.updateChtDemog(
+                selectedPractice,
+                selectedPracticeCompare
+              );
               recolourLSOA();
             })
-            .on("mouseover", function () {
+            .on("mouseover", function (event, d) {
               const sel = d3.select(this);
               sel.raise(); // brings the marker to the top
               sel.classed("highlight toTop", true);
-              newTooltip.mouseover(sel, tooltip);
-            })
-            .on("mouseout", function (d) {
-              const sel = d3.select(this);
-              sel.lower();
-              sel.attr("class", "trend-circle faa-vertical animated-hover");
-              sel.classed("highlight animated", function (d) {
-                return d.period === selectedDate;
-              });
-            })
-            .on("mouseleave", function () {
-              const item = d3.select(this);
-              newTooltip.mouseleave(item, tooltip);
-            })
-            .on("mousemove", function (event, d) {
+
+              // console.log(event.target);
               const str = `<strong>${formatPeriod(
                 new Date(d.period)
               )}</strong><br>
             <span style="color:red">
               ${formatNumber(d.population)}
               </span>`;
-              newTooltip.tooltipText(tooltip, str, event);
+                newTooltip.counter++;
+              newTooltip.mouseover(tooltipTrend, str, event);
             })
+            .on("mouseout", function (event, d) {
+              const sel = d3.select(this);
+              sel.lower();
+              sel.attr("class", "trend-circle faa-vertical animated-hover");
+              sel.classed("highlight animated", function (d) {
+                return d.period === selectedDate;
+              });
+              newTooltip.mouseout(tooltipTrend);
+            })
+            // .on("mouseleave", function () {
+            //   const item = d3.select(this);
+
+            // })
+            // .on("mousemove", function (event, d) {
+
+            // })
             .call((enter) =>
               enter
                 .transition(t)
@@ -227,8 +234,8 @@ Line and marker transitions
       })
       .attr("cy", function (d) {
         return yValue(d.population);
-      });
-
+      })
+      .style("fill", "rgba(70, 180, 130, 0.5");
 
     svgTrend
       .selectAll(".trend-line")

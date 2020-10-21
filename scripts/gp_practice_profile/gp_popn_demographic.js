@@ -334,29 +334,24 @@ function initChartDemog(dataInit, id) {
             .on("click", function (event, d) {
               console.log("selAge:", d.ageBand);
             })
-            .on("mouseover", function (d) {
+            .on("mouseover", function (event, d) {
               const sel = d3.select(this);
               sel.attr("class", "bar hover");
-              newTooltip.mouseover(sel, tooltip);
-            })
-            .on("mousemove", function (event, d) {
+              // newTooltip.mouseover(sel, tooltip);
+
               const str = `<strong>Male: ${d.ageBand} yrs</strong><br>
             <span style="color:red">
               Popn: ${formatNumber(d.population.male)}
               </span><br>
             % Popn: ${formatPercent1dp(d.population.male / totalPop1)}
               `;
-              newTooltip.tooltipText(tooltip, str, event);
+              newTooltip.mouseover(tooltip, str, event);
             })
             .on("mouseout", function () {
               const sel = d3.select(this);
               sel.attr("class", "bar left");
-              newTooltip.mouseleave(sel, tooltip);
+              newTooltip.mouseout(tooltip);
             })
-            // .on("mouseleave", function () {
-            //   const item = d3.select(this);
-            //   newTooltip.mouseleave(sel, tooltip);
-            // })
             .call((enter) => enter),
         (
           update // UPDATE old elements present in new data.
@@ -391,29 +386,23 @@ function initChartDemog(dataInit, id) {
             .on("click", function (event, d) {
               console.log("selAge:", d.ageBand);
             })
-            .on("mouseover", function (d) {
+            .on("mouseover", function (event, d) {
               const sel = d3.select(this);
               sel.attr("class", "bar hover");
-              newTooltip.mouseover(sel, tooltip);
-            })
-            .on("mousemove", function (event, d) {
+
               const str = `<strong>Female: ${d.ageBand} yrs</strong><br>
             <span style="color:red">
               Popn: ${formatNumber(d.population.female)}
               </span><br>
             % Popn: ${formatPercent1dp(d.population.female / totalPop1)}
               `;
-              newTooltip.tooltipText(tooltip, str, event);
+              newTooltip.mouseover(tooltip, str, event);
             })
             .on("mouseout", function () {
               const sel = d3.select(this);
               sel.attr("class", "bar right");
-              newTooltip.mouseleave(sel, tooltip);
+              newTooltip.mouseout(tooltip);
             })
-            // .on("mouseleave", function () {
-            //   const item = d3.select(this);
-            //   newTooltip.mouseleave(item, tooltip);
-            // })
             .call((enter) => enter),
         (
           update // UPDATE old elements present in new data.

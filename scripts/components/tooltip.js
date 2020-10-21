@@ -25,20 +25,24 @@ function createTooltip() {
   // Tooltip Functions
   // function that change the tooltip when user hover / move / leave a cell
 
-  function mouseover(item, tooltip) {
-    tooltip.transition("tooltip").duration(200).style("opacity", 1);
-    // item.style("stroke", "black").style("opacity", 1);
+  function mouseover(tooltip, str, event) {
+    /*
+    Any transition here and tooltip can get stuck.
+Tried auto-incrementing counter variable (counter++) and passing this as name to transition parameter but no effect
+    */
+    tooltip.style("opacity", 0.9); // .transition().duration(50)
+    tooltip
+      .html(str)
+      .style("left", event.pageX + "px")
+      .style("top", event.pageY - 28 + "px");
   }
 
-  function tooltipText(t, str, event) {
-    t.html(str)
-      .style("left", event.pageX + "px") // event.pageX + 'px' // d3.select(this).attr("cx") + "px"
-      .style("top", event.pageY - 28 + "px"); // event.pageY - 28 + 'px'); // d3.select(this).attr("cy") + "px"
-  }
+  // function tooltipText(t, str, event) {
 
-  function mouseleave(item, tooltip) {
+  // }
+
+  function mouseout(tooltip) {
     tooltip.style("opacity", 0);
-    // item.style("stroke", "none").style("opacity", 0.8);
   }
 
   function click(event, [, , i]) {
@@ -58,8 +62,8 @@ function createTooltip() {
   return {
     tooltip: tooltip,
     mouseover: mouseover,
-    tooltipText: tooltipText,
-    mouseleave: mouseleave,
+    // tooltipText: tooltipText,
+    mouseout: mouseout,
     click: click,
     // mousedowned: mousedowned,
   };

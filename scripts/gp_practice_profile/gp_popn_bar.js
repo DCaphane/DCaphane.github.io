@@ -130,23 +130,20 @@ ${chtHeightStd + margin.top + margin.bottom}`
             .on("click", function (event, d) {
               console.log("selPractice:", d.practice);
             })
-            .on("mouseenter", function () {
+            .on("mouseover", function (event, d) {
               const sel = d3.select(this);
               sel.attr("fill", "red");
-              newTooltip.mouseover(sel, tooltipPopnBar);
-            })
-            .on("mousemove", function (event, d) {
               const str = `<strong>Code: ${d.practice}</strong><br>
       <span style="color:red">
         ${practiceLookup.get(d.practice)}
         </span><br>
       Popn: ${formatNumber(d.population)}
         `;
-              newTooltip.tooltipText(tooltipPopnBar, str, event);
+              newTooltip.mouseover(tooltipPopnBar, str, event);
             })
             .on("mouseout", function () {
               const sel = d3.select(this);
-              newTooltip.mouseleave(sel, tooltipPopnBar);
+              newTooltip.mouseout(tooltipPopnBar);
               sel
                 .transition("tempFill")
                 .duration(250)
