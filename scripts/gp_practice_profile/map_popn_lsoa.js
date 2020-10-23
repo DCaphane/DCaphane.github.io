@@ -1,64 +1,131 @@
-// Open Street Map (osm)
-// https://leaflet-extras.github.io/leaflet-providers/preview/
+const baseMapPopn = Object.create(Basemaps);
 
-// Tile Baselayers (Backgrounds)
-
-// Mapbox
-/*
-let tile_MB = L.tileLayer(
-	'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
-	{
-		attribution:
-			'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="https://www.mapbox.com/">Mapbox</a>',
-		maxZoom: 18,
-		id: 'mapbox.streets',
-		accessToken:
-			'addKeyHere'
-	}
-);
-*/
-// const basemap = Basemaps();
-const osm_bw2 = basemap.osm_bw();
-const CartoDB_Voyager2 = basemap.CartoDB_Voyager();
-const Stamen_Toner2 = basemap.Stamen_Toner();
-const emptyTile2 = basemap.emptyTile();
-
-const baseMaps2 = {
-  "Black and White": osm_bw2,
-  Default: CartoDB_Voyager2,
-  Stamen_Toner: Stamen_Toner2,
-  "No Background": emptyTile2,
+const mapPopn = {
+  map: mapInitialise.mapInit("mapPopnLSOA", baseMapPopn["Stamen Toner"]),
+  layerControl: mapInitialise.layerControl(baseMapPopn),
+  subLayerControl: mapInitialise.subLayerControl(),
+  scaleBar: mapInitialise.scaleBar("bottomleft"),
+  sidebar(sidebarName) {
+    return mapInitialise.sidebarLeft(this.map, sidebarName);
+  },
 };
 
-const mapPopn = mapInitialise.mapInit("mapPopnLSOA", Stamen_Toner2);
-
-const layerControl2 = mapInitialise.layerControl(baseMaps2);
-mapPopn.addControl(layerControl2);
+mapPopn.map.addControl(mapPopn.layerControl);
 
 // Ward boundaries and ward groupings
-const subLayerControl2 = mapInitialise.subLayerControl();
-mapPopn.addControl(subLayerControl2);
+mapPopn.map.addControl(mapPopn.subLayerControl);
 
-const scaleBar2 = mapInitialise.scaleBar("bottomleft");
-scaleBar2.addTo(mapPopn);
+mapPopn.scaleBar.addTo(mapPopn.map);
 
-const sidebarPopn = mapInitialise.sidebarLeft(mapPopn, "sidebar3");
+const sidebarPopn = mapPopn.sidebar("sidebar3");
 
-homeButton(mapPopn);
-yorkTrust(mapPopn);
+homeButton.call(mapPopn);
+yorkTrust.call(mapPopn);
 
 // Panes to control zIndex of geoJson layers
-mapPopn.createPane("lsoaBoundaryPane");
-mapPopn.getPane("lsoaBoundaryPane").style.zIndex = 375;
+mapPopn.map.createPane("lsoaBoundaryPane");
+mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
-mapPopn.createPane("ccg03QBoundaryPane");
-mapPopn.getPane("ccg03QBoundaryPane").style.zIndex = 374;
+mapPopn.map.createPane("ccg03QBoundaryPane");
+mapPopn.map.getPane("ccg03QBoundaryPane").style.zIndex = 374;
 
 // ccg boundary
-ccgBoundary(mapPopn, subLayerControl2);
-lsoaBoundary(mapPopn, subLayerControl2);
-// addPracticeToMap(mapPopn, layerControl2);
+geoDataCCGBoundary.then(function (v) {
+  ccgBoundary(v, mapPopn, false);
+});
 
+geoDataLsoaBoundaries.then(function (v) {
+  lsoaBoundary(v, mapPopn, true);
+});
+
+// GP Practice Sites - coded by PCN
+geoDataPCNSites.then(function (v) {
+  pcnSites.call(mapPopn);
+});
+
+Promise.all([
+  dataPopulationGP,
+  dataPopulationGPLsoa,
+  geoDataLsoaBoundaries,
+]).then((v) => {
+  recolourLSOA();
+});
+
+// addPracticeToMap(mapPopn, layerControl2);
+// geoDataGPMain.then(function(v){
+//   addPracticeToMap(v, mapPopn, layerControl2)
+// })
+
+/*
+GP by LSOA population data published quarterly
+Use the below to match the selected dates to the quarterly dates
+Function to determine nearest value in array
+*/
+const nearestValue = (arr, val) =>
+  arr.reduce(
+    (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
+    Infinity
+  ) + val;
+
+function recolourLSOA() {
+  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+  const maxValue =
+    selectedPractice !== undefined && selectedPractice !== "All Practices"
+      ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
+      : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+
+  geoDataLsoaBoundaries
+    .then(function (v) {
+      filterFunctionLsoa(v, mapPopn, true);
+      return;
+    })
+    .then(function () {
+      lsoaLayer.eachLayer(function (layer) {
+        const lsoaCode = layer.feature.properties.lsoa;
+
+        let value =
+          selectedPractice !== undefined && selectedPractice !== "All Practices"
+            ? data_popnGPLsoa
+                .get(nearestDate)
+                .get(selectedPractice)
+                .get(lsoaCode)
+            : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
+
+        if (value === undefined) {
+          value = 0;
+        }
+
+        if (value > 20) {
+          layer.setStyle({
+            // https://github.com/d3/d3-scale-chromatic
+            fillColor: d3.interpolateYlGnBu(value / maxValue),
+            fillOpacity: 0.9,
+            weight: 1, // border
+            color: "red", // border
+            opacity: 1,
+            dashArray: "3",
+          });
+        } else {
+          layer.setStyle({
+            // no (transparent) background
+            fillColor: "#ff0000", // background
+            fillOpacity: 0, // transparent
+            weight: 0, // border
+            color: "red", // border
+            opacity: 0,
+          });
+        }
+
+        layer.bindPopup(
+          `<h3>${layer.feature.properties.lsoa}</h3>
+          <p>${selectedPractice}</p>
+          <p>${formatPeriod(nearestDate)}</p>
+      Pop'n: ${formatNumber(value)}
+      `
+        );
+      });
+    });
+}
 // const select = document.getElementById("selPractice");
 // select.addEventListener("change", function() {
 //   highlightFeature(select.value);
@@ -83,67 +150,10 @@ lsoaBoundary(mapPopn, subLayerControl2);
 //   mapPopn.addLayer(highlightPractice);
 // }
 
-/*
-GP by LSOA population data published quarterly
-Use the below to match the selected dates to the quarterly dates
-Function to determine nearest value in array
-*/
-const nearestValue = (arr, val) =>
-  arr.reduce(
-    (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
-    Infinity
-  ) + val;
-
-function recolourLSOA() {
-  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
-  const maxValue =
-    (selectedPractice !== undefined && selectedPractice !== "All Practices")
-      ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
-      : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
-
-  lsoaLayer.eachLayer(function (layer) {
-    propertyValue = layer.feature.properties.lsoa;
-
-    let value =
-    (selectedPractice !== undefined && selectedPractice !== "All Practices")
-        ? data_popnGPLsoa
-            .get(nearestDate)
-            .get(selectedPractice)
-            .get(propertyValue)
-        : data_popnGPLsoa.get(nearestDate).get("All").get(propertyValue);
-
-    if (value === undefined) {
-      value = 0;
-    }
-
-    if (value > 20) {
-      layer.setStyle({
-        // https://github.com/d3/d3-scale-chromatic
-        fillColor: d3.interpolateYlGnBu(value / maxValue),
-        fillOpacity: 0.9,
-        weight: 1, // border
-        color: "red", // border
-        opacity: 1,
-        dashArray: "3",
-      })
-    } else {
-      layer.setStyle({
-        fillColor: "#ff0000", // background
-        fillOpacity: 0, // transparent
-        weight: 0, // border
-        color: "red", // border
-        opacity: 0,
-      })
-    }
-
-    layer.bindPopup(
-      `<h1>${layer.feature.properties.lsoa}</h1>
-      Pop'n: ${formatNumber(value)}
-      `
-    );
-  });
-}
-
+// mapLsoaData.then(function() {
+//   const maplsoaInit = lsoaBoundary(mapPopn, subLayerControl2)
+//   maplsoaInit.then(recolourLSOA())
+// })
 // function getColorLsoa(d) {
 // const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
 // let maxValue =

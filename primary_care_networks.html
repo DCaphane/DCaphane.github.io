@@ -85,7 +85,10 @@ https://github.com/marslan390/BeautifyMarker
       type="text/css"
       href="css\leaflet-beautify-marker-icon.css"
     />
-    <script defer src="scripts/leaflet/markers/leaflet-beautify-marker-icon.js"></script>
+    <script
+      defer
+      src="scripts/leaflet/markers/leaflet-beautify-marker-icon.js"
+    ></script>
 
     <!-- Add full screen option -->
     <script
@@ -125,9 +128,26 @@ https://github.com/marslan390/BeautifyMarker
       src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
     ></script>
 
+    <!-- Testing layer control-->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="scripts/leaflet/L.Control.Layers.Tree.css"
+    />
+    <script
+      defer
+      src="scripts/leaflet/L.Control.Layers.Tree.js"
+    ></script>
+
     <!--script defer src="scripts/leaflet/markers/map_default_markers.js"></script -->
     <script defer src="scripts/leaflet/markers/map_beautifyMarker.js"></script>
-    <script defer src="scripts/leaflet/map_components.js"></script>
+
+    <script defer src="scripts/primary_care_networks/cht_defaults.js"></script>
+
+    <script
+      defer
+      src="scripts/primary_care_networks/map_components.js"
+    ></script>
     <script defer src="scripts/primary_care_networks/map_pcn_main.js"></script>
     <script defer src="scripts/primary_care_networks/map_pcn_sites.js"></script>
     <script
@@ -170,8 +190,11 @@ https://github.com/marslan390/BeautifyMarker
             <div id="sectime" class="tiles">
               <div class="tile wide content">
                 <h3>GP Practice - Main Site by PCN</h3>
-                <div id="mapid_02" class="map"></div>
-                <div id="sidebar" class="leaflet-sidebar collapsed"></div>
+                <div id="mapPCNMain" class="map"></div>
+                <div
+                  id="sidebarPCNMain"
+                  class="leaflet-sidebar collapsed"
+                ></div>
                 <footer id="selectedMarker" class="cta">
                   Select a marker for details
                 </footer>
@@ -179,8 +202,11 @@ https://github.com/marslan390/BeautifyMarker
 
               <div class="tile wide content">
                 <h3>GP Practice Sites</h3>
-                <div id="mapid_03" class="map"></div>
-                <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
+                <div id="mapPCNSite" class="map"></div>
+                <div
+                  id="sidebarPCNSites"
+                  class="leaflet-sidebar collapsed"
+                ></div>
                 <footer id="selectedPCN" class="cta">Associated Sites</footer>
               </div>
             </div>

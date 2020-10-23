@@ -46,8 +46,10 @@ ${chtHeightStd + margin.top + margin.bottom}`
 
   let sortType = 0;
 
-  let tooltipPopnBar = newTooltip.tooltip(div);
-  tooltipPopnBar.style("height", "65px").style("width", "150px");
+  let tooltipPopnBar = newTooltip
+    .tooltip(div)
+    .style("height", "65px")
+    .style("width", "150px");
 
   let x = d3
     .scaleBand()

@@ -28,14 +28,15 @@ let data_popnGPLsoa,
 const practiceLookup = new Map();
 const newTooltip = createTooltip();
 
-let selectedPracticeCompare = "None",
+let selectedPractice,
+  selectedPracticeCompare = "None",
   selectedDate;
 
 // https://github.com/d3/d3-time-format
 const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
   parseDate2 = d3.timeParse("%d/%m/%Y"), // import format: dd/mm/yyyy
-  formatPeriod = d3.timeFormat("%b-%y"); // presentational format eg. Apr-16
-// formatNumber = d3.format(",d");
+  formatPeriod = d3.timeFormat("%b-%y"), // presentational format eg. Apr-16
+  formatNumber = d3.format(",d");
 
 const formatPercent1dp = d3.format(".1%"), // for x-axis to reduce overlap - still testing
   formatPercent = d3.format(".0%"); // rounded percent
@@ -67,8 +68,8 @@ function practiceDetailsDropDown() {
   });
 }
 
-async function loadPopulationData() {
-  let data = await d3.csv(
+const dataPopulationGP = (async function loadPopulationData() {
+  const data = await d3.csv(
     "Data/GP_Practice_Populations_slim.csv",
     processRow // this function is applied to each row of the imported data
   );
@@ -84,10 +85,12 @@ async function loadPopulationData() {
 
   barChart = initPopnBarChart(data, "cht_PopBar");
   barChart.fnRedrawBarChart();
-}
 
-async function loadPopulationGPlsoaData() {
-  let data = await d3.csv(
+  return;
+})();
+
+const dataPopulationGPLsoa = (async function loadPopulationGPlsoaData() {
+  const data = await d3.csv(
     "Data/population_gp_lsoa.csv",
     processPopGPlsoaRow // this function is applied to each row of the imported data
   );
@@ -103,10 +106,9 @@ async function loadPopulationGPlsoaData() {
   // GP LSOA Population is Quarterly so not a 1:1 match with trend data
   // Will use closest value
   arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
-}
 
-loadPopulationData();
-loadPopulationGPlsoaData();
+  return;
+})();
 
 function processRow(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate

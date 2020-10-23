@@ -31,10 +31,10 @@ Line and marker transitions
   const svgTrend = d3
     .select(div)
     .append("svg")
-    .attr("viewBox", "0 0 " + chtWidthWide + " " + (chtHeightShort + 100))
+    .attr("viewBox", `0 0 ${chtWidthWide} ${chtHeightShort + 100}`)
     .attr("preserveAspectRatio", "xMidYMid meet")
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const xPeriod = d3.scaleTime().rangeRound([0, chtWidthWide - 120]),
     yValue = d3.scaleLinear().rangeRound([chtHeightShort, 0]);
@@ -46,7 +46,7 @@ Line and marker transitions
     .append("g")
     .attr("class", "x axis")
     .attr("id", "axis--x")
-    .attr("transform", "translate(0," + chtHeightShort + ")")
+    .attr("transform", `translate(0, ${chtHeightShort})`)
     .attr("x", chtWidthWide / 2)
     .attr("y", 30)
     .call(xAxisPeriod)
@@ -181,7 +181,7 @@ Line and marker transitions
             <span style="color:red">
               ${formatNumber(d.population)}
               </span>`;
-                newTooltip.counter++;
+              newTooltip.counter++;
               newTooltip.mouseover(tooltipTrend, str, event);
             })
             .on("mouseout", function (event, d) {

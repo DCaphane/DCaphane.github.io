@@ -1,53 +1,79 @@
-const osm_bw1 = basemap.osm_bw();
-const CartoDB_Voyager1 = basemap.CartoDB_Voyager();
-const Stamen_Toner1 = basemap.Stamen_Toner();
-const emptyTile1 = basemap.emptyTile();
+const baseMapPCNSite = Object.create(Basemaps);
 
-const baseMaps1 = {
-  "Black and White": osm_bw1,
-  Default: CartoDB_Voyager1,
-  Stamen_Toner: Stamen_Toner1,
-  "No Background": emptyTile1,
+const mapPCNSite = {
+  map: mapInitialise.mapInit("mapPCNSite", baseMapPCNSite.Default),
+  layerControl: mapInitialise.layerControl(baseMapPCNSite),
+  subLayerControl: mapInitialise.subLayerControl(),
+  scaleBar: mapInitialise.scaleBar("bottomleft"),
+  sidebar(sidebarName) {
+    return mapInitialise.sidebarLeft(this.map, sidebarName);
+  },
 };
 
-const map03 = mapInitialise.mapInit("mapid_03", baseMaps1["Black and White"]);
 
-const layerControl2 = mapInitialise.layerControl(baseMaps1);
-map03.addControl(layerControl2);
+mapPCNSite.map.addControl(mapPCNSite.layerControl);
 
 // Ward boundaries and ward groupings
-const subLayerControl2 = mapInitialise.subLayerControl();
-map03.addControl(subLayerControl2);
+mapPCNSite.map.addControl(mapPCNSite.subLayerControl);
 
-const scaleBar2 = mapInitialise.scaleBar("bottomleft");
-scaleBar2.addTo(map03);
+mapPCNSite.scaleBar.addTo(mapPCNSite.map);
 
-var sidebarSites = mapInitialise.sidebarLeft(map03, "sidebar2");
+const sidebarSites = mapPCNSite.sidebar("sidebarPCNSites");
 
-homeButton(map03);
-yorkTrust(map03);
+homeButton.call(mapPCNSite);
+yorkTrust.call(mapPCNSite);
 
 // Panes to control zIndex of geoJson layers
-map03.createPane("wardBoundaryPane");
-map03.getPane("wardBoundaryPane").style.zIndex = 375;
+mapPCNSite.map.createPane("wardBoundaryPane");
+mapPCNSite.map.getPane("wardBoundaryPane").style.zIndex = 375;
 
-map03.createPane("ccg03QBoundaryPane");
-map03.getPane("ccg03QBoundaryPane").style.zIndex = 374;
+mapPCNSite.map.createPane("ccg03QBoundaryPane");
+mapPCNSite.map.getPane("ccg03QBoundaryPane").style.zIndex = 374;
 
 // ccg boundary
-ccgBoundary(map03, subLayerControl2);
-wardData(map03, subLayerControl2);
-
-getGeoData("Data/geo/pcn/primary_care_network_sites.geojson").then(function(
-  data
-) {
-  siteData = data;
-  defaultSites = L.geoJson(data, {
-    pointToLayer: pcnFormatting,
-    onEachFeature: function(feature, layer) {
-      //console.log(layer.feature.properties.pcn_name)
-      subCategories[layer.feature.properties.pcn_name] = null;
-    }
-  }).addTo(map03);
-  map03.fitBounds(defaultSites.getBounds());
+geoDataCCGBoundary.then(function (v) {
+  ccgBoundary(v, mapPCNSite, true);
 });
+
+geoDataCYCWards.then(function (v) {
+  addWardData(v, mapPCNSite);
+});
+
+geoDataPCNSites.then(function (v) {
+  pcnSites2.call(mapPCNSite);
+});
+
+
+function pcnSites2(zoomToExtent = false) {
+  const map = this.map;
+  geoDataPCNSites.then(function (v) {
+    defaultSites = L.geoJson(v, {
+      pointToLayer: pcnFormatting,
+      // onEachFeature: function (feature, layer) {
+      //   //console.log(layer.feature.properties.pcn_name)
+      //   subCategories[layer.feature.properties.pcn_name] = null;
+      // },
+    });
+
+    defaultSites.addTo(map);
+    // mapWithSites.set(map, sitesLayer);
+    if (zoomToExtent) {
+      map.fitBounds(defaultSites.getBounds());
+    }
+  });
+}
+
+
+// getGeoData("Data/geo/pcn/primary_care_network_sites.geojson").then(function (
+//   data
+// ) {
+//   siteData = data;
+//   defaultSites = L.geoJson(data, {
+//     pointToLayer: pcnFormatting,
+//     onEachFeature: function (feature, layer) {
+//       //console.log(layer.feature.properties.pcn_name)
+//       subCategories[layer.feature.properties.pcn_name] = null;
+//     },
+//   }).addTo(mapPCNSite.map);
+//   mapPCNSite.map.fitBounds(defaultSites.getBounds());
+// });

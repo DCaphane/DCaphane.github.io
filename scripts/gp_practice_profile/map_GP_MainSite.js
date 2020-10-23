@@ -1,67 +1,66 @@
-const osm_bw = basemap.osm_bw();
-const CartoDB_Voyager = basemap.CartoDB_Voyager();
-const Stamen_Toner = basemap.Stamen_Toner();
-const emptyTile = basemap.emptyTile();
+const baseMapMain = Object.create(Basemaps);
 
-const baseMaps = {
-  "Black and White": osm_bw,
-  Default: CartoDB_Voyager,
-  Stamen_Toner: Stamen_Toner,
-  "No Background": emptyTile,
+const mapMain = {
+  map: mapInitialise.mapInit("mapMain", baseMapMain["Black and White"]),
+  layerControl: mapInitialise.layerControl(baseMapMain),
+  subLayerControl: mapInitialise.subLayerControl(),
+  scaleBar: mapInitialise.scaleBar("bottomleft"),
+  sidebar(sidebarName) {
+    return mapInitialise.sidebarLeft(this.map, sidebarName)
+  }
 };
 
-const mapMain = mapInitialise.mapInit("mapMain", osm_bw); // baseMaps1["Black and White"]
-
-const layerControl = mapInitialise.layerControl(baseMaps);
-mapMain.addControl(layerControl);
+mapMain.map.addControl(mapMain.layerControl);
 
 // Ward boundaries and ward groupings
-const subLayerControl = mapInitialise.subLayerControl();
-mapMain.addControl(subLayerControl);
+mapMain.map.addControl(mapMain.subLayerControl);
 
-const scaleBar = mapInitialise.scaleBar("bottomleft");
-scaleBar.addTo(mapMain);
+mapMain.scaleBar.addTo(mapMain.map);
 
-const sidebarPCN = mapInitialise.sidebarLeft(mapMain, "sidebar");
+const sidebarPCN = mapMain.sidebar("sidebar");
 
-homeButton(mapMain);
-yorkTrust(mapMain);
+homeButton.call(mapMain);
+yorkTrust.call(mapMain);
 
 // Panes to control zIndex of geoJson layers
-mapMain.createPane("wardBoundaryPane");
-mapMain.getPane("wardBoundaryPane").style.zIndex = 375;
+mapMain.map.createPane("wardBoundaryPane");
+mapMain.map.getPane("wardBoundaryPane").style.zIndex = 375;
 
-mapMain.createPane("ccg03QBoundaryPane");
-mapMain.getPane("ccg03QBoundaryPane").style.zIndex = 374;
+mapMain.map.createPane("ccg03QBoundaryPane");
+mapMain.map.getPane("ccg03QBoundaryPane").style.zIndex = 374;
 
-// ccg boundary
+geoDataCCGBoundary.then(function (v) {
+  ccgBoundary(v, mapMain, true); // .map, subLayerControl
+});
 
-ccgBoundary(mapMain, subLayerControl);
-wardData(mapMain, subLayerControl);
-addPracticeToMap(mapMain, layerControl);
+geoDataCYCWards.then(function (v) {
+  addWardData(v, mapMain);
+});
 
-// const select = document.getElementById("selPractice");
-// select.addEventListener("change", function() {
-//   highlightFeature(select.value);
-// });
+geoDataGPMain.then(function (v) {
+  addPracticeToMap(v, mapMain);
+});
 
-function highlightFeature(selPractice) {
+function highlightFeature(selPractice, map, zoomToExtent = false) {
   if (typeof highlightPractice !== "undefined") {
-    mapMain.removeLayer(highlightPractice);
+    map.map.removeLayer(highlightPractice);
   }
 
-  highlightPractice = L.geoJSON(geoDataPractice, {
-    pointToLayer: function (feature, latlng) {
-      if (feature.properties.practice_code === selPractice) {
-        return (markerLayer = L.marker(latlng, {
-          icon: arrHighlightIcons[5],
-          zIndexOffset: -5,
-        }));
-      }
-    },
+  geoDataGPMain.then(function (v) {
+    highlightPractice = L.geoJSON(v, {
+      pointToLayer: function (feature, latlng) {
+        if (feature.properties.practice_code === selPractice) {
+          return (markerLayer = L.marker(latlng, {
+            icon: arrHighlightIcons[5],
+            zIndexOffset: -5,
+          }));
+        }
+      },
+    });
+
+    map.map.addLayer(highlightPractice);
+    if (zoomToExtent) {
+      map.map.fitBounds(highlightPractice.getBounds());
+    }
   });
-
-  mapMain.addLayer(highlightPractice);
 }
-
-

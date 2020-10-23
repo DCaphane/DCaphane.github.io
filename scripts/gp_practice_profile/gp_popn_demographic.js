@@ -69,18 +69,15 @@ function initChartDemog(dataInit, id) {
     .append("svg")
     .attr(
       "viewBox",
-      "0 0 " +
-        (chtWidthWide + marginDemog.left + marginDemog.right) +
-        " " +
-        (chtHeightShort + marginDemog.top + marginDemog.bottom)
+      `0 0
+        ${chtWidthWide + marginDemog.left + marginDemog.right}
+        ${chtHeightShort + marginDemog.top + marginDemog.bottom}
+        `
     ) // to ensure x-axis appears
     .attr("preserveAspectRatio", "xMidYMid meet")
     .append("g")
     // .attr("class", "inner-region")
-    .attr(
-      "transform",
-      "translate(" + marginDemog.left + "," + marginDemog.top + ")"
-    );
+    .attr("transform", `translate(${marginDemog.left}, ${marginDemog.top})`);
 
   // the width of each side of the chart
   const regionWidth = chtWidthWide / 2 - marginDemog.middle;
@@ -173,6 +170,8 @@ function initChartDemog(dataInit, id) {
   yScale.domain(ageBands);
   const emptyDemog = emptyDemographic();
 
+  const tooltipDemog = newTooltip.tooltip(div).style("height", "60px");
+
   svgDemog
     .append("g")
     .attr("class", "axis y left")
@@ -197,17 +196,73 @@ function initChartDemog(dataInit, id) {
     .attr("class", "axis x right")
     .attr("transform", translation(pointB, chtHeightShort));
 
-  // Add circles to highlight eg. over 65s
-  const footer = document.getElementById("over65s"); // temporary - not sure how to select div by footer...
-  const span1 = document.createElement("span"),
-    span2 = document.createElement("span");
+  // Add row chart to highlight eg. over 65s
+  // const footer = document.getElementById("over65s");
+  const footer = document.getElementById("cht_PopDemo").nextElementSibling;
+  const tooltipOverAge = newTooltip
+    .tooltip(footer)
+    .style("height", "60px")
+    .style("width", "180px");
+  // Population over age ...
 
-  span1.setAttribute("class", "circleOver65");
-  span2.setAttribute("class", "circleOver65");
+  const chtHeightMini = chtHeightShort / 2;
+  const svgOverAge = d3
+    .select(footer)
+    .append("svg")
+    .attr(
+      "viewBox",
+      `0 0
+      ${chtWidthWide + margin.left + margin.right}
+${chtHeightMini + 20}`
+    )
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .append("g")
+    .attr("transform", `translate(${margin.left - 20})`);
 
-  footer.appendChild(span1);
-  footer.appendChild(span2);
-  const tooltipOver65 = newTooltip.tooltip(span1);
+  const xScaleOverAge = d3
+    .scaleLinear()
+    .domain([0, 1])
+    .range([0, chtWidthWide])
+    .nice();
+  const yScaleOverAge = d3
+    .scaleBand()
+    .rangeRound([chtHeightMini, 0])
+    .paddingInner(0.2) // space between bars
+    .paddingOuter(0.5); // space at top/ bottom of bars
+
+  const xAxisOverAge = d3.axisBottom(xScaleOverAge).tickFormat(formatPercent),
+    yAxisOverAge = d3.axisLeft(yScaleOverAge).tickSizeOuter(0);
+
+  svgOverAge
+    .append("g")
+    // .attr("class", "x axis")
+    .attr("id", "axis--x--overage")
+    .attr("transform", `translate(0, ${chtHeightMini})`)
+    // .attr("x", chtWidthWide)
+    // .attr("y", 30)
+    .call(xAxisOverAge)
+    .append("text")
+    .attr("x", chtWidthWide / 2)
+    .attr("y", 50)
+    .style("text-anchor", "end")
+    .style("font-weight", "bold")
+    .text("%");
+
+  svgOverAge
+    .append("g")
+    // .attr("class", "y axis")
+    .attr("id", "axis--yBar--overage")
+    // .attr("transform", `translate(0,0)`)
+    .call(yAxisOverAge);
+  // text label for the y axis
+  // .append("text")
+  // .attr("transform", "rotate(-90)")
+  // .attr("y", -35)
+  // .attr("x", 0 - chtHeightMini / 2)
+  // .attr("dy", "1em")
+  // .style("text-anchor", "middle")
+  // .style("font-weight", "bold")
+  // .text("Practice");
 
   function updateChtDemog(practiceMain, practiceComp) {
     let chtDataP1, chtDataP2;
@@ -239,12 +294,9 @@ function initChartDemog(dataInit, id) {
     chartDemogDraw(chtDataP1, chtDataP2);
   }
 
-  function chartDemogDraw(dataP1, dataP2 = emptyDemog) {
+  function chartDemogDraw(dataP1, dataP2 = emptyDemog, ageOver = 65) {
     // d3 transition
-    let t = d3.transition().duration(750).ease(d3.easeBounce); // https://bl.ocks.org/d3noob/1ea51d03775b9650e8dfd03474e202fe
-
-    const tooltip = newTooltip.tooltip(div);
-    tooltip.style("height", "60px");
+    let t = d3.transition().duration(750).ease(d3.easeQuadInOut); // https://bl.ocks.org/d3noob/1ea51d03775b9650e8dfd03474e202fe
 
     const totalPop1 = fnTotalPopulation(dataP1),
       totalPop2 = fnTotalPopulation(dataP2);
@@ -337,7 +389,7 @@ function initChartDemog(dataInit, id) {
             .on("mouseover", function (event, d) {
               const sel = d3.select(this);
               sel.attr("class", "bar hover");
-              // newTooltip.mouseover(sel, tooltip);
+              // newTooltip.mouseover(sel, tooltipDemog);
 
               const str = `<strong>Male: ${d.ageBand} yrs</strong><br>
             <span style="color:red">
@@ -345,12 +397,12 @@ function initChartDemog(dataInit, id) {
               </span><br>
             % Popn: ${formatPercent1dp(d.population.male / totalPop1)}
               `;
-              newTooltip.mouseover(tooltip, str, event);
+              newTooltip.mouseover(tooltipDemog, str, event);
             })
             .on("mouseout", function () {
               const sel = d3.select(this);
               sel.attr("class", "bar left");
-              newTooltip.mouseout(tooltip);
+              newTooltip.mouseout(tooltipDemog);
             })
             .call((enter) => enter),
         (
@@ -396,12 +448,12 @@ function initChartDemog(dataInit, id) {
               </span><br>
             % Popn: ${formatPercent1dp(d.population.female / totalPop1)}
               `;
-              newTooltip.mouseover(tooltip, str, event);
+              newTooltip.mouseover(tooltipDemog, str, event);
             })
             .on("mouseout", function () {
               const sel = d3.select(this);
               sel.attr("class", "bar right");
-              newTooltip.mouseout(tooltip);
+              newTooltip.mouseout(tooltipDemog);
             })
             .call((enter) => enter),
         (
@@ -486,23 +538,130 @@ function initChartDemog(dataInit, id) {
       })
       .attr("height", yScale.bandwidth() - 2);
 
-    // Population over eg. 65
-    const ageOver = 65; //greater than or equal to
-    const selectedPop1 = formatPercent1dp(
-      subPopulation(ageOver, dataP1) / totalPop1
-    );
-    // d3.select("#circleOver65").html(selectedPop1);
-    span1.textContent = selectedPop1;
+    // Population greater than or equal to eg. 65 (default)
+    const selectedPop1 = subPopulation(ageOver, dataP1);
+    const selectedPop2 = subPopulation(ageOver, dataP2);
 
-    const selectedPop2 = subPopulation(ageOver, dataP2) / totalPop2;
+    const arrOverAge = [
+      {
+        practice: !selectedPractice ? "All Practices" : selectedPractice,
+        popn: { selPopn: selectedPop1, pct: selectedPop1 / totalPop1 },
+      },
+    ];
 
-    // add check for totalPop2 is valid here
-    if (isNaN(selectedPop2)) {
-      span2.textContent = " ";
+    if (selectedPracticeCompare === "None") {
+      // do nothing
     } else {
-      span2.textContent = formatPercent1dp(selectedPop2);
+      const objCompare = {
+        practice: selectedPracticeCompare,
+        popn: { selPopn: selectedPop2, pct: selectedPop2 / totalPop2 },
+      };
+      arrOverAge.push(objCompare);
     }
-    // d3.select("#circleOver65Compare").html(selectedPop2);
+
+    yScaleOverAge.domain(
+      arrOverAge.map(function (d) {
+        return d.practice;
+      })
+    );
+    svgOverAge
+      .select("#axis--yBar--overage")
+      .transition(t)
+      .call(yAxisOverAge)
+      .selectAll("text");
+
+    svgOverAge
+      .selectAll(".backgroundBar")
+      .data(arrOverAge)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("rect").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "backgroundBar")
+      .attr("width", function (d) {
+        return xScaleOverAge(1);
+      })
+      .attr("y", function (d, i) {
+        return yScaleOverAge(d.practice);
+      })
+      .attr("height", yScaleOverAge.bandwidth());
+
+    svgOverAge
+      .selectAll(".bar")
+      .data(arrOverAge)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) =>
+          enter
+            .append("rect")
+            .on("mouseover", function (event, d) {
+              const str = `<strong>${d.practice}</strong><br>
+    <span style="color:red">
+    Population over ${ageOver}: ${formatNumber(d.popn.selPopn)}
+      </span><br>
+    Percent over ${ageOver}: ${formatPercent1dp(d.popn.pct)}
+      `;
+              newTooltip.mouseover(tooltipOverAge, str, event);
+            })
+            .on("mouseout", function () {
+              newTooltip.mouseout(tooltipOverAge);
+            })
+            .call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "bar")
+      .transition(t)
+      .attr("fill", function (d) {
+        return d3.interpolateGreens(1 - d.popn.pct);
+      })
+      .attr("width", function (d) {
+        return xScaleOverAge(d.popn.pct);
+      })
+      .attr("y", function (d, i) {
+        return yScaleOverAge(d.practice);
+      })
+      .attr("height", yScaleOverAge.bandwidth());
+
+    svgOverAge
+      .selectAll(".pctValue")
+      .data(arrOverAge)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("text").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "pctValue")
+      .transition(t)
+      .attr("x", function (d) {
+        return xScaleOverAge(d.popn.pct);
+      })
+      .attr("y", function (d, i) {
+        return yScaleOverAge(d.practice);
+      })
+      .attr("dx", "5px")
+      .attr("dy", (yScaleOverAge.bandwidth() / 2) + 7)
+      .text(function (d) {
+        return formatPercent1dp(d.popn.pct);
+      });
   }
 
   function translation(x, y) {
