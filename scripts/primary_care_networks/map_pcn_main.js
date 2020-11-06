@@ -1,46 +1,31 @@
-const baseMapPCNMain = Object.create(Basemaps);
-
 const mapPCNMain = {
-  map: mapInitialise.mapInit("mapPCNMain", baseMapPCNMain.Default),
-  layerControlTree: mapInitialise.layerControlTree(),
-  layerControl: mapInitialise.layerControl(baseMapPCNMain),
-  subLayerControl: mapInitialise.subLayerControl(),
+  map: mapInitialise.mapInit("mapPCNMain"),
+  // layerControl: mapInitialise.layerControl(baseMapPCNMain),
+  // subLayerControl: mapInitialise.subLayerControl(),
   scaleBar: mapInitialise.scaleBar("bottomleft"),
   sidebar(sidebarName) {
     return mapInitialise.sidebarLeft(this.map, sidebarName);
   },
 };
 
-// mapPCNMain.map.addControl(mapPCNMain.layerControl);
-
-// Ward boundaries and ward groupings
-mapPCNMain.map.addControl(mapPCNMain.subLayerControl);
-
 mapPCNMain.scaleBar.addTo(mapPCNMain.map);
 
 const sidebarPCN = mapPCNMain.sidebar("sidebarPCNMain");
 
 homeButton.call(mapPCNMain);
-yorkTrust.call(mapPCNMain);
 
 // Panes to control zIndex of geoJson layers
 mapPCNMain.map.createPane("wardBoundaryPane");
 mapPCNMain.map.getPane("wardBoundaryPane").style.zIndex = 375;
 
-mapPCNMain.map.createPane("ccg03QBoundaryPane");
-mapPCNMain.map.getPane("ccg03QBoundaryPane").style.zIndex = 374;
+mapPCNMain.map.createPane("ccgBoundaryPane");
+mapPCNMain.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-// ccg boundary
-geoDataCCGBoundary.then(function (v) {
-  ccgBoundary(v, mapPCNMain, true);
-});
+ccgBoundary.call(mapPCNMain, true);
+addWardGroupsToMap.call(mapPCNMain);
 
-geoDataCYCWards.then(function (v) {
-  addWardData(v, mapPCNMain);
-});
 
-// change to .call
-addPCNToMap2(mapPCNMain.map, mapPCNMain.layerControl);
+addPCNToMap2.call(mapPCNMain);
 
 let updateTextPractice = function () {
   const elem = document.getElementById("selectedMarker");
@@ -52,80 +37,246 @@ let updateTextPCN = function () {
   elem.innerHTML = selectedPCN + " sites";
 };
 
-Promise.all([geoDataPCN]).then((values) => {
-  var overlaysTree = {
-    label: "Primary Care Networks",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Vale of York",
-        selectAllCheckbox: true,
-        children: [
+Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
+  (values) => {
+    const basemaps = {
+      "Black and White": (function osm_bw() {
+        return L.tileLayer(
+          "https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
           {
-            label: "North",
-            selectAllCheckbox: true,
-            children: [
-              {
-                label: "South Hambleton And Ryedale",
-                layer: categoriesPCN.get("South Hambleton And Ryedale"),
-              },
-            ],
-          },
+            minZoom: 0,
+            maxZoom: 18,
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }
+        );
+      })(),
+      CartoDB: (function CartoDB_Voyager() {
+        return L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
           {
-            label: "Central",
-            selectAllCheckbox: true,
-            children: [
-              {
-                label: "York City Centre PCN",
-                layer: categoriesPCN.get("York City Centre PCN"),
-              },
-              {
-                label: "York Medical Group",
-                layer: categoriesPCN.get("York Medical Group"),
-              },
-              {
-                label: "NIMBUSCARE LTD",
-                layer: categoriesPCN.get("NIMBUSCARE LTD"),
-              },
-            ],
-          },
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: "abcd",
+            minZoom: 0,
+            maxZoom: 19,
+          }
+        );
+      })(),
+      // http://maps.stamen.com/#watercolor/12/37.7706/-122.3782
+      "Stamen Toner": (function Stamen_Toner() {
+        return L.tileLayer(
+          "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}",
           {
-            label: "South",
-            selectAllCheckbox: true,
-            children: [
-              {
-                label: "Selby Town PCN",
-                layer: categoriesPCN.get("Selby Town PCN"),
-              },
-              {
-                label: "Tadcaster & Selby PCN",
-                layer: categoriesPCN.get("Tadcaster & Selby PCN"),
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
+            attribution:
+              'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: "abcd",
+            minZoom: 0,
+            maxZoom: 20,
+            ext: "png",
+          }
+        );
+      })(),
+      // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+      "No Background": (function emptyTile() {
+        return L.tileLayer("", {
+          zoom: 0,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        });
+      })(),
+    };
 
-/*
-  label: "Hospital Sites",
-  selectAllCheckbox: true,
-  children: [
-    { label: "York", layer: L.marker(usefulSites.yorkTrust) },
-    { label: "Harrogate", layer: L.marker(usefulSites.harrogateTrust) },
-    { label: "Scarborough", layer: L.marker(usefulSites.scarboroughTrust) },
-  ]
-*/
+    basemaps.CartoDB.addTo(mapPCNMain.map);
 
-  // const layerOptions = {
-  //   collapsed: true,
-  //   sortLayers: true,
-  // }
-  // L.control.layers.tree(baseTree, overlaysTree, layerOptions).addTo(mapPCNMain.map);
-  mapPCNMain.layerControlTree.addTo(mapPCNMain.map);
-  mapPCNMain.layerControlTree
-    .setOverlayTree(overlaysTree)
-    .collapseTree(true)
-    .expandSelected(true);
-});
+    const baseTree = {
+      label: "Base Layers <i class='fas fa-globe'></i>",
+      children: [
+        {
+          label: "Colour <i class='fas fa-layer-group'></i>;",
+          children: [{ label: "CartoDB", layer: basemaps.CartoDB }],
+        },
+        {
+          label: "Black & White <i class='fas fa-layer-group'></i>",
+          children: [
+            { label: "Grey", layer: basemaps["Black and White"] },
+            { label: "B&W", layer: basemaps["Stamen Toner"] },
+          ],
+        },
+        { label: "None", layer: basemaps["No Background"] },
+      ],
+    };
+
+    const overlaysTree = {
+      label: "Overlays",
+      selectAllCheckbox: true,
+      children: [],
+    };
+
+    const overlayPCNs = {
+      label: "Primary Care Networks",
+      selectAllCheckbox: true,
+      // collapsed: true,
+      children: [
+        {
+          label: "Vale of York",
+          selectAllCheckbox: true,
+          children: [
+            {
+              label: "North",
+              selectAllCheckbox: true,
+              children: [
+                {
+                  label: "South Hambleton And Ryedale",
+                  layer: layersMapGpPcn.get("South Hambleton And Ryedale"),
+                },
+              ],
+            },
+            {
+              label: "Central",
+              selectAllCheckbox: true,
+              children: [
+                {
+                  label: "York City Centre PCN",
+                  layer: layersMapGpPcn.get("York City Centre PCN"),
+                },
+                {
+                  label: "York Medical Group",
+                  layer: layersMapGpPcn.get("York Medical Group"),
+                },
+                {
+                  label: "NIMBUSCARE LTD",
+                  layer: layersMapGpPcn.get("NIMBUSCARE LTD"),
+                },
+              ],
+            },
+            {
+              label: "South",
+              selectAllCheckbox: true,
+              children: [
+                {
+                  label: "Selby Town PCN",
+                  layer: layersMapGpPcn.get("Selby Town PCN"),
+                },
+                {
+                  label: "Tadcaster & Selby PCN",
+                  layer: layersMapGpPcn.get("Tadcaster & Selby PCN"),
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const overlayTrusts = {
+      label: "Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "York",
+          layer: trustMarker(trustSitesLoc.yorkTrust, "York Trust"),
+        },
+        {
+          label: "Harrogate",
+          layer: trustMarker(trustSitesLoc.harrogateTrust, "Harrogate Trust"),
+        },
+        {
+          label: "Scarborough",
+          layer: trustMarker(
+            trustSitesLoc.scarboroughTrust,
+            "Scarborough Trust"
+          ),
+        },
+        {
+          label: "Leeds",
+          layer: trustMarker(trustSitesLoc.leedsTrust, "Leeds Trust"),
+        },
+        {
+          label: "South Tees",
+          layer: trustMarker(trustSitesLoc.southTeesTrust, "South Tees Trust"),
+        },
+        {
+          label: "Hull",
+          layer: trustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
+        },
+      ],
+    };
+
+    const overlayCCGs = {
+      label: "CCG Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Vale of York",
+          layer: layersMapBoundaries.get("voyCCGMain"),
+        },
+      ],
+    };
+
+    const overlayWards = {
+      label: "Ward Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "CYC",
+          selectAllCheckbox: true,
+          children: [
+            {
+              label: "Ward Group: 1",
+              layer: layersMapWards.get(1),
+            },
+            {
+              label: "Ward Group: 2",
+              layer: layersMapWards.get(2),
+            },
+            {
+              label: "Ward Group: 3",
+              layer: layersMapWards.get(3),
+            },
+            {
+              label: "Ward Group: 4",
+              layer: layersMapWards.get(4),
+            },
+            {
+              label: "Ward Group: 5",
+              layer: layersMapWards.get(5),
+            },
+            {
+              label: "Ward Group: 6",
+              layer: layersMapWards.get(6),
+            },
+          ],
+        },
+      ],
+    };
+
+    overlaysTree.children[0] = overlayPCNs;
+    overlaysTree.children[1] = overlayTrusts;
+    overlaysTree.children[2] = overlayCCGs;
+    overlaysTree.children[3] = overlayWards;
+
+    const mapControl = L.control.layers.tree(baseTree, overlaysTree, {
+      // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+      collapsed: true, // Whether or not control options are displayed
+      sortLayers: true,
+      // namedToggle: true,
+      collapseAll: "Collapse all",
+      expandAll: "Expand all",
+      // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+      closedSymbol:
+        "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+      openedSymbol:
+        "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+    });
+    // .addTo(mapPCNMain.map);
+
+    mapControl
+      .addTo(mapPCNMain.map)
+      // .setOverlayTree(overlaysTree)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true); // true to collapse the overlays tree
+    // .expandSelected(true); // expand selected option in the overlays tree
+  }
+);

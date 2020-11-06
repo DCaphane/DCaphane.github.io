@@ -27,11 +27,11 @@ const mapWithSites = new Map(); // set of maps that include site codes
 
 // for initialising maps
 function defaultMapSetUp() {
-  function mapInit(mapName, background) {
+  function mapInit(mapName) {
     return L.map(mapName, {
       preferCanvas: true,
       // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
-      center: [53.9581, -1.0643], // centre on York Hospital
+      center: trustSitesLoc.yorkTrust, // centre on York Hospital
       zoom: 11,
       minZoom: 6, // how far out eg. 0 = whole world
       maxZoom: 14, // how far in, eg. to the detail (max = 18)
@@ -40,7 +40,7 @@ function defaultMapSetUp() {
         [50.0, 1.6232], //south west
         [59.79, -10.239], //north east
       ],
-      layers: background, // default basemap that will appear first
+      // layers: background, // default basemap that will appear first
       fullscreenControl: {
         // https://github.com/Leaflet/Leaflet.fullscreen
         pseudoFullscreen: true, // if true, fullscreen to page width and height
@@ -48,19 +48,19 @@ function defaultMapSetUp() {
     });
   }
 
-  function layerControl(basemap) {
-    return L.control.layers(basemap, null, {
-      collapsed: true, // Whether or not control options are displayed
-      sortLayers: true,
-    });
-  }
+  // function layerControl(basemap) {
+  //   return L.control.layers(basemap, null, {
+  //     collapsed: true, // Whether or not control options are displayed
+  //     sortLayers: true,
+  //   });
+  // }
 
-  function subLayerControl() {
-    return L.control.layers(null, null, {
-      collapsed: true,
-      sortLayers: true,
-    });
-  }
+  // function subLayerControl() {
+  //   return L.control.layers(null, null, {
+  //     collapsed: true,
+  //     sortLayers: true,
+  //   });
+  // }
 
   function scaleBar(position) {
     return L.control.scale({
@@ -82,8 +82,8 @@ function defaultMapSetUp() {
 
   return {
     mapInit: mapInit,
-    layerControl: layerControl,
-    subLayerControl: subLayerControl,
+    // layerControl: layerControl,
+    // subLayerControl: subLayerControl,
     scaleBar: scaleBar,
     sidebarLeft: sidebarLeft,
   };
@@ -112,24 +112,24 @@ const geoDataPCN = (async function (path) {
 // GP Practice Sites by parent practice and pcn
 const geoDataPCNSites = (async function (path) {
   return await getGeoData(path);
-})("Data/geo/pcn/primary_care_network_sites.geojson")
+})("Data/geo/pcn/primary_care_network_sites.geojson");
 //   .then((v) => {
 //   siteData = v;
 //   return v;
 // });
 
 // CYC Ward Boundaries
-const geoDataCYCWards = (async function addCYCWardsToMap(path) {
+const geoDataCYCWards = (async function (path) {
   return await getGeoData(path);
 })("Data/geo/cyc_wards.geojson");
 
 // CCG Boundary
-const geoDataCCGBoundary = (async function addCCGBoundaryToMap(path) {
+const geoDataCCGBoundary = (async function (path) {
   return await getGeoData(path);
 })("Data/geo/ccg_boundary_03Q_simple20.geojson");
 
 // Lsoa Boundaries
-const geoDataLsoaBoundaries = (async function addPracticeToMap(path) {
+const geoDataLsoaBoundaries = (async function (path) {
   return await getGeoData(path);
 })("Data/geo/lsoa_gp_selected_simple20cp6.geojson");
 
@@ -182,10 +182,34 @@ const wardsStyleLabels = {
   weight: 0,
 };
 
+const trustSitesLoc = {
+  yorkTrust: [53.96895, -1.08427],
+  scarboroughTrust: [54.28216, -0.43619],
+  harrogateTrust: [53.99381, -1.51756],
+  leedsTrust: [53.80687, -1.52034],
+  southTeesTrust: [54.55176, -1.21479],
+  hullTrust: [53.74411, -0.035813],
+};
+
+function trustMarker(location, text) {
+  return L.marker(location, {
+    icon: L.BeautifyIcon.icon({
+      iconShape: "circle",
+      icon: "h-square",
+      borderColor: "red",
+      backgroundColor: "transparent",
+      textColor: "rgba(255,0,0)", // Text color of marker icon
+      popupAnchor: [0, -5], // adjusts offset position of popup
+    }),
+    zIndexOffset: 1000,
+    draggable: false,
+  }).bindPopup(text); // Text to display in pop up
+}
+
 // Separate marker for York Trust
 function yorkTrust() {
   const map = this.map;
-  return L.marker([53.96838, -1.08269], {
+  return L.marker(trustSitesLoc.yorkTrust, {
     icon: L.BeautifyIcon.icon({
       iconShape: "circle",
       icon: "h-square",
@@ -202,28 +226,32 @@ function yorkTrust() {
 
 // Home Button
 // https://github.com/CliffCloud/Leaflet.EasyButton
-const home = {
-  lat: 53.9581,
-  lng: -1.0643,
-  zoom: 11,
-};
+// const home = {
+//   lat: 53.9581,
+//   lng: -1.0643,
+//   zoom: 11,
+// };
 
 function homeButton() {
   const map = this.map;
   return L.easyButton(
     "fa-home",
     function (btn) {
-      map.setView([home.lat, home.lng], home.zoom);
+      map.setView(trustSitesLoc.yorkTrust, 11);
     },
     "Zoom To Home"
   ).addTo(map);
 }
 
-function addPracticeToMap(data, map, zoomToExtent = false) {
-  let categories = {},
-    category;
+const layersMapGpMain = new Map();
 
-  const practiceMain = L.geoJson(data, {
+function addPracticeToMap(zoomToExtent = false) {
+  const map = this.map;
+  // let categories = {},
+  //   category;
+
+    geoDataGPMain.then(function(v){
+  const practiceMain = L.geoJson(v, {
     // https://leafletjs.com/reference-1.4.0.html#geojson
     pointToLayer: function (feature, latlng) {
       // Use different marker styles depending on eg. practice groupings
@@ -276,162 +304,27 @@ function addPracticeToMap(data, map, zoomToExtent = false) {
 
       category = feature.properties.locality; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
       // Initialize the category array if not already set.
-      if (typeof categories[category] === "undefined") {
-        categories[category] = L.layerGroup().addTo(map.map); // categories {object} used to create an object with key = category, value is array
-        map.layerControl.addOverlay(categories[category], "PCH: " + category);
+      // if (typeof categories[category] === "undefined") {
+      //   categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
+      //   // map.layerControl.addOverlay(categories[category], "PCH: " + category);
+      // }
+      // categories[category].addLayer(layer);
+
+      // const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+      // // Initialize the category array if not already set.
+      if (!layersMapGpMain.has(category)) {
+        layersMapGpMain.set(category, L.layerGroup());
       }
-      categories[category].addLayer(layer);
+      layersMapGpMain.get(category).addLayer(layer);
     },
   });
+  L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
   if (zoomToExtent) {
-    map.map.fitBounds(practiceMain.getBounds());
-  }
+    map.fitBounds(practiceMain.getBounds());
+      }
+    })
 }
 
-function addPCNToMap(data, map, control, zoomToExtent = false) {
-  let categories = {},
-    category;
-
-  const pcnSites = L.geoJson(data, {
-    // https://leafletjs.com/reference-1.4.0.html#geojson
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const popupText =
-        "<h3>" +
-        layer.feature.properties.pcn_name +
-        "</h3>" +
-        "<p>" +
-        layer.feature.properties.practice_code +
-        ": " +
-        layer.feature.properties.practice_name +
-        "<br>Clinical Director: " +
-        layer.feature.properties.clinical_director +
-        "<br>Population: " +
-        formatNumber(layer.feature.properties.list_size) +
-        "</p>";
-
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
-
-      layer.on("click", function (e) {
-        // update other charts
-        (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
-          (practiceName = feature.properties.practice_name),
-          (selectedPCN = feature.properties.pcn_name);
-        console.log(selectedPractice + " - " + practiceName);
-
-        filterFunctionPCN(siteData, mapPCNSites, layerControl2);
-        updateTextPractice();
-        updateTextPCN();
-        updateSidebarText("pcnSpecific", layer.feature.properties.pcn_name);
-      });
-
-      category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the category array if not already set.
-      if (typeof categories[category] === "undefined") {
-        categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
-        control.addOverlay(categories[category], category);
-      }
-      categories[category].addLayer(layer);
-    },
-  });
-  if (zoomToExtent) {
-    map.fitBounds(pcnSites.getBounds());
-  }
-}
-
-function filterFunctionPCN(data, map, control, zoomToExtent = false) {
-  map.removeLayer(defaultSites);
-  for (let sc in subCategories) {
-    if (map.hasLayer(subCategories[sc])) {
-      map.removeLayer(subCategories[sc]);
-    }
-  }
-  subCategories = {};
-
-  const gpSites = L.geoJson(data, {
-    // https://leafletjs.com/reference-1.4.0.html#geojson
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const popupText =
-        "<h3>" +
-        layer.feature.properties.pcn_name +
-        "</h3>" +
-        "<p>" +
-        layer.feature.properties.organisation_code +
-        ": " +
-        layer.feature.properties.organisation_name +
-        "<br>Parent Org: " +
-        layer.feature.properties.parent_organisation_code +
-        "</p>";
-
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
-
-      layer.on("click", function (e) {
-        // update other charts
-        (selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
-          (practiceName = feature.properties.organisation_name);
-        // console.log(selectedPractice + " - " + practiceName);
-      });
-
-      subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the subCategory array if not already set.
-      if (typeof subCategories[subCategory] === "undefined") {
-        subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
-        // control.addOverlay(
-        // 	subCategories[subCategory],
-        // 	subCategory
-        // );
-      }
-      // console.log(subCategories[subCategory]);
-      subCategories[subCategory].addLayer(layer);
-    },
-    filter: function (d) {
-      // console.log(d.properties.organisation_code)
-      const strPractice = d.properties.organisation_code;
-      const strPCN = d.properties.pcn_name;
-
-      if (selectedPCN !== undefined) {
-        if (strPCN === selectedPCN) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return true;
-      }
-
-      /* -- match on practice
-			if ((selectedPractice !== undefined && selectedPractice !== "All Practices")) {
-				if (
-					strPractice.substring(0, 6) ===
-					selectedPractice.substring(0, 6)
-				) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return true;
-      }
-      */
-    },
-  });
-  if (zoomToExtent) {
-    map.fitBounds(gpSites.getBounds());
-  }
-}
 
 function pcnSites(zoomToExtent = false) {
   const map = this.map;
@@ -453,77 +346,76 @@ function pcnSites(zoomToExtent = false) {
 }
 
 function filterGPPracticeSites(zoomToExtent = false) {
-  mapWithSites.forEach(function(value, key){
+  mapWithSites.forEach(function (value, key) {
     if (key.hasLayer(value)) {
       key.removeLayer(value);
     }
 
     geoDataPCNSites.then(function (v) {
-
-  const gpSites = L.geoJson(v, {
-    // https://leafletjs.com/reference-1.4.0.html#geojson
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+      const gpSites = L.geoJson(v, {
+        // https://leafletjs.com/reference-1.4.0.html#geojson
+        pointToLayer: pcnFormatting,
+        onEachFeature: function (feature, layer) {
+          const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
         <p>${layer.feature.properties.organisation_code}:
         ${layer.feature.properties.organisation_name}
         <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
 
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
+          layer.bindPopup(popupText);
+          layer.on("mouseover", function (e) {
+            this.openPopup();
+          });
+          layer.on("mouseout", function (e) {
+            this.closePopup();
+          });
+
+          layer.on("click", function (e) {
+            // update other charts
+            (selectedPractice = feature.properties.organisation_code), // register change in practice
+              (practiceName = feature.properties.organisation_name);
+            // console.log(selectedPractice + " - " + practiceName);
+          });
+
+          // subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
+          // // Initialize the subCategory array if not already set.
+          // if (typeof subCategories[subCategory] === "undefined") {
+          //   for (let map of mapWithSites.keys()) {
+          //     subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
+          //   }
+          //   // control.addOverlay(
+          //   // 	subCategories[subCategory],
+          //   // 	subCategory
+          //   // );
+          // }
+          // // console.log(subCategories[subCategory]);
+          // subCategories[subCategory].addLayer(layer);
+        },
+        filter: function (d) {
+          // match on practice
+          const strPractice = d.properties.organisation_code;
+
+          if (
+            selectedPractice !== undefined &&
+            selectedPractice !== "All Practices"
+          ) {
+            return strPractice.substring(0, 6) ===
+              selectedPractice.substring(0, 6)
+              ? true
+              : false;
+          } else {
+            return true; // return all practice sites if none selected
+          }
+        },
       });
 
-      layer.on("click", function (e) {
-        // update other charts
-        (selectedPractice = feature.properties.organisation_code), // register change in practice
-          (practiceName = feature.properties.organisation_name);
-        // console.log(selectedPractice + " - " + practiceName);
-      });
+      gpSites.addTo(key);
+      mapWithSites.set(key, gpSites);
 
-      // subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // // Initialize the subCategory array if not already set.
-      // if (typeof subCategories[subCategory] === "undefined") {
-      //   for (let map of mapWithSites.keys()) {
-      //     subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
-      //   }
-      //   // control.addOverlay(
-      //   // 	subCategories[subCategory],
-      //   // 	subCategory
-      //   // );
-      // }
-      // // console.log(subCategories[subCategory]);
-      // subCategories[subCategory].addLayer(layer);
-    },
-    filter: function (d) {
-      // match on practice
-      const strPractice = d.properties.organisation_code;
-
-      if (
-        selectedPractice !== undefined &&
-        selectedPractice !== "All Practices"
-      ) {
-        return strPractice.substring(0, 6) === selectedPractice.substring(0, 6)
-          ? true
-          : false;
-      } else {
-        return true; // return all practice sites if none selected
+      if (zoomToExtent) {
+        key.fitBounds(gpSites.getBounds());
       }
-    },
-  })
-
-  gpSites.addTo(key);
-  mapWithSites.set(key, gpSites);
-
-  if (zoomToExtent) {
-    key.fitBounds(gpSites.getBounds());
-  }
+    });
   });
-
-  })
 }
 
 function filterFunctionLsoa(data, map, zoomToExtent = false) {
@@ -642,38 +534,73 @@ function addWardData(data, map, zoomToExtent = false) {
   map.subLayerControl.addOverlay(wardLayerLabels, "wards_labels"); // Adds an overlay (checkbox entry) with the given name to the control.
 }
 
-function addWardGroupsToMap(data, map) {
-  let categories = {},
-    category;
+const layersMapWards = new Map();
 
-  L.geoJson(data, {
-    style: styleWard,
-    pane: "wardBoundaryPane",
-    onEachFeature: function (feature, layer) {
-      category = feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the category array if not already set.
-      if (typeof categories[category] === "undefined") {
-        categories[category] = L.layerGroup().addTo(map.map); // categories {object} used to create an object with key = category, value is array
-        map.subLayerControl.addOverlay(
-          categories[category],
-          "Ward Group: " + category
-        );
-      }
-      categories[category].addLayer(layer);
-    },
+function addWardGroupsToMap(zoomToExtent = false) {
+  const map = this.map;
+
+  geoDataCYCWards.then(function (v) {
+    const wardBoundaries = L.geoJson(v, {
+      style: styleWard,
+      pane: "wardBoundaryPane",
+      onEachFeature: function (feature, layer) {
+        const category = +feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+
+        if (!layersMapWards.has(category)) {
+          layersMapWards.set(category, L.layerGroup());
+        }
+        layersMapWards.get(category).addLayer(layer);
+      },
+    });
+    if(zoomToExtent) {
+      map.fitBounds(wardBoundaries.getBounds());
+    }
   });
 }
 
-function ccgBoundary(data, map, zoomToExtent = false) {
-  const ccgBoundary = L.geoJSON(data, {
-    style: styleCCG,
-    pane: "ccg03QBoundaryPane",
-  }).addTo(map.map);
-  map.subLayerControl.addOverlay(ccgBoundary, "voy_ccg");
+const layersMapBoundaries = new Map();
 
-  if (zoomToExtent) {
-    map.map.fitBounds(ccgBoundary.getBounds());
-  }
+function ccgBoundary(zoomToExtent = false) {
+  // const map = this.map;
+  geoDataCCGBoundary.then(function (v) {
+    const ccgBoundary = L.geoJSON(v, {
+      style: styleCCG,
+      pane: "ccgBoundaryPane"
+    });
+
+    /* copy the layer - returns an object only so wrap  in L.geojson
+    https://stackoverflow.com/questions/54385218/using-getbounds-on-geojson-feature
+    https://github.com/Leaflet/Leaflet/issues/6484
+    */
+
+    const ccgBoundaryCopy1 = L.geoJson(ccgBoundary.toGeoJSON(), {
+      style: styleCCG,
+      pane: "ccgBoundaryPane"
+    });
+
+    const ccgBoundaryCopy2 = L.geoJson(ccgBoundary.toGeoJSON(), {
+      style: styleCCG,
+      pane: "ccgBoundaryPane"
+    });
+
+    if (!layersMapBoundaries.has("voyCCGMain")) {
+      layersMapBoundaries.set("voyCCGMain", ccgBoundary);
+      ccgBoundary.addTo(mapMain.map);
+
+      layersMapBoundaries.set("voyCCGSite", ccgBoundaryCopy1);
+      ccgBoundaryCopy1.addTo(mapSites.map);
+
+      layersMapBoundaries.set("voyCCGPopn", ccgBoundaryCopy2);
+      ccgBoundaryCopy2.addTo(mapPopn.map);
+    }
+
+
+    if (zoomToExtent) {
+      mapMain.map.fitBounds(ccgBoundary.getBounds());
+      mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
+      mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
+    }
+  });
 }
 
 function lsoaBoundary(data, map, zoomToExtent = false) {
@@ -691,7 +618,7 @@ function lsoaBoundary(data, map, zoomToExtent = false) {
   }).addTo(map.map);
 
   // Add an overlay (checkbox entry) with the given name to the control
-  map.subLayerControl.addOverlay(lsoaLayer, "lsoa_voyccg");
+  // map.subLayerControl.addOverlay(lsoaLayer, "lsoa_voyccg");
   if (zoomToExtent) {
     map.map.fitBounds(lsoaLayer.getBounds());
   }
@@ -732,61 +659,6 @@ function styleLsoa(feature) {
   };
 }
 
-const Basemaps = {
-  "Black and White": (function osm_bw() {
-    return L.tileLayer("https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png", {
-      minZoom: 0,
-      maxZoom: 18,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    });
-  })(),
-  Default: (function CartoDB_Voyager() {
-    return L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: "abcd",
-        minZoom: 0,
-        maxZoom: 19,
-      }
-    );
-  })(),
-  // http://maps.stamen.com/#watercolor/12/37.7706/-122.3782
-  "Stamen Toner": (function Stamen_Toner() {
-    return L.tileLayer(
-      "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}",
-      {
-        attribution:
-          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        subdomains: "abcd",
-        minZoom: 0,
-        maxZoom: 20,
-        ext: "png",
-      }
-    );
-  })(),
-  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-  "No Background": (function emptyTile() {
-    return L.tileLayer("", {
-      zoom: 0,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    });
-  })(),
-
-  // return {
-  //   emptyTile: emptyTile,
-  //   osm_bw: osm_bw,
-  //   CartoDB_Voyager: CartoDB_Voyager,
-  //   Stamen_Toner: Stamen_Toner,
-  // };
-};
-
-// const location = {
-//   "YorkTrust": [53.9581, -1.0643]
-// }
 
 function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
@@ -889,65 +761,72 @@ const pcnFormatting = function (feature, latlng) {
   }
 };
 
+const layersMapGpPcn = new Map(); // rename to something like layersGpPcn
 
+async function addPCNToMap2() {
+  const map = this.map;
 
+  geoDataPCN.then(function (v) {
+    const pcnSites = L.geoJson(v, {
+      // https://leafletjs.com/reference-1.7.1.html#geojson
+      pointToLayer: pcnFormatting,
+      onEachFeature: function (feature, layer) {
+        const popupText =
+          "<h3>" +
+          layer.feature.properties.pcn_name +
+          "</h3>" +
+          "<p>" +
+          layer.feature.properties.practice_code +
+          ": " +
+          layer.feature.properties.practice_name +
+          "<br>Clinical Director: " +
+          layer.feature.properties.clinical_director +
+          "<br>Population: " +
+          formatNumber(layer.feature.properties.list_size) +
+          "</p>";
 
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
 
-async function addPCNToMap2(map, control) {
-  const data = await getGeoData("Data/geo/pcn/primary_care_networks.geojson");
+        layer.on("click", function (e) {
+          // update other charts
+          (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+            (practiceName = feature.properties.practice_name),
+            (selectedPCN = feature.properties.pcn_name);
+          console.log(selectedPractice + " - " + practiceName);
 
-  let categories = {},
-    category;
+          filterFunctionPCN2(mapPCNSite.map, mapPCNSite.layerControl);
+          updateTextPractice();
+          updateTextPCN();
+          updateSidebarText("pcnSpecific", layer.feature.properties.pcn_name);
+        });
 
-  const pcnSites = L.geoJson(data, {
-    // https://leafletjs.com/reference-1.4.0.html#geojson
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const popupText =
-        "<h3>" +
-        layer.feature.properties.pcn_name +
-        "</h3>" +
-        "<p>" +
-        layer.feature.properties.practice_code +
-        ": " +
-        layer.feature.properties.practice_name +
-        "<br>Clinical Director: " +
-        layer.feature.properties.clinical_director +
-        "<br>Population: " +
-        formatNumber(layer.feature.properties.list_size) +
-        "</p>";
+        const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+        // Initialize the category array if not already set.
+        if (!layersMapGpPcn.has(category)) {
+          layersMapGpPcn.set(category, L.layerGroup());
+        }
+        layersMapGpPcn.get(category).addLayer(layer);
+      },
+    });
 
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
+    // for (let [key, value] of layersMapGpPcn) {
+    //   // Adds an overlay (checkbox entry) with the given name to the control.
+    //   control.addOverlay(value, key, "test");
+    // }
 
-      layer.on("click", function (e) {
-        // update other charts
-        (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
-          (practiceName = feature.properties.practice_name),
-          (selectedPCN = feature.properties.pcn_name);
-        console.log(selectedPractice + " - " + practiceName);
-
-        filterFunctionPCN2(mapPCNSite, layerControl2);
-        updateTextPractice();
-        updateTextPCN();
-        updateSidebarText("pcnSpecific", layer.feature.properties.pcn_name);
-      });
-
-      category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the category array if not already set.
-      if (typeof categories[category] === "undefined") {
-        categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
-        control.addOverlay(categories[category], category);
-      }
-      categories[category].addLayer(layer);
-    },
+    /*
+    The layer groups are available in the overlay and can be toggled on
+    The setting below will set them to on by default and display the layer group on the map
+    */
+    L.layerGroup(Array.from(layersMapGpPcn.values())).addTo(map);
+    map.fitBounds(pcnSites.getBounds());
   });
-  map.fitBounds(pcnSites.getBounds());
 }
 
 function filterFunctionPCN2(map, control) {
@@ -958,68 +837,66 @@ function filterFunctionPCN2(map, control) {
     }
   }
   subCategories = {};
-geoDataPCNSites.then(function (v) {
-  const gpSites = L.geoJson(data, {
-    // https://leafletjs.com/reference-1.4.0.html#geojson
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const popupText =
-        "<h3>" +
-        layer.feature.properties.pcn_name +
-        "</h3>" +
-        "<p>" +
-        layer.feature.properties.organisation_code +
-        ": " +
-        layer.feature.properties.organisation_name +
-        "<br>Parent Org: " +
-        layer.feature.properties.parent_organisation_code +
-        "</p>";
+  geoDataPCNSites.then(function (v) {
+    const gpSites = L.geoJson(data, {
+      // https://leafletjs.com/reference-1.4.0.html#geojson
+      pointToLayer: pcnFormatting,
+      onEachFeature: function (feature, layer) {
+        const popupText =
+          "<h3>" +
+          layer.feature.properties.pcn_name +
+          "</h3>" +
+          "<p>" +
+          layer.feature.properties.organisation_code +
+          ": " +
+          layer.feature.properties.organisation_name +
+          "<br>Parent Org: " +
+          layer.feature.properties.parent_organisation_code +
+          "</p>";
 
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
 
-      layer.on("click", function (e) {
-        // update other charts
-        (selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
-          (practiceName = feature.properties.organisation_name);
-        // console.log(selectedPractice + " - " + practiceName);
-      });
+        layer.on("click", function (e) {
+          // update other charts
+          (selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
+            (practiceName = feature.properties.organisation_name);
+          // console.log(selectedPractice + " - " + practiceName);
+        });
 
-      subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the subCategory array if not already set.
-      if (typeof subCategories[subCategory] === "undefined") {
-        subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
-        // control.addOverlay(
-        // 	subCategories[subCategory],
-        // 	subCategory
-        // );
-      }
-      // console.log(subCategories[subCategory]);
-      subCategories[subCategory].addLayer(layer);
-    },
-    filter: function (d) {
-      // console.log(d.properties.organisation_code)
-      const strPractice = d.properties.organisation_code;
-      const strPCN = d.properties.pcn_name;
-
-      if (selectedPCN !== undefined) {
-        if (strPCN === selectedPCN) {
-          return true;
-        } else {
-          return false;
+        subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
+        // Initialize the subCategory array if not already set.
+        if (typeof subCategories[subCategory] === "undefined") {
+          subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
+          // control.addOverlay(
+          // 	subCategories[subCategory],
+          // 	subCategory
+          // );
         }
-      } else {
-        return true;
-      }
+        // console.log(subCategories[subCategory]);
+        subCategories[subCategory].addLayer(layer);
+      },
+      filter: function (d) {
+        // console.log(d.properties.organisation_code)
+        const strPractice = d.properties.organisation_code;
+        const strPCN = d.properties.pcn_name;
 
-    },
+        if (selectedPCN !== undefined) {
+          if (strPCN === selectedPCN) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return true;
+        }
+      },
+    });
+    map.fitBounds(gpSites.getBounds());
   });
-  map.fitBounds(gpSites.getBounds());
-})
-
 }
