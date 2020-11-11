@@ -24,7 +24,6 @@ mapPCNMain.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 ccgBoundary.call(mapPCNMain, true);
 addWardGroupsToMap.call(mapPCNMain);
 
-
 addPCNToMap2.call(mapPCNMain);
 
 let updateTextPractice = function () {
@@ -39,71 +38,48 @@ let updateTextPCN = function () {
 
 Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
   (values) => {
-    const basemaps = {
-      "Black and White": (function osm_bw() {
-        return L.tileLayer(
-          "https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
-          {
-            minZoom: 0,
-            maxZoom: 18,
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          }
-        );
-      })(),
-      CartoDB: (function CartoDB_Voyager() {
-        return L.tileLayer(
-          "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-          {
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: "abcd",
-            minZoom: 0,
-            maxZoom: 19,
-          }
-        );
-      })(),
-      // http://maps.stamen.com/#watercolor/12/37.7706/-122.3782
-      "Stamen Toner": (function Stamen_Toner() {
-        return L.tileLayer(
-          "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}",
-          {
-            attribution:
-              'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            subdomains: "abcd",
-            minZoom: 0,
-            maxZoom: 20,
-            ext: "png",
-          }
-        );
-      })(),
-      // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-      "No Background": (function emptyTile() {
-        return L.tileLayer("", {
-          zoom: 0,
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        });
-      })(),
-    };
+    const defaultBasemap = L.tileLayer
+      .provider("OpenStreetMap.Mapnik")
+      .addTo(mapPCNMain.map);
 
-    basemaps.CartoDB.addTo(mapPCNMain.map);
+    // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+    const emptyBackground = (function emptyTile() {
+      return L.tileLayer("", {
+        zoom: 0,
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      });
+    })();
 
     const baseTree = {
       label: "Base Layers <i class='fas fa-globe'></i>",
       children: [
         {
           label: "Colour <i class='fas fa-layer-group'></i>;",
-          children: [{ label: "CartoDB", layer: basemaps.CartoDB }],
+          children: [
+            { label: "OSM", layer: defaultBasemap },
+            {
+              label: "CartoDB",
+              layer: L.tileLayer.provider("CartoDB.Voyager"),
+            },
+            {
+              label: "Water Colour",
+              layer: L.tileLayer.provider("Stamen.Watercolor"),
+            },
+          ],
         },
         {
           label: "Black & White <i class='fas fa-layer-group'></i>",
           children: [
-            { label: "Grey", layer: basemaps["Black and White"] },
-            { label: "B&W", layer: basemaps["Stamen Toner"] },
+            { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+            { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+            {
+              label: "ST Hybrid",
+              layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+            },
           ],
         },
-        { label: "None", layer: basemaps["No Background"] },
+        { label: "None", layer: emptyBackground },
       ],
     };
 
