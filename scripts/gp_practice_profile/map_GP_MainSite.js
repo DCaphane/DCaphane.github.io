@@ -30,7 +30,8 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     map.map.removeLayer(highlightPractice);
   }
 
-  geoDataGPMain.then(function (v) {
+  geoDataPCN.then(function (v) {
+    // geoDataGPMain
     highlightPractice = L.geoJSON(v, {
       pointToLayer: function (feature, latlng) {
         if (feature.properties.practice_code === selPractice) {
@@ -136,15 +137,45 @@ Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
           children: [
             {
               label: "North",
-              layer: layersMapGpMain.get("North"),
+              selectAllCheckbox: true,
+              children: [
+                {
+                  label: "South Hambleton And Ryedale",
+                  layer: layersMapGpMain.get("South Hambleton And Ryedale"),
+                },
+              ],
             },
             {
               label: "Central",
-              layer: layersMapGpMain.get("Central"),
+              selectAllCheckbox: true,
+              children: [
+                {
+                  label: "York City Centre PCN",
+                  layer: layersMapGpMain.get("York City Centre PCN"),
+                },
+                {
+                  label: "York Medical Group",
+                  layer: layersMapGpMain.get("York Medical Group"),
+                },
+                {
+                  label: "NIMBUSCARE LTD",
+                  layer: layersMapGpMain.get("NIMBUSCARE LTD"),
+                },
+              ],
             },
             {
               label: "South",
-              layer: layersMapGpMain.get("South"),
+              selectAllCheckbox: true,
+              children: [
+                {
+                  label: "Selby Town PCN",
+                  layer: layersMapGpMain.get("Selby Town PCN"),
+                },
+                {
+                  label: "Tadcaster & Selby PCN",
+                  layer: layersMapGpMain.get("Tadcaster & Selby PCN"),
+                },
+              ],
             },
           ],
         },

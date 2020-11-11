@@ -27,7 +27,8 @@ geoDataPCNSites.then(function (v) {
   pcnSites.call(mapSites);
 });
 
-Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
+Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
+  // geoDataPCN
   (values) => {
     const basemaps = {
       "Black and White": (function osm_bw() {
@@ -103,62 +104,6 @@ Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
       children: [],
     };
 
-    const overlayPCNs = {
-      label: "Primary Care Networks",
-      selectAllCheckbox: true,
-      // collapsed: true,
-      children: [
-        {
-          label: "Vale of York",
-          selectAllCheckbox: true,
-          children: [
-            {
-              label: "North",
-              selectAllCheckbox: true,
-              children: [
-                {
-                  label: "South Hambleton And Ryedale",
-                  layer: layersMapGpPcn.get("South Hambleton And Ryedale"),
-                },
-              ],
-            },
-            {
-              label: "Central",
-              selectAllCheckbox: true,
-              children: [
-                {
-                  label: "York City Centre PCN",
-                  layer: layersMapGpPcn.get("York City Centre PCN"),
-                },
-                {
-                  label: "York Medical Group",
-                  layer: layersMapGpPcn.get("York Medical Group"),
-                },
-                {
-                  label: "NIMBUSCARE LTD",
-                  layer: layersMapGpPcn.get("NIMBUSCARE LTD"),
-                },
-              ],
-            },
-            {
-              label: "South",
-              selectAllCheckbox: true,
-              children: [
-                {
-                  label: "Selby Town PCN",
-                  layer: layersMapGpPcn.get("Selby Town PCN"),
-                },
-                {
-                  label: "Tadcaster & Selby PCN",
-                  layer: layersMapGpPcn.get("Tadcaster & Selby PCN"),
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-
     const overlayTrusts = {
       label: "Hospital Sites <i class='fas fa-hospital-symbol'></i>",
       selectAllCheckbox: true,
@@ -199,7 +144,7 @@ Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
       children: [
         {
           label: "Vale of York",
-          layer: layersMapBoundaries.get("voyCCGMain"),
+          layer: layersMapBoundaries.get("voyCCGSite"),
         },
       ],
     };
@@ -241,10 +186,9 @@ Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
       ],
     };
 
-    overlaysTree.children[0] = overlayPCNs;
-    overlaysTree.children[1] = overlayTrusts;
-    overlaysTree.children[2] = overlayCCGs;
-    overlaysTree.children[3] = overlayWards;
+    overlaysTree.children[0] = overlayTrusts;
+    overlaysTree.children[1] = overlayCCGs;
+    overlaysTree.children[2] = overlayWards;
 
     const mapControl = L.control.layers.tree(baseTree, overlaysTree, {
       // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls

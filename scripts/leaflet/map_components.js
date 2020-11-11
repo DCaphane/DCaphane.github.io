@@ -98,11 +98,11 @@ async function getGeoData(url) {
 
 // Import Data
 // GP Practice Main Site
-const geoDataGPMain = (async function (path) {
-  return await getGeoData(path);
-})("Data/geo/GPPracticeMainSites.geojson").then((v) => {
-  return v;
-});
+// const geoDataGPMain = (async function (path) {
+//   return await getGeoData(path);
+// })("Data/geo/GPPracticeMainSites.geojson").then((v) => {
+//   return v;
+// });
 
 // GP Practice - Main Site by PCN
 const geoDataPCN = (async function (path) {
@@ -250,81 +250,55 @@ function addPracticeToMap(zoomToExtent = false) {
   // let categories = {},
   //   category;
 
-    geoDataGPMain.then(function(v){
-  const practiceMain = L.geoJson(v, {
-    // https://leafletjs.com/reference-1.4.0.html#geojson
-    pointToLayer: function (feature, latlng) {
-      // Use different marker styles depending on eg. practice groupings
-      switch (feature.properties.locality) {
-        case "Central":
-          return L.marker(latlng, {
-            icon: arrMarkerIcons[0],
-            riseOnHover: true,
-          });
-        case "North":
-          return L.marker(latlng, {
-            icon: arrCircleIcons[1],
-            riseOnHover: true,
-          });
-        case "South":
-          return L.marker(latlng, {
-            icon: arrDoughnutIcons[2],
-            riseOnHover: true,
-          });
-        default:
-          return L.marker(latlng, {
-            icon: arrMarkerIcons[3],
-            riseOnHover: true,
-          });
-      }
-    },
-    onEachFeature: function (feature, layer) {
-      const popupText =
-        "<h3>Code: " +
-        layer.feature.properties.practice_code +
-        "</h3>" +
-        "<p>" +
-        layer.feature.properties.practice_name +
-        "</p>";
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
-      layer.on("click", function (e) {
-        // update other charts
-        (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
-          (practiceName = feature.properties.practice_name);
-        // console.log(selectedPractice + " - " + practiceName);
-        document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
-        refreshChartsPostPracticeChange(selectedPractice);
-      });
+  geoDataPCN.then(function (v) {
+    const practiceMain = L.geoJson(v, {
+      // https://leafletjs.com/reference-1.7.1.html#geojson
+      pointToLayer: pcnFormatting,
+      onEachFeature: function (feature, layer) {
+        const popupText =
+          "<h3>" +
+          layer.feature.properties.pcn_name +
+          "</h3>" +
+          "<p>" +
+          layer.feature.properties.practice_code +
+          ": " +
+          layer.feature.properties.practice_name +
+          "<br>Clinical Director: " +
+          layer.feature.properties.clinical_director +
+          "<br>Population: " +
+          formatNumber(layer.feature.properties.list_size) +
+          "</p>";
 
-      category = feature.properties.locality; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the category array if not already set.
-      // if (typeof categories[category] === "undefined") {
-      //   categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
-      //   // map.layerControl.addOverlay(categories[category], "PCH: " + category);
-      // }
-      // categories[category].addLayer(layer);
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
+        layer.on("click", function (e) {
+          // update other charts
+          (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+            (practiceName = feature.properties.practice_name);
+          // console.log(selectedPractice + " - " + practiceName);
+          document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
+          refreshChartsPostPracticeChange(selectedPractice);
+        });
 
-      // const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // // Initialize the category array if not already set.
-      if (!layersMapGpMain.has(category)) {
-        layersMapGpMain.set(category, L.layerGroup());
-      }
-      layersMapGpMain.get(category).addLayer(layer);
-    },
+        const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+        // Initialize the category array if not already set.
+        if (!layersMapGpMain.has(category)) {
+          layersMapGpMain.set(category, L.layerGroup());
+        }
+        layersMapGpMain.get(category).addLayer(layer);
+      },
+    });
+    L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
+    if (zoomToExtent) {
+      map.fitBounds(practiceMain.getBounds());
+    }
   });
-  L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
-  if (zoomToExtent) {
-    map.fitBounds(practiceMain.getBounds());
-      }
-    })
 }
-
 
 function pcnSites(zoomToExtent = false) {
   const map = this.map;
@@ -552,7 +526,7 @@ function addWardGroupsToMap(zoomToExtent = false) {
         layersMapWards.get(category).addLayer(layer);
       },
     });
-    if(zoomToExtent) {
+    if (zoomToExtent) {
       map.fitBounds(wardBoundaries.getBounds());
     }
   });
@@ -565,7 +539,7 @@ function ccgBoundary(zoomToExtent = false) {
   geoDataCCGBoundary.then(function (v) {
     const ccgBoundary = L.geoJSON(v, {
       style: styleCCG,
-      pane: "ccgBoundaryPane"
+      pane: "ccgBoundaryPane",
     });
 
     /* copy the layer - returns an object only so wrap  in L.geojson
@@ -575,12 +549,12 @@ function ccgBoundary(zoomToExtent = false) {
 
     const ccgBoundaryCopy1 = L.geoJson(ccgBoundary.toGeoJSON(), {
       style: styleCCG,
-      pane: "ccgBoundaryPane"
+      pane: "ccgBoundaryPane",
     });
 
     const ccgBoundaryCopy2 = L.geoJson(ccgBoundary.toGeoJSON(), {
       style: styleCCG,
-      pane: "ccgBoundaryPane"
+      pane: "ccgBoundaryPane",
     });
 
     if (!layersMapBoundaries.has("voyCCGMain")) {
@@ -593,7 +567,6 @@ function ccgBoundary(zoomToExtent = false) {
       layersMapBoundaries.set("voyCCGPopn", ccgBoundaryCopy2);
       ccgBoundaryCopy2.addTo(mapPopn.map);
     }
-
 
     if (zoomToExtent) {
       mapMain.map.fitBounds(ccgBoundary.getBounds());
@@ -658,7 +631,6 @@ function styleLsoa(feature) {
     dashArray: "3",
   };
 }
-
 
 function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
@@ -825,7 +797,9 @@ async function addPCNToMap2() {
     The setting below will set them to on by default and display the layer group on the map
     */
     L.layerGroup(Array.from(layersMapGpPcn.values())).addTo(map);
-    map.fitBounds(pcnSites.getBounds());
+    if (zoomToExtent) {
+      map.fitBounds(pcnSites.getBounds());
+    }
   });
 }
 
@@ -900,3 +874,85 @@ function filterFunctionPCN2(map, control) {
     map.fitBounds(gpSites.getBounds());
   });
 }
+
+/* Original
+function addPracticeToMap(zoomToExtent = false) {
+  const map = this.map;
+  // let categories = {},
+  //   category;
+
+    geoDataGPMain.then(function(v){
+  const practiceMain = L.geoJson(v, {
+    // https://leafletjs.com/reference-1.4.0.html#geojson
+    pointToLayer: function (feature, latlng) {
+      // Use different marker styles depending on eg. practice groupings
+      switch (feature.properties.locality) {
+        case "Central":
+          return L.marker(latlng, {
+            icon: arrMarkerIcons[0],
+            riseOnHover: true,
+          });
+        case "North":
+          return L.marker(latlng, {
+            icon: arrCircleIcons[1],
+            riseOnHover: true,
+          });
+        case "South":
+          return L.marker(latlng, {
+            icon: arrDoughnutIcons[2],
+            riseOnHover: true,
+          });
+        default:
+          return L.marker(latlng, {
+            icon: arrMarkerIcons[3],
+            riseOnHover: true,
+          });
+      }
+    },
+    onEachFeature: function (feature, layer) {
+      const popupText =
+        "<h3>Code: " +
+        layer.feature.properties.practice_code +
+        "</h3>" +
+        "<p>" +
+        layer.feature.properties.practice_name +
+        "</p>";
+      layer.bindPopup(popupText);
+      layer.on("mouseover", function (e) {
+        this.openPopup();
+      });
+      layer.on("mouseout", function (e) {
+        this.closePopup();
+      });
+      layer.on("click", function (e) {
+        // update other charts
+        (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+          (practiceName = feature.properties.practice_name);
+        // console.log(selectedPractice + " - " + practiceName);
+        document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
+        refreshChartsPostPracticeChange(selectedPractice);
+      });
+
+      category = feature.properties.locality; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+      // Initialize the category array if not already set.
+      // if (typeof categories[category] === "undefined") {
+      //   categories[category] = L.layerGroup().addTo(map); // categories {object} used to create an object with key = category, value is array
+      //   // map.layerControl.addOverlay(categories[category], "PCH: " + category);
+      // }
+      // categories[category].addLayer(layer);
+
+      // const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+      // // Initialize the category array if not already set.
+      if (!layersMapGpMain.has(category)) {
+        layersMapGpMain.set(category, L.layerGroup());
+      }
+      layersMapGpMain.get(category).addLayer(layer);
+    },
+  });
+  L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
+  if (zoomToExtent) {
+    map.fitBounds(practiceMain.getBounds());
+      }
+    })
+}
+*/
