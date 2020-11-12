@@ -18,25 +18,25 @@ const selPracticeDropDown = document.getElementById("selPractice"),
   selPracticeCompareDropDown = document.getElementById("selPracticeCompare");
 
 // Load the initial data and then variations on this for subsequent filtering
-let dataImport,
-  dataLevel_01, // by period
-  dataLevel_02, // by practice by period
-  dataLevel_03 = [], // by age/ sex, latest period (init chart)
-  dataLevel_04, // by age/ sex, by practice by period
-  data_DemoInit, // used to initialise demographic data
-  data_popnGPLsoa;
-let arrayGPLsoaDates;
-let barChart;
+let data_popnGPLsoa,
+  arrayGPLsoaDates,
+  trendChart,
+  barChart,
+  demographicChart,
+  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
-let selectedPracticeCompare = "None",
+const practiceLookup = new Map();
+const newTooltip = createTooltip();
+
+let selectedPractice,
+  selectedPracticeCompare = "None",
   selectedDate;
-// selectedPractice
 
 // https://github.com/d3/d3-time-format
 const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
   parseDate2 = d3.timeParse("%d/%m/%Y"), // import format: dd/mm/yyyy
-  formatPeriod = d3.timeFormat("%b-%y"); // presentational format eg. Apr-16
-// formatNumber = d3.format(",d");
+  formatPeriod = d3.timeFormat("%b-%y"), // presentational format eg. Apr-16
+  formatNumber = d3.format(",d");
 
 const formatPercent1dp = d3.format(".1%"), // for x-axis to reduce overlap - still testing
   formatPercent = d3.format(".0%"); // rounded percent
@@ -44,12 +44,6 @@ const formatPercent1dp = d3.format(".1%"), // for x-axis to reduce overlap - sti
 // const formatNumber = function (num) {
 //     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 // };
-
-// sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
-let uniquePractices;
-
-// For Practice Lookups
-const practiceLookup = new Map();
 
 function practiceDetailsDropDown() {
   let urls = [
@@ -74,28 +68,29 @@ function practiceDetailsDropDown() {
   });
 }
 
-async function loadPopulationData() {
-  let data = await d3.csv(
+const dataPopulationGP = (async function loadPopulationData() {
+  const data = await d3.csv(
     "Data/GP_Practice_Populations_slim.csv",
     processRow // this function is applied to each row of the imported data
   );
 
-  dataImport = data;
+  // dataImport = data;
   setDefaults(data);
   practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
-  dataLevel_01 = fnDataLevel01(data); // Total by Period for initial Trend Chart
-  dataLevel_02 = fnDataLevel02(data); // Practices by Period - Trend Chart Filtered
-  data_DemoInit = fnDataDemoInit(data); // Total by Period and Age Band
-  dataLevel_03 = data_DemoInit.get(+selectedDate); //fnDataLevel03(data_DemoInit);
-  dataLevel_04 = fnDataLevel04(data); // Practices by Period by Age/Sex - Demographic Chart Filtered
-  fnChartTrendData();
-  fnChartDemogData(data_DemoInit);
+  trendChart = initTrendChart(data, "cht_PopTrend");
+  trendChart.chartTrendDraw();
+
+  demographicChart = initChartDemog(data, "cht_PopDemo");
+  demographicChart.updateChtDemog();
+
   barChart = initPopnBarChart(data, "cht_PopBar");
   barChart.fnRedrawBarChart();
-}
 
-async function loadPopulationGPlsoaData() {
-  let data = await d3.csv(
+  return;
+})();
+
+const dataPopulationGPLsoa = (async function loadPopulationGPlsoaData() {
+  const data = await d3.csv(
     "Data/population_gp_lsoa.csv",
     processPopGPlsoaRow // this function is applied to each row of the imported data
   );
@@ -111,10 +106,9 @@ async function loadPopulationGPlsoaData() {
   // GP LSOA Population is Quarterly so not a 1:1 match with trend data
   // Will use closest value
   arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
-}
 
-loadPopulationData();
-loadPopulationGPlsoaData();
+  return;
+})();
 
 function processRow(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate
@@ -152,81 +146,6 @@ function setDefaults(data) {
     return d.Period;
   });
   // console.log(selectedDate)
-}
-
-function fnDataLevel01(data) {
-  // Total by Period for initial Trend Chart
-
-  const d = d3.rollup(
-    data,
-    (v) => d3.sum(v, (d) => d.Total_Pop),
-    (d) => d.Period
-  );
-  return d;
-}
-
-function fnDataLevel02(data) {
-  // Practices by Period - Trend Chart Filtered
-
-  const d = d3.rollup(
-    data,
-    (v) => d3.sum(v, (d) => d.Total_Pop),
-    (d) => d.Practice,
-    (d) => +d.Period
-  );
-
-  return d;
-}
-
-function fnDataDemoInit(data) {
-  // Period and Age Band - Trend Chart Filtered
-
-  const d = d3.rollup(
-    data,
-    function (v) {
-      return {
-        total: d3.sum(v, function (d) {
-          return d.Total_Pop;
-        }),
-        male: d3.sum(v, function (d) {
-          return d.Male_Pop;
-        }),
-        female: d3.sum(v, function (d) {
-          return d.Female_Pop;
-        }),
-      };
-    },
-    (d) => +d.Period,
-    (d) => d.Age_Band
-  );
-
-  return d;
-}
-
-function fnDataLevel04(data) {
-  // Practices by Period by Age/Sex - Demographic Chart Filtered
-
-  const d = d3.rollup(
-    data,
-    function (v) {
-      return {
-        total: d3.sum(v, function (d) {
-          return d.Total_Pop;
-        }),
-        male: d3.sum(v, function (d) {
-          return d.Male_Pop;
-        }),
-        female: d3.sum(v, function (d) {
-          return d.Female_Pop;
-        }),
-      };
-    },
-    (d) => d.Practice,
-    (d) => +d.Period,
-    (d) => d.Age_Band
-  );
-
-  return d;
 }
 
 function titleCase(str) {

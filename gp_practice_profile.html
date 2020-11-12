@@ -92,9 +92,25 @@
       crossorigin=""
     ></script>
 
-    <!-- Markers
-https://github.com/marslan390/BeautifyMarker
+    <!-- Leaflet Providers
+https://github.com/leaflet-extras/leaflet-providers
+http://leaflet-extras.github.io/leaflet-providers/preview/
 -->
+    <script defer src="scripts/leaflet/leaflet-providers.js"></script>
+
+    <!-- Tree layer control
+    https://github.com/jjimenezshaw/Leaflet.Control.Layers.Tree/
+    -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="scripts/leaflet/L.Control.Layers.Tree.css"
+    />
+    <script defer src="scripts/leaflet/L.Control.Layers.Tree.js"></script>
+
+    <!-- Markers
+    https://github.com/marslan390/BeautifyMarker
+    -->
     <script
       defer
       src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
@@ -279,22 +295,7 @@ https://github.com/marslan390/BeautifyMarker
                     <option value="None"></option>
                   </datalist>
                 </div>
-                <footer class="cta">
-                  <a
-                    id="circleOver65"
-                    class="circleOver65"
-                    data-toggle="tooltip"
-                    data-placement="auto top"
-                    title="Percent Aged Over 65"
-                  ></a>
-                  <a
-                    id="circleOver65Compare"
-                    class="circleOver65"
-                    data-toggle="tooltip"
-                    data-placement="auto top"
-                    title="Comparison Aged Over 65"
-                  ></a>
-                </footer>
+                <footer class="cta" id="over65s"></footer>
               </div>
 
               <div class="tile wide content">

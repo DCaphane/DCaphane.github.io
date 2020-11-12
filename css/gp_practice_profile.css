@@ -93,73 +93,12 @@
   float: left;
 }
 
-.circleOver65 {
-  position: relative;
-  margin: 20px auto auto;
-  height: 50px;
-  width: 50px;
-  display: table-cell;
-  /* block */
-  text-align: center;
-  vertical-align: middle;
-  border-radius: 50%;
-  background: yellow;
-  /* background:linear-gradient(to bottom, #40b3ff, #09f)}; */
+.backgroundBar {
+  fill: rgba(218, 216, 216, 0.75);
+  stroke-width: 2;
+  stroke: rgba(0, 0, 0, 0.5);
 }
 
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 1px;
-}
-
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  /* width: 100%; */
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-}
-/* Style northward tooltips differently */
-
-/* Northward tooltips */
-.d3-tip.n:after {
-  content: "\25BC";
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-  text-align: center;
-}
-
-/* Eastward tooltips */
-.d3-tip.e:after {
-  content: "\25C0";
-  margin: -4px 0 0 0;
-  top: 50%;
-  left: -8px;
-}
-
-/* Southward tooltips */
-.d3-tip.s:after {
-  content: "\25B2";
-  margin: 0 0 1px 0;
-  top: -8px;
-  left: 0;
-  text-align: center;
-}
-
-/* Westward tooltips */
-.d3-tip.w:after {
-  content: "\25B6";
-  margin: -4px 0 0 -1px;
-  top: 50%;
-  left: 100%;
+#axis--yBar--overage .domain{
+  stroke: rgba(0, 0, 0, 0);
 }

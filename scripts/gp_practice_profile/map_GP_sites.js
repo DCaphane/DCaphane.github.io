@@ -1,73 +1,195 @@
-// Open Street Map (osm)
-// https://leaflet-extras.github.io/leaflet-providers/preview/
-
-// Tile Baselayers (Backgrounds)
-
-// Mapbox
-/*
-let tile_MB = L.tileLayer(
-	'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
-	{
-		attribution:
-			'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="https://www.mapbox.com/">Mapbox</a>',
-		maxZoom: 18,
-		id: 'mapbox.streets',
-		accessToken:
-			'addKeyHere'
-	}
-);
-*/
-
-const osm_bw1 = basemap.osm_bw();
-const CartoDB_Voyager1 = basemap.CartoDB_Voyager();
-const Stamen_Toner1 = basemap.Stamen_Toner();
-const emptyTile1 = basemap.emptyTile();
-
-const baseMaps1 = {
-  "Black and White": osm_bw1,
-  Default: CartoDB_Voyager1,
-  Stamen_Toner: Stamen_Toner1,
-  "No Background": emptyTile1,
+const mapSites = {
+  map: mapInitialise.mapInit("mapSites"),
+  scaleBar: mapInitialise.scaleBar("bottomleft"),
+  sidebar(sidebarName) {
+    return mapInitialise.sidebarLeft(this.map, sidebarName);
+  },
 };
 
-const mapSites = mapInitialise.mapInit("mapSites", CartoDB_Voyager1);
+mapSites.scaleBar.addTo(mapSites.map);
 
-const layerControl1 = mapInitialise.layerControl(baseMaps1);
-mapSites.addControl(layerControl1);
+const sidebarSites = mapSites.sidebar("sidebar2");
 
-// Ward boundaries and ward groupings
-const subLayerControl1 = mapInitialise.subLayerControl();
-mapSites.addControl(subLayerControl1);
-
-const scaleBar1 = mapInitialise.scaleBar("bottomleft");
-scaleBar1.addTo(mapSites);
-
-const sidebarSites = mapInitialise.sidebarLeft(mapSites, "sidebar2");
-
-homeButton(mapSites);
-yorkTrust(mapSites);
+homeButton.call(mapSites);
 
 // Panes to control zIndex of geoJson layers
-mapSites.createPane("wardBoundaryPane");
-mapSites.getPane("wardBoundaryPane").style.zIndex = 375;
+mapSites.map.createPane("wardBoundaryPane");
+mapSites.map.getPane("wardBoundaryPane").style.zIndex = 375;
 
-mapSites.createPane("ccg03QBoundaryPane");
-mapSites.getPane("ccg03QBoundaryPane").style.zIndex = 374;
+mapSites.map.createPane("ccgBoundaryPane");
+mapSites.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-// ccg boundary
-ccgBoundary(mapSites, subLayerControl1);
-wardData(mapSites, subLayerControl1);
+ccgBoundary.call(mapSites, true);
+addWardGroupsToMap.call(mapSites);
 
-getGeoData("Data/geo/pcn/primary_care_network_sites.geojson").then(function (
-  data
-) {
-  siteData = data;
-  defaultSites = L.geoJson(data, {
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      //console.log(layer.feature.properties.pcn_name)
-      subCategories[layer.feature.properties.pcn_name] = null;
-    },
-  }).addTo(mapSites);
-  mapSites.fitBounds(defaultSites.getBounds());
+// GP Practice Sites - coded by PCN
+geoDataPCNSites.then(function (v) {
+  pcnSites.call(mapSites);
 });
+
+Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
+  // geoDataPCN
+  (values) => {
+    const defaultBasemap = L.tileLayer
+      .provider("CartoDB.Positron")
+      .addTo(mapSites.map);
+
+    // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+    const emptyBackground = (function emptyTile() {
+      return L.tileLayer("", {
+        zoom: 0,
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      });
+    })();
+
+    const baseTree = {
+      label: "Base Layers <i class='fas fa-globe'></i>",
+      children: [
+        {
+          label: "Colour <i class='fas fa-layer-group'></i>;",
+          children: [
+            {
+              label: "OSM",
+              layer: L.tileLayer.provider("OpenStreetMap.Mapnik"),
+            },
+            {
+              label: "CartoDB",
+              layer: L.tileLayer.provider("CartoDB.Voyager"),
+            },
+            {
+              label: "Water Colour",
+              layer: L.tileLayer.provider("Stamen.Watercolor"),
+            },
+          ],
+        },
+        {
+          label: "Black & White <i class='fas fa-layer-group'></i>",
+          children: [
+            { label: "Grey", layer: defaultBasemap },
+            { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+            {
+              label: "ST Hybrid",
+              layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+            },
+          ],
+        },
+        { label: "None", layer: emptyBackground },
+      ],
+    };
+
+    const overlaysTree = {
+      label: "Overlays",
+      selectAllCheckbox: true,
+      children: [],
+    };
+
+    const overlayTrusts = {
+      label: "Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "York",
+          layer: trustMarker(trustSitesLoc.yorkTrust, "York Trust"),
+        },
+        {
+          label: "Harrogate",
+          layer: trustMarker(trustSitesLoc.harrogateTrust, "Harrogate Trust"),
+        },
+        {
+          label: "Scarborough",
+          layer: trustMarker(
+            trustSitesLoc.scarboroughTrust,
+            "Scarborough Trust"
+          ),
+        },
+        {
+          label: "Leeds",
+          layer: trustMarker(trustSitesLoc.leedsTrust, "Leeds Trust"),
+        },
+        {
+          label: "South Tees",
+          layer: trustMarker(trustSitesLoc.southTeesTrust, "South Tees Trust"),
+        },
+        {
+          label: "Hull",
+          layer: trustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
+        },
+      ],
+    };
+
+    const overlayCCGs = {
+      label: "CCG Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Vale of York",
+          layer: layersMapBoundaries.get("voyCCGSite"),
+        },
+      ],
+    };
+
+    const overlayWards = {
+      label: "Ward Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "CYC",
+          selectAllCheckbox: true,
+          children: [
+            {
+              label: "Ward Group: 1",
+              layer: layersMapWards.get(1),
+            },
+            {
+              label: "Ward Group: 2",
+              layer: layersMapWards.get(2),
+            },
+            {
+              label: "Ward Group: 3",
+              layer: layersMapWards.get(3),
+            },
+            {
+              label: "Ward Group: 4",
+              layer: layersMapWards.get(4),
+            },
+            {
+              label: "Ward Group: 5",
+              layer: layersMapWards.get(5),
+            },
+            {
+              label: "Ward Group: 6",
+              layer: layersMapWards.get(6),
+            },
+          ],
+        },
+      ],
+    };
+
+    overlaysTree.children[0] = overlayTrusts;
+    overlaysTree.children[1] = overlayCCGs;
+    overlaysTree.children[2] = overlayWards;
+
+    const mapControl = L.control.layers.tree(baseTree, overlaysTree, {
+      // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+      collapsed: true, // Whether or not control options are displayed
+      sortLayers: true,
+      // namedToggle: true,
+      collapseAll: "Collapse all",
+      expandAll: "Expand all",
+      // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+      closedSymbol:
+        "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+      openedSymbol:
+        "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+    });
+
+    mapControl
+      .addTo(mapSites.map)
+      // .setOverlayTree(overlaysTree)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true); // true to collapse the overlays tree
+    // .expandSelected(true); // expand selected option in the overlays tree
+  }
+);

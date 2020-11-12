@@ -46,8 +46,10 @@ ${chtHeightStd + margin.top + margin.bottom}`
 
   let sortType = 0;
 
-  let tooltipPopnBar = Tooltip(id);
-  tooltipPopnBar.style("height", "65px").style("width", "150px");
+  let tooltipPopnBar = newTooltip
+    .tooltip(div)
+    .style("height", "65px")
+    .style("width", "150px");
 
   let x = d3
     .scaleBand()
@@ -130,23 +132,20 @@ ${chtHeightStd + margin.top + margin.bottom}`
             .on("click", function (event, d) {
               console.log("selPractice:", d.practice);
             })
-            .on("mouseenter", function () {
+            .on("mouseover", function (event, d) {
               const sel = d3.select(this);
               sel.attr("fill", "red");
-              mouseover(sel, tooltipPopnBar);
-            })
-            .on("mousemove", function (event, d) {
               const str = `<strong>Code: ${d.practice}</strong><br>
       <span style="color:red">
         ${practiceLookup.get(d.practice)}
         </span><br>
       Popn: ${formatNumber(d.population)}
         `;
-              tooltipText(tooltipPopnBar, str, event);
+              newTooltip.mouseover(tooltipPopnBar, str, event);
             })
-            .on("mouseleave", function () {
+            .on("mouseout", function () {
               const sel = d3.select(this);
-              mouseleave(sel, tooltipPopnBar);
+              newTooltip.mouseout(tooltipPopnBar);
               sel
                 .transition("tempFill")
                 .duration(250)
@@ -337,6 +336,5 @@ rotate(-60)`;
 
   return {
     fnRedrawBarChart: fnRedrawBarChart,
-    sortType: sortType,
   };
 }
