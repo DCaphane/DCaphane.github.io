@@ -21,9 +21,7 @@ mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
 ccgBoundary.call(mapPopn, true);
 
-geoDataLsoaBoundaries.then(function (v) {
-  lsoaBoundary(v, mapPopn, true);
-});
+lsoaBoundary.call(mapPopn, true);
 
 // GP Practice Sites - coded by PCN
 geoDataPCNSites.then(function (v) {
@@ -252,7 +250,7 @@ Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
 
     overlaysTree.children[0] = overlayTrusts;
     overlaysTree.children[1] = overlayCCGs;
-    overlaysTree.children[2] = overlayWards;
+    // overlaysTree.children[2] = overlayWards;
 
     const mapControl = L.control.layers.tree(baseTree, overlaysTree, {
       // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls

@@ -557,6 +557,11 @@ function ccgBoundary(zoomToExtent = false) {
       pane: "ccgBoundaryPane",
     });
 
+    const ccgBoundaryCopy3 = L.geoJson(ccgBoundary.toGeoJSON(), {
+      style: styleCCG,
+      pane: "ccgBoundaryPane",
+    });
+
     if (!layersMapBoundaries.has("voyCCGMain")) {
       layersMapBoundaries.set("voyCCGMain", ccgBoundary);
       ccgBoundary.addTo(mapMain.map);
@@ -566,6 +571,9 @@ function ccgBoundary(zoomToExtent = false) {
 
       layersMapBoundaries.set("voyCCGPopn", ccgBoundaryCopy2);
       ccgBoundaryCopy2.addTo(mapPopn.map);
+
+      layersMapBoundaries.set("voyCCGIMD", ccgBoundaryCopy3);
+      ccgBoundaryCopy3.addTo(mapIMD.map);
     }
 
     if (zoomToExtent) {
@@ -576,26 +584,43 @@ function ccgBoundary(zoomToExtent = false) {
   });
 }
 
-function lsoaBoundary(data, map, zoomToExtent = false) {
+const layersMapLSOA = new Map();
+
+function lsoaBoundary(zoomToExtent = false) {
   // let lsoaLayerLabels;
+  geoDataLsoaBoundaries.then(function (v) {
+    // This section adds the lsoa layer in its entirety along with labels (permanent Tooltip)
+    const initlsoaLayer = L.geoJSON(v, {
+      // style: styleLsoa, // default colour scheme for lsoa boundaries
+      // onEachFeature: function (feature, layer) {
+      //   layer.bindPopup(`<h1>${feature.properties.lsoa}</h1>`);
+      // },
+      filter: function (feature, layer) {
+        return true;
+      },
+    }); //.addTo(map.map);
 
-  // This section adds the lsoa layer in its entirety along with labels (permanent Tooltip)
-  lsoaLayer = L.geoJSON(data, {
-    // style: styleLsoa, // default colour scheme for lsoa boundaries
-    // onEachFeature: function (feature, layer) {
-    //   layer.bindPopup(`<h1>${feature.properties.lsoa}</h1>`);
-    // },
-    filter: function (feature, layer) {
-      return true;
-    },
-  }).addTo(map.map);
+    const lsoaLayerCopy1 = L.geoJson(initlsoaLayer.toGeoJSON(), {
+      // style: styleCCG,
+      // pane: "ccgBoundaryPane",
+    });
+    if (!layersMapLSOA.has("voyCCGPopn")) {
+      layersMapLSOA.set("voyCCGPopn", initlsoaLayer);
+      initlsoaLayer.addTo(mapPopn.map);
+      lsoaLayer = initlsoaLayer;
 
-  // Add an overlay (checkbox entry) with the given name to the control
-  // map.subLayerControl.addOverlay(lsoaLayer, "lsoa_voyccg");
-  if (zoomToExtent) {
-    map.map.fitBounds(lsoaLayer.getBounds());
-  }
-  return;
+      layersMapLSOA.set("voyCCGIMD", lsoaLayerCopy1);
+      lsoaLayerCopy1.addTo(mapIMD.map);
+    }
+
+    // Add an overlay (checkbox entry) with the given name to the control
+    // map.subLayerControl.addOverlay(lsoaLayer, "lsoa_voyccg");
+    if (zoomToExtent) {
+      mapPopn.map.fitBounds(lsoaLayer.getBounds());
+      mapIMD.map.fitBounds(lsoaLayerCopy1.getBounds());
+    }
+    return;
+  });
   // This section adds the lsoa layer descriptions (permanent Tooltip)
   // lsoaLayerLabels = L.geoJSON(data, {
   //   // style: wardsStyleLabels,

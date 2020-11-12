@@ -1,38 +1,34 @@
-const mapSites = {
-  map: mapInitialise.mapInit("mapSites"),
+const mapIMD = {
+  map: mapInitialise.mapInit("mapIMDLSOA"),
   scaleBar: mapInitialise.scaleBar("bottomleft"),
   sidebar(sidebarName) {
     return mapInitialise.sidebarLeft(this.map, sidebarName);
   },
 };
 
-mapSites.scaleBar.addTo(mapSites.map);
+mapIMD.scaleBar.addTo(mapIMD.map);
 
-const sidebarSites = mapSites.sidebar("sidebar2");
+const sidebarIMD = mapIMD.sidebar("sidebar4");
 
-homeButton.call(mapSites);
+homeButton.call(mapIMD);
 
 // Panes to control zIndex of geoJson layers
-mapSites.map.createPane("wardBoundaryPane");
-mapSites.map.getPane("wardBoundaryPane").style.zIndex = 375;
+mapIMD.map.createPane("lsoaBoundaryPane");
+mapIMD.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
-mapSites.map.createPane("ccgBoundaryPane");
-mapSites.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapIMD.map.createPane("ccgBoundaryPane");
+mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-ccgBoundary.call(mapSites, true);
-addWardGroupsToMap.call(mapSites);
+ccgBoundary.call(mapIMD, true);
 
-// GP Practice Sites - coded by PCN
-geoDataPCNSites.then(function (v) {
-  pcnSites.call(mapSites);
-});
+lsoaBoundary.call(mapIMD, true);
 
-Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
+Promise.all([geoDataCCGBoundary]).then(
   // geoDataPCN
   (values) => {
     const defaultBasemap = L.tileLayer
-      .provider("CartoDB.Positron")
-      .addTo(mapSites.map);
+      .provider("Stamen.TonerHybrid")
+      .addTo(mapIMD.map);
 
     // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
     const emptyBackground = (function emptyTile() {
@@ -66,12 +62,9 @@ Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
         {
           label: "Black & White <i class='fas fa-layer-group'></i>",
           children: [
-            { label: "Grey", layer: defaultBasemap },
+            { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
             { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
-            {
-              label: "ST Hybrid",
-              layer: L.tileLayer.provider("Stamen.TonerHybrid"),
-            },
+            { label: "ST Hybrid", layer: defaultBasemap },
           ],
         },
         { label: "None", layer: emptyBackground },
@@ -124,51 +117,13 @@ Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
       children: [
         {
           label: "Vale of York",
-          layer: layersMapBoundaries.get("voyCCGSite"),
-        },
-      ],
-    };
-
-    const overlayWards = {
-      label: "Ward Boundaries",
-      selectAllCheckbox: true,
-      children: [
-        {
-          label: "CYC",
-          selectAllCheckbox: true,
-          children: [
-            {
-              label: "Ward Group: 1",
-              layer: layersMapWards.get(1),
-            },
-            {
-              label: "Ward Group: 2",
-              layer: layersMapWards.get(2),
-            },
-            {
-              label: "Ward Group: 3",
-              layer: layersMapWards.get(3),
-            },
-            {
-              label: "Ward Group: 4",
-              layer: layersMapWards.get(4),
-            },
-            {
-              label: "Ward Group: 5",
-              layer: layersMapWards.get(5),
-            },
-            {
-              label: "Ward Group: 6",
-              layer: layersMapWards.get(6),
-            },
-          ],
+          layer: layersMapBoundaries.get("voyCCGIMD"),
         },
       ],
     };
 
     overlaysTree.children[0] = overlayTrusts;
     overlaysTree.children[1] = overlayCCGs;
-    // overlaysTree.children[2] = overlayWards;
 
     const mapControl = L.control.layers.tree(baseTree, overlaysTree, {
       // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
@@ -185,7 +140,7 @@ Promise.all([geoDataCCGBoundary, geoDataCYCWards]).then(
     });
 
     mapControl
-      .addTo(mapSites.map)
+      .addTo(mapIMD.map)
       // .setOverlayTree(overlaysTree)
       .collapseTree() // collapse the baselayers tree
       // .expandSelected() // expand selected option in the baselayer

@@ -68,7 +68,7 @@ function practiceDetailsDropDown() {
   });
 }
 
-const dataPopulationGP = (async function loadPopulationData() {
+const dataPopulationGP = (async function () {
   const data = await d3.csv(
     "Data/GP_Practice_Populations_slim.csv",
     processRow // this function is applied to each row of the imported data
@@ -89,7 +89,20 @@ const dataPopulationGP = (async function loadPopulationData() {
   return;
 })();
 
-const dataPopulationGPLsoa = (async function loadPopulationGPlsoaData() {
+function processRow(d, index, columnKeys) {
+  // Loop through the raw data to format columns as appropriate
+  return {
+    Practice: d.Practice_Mapped.substring(0, 6),
+    Locality: d.Locality,
+    Age_Band: d.Age_Band,
+    Period: +parseDate(d.Period),
+    Male_Pop: +d.Male,
+    Female_Pop: +d.Female,
+    Total_Pop: +d.Total,
+  };
+}
+
+const dataPopulationGPLsoa = (async function () {
   const data = await d3.csv(
     "Data/population_gp_lsoa.csv",
     processPopGPlsoaRow // this function is applied to each row of the imported data
@@ -110,25 +123,51 @@ const dataPopulationGPLsoa = (async function loadPopulationGPlsoaData() {
   return;
 })();
 
-function processRow(d, index, columnKeys) {
-  // Loop through the raw data to format columns as appropriate
-  return {
-    Practice: d.Practice_Mapped.substring(0, 6),
-    Locality: d.Locality,
-    Age_Band: d.Age_Band,
-    Period: +parseDate(d.Period),
-    Male_Pop: +d.Male,
-    Female_Pop: +d.Female,
-    Total_Pop: +d.Total,
-  };
-}
-
 function processPopGPlsoaRow(d, index, columnKeys) {
   return {
     period: +parseDate2(d.period),
     practice: d.practice_code,
     lsoa: d.lsoa,
     population: +d.population,
+  };
+}
+
+const dataIMD = (async function () {
+  const data = await d3.csv(
+    "Data/imd_lsoa_ccg.csv",
+    processIMDRow // this function is applied to each row of the imported data
+  );
+
+  return;
+  // return data;
+  // d3.extent(temp1, function(d){return d.imdRank})
+})();
+
+function processIMDRow(d, index, columnKeys) {
+  return {
+    lsoa: d.LSOA_code_2011,
+    imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
+    imdDecile: +d.Index_of_Multiple_Deprivation_IMD_Decile,
+    incomeRank: +d.Income_Rank,
+    employmentRank: +d.Employment_Rank,
+    educationRank: +d.Education_Skills_and_Training_Rank,
+    healthRank: +d.Health_Deprivation_and_Disability_Rank,
+    crimeRank: +d.Crime_Rank,
+    housingRank: +d.Barriers_to_Housing_and_Services_Rank,
+    livingEnvironRank: +d.Living_Environment_Rank,
+    incomeChildRank: +d.Income_Deprivation_Affecting_Children_Index_Rank,
+    incomeOlderRank: +d.Income_Deprivation_Affecting_Older_People_Rank,
+    childRank: +d.Children_and_Young_People_Subdomain_Rank,
+    adultSkillsRank: +d.Adult_Skills_Subdomain_Rank,
+    geogRank: +d.Geographical_Barriers_Subdomain_Rank,
+    barriersRank: +d.Wider_Barriers_Subdomain_Rank,
+    indoorsRank: +d.Indoors_Subdomain_Rank,
+    outdoorsRank: +d.Outdoors_Subdomain_Rank,
+    totalPopn: +d.Total_population_mid_2015,
+    dependentChildren: +d.Dependent_Children_aged_0_15_mid_2015,
+    popnMiddle: +d.Population_aged_16_59_mid_2015,
+    popnOlder: +d.Older_population_aged_60_and_over_mid_2015,
+    popnWorking: +d.Working_age_population_18_59_64,
   };
 }
 
