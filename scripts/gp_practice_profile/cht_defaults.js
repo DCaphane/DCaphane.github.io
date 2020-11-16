@@ -133,14 +133,10 @@ function processPopGPlsoaRow(d, index, columnKeys) {
 }
 
 const dataIMD = (async function () {
-  const data = await d3.csv(
+  return await d3.csv(
     "Data/imd_lsoa_ccg.csv",
     processIMDRow // this function is applied to each row of the imported data
   );
-
-  return;
-  // return data;
-  // d3.extent(temp1, function(d){return d.imdRank})
 })();
 
 function processIMDRow(d, index, columnKeys) {
