@@ -28,7 +28,7 @@ addPCNToMap2.call(mapPCNMain);
 
 let updateTextPractice = function () {
   const elem = document.getElementById("selectedMarker");
-  elem.innerHTML = selectedPractice + " - " + practiceName;
+  elem.innerHTML = selectedPractice + ": " + practiceLookup.get(selectedPractice);
 };
 
 let updateTextPCN = function () {
