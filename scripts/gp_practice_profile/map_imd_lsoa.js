@@ -1,4 +1,4 @@
-imdCategory("selIMD");
+imdDomain("selIMD");
 
 const mapIMD = {
   map: mapInitialise.mapInit("mapIMDLSOA"),
@@ -23,7 +23,6 @@ mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
 Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  recolourIMDLayer();
   ccgBoundary(true);
 });
 
@@ -40,29 +39,40 @@ function recolourIMDLayer(defaultIMD = "imdDecile") {
         layersMapIMD.get(key).eachLayer(function (layer) {
           const lsoaCode = layer.feature.properties.lsoa;
 
-          dataIMD.then(function (v) {
-            let obj = v.find((x) => x.lsoa === lsoaCode);
-            if (obj !== undefined) {
-              // console.log(obj[defaultIMD], maxValue);
-              const value = obj[defaultIMD];
+          if (mapSelectedLSOA.has(lsoaCode)) { // the filter lsoaFunction populates a map object of lsoas (with relevant population)
+            dataIMD.then(function (v) {
+              let obj = v.find((x) => x.lsoa === lsoaCode);
+              if (obj !== undefined) {
+                // console.log(obj[defaultIMD], maxValue);
+                const value = obj[defaultIMD];
 
-              layer.setStyle({
-                // https://github.com/d3/d3-scale-chromatic
-                fillColor: d3.interpolateYlGnBu(1 - value / maxValue),
-                fillOpacity: 0.9,
-                weight: 1, // border
-                color: "red", // border
-                opacity: 1,
-                dashArray: "3",
-              });
+                layer.setStyle({
+                  // https://github.com/d3/d3-scale-chromatic
+                  fillColor: d3.interpolateYlGnBu(1 - value / maxValue),
+                  fillOpacity: 0.9,
+                  weight: 1, // border
+                  color: "red", // border
+                  opacity: 1,
+                  dashArray: "3",
+                });
 
-              layer.bindPopup(
-                `<h3>${layer.feature.properties.lsoa}</h3>
+                layer.bindPopup(
+                  `<h3>${layer.feature.properties.lsoa}</h3>
               <p>IMD: ${formatNumber(value)}</p>
             `
-              );
-            }
-          });
+                );
+              }
+            });
+          } else { // if population is less than set amount, make it transparent
+            layer.setStyle({
+              // no (transparent) background
+              fillColor: "#ff0000", // background
+              fillOpacity: 0, // transparent
+              weight: 0, // border
+              color: "red", // border
+              opacity: 0,
+            });
+          }
         });
       }
     });
@@ -147,14 +157,14 @@ mapControlIMD
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
 
-function imdCategory(id = "selIMD") {
+function imdDomain(id = "selIMD") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
   // Create the drop down to sort the chart
   const span = document.createElement("div");
 
   span.setAttribute("class", "search");
-  span.textContent = "IMD Category: ";
+  span.textContent = "Domain: ";
   div.appendChild(span);
 
   // Add a drop down
@@ -162,7 +172,7 @@ function imdCategory(id = "selIMD") {
     select = document.createElement("select");
 
   select.setAttribute("class", "dropdown-input");
-  select.setAttribute("id", "selImdCategory");
+  select.setAttribute("id", "selImdDomain");
 
   // Option constructor: args text, value, defaultSelected, selected
   select.options.add(new Option("imdRank", 0, true, true));
@@ -192,8 +202,33 @@ function imdCategory(id = "selIMD") {
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
-    const category = d3.select("#selImdCategory option:checked").text();
-    console.log(category);
-    recolourIMDLayer(category);
+    const domain = d3.select("#selImdDomain option:checked").text();
+    console.log(domain);
+    recolourIMDLayer(domain);
   });
 }
+
+const mapIMDDomain = new Map();
+// mapIMDDomain.set("Proper Description", [datasetDesc, colourOrder]);
+mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Rank", ["imdRank", 1])
+mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Decile", ["imdDecile", 1])
+mapIMDDomain.set("Income_Rank", ["incomeRank", 1])
+mapIMDDomain.set("Employment_Rank", ["employmentRank", 1])
+mapIMDDomain.set("Education_Skills_and_Training_Rank", ["educationRank", 1])
+mapIMDDomain.set("Health_Deprivation_and_Disability_Rank", ["healthRank", 1])
+mapIMDDomain.set("Crime_Rank", ["crimeRank", 1])
+mapIMDDomain.set("Barriers_to_Housing_and_Services_Rank", ["housingRank", 1])
+mapIMDDomain.set("Living_Environment_Rank", ["livingEnvironRank", 1])
+mapIMDDomain.set("Income_Deprivation_Affecting_Children_Index_Rank", ["incomeChildRank", 1])
+mapIMDDomain.set("Income_Deprivation_Affecting_Older_People_Rank", ["incomeOlderRank", 1])
+mapIMDDomain.set("Children_and_Young_People_Subdomain_Rank", ["childRank", 1])
+mapIMDDomain.set("Adult_Skills_Subdomain_Rank", ["adultSkillsRank", 1])
+mapIMDDomain.set("Geographical_Barriers_Subdomain_Rank", ["geogRank", 1])
+mapIMDDomain.set("Wider_Barriers_Subdomain_Rank", ["barriersRank", 1])
+mapIMDDomain.set("Indoors_Subdomain_Rank", ["indoorsRank", 1])
+mapIMDDomain.set("Outdoors_Subdomain_Rank", ["outdoorsRank", 1])
+mapIMDDomain.set("Total_population_mid_2015", ["totalPopn", 1])
+mapIMDDomain.set("Dependent_Children_aged_0_15_mid_2015", ["dependentChildren", 1])
+mapIMDDomain.set("Population_aged_16_59_mid_2015", ["popnMiddle", 1])
+mapIMDDomain.set("Older_population_aged_60_and_over_mid_2015", ["popnOlder", 1])
+mapIMDDomain.set("Working_age_population_18_59_64", ["popnWorking", 1])

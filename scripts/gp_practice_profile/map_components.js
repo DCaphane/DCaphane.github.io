@@ -13,6 +13,8 @@ Reusable map components:
 https://github.com/nickpeihl/leaflet-sidebar-v2
 */
 
+const minPopulationLSOA = 20;
+
 const mapInitialise = defaultMapSetUp();
 const mapWithSites = new Map(); // set of maps that include site codes
 
@@ -482,7 +484,7 @@ function addWardGroupsToMap(zoomToExtent = false) {
   });
 }
 
-// const layersMapBoundaries = new Map();
+const layersMapBoundaries = new Map();
 
 function ccgBoundary(zoomToExtent = true) {
   geoDataCCGBoundary.then(function (v) {
@@ -491,7 +493,7 @@ function ccgBoundary(zoomToExtent = true) {
       pane: "ccgBoundaryPane",
     });
 
-    // layersMapBoundaries.set("voyCCGMain", ccgBoundary);
+    layersMapBoundaries.set("voyCCGMain", ccgBoundary);
     ccgBoundary.addTo(mapMain.map);
     const overlayCCGs = {
       label: "CCG Boundaries",
@@ -665,13 +667,16 @@ function lsoaBoundary(zoomToExtent = false) {
   // control.addOverlay(lsoaLayerLabels, "lsoa_labels"); // Adds an overlay (checkbox entry) with the given name to the control.
 }
 
+// Used to subsequently filter IMD map once a practice selection has been made
+const mapSelectedLSOA = new Map();
+
 function filterFunctionLsoa(zoomToExtent = false) {
   const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
   // const maxValue =
   //   selectedPractice !== undefined && selectedPractice !== "All Practices"
   //     ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
   //     : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
-
+  mapSelectedLSOA.clear()
   const map = this.map;
 
   // if (map.hasLayer(lsoaLayer)) {
@@ -733,7 +738,8 @@ function filterFunctionLsoa(zoomToExtent = false) {
                 .get(lsoaCode)
             : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
 
-        if (value > 20) {
+        if (value > minPopulationLSOA) {
+          mapSelectedLSOA.set(lsoaCode, value);
           return true;
         }
       },
@@ -777,6 +783,7 @@ function refreshChartsPostPracticeChange(practice) {
   filterGPPracticeSites(true);
 
   recolourLSOA();
+  recolourIMDLayer();
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();

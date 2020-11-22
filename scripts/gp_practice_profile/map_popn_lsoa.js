@@ -34,6 +34,7 @@ Promise.all([
   geoDataLsoaBoundaries,
 ]).then((v) => {
   recolourLSOA();
+  recolourIMDLayer();
   // ccgBoundary.call(mapMain, true);
 });
 
@@ -75,7 +76,7 @@ function recolourLSOA() {
         value = 0;
       }
 
-      if (value > 20) {
+      if (value > minPopulationLSOA) {
         layer.setStyle({
           // https://github.com/d3/d3-scale-chromatic
           fillColor: d3.interpolateYlGnBu(value / maxValue),
