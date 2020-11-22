@@ -1,428 +1,388 @@
 <!DOCTYPE html>
 <html lang="en-gb" dir="ltr">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!--
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
       The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
     -->
 
-		<title>ECDS Testing</title>
+    <title>ECDS Testing</title>
 
-		<meta name="author" content="David Caphane" />
-		<meta name="description" content="Understanding ECDS" />
+    <meta name="author" content="David Caphane" />
+    <meta name="description" content="Understanding ECDS" />
 
-		<!-- Place "favicon.ico" in the root directory -->
-		<!-- link rel="icon" href="../../favicon.ico" -->
-		<!--
+    <!-- Place "favicon.ico" in the root directory -->
+    <!-- link rel="icon" href="../../favicon.ico" -->
+    <!--
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" integrity="sha256-HxaKz5E/eBbvhGMNwhWRPrAR9i/lG1JeT4mD6hCQ7s4="crossorigin="anonymous" />
     -->
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
-			integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
-			crossorigin="anonymous"
-		/>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
+      integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
+      crossorigin="anonymous"
+    />
 
-		<link
-			href="https://fonts.googleapis.com/css?family=Roboto:400,900"
-			rel="stylesheet"
-		/>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+      rel="stylesheet"
+    />
 
-		<script
-			src="https://kit.fontawesome.com/0e64dfdf0b.js"
-			crossorigin="anonymous"
-		></script>
+    <script
+      src="https://kit.fontawesome.com/0e64dfdf0b.js"
+      crossorigin="anonymous"
+    ></script>
 
-		<link rel="stylesheet" type="text/css" href="css/style.css" />
-		<link rel="stylesheet" type="text/css" href="css/layout.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/layout.css" />
 
-		<link
-			rel="stylesheet"
-			type="text/css"
-			href="css/components/navbar_main.css"
-		/>
-		<link
-			rel="stylesheet"
-			type="text/css"
-			href="css/components/navbar_side.css"
-		/>
-		<link
-			rel="stylesheet"
-			type="text/css"
-			href="css/components/loader.css"
-		/>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/navbar_main.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/navbar_side.css"
+    />
+    <link rel="stylesheet" type="text/css" href="css/components/loader.css" />
 
-		<link
-			rel="stylesheet"
-			type="text/css"
-			href="css/components/toTop.css"
-		/>
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.min.css"
-		/>
-		<link rel="stylesheet" type="text/css" href="css/ecds.css" />
+    <link rel="stylesheet" type="text/css" href="css/components/toTop.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="css/ecds.css" />
 
-		<!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
-		<script defer src="https://d3js.org/d3.v5.min.js"></script>
-		<!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
+    <!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
+    <script defer src="https://d3js.org/d3.v5.min.js"></script>
+    <!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
 
-		<!-- Crossfilter -->
-		<script
-			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.min.js"
-		></script>
-		<!-- dc.js -->
-		<script
-			defer
-			src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.min.js"
-		></script>
+    <!-- Crossfilter -->
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.min.js"
+    ></script>
+    <!-- dc.js -->
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.min.js"
+    ></script>
 
-		<!-- leaflet -->
-		<!-- https://leafletjs.com/download.html -->
-		<link
-			defer
-			rel="stylesheet"
-			href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-			integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-			crossorigin=""
-		/>
-		<script
-			defer
-			src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-			integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-			crossorigin=""
-		></script>
-		<!-- local css -->
-		<link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
+    <!-- leaflet -->
+    <!-- https://leafletjs.com/download.html -->
+    <link
+      defer
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""
+    />
+    <script
+      defer
+      src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+      integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+      crossorigin=""
+    ></script>
+    <!-- local css -->
+    <link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
 
-		<script defer src="scripts/leaflet/dc.leaflet.min.js"></script>
-		<!-- http://dc-js.github.io/dc.leaflet.js/js/dc.leaflet.js -->
+    <script defer src="scripts/leaflet/dc.leaflet.min.js"></script>
+    <!-- http://dc-js.github.io/dc.leaflet.js/js/dc.leaflet.js -->
 
-		<script defer src="scripts/generic.js"></script>
-		<script defer src="scripts/dc/cht_defaults.js"></script>
-		<script defer src="scripts/ecds/ecds_ref_tables.js"></script>
-		<script defer src="scripts/ecds/ecds_charts.js"></script>
+    <script defer src="scripts/generic.js"></script>
+    <script defer src="scripts/dc/cht_defaults.js"></script>
+    <script defer src="scripts/ecds/ecds_ref_tables.js"></script>
+    <script defer src="scripts/ecds/ecds_charts.js"></script>
 
-		<!-- Page Structure (Layout) -->
-		<script>
-			const elemActive = "Home";
-			elemActive.split(" ").join("-"); // remove any spaces and replace with hyphens
-		</script>
-		<script defer src="scripts/components/navmain.js"></script>
-		<script defer src="scripts/components/navside.js"></script>
-		<script defer src="scripts/components/navside_interactive.js"></script>
-		<script defer src="scripts/components/toTop.js"></script>
+    <!-- Page Structure (Layout) -->
+    <script>
+      const elemActive = "Home";
+      elemActive.split(" ").join("-"); // remove any spaces and replace with hyphens
+    </script>
+    <script defer src="scripts/components/navmain.js"></script>
+    <script defer src="scripts/components/navside.js"></script>
+    <script defer src="scripts/components/navside_interactive.js"></script>
+    <script defer src="scripts/components/toTop.js"></script>
 
-		<style></style>
-	</head>
+    <style></style>
+  </head>
 
-	<body>
-		<div class="wrapper">
-			<section id="hero">
-				<a href="/" class="logo"> <h1>ECDS Demo</h1> </a>
-			</section>
+  <body>
+    <div class="wrapper">
+      <section id="hero">
+        <a href="/" class="logo"> <h1>ECDS Demo</h1> </a>
+      </section>
 
-			<div class="wrapper-nav">
-				<nav id="nav-main">
-					<!-- nav bar main imported from components.js -->
-				</nav>
-			</div>
+      <div class="wrapper-nav">
+        <nav id="nav-main">
+          <!-- nav bar main imported from components.js -->
+        </nav>
+      </div>
 
-			<nav id="article-left"></nav>
+      <nav id="article-left"></nav>
 
-			<article id="article-right">
-				<div class="column">
-					<section id="sec-intro" class="section anchor">
-						<h2>Introduction</h2>
-						<p>
-							Ut consequat commodo qui veniam id pariatur do
-							consequat ullamco in do pariatur cupidatat anim.
-							Dolore et occaecat cillum ipsum proident laborum
-							incididunt consequat sit laboris ipsum. Id magna
-							reprehenderit sit aute laborum ullamco occaecat aute
-							id proident minim.
-						</p>
-						<p id="counter">
-							<!-- This is used to display total and filtered record count -->
-							Charts loading...
-						</p>
-						<div id="gppractice-drop">
-							<a
-								class="reset"
-								href="javascript:dropGPPractice.filterAll();dc.redrawAll();"
-								style="visibility: hidden;"
-								>reset</a
-							>
-						</div>
-						<br />
-					</section>
+      <article id="article-right">
+        <div class="column">
+          <section id="sec-intro" class="section anchor">
+            <h2>Introduction</h2>
+            <p>
+              Ut consequat commodo qui veniam id pariatur do consequat ullamco
+              in do pariatur cupidatat anim. Dolore et occaecat cillum ipsum
+              proident laborum incididunt consequat sit laboris ipsum. Id magna
+              reprehenderit sit aute laborum ullamco occaecat aute id proident
+              minim.
+            </p>
+            <p id="counter">
+              <!-- This is used to display total and filtered record count -->
+              Charts loading...
+            </p>
+            <div id="gppractice-drop">
+              <a
+                class="reset"
+                href="javascript:dropGPPractice.filterAll();dc.redrawAll();"
+                style="visibility: hidden"
+                >reset</a
+              >
+            </div>
+            <br />
+          </section>
 
-					<section id="sec-time" class="section anchor">
-						<h2>Time</h2>
+          <section id="sec-time" class="section anchor">
+            <h2>Time</h2>
 
-						<div id="bl-sectime" class="bouncing-loader">
-							<div></div>
-							<div></div>
-							<div></div>
-						</div>
+            <div id="bl-sectime" class="bouncing-loader">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
 
-						<div id="sectime" class="tiles dcCharts">
-							<div class="tile wide content">
-								<h3>Monthly Series</h3>
-								<div id="period-trend-chart">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-										Current filter:
-										<span class="filter"></span>
-									</span>
-									<a
-										class="reset"
-										href="javascript:seriesPeriod.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+            <div id="sectime" class="tiles dcCharts">
+              <div class="tile wide content">
+                <h3>Monthly Series</h3>
+                <div id="period-trend-chart">
+                  <span class="reset" style="visibility: hidden">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
+                  <a
+                    class="reset"
+                    href="javascript:seriesPeriod.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile wide content">
-								<h3>Daily Series</h3>
-								<div id="daily-trend-chart">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-										Current filter:
-										<span class="filter"></span>
-									</span>
-									<a
-										class="reset"
-										href="javascript:seriesDaily.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Red circles = Mon , Yellow circles for bank
-									holidays
-								</footer>
-							</div>
+              <div class="tile wide content">
+                <h3>Daily Series</h3>
+                <div id="daily-trend-chart">
+                  <span class="reset" style="visibility: hidden">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
+                  <a
+                    class="reset"
+                    href="javascript:seriesDaily.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">
+                  Red circles = Mon , Yellow circles for bank holidays
+                </footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Weekday</h3>
-								<div id="day-of-week-chart">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-										Current filter:
-										<span class="filter"></span>
-									</span>
-									<a
-										class="reset"
-										href="javascript:chtDayofWeek.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Average attendances by day of the week
-								</footer>
-							</div>
+              <div class="tile content">
+                <h3>Weekday</h3>
+                <div id="day-of-week-chart">
+                  <span class="reset" style="visibility: hidden">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
+                  <a
+                    class="reset"
+                    href="javascript:chtDayofWeek.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">
+                  Average attendances by day of the week
+                </footer>
+              </div>
 
-							<div class="tile wide content">
-								<h3>By Hour of Day</h3>
-								<div id="heatmapTimeDay">
-									<a
-										class="reset"
-										href="javascript:heatmapTimeDay.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<div id="legend"></div>
-								<footer id="heatText" class="cta">
-									Highest number of attendances:
-									<span id="heatDayMax"></span> at
-									<span id="heatTimeMax"></span><br />
-									Lowest number of attendances:
-									<span id="heatDayMin"></span> at
-									<span id="heatTimeMin"></span><br />
-								</footer>
-							</div>
+              <div class="tile wide content">
+                <h3>By Hour of Day</h3>
+                <div id="heatmapTimeDay">
+                  <a
+                    class="reset"
+                    href="javascript:heatmapTimeDay.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <div id="legend"></div>
+                <footer id="heatText" class="cta">
+                  Highest number of attendances:
+                  <span id="heatDayMax"></span> at <span id="heatTimeMax"></span
+                  ><br />
+                  Lowest number of attendances:
+                  <span id="heatDayMin"></span> at <span id="heatTimeMin"></span
+                  ><br />
+                </footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Referral Source</h3>
-								<div id="refSource-chart">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-										Current filter:
-										<span class="filter"></span>
-									</span>
-									<a
-										class="reset"
-										href="javascript:chtRefSource.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">...</footer>
-							</div>
-						</div>
-					</section>
+              <div class="tile content">
+                <h3>Referral Source</h3>
+                <div id="refSource-chart">
+                  <span class="reset" style="visibility: hidden">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
+                  <a
+                    class="reset"
+                    href="javascript:chtRefSource.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
 
-					<section id="sec-diagnosis" class="section anchor">
-						<h2>Diagnosis</h2>
+          <section id="sec-diagnosis" class="section anchor">
+            <h2>Diagnosis</h2>
 
-						<div id="bl-secdiag" class="bouncing-loader">
-							<div></div>
-							<div></div>
-							<div></div>
-						</div>
+            <div id="bl-secdiag" class="bouncing-loader">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
 
-						<div id="secdiag" class="tiles dcCharts">
-							<div class="tile content">
-								<h3>Diagnosis Main</h3>
-								<div id="diagMain-chart">
-									<a
-										class="reset"
-										href="javascript:chtDiagMain.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+            <div id="secdiag" class="tiles dcCharts">
+              <div class="tile content">
+                <h3>Diagnosis Main</h3>
+                <div id="diagMain-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtDiagMain.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Diagnoses</h3>
-								<div id="diagnosis-chart-wide">
-									<a
-										class="reset"
-										href="javascript:chtDiagnoses.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+              <div class="tile content">
+                <h3>Diagnoses</h3>
+                <div id="diagnosis-chart-wide">
+                  <a
+                    class="reset"
+                    href="javascript:chtDiagnoses.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Acuity</h3>
-								<div id="acuity-chart">
-									<a
-										class="reset"
-										href="javascript:chtAcuity.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+              <div class="tile content">
+                <h3>Acuity</h3>
+                <div id="acuity-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtAcuity.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Complaint</h3>
-								<div id="complaint-chart">
-									<a
-										class="reset"
-										href="javascript:chtComplaint.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+              <div class="tile content">
+                <h3>Complaint</h3>
+                <div id="complaint-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtComplaint.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Drug Alcohol</h3>
-								<div id="drugalcohol-chart">
-									<a
-										class="reset"
-										href="javascript:chtDrugAlcohol.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
-						</div>
-					</section>
+              <div class="tile content">
+                <h3>Drug Alcohol</h3>
+                <div id="drugalcohol-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtDrugAlcohol.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
+            </div>
+          </section>
 
-					<section id="sec-patient" class="section anchor">
-						<h2>Patient Demographic</h2>
+          <section id="sec-patient" class="section anchor">
+            <h2>Patient Demographic</h2>
 
-						<div id="bl-secpatient" class="bouncing-loader">
-							<div></div>
-							<div></div>
-							<div></div>
-						</div>
+            <div id="bl-secpatient" class="bouncing-loader">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
 
-						<div id="secpatient" class="tiles dcCharts">
-							<div class="tile content">
-								<h3>Age Band</h3>
-								<div id="ageband-chart">
-									<a
-										class="reset"
-										href="javascript:chtAgeBand.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+            <div id="secpatient" class="tiles dcCharts">
+              <div class="tile content">
+                <h3>Age Band</h3>
+                <div id="ageband-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtAgeBand.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile wide content">
-								<h3>by LSOA</h3>
-								<div id="map-lsoa">
-									<a
-										class="reset"
-										href="javascript:mapLSOA.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Some descriptive text here.
-								</footer>
-							</div>
+              <div class="tile wide content">
+                <h3>by LSOA</h3>
+                <div id="map-lsoa">
+                  <a
+                    class="reset"
+                    href="javascript:mapLSOA.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Some descriptive text here.</footer>
+              </div>
 
-							<div class="tile wide content">
-								<h3>GP Practice</h3>
-								<div id="cht_PracticeBubble">
-									<a
-										class="reset"
-										href="javascript:chtGPPractice.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+              <div class="tile wide content">
+                <h3>GP Practice</h3>
+                <div id="cht_PracticeBubble">
+                  <a
+                    class="reset"
+                    href="javascript:chtGPPractice.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<!-- <div class="tile wide content">
+              <!-- <div class="tile wide content">
                 <h3>GP Practice</h3>
                 <div id="gppractice-drop">
                   <a
@@ -437,167 +397,143 @@
                 </footer>
               </div> -->
 
-							<div class="tile content">
-								<h3>Filter: EDFD</h3>
-								<div id="EDFD-cbox">
-									<a
-										class="reset"
-										href="javascript:cBoxEDFD.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
-						</div>
-					</section>
+              <div class="tile content">
+                <h3>Filter: EDFD</h3>
+                <div id="EDFD-cbox">
+                  <a
+                    class="reset"
+                    href="javascript:cBoxEDFD.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
+            </div>
+          </section>
 
-					<section id="sec-discharge" class="section anchor">
-						<h2>Discharge</h2>
+          <section id="sec-discharge" class="section anchor">
+            <h2>Discharge</h2>
 
-						<div id="bl-secdisch" class="bouncing-loader">
-							<div></div>
-							<div></div>
-							<div></div>
-						</div>
+            <div id="bl-secdisch" class="bouncing-loader">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
 
-						<div id="secdisch" class="tiles dcCharts">
-							<div class="tile content">
-								<h3>Destination</h3>
-								<div id="dischDest-chart">
-									<a
-										class="reset"
-										href="javascript:chtDischDest.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+            <div id="secdisch" class="tiles dcCharts">
+              <div class="tile content">
+                <h3>Destination</h3>
+                <div id="dischDest-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtDischDest.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Status</h3>
-								<div id="dischStatus-chart">
-									<a
-										class="reset"
-										href="javascript:chtDischStatus.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+              <div class="tile content">
+                <h3>Status</h3>
+                <div id="dischStatus-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtDischStatus.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile content">
-								<h3>Follow Up</h3>
-								<div id="dischFUP-chart">
-									<a
-										class="reset"
-										href="javascript:chtDischFUP.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
+              <div class="tile content">
+                <h3>Follow Up</h3>
+                <div id="dischFUP-chart">
+                  <a
+                    class="reset"
+                    href="javascript:chtDischFUP.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
 
-							<div class="tile wide content">
-								<h3>Duration</h3>
-								<div id="duration-chart">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-										Current filter:
-										<span class="filter"></span>
-									</span>
-									<a
-										class="reset"
-										href="javascript:chtDuration.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Add Description Here
-								</footer>
-							</div>
-						</div>
-					</section>
+              <div class="tile wide content">
+                <h3>Duration</h3>
+                <div id="duration-chart">
+                  <span class="reset" style="visibility: hidden">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
+                  <a
+                    class="reset"
+                    href="javascript:chtDuration.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Add Description Here</footer>
+              </div>
+            </div>
+          </section>
 
-					<section id="sec-test" class="section anchor">
-						<h2>Experimental</h2>
+          <section id="sec-test" class="section anchor">
+            <h2>Experimental</h2>
 
-						<div id="bl-sectest" class="bouncing-loader">
-							<div></div>
-							<div></div>
-							<div></div>
-						</div>
+            <div id="bl-sectest" class="bouncing-loader">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
 
-						<div id="sectest" class="tiles dcCharts">
-							<div class="tile wide content">
-								<h3>Simple Map</h3>
-								<div id="map-simple">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-									</span>
-									<a
-										class="reset"
-										href="javascript:simpleMap.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Some descriptive text here.
-								</footer>
-							</div>
+            <div id="sectest" class="tiles dcCharts">
+              <div class="tile wide content">
+                <h3>Simple Map</h3>
+                <div id="map-simple">
+                  <span class="reset" style="visibility: hidden"> </span>
+                  <a
+                    class="reset"
+                    href="javascript:simpleMap.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Some descriptive text here.</footer>
+              </div>
 
-							<div class="tile wide content">
-								<h3>BoxPlot Testing</h3>
-								<div id="box-test">
-									<span
-										class="reset"
-										style="visibility: hidden;"
-									>
-										Current filter:
-										<span class="filter"></span>
-									</span>
-									<a
-										class="reset"
-										href="javascript:boxPlotDuration.filterAll();dc.redrawAll();"
-										style="visibility: hidden;"
-										>reset</a
-									>
-								</div>
-								<footer class="cta">
-									Some descriptive text here.
-								</footer>
-							</div>
-						</div>
-					</section>
-				</div>
-				<div class="footer"></div>
-				<!-- Test internal footer -->
-			</article>
+              <div class="tile wide content">
+                <h3>BoxPlot Testing</h3>
+                <div id="box-test">
+                  <span class="reset" style="visibility: hidden">
+                    Current filter:
+                    <span class="filter"></span>
+                  </span>
+                  <a
+                    class="reset"
+                    href="javascript:boxPlotDuration.filterAll();dc.redrawAll();"
+                    style="visibility: hidden"
+                    >reset</a
+                  >
+                </div>
+                <footer class="cta">Some descriptive text here.</footer>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="footer"></div>
+        <!-- Test internal footer -->
+      </article>
 
-			<footer id="footer">
-				Built using <a href="https://dc-js.github.io/dc.js/">dc.js</a>,
-				<a href="https://github.com/crossfilter/crossfilter/wiki"
-					>crossfilter</a
-				>
-				and <a href="https://d3js.org/">d3.js</a>.
-			</footer>
-		</div>
-	</body>
+      <footer id="footer">
+        Built using <a href="https://dc-js.github.io/dc.js/">dc.js</a>,
+        <a href="https://github.com/crossfilter/crossfilter/wiki"
+          >crossfilter</a
+        >
+        and <a href="https://d3js.org/">d3.js</a>.
+      </footer>
+    </div>
+  </body>
 </html>
