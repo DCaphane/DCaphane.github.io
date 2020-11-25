@@ -21,10 +21,10 @@ mapIMD.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapIMD.map.createPane("ccgBoundaryPane");
 mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
-  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  ccgBoundary(true);
-});
+// Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
+//   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
+//   ccgBoundary(true);
+// });
 
 function recolourIMDLayer(defaultIMD = "imdDecile") {
   // imdRank
@@ -39,7 +39,8 @@ function recolourIMDLayer(defaultIMD = "imdDecile") {
         layersMapIMD.get(key).eachLayer(function (layer) {
           const lsoaCode = layer.feature.properties.lsoa;
 
-          if (mapSelectedLSOA.has(lsoaCode)) { // the filter lsoaFunction populates a map object of lsoas (with relevant population)
+          if (mapSelectedLSOA.has(lsoaCode)) {
+            // the filter lsoaFunction populates a map object of lsoas (with relevant population)
             dataIMD.then(function (v) {
               let obj = v.find((x) => x.lsoa === lsoaCode);
               if (obj !== undefined) {
@@ -63,7 +64,8 @@ function recolourIMDLayer(defaultIMD = "imdDecile") {
                 );
               }
             });
-          } else { // if population is less than set amount, make it transparent
+          } else {
+            // if population is less than set amount, make it transparent
             layer.setStyle({
               // no (transparent) background
               fillColor: "#ff0000", // background
@@ -88,7 +90,7 @@ const overlaysTreeIMD = {
 
 const baseTreeIMD = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("Stamen.TonerHybrid")
+    .provider("Stamen.TonerLite")
     .addTo(mapIMD.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -123,7 +125,7 @@ const baseTreeIMD = (function () {
           { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
           {
-            label: "ST Hybrid",
+            label: "ST Light",
             layer: defaultBasemap,
           },
         ],
@@ -210,25 +212,37 @@ function imdDomain(id = "selIMD") {
 
 const mapIMDDomain = new Map();
 // mapIMDDomain.set("Proper Description", [datasetDesc, colourOrder]);
-mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Rank", ["imdRank", 1])
-mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Decile", ["imdDecile", 1])
-mapIMDDomain.set("Income_Rank", ["incomeRank", 1])
-mapIMDDomain.set("Employment_Rank", ["employmentRank", 1])
-mapIMDDomain.set("Education_Skills_and_Training_Rank", ["educationRank", 1])
-mapIMDDomain.set("Health_Deprivation_and_Disability_Rank", ["healthRank", 1])
-mapIMDDomain.set("Crime_Rank", ["crimeRank", 1])
-mapIMDDomain.set("Barriers_to_Housing_and_Services_Rank", ["housingRank", 1])
-mapIMDDomain.set("Living_Environment_Rank", ["livingEnvironRank", 1])
-mapIMDDomain.set("Income_Deprivation_Affecting_Children_Index_Rank", ["incomeChildRank", 1])
-mapIMDDomain.set("Income_Deprivation_Affecting_Older_People_Rank", ["incomeOlderRank", 1])
-mapIMDDomain.set("Children_and_Young_People_Subdomain_Rank", ["childRank", 1])
-mapIMDDomain.set("Adult_Skills_Subdomain_Rank", ["adultSkillsRank", 1])
-mapIMDDomain.set("Geographical_Barriers_Subdomain_Rank", ["geogRank", 1])
-mapIMDDomain.set("Wider_Barriers_Subdomain_Rank", ["barriersRank", 1])
-mapIMDDomain.set("Indoors_Subdomain_Rank", ["indoorsRank", 1])
-mapIMDDomain.set("Outdoors_Subdomain_Rank", ["outdoorsRank", 1])
-mapIMDDomain.set("Total_population_mid_2015", ["totalPopn", 1])
-mapIMDDomain.set("Dependent_Children_aged_0_15_mid_2015", ["dependentChildren", 1])
-mapIMDDomain.set("Population_aged_16_59_mid_2015", ["popnMiddle", 1])
-mapIMDDomain.set("Older_population_aged_60_and_over_mid_2015", ["popnOlder", 1])
-mapIMDDomain.set("Working_age_population_18_59_64", ["popnWorking", 1])
+mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Rank", ["imdRank", 1]);
+mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Decile", ["imdDecile", 1]);
+mapIMDDomain.set("Income_Rank", ["incomeRank", 1]);
+mapIMDDomain.set("Employment_Rank", ["employmentRank", 1]);
+mapIMDDomain.set("Education_Skills_and_Training_Rank", ["educationRank", 1]);
+mapIMDDomain.set("Health_Deprivation_and_Disability_Rank", ["healthRank", 1]);
+mapIMDDomain.set("Crime_Rank", ["crimeRank", 1]);
+mapIMDDomain.set("Barriers_to_Housing_and_Services_Rank", ["housingRank", 1]);
+mapIMDDomain.set("Living_Environment_Rank", ["livingEnvironRank", 1]);
+mapIMDDomain.set("Income_Deprivation_Affecting_Children_Index_Rank", [
+  "incomeChildRank",
+  1,
+]);
+mapIMDDomain.set("Income_Deprivation_Affecting_Older_People_Rank", [
+  "incomeOlderRank",
+  1,
+]);
+mapIMDDomain.set("Children_and_Young_People_Subdomain_Rank", ["childRank", 1]);
+mapIMDDomain.set("Adult_Skills_Subdomain_Rank", ["adultSkillsRank", 1]);
+mapIMDDomain.set("Geographical_Barriers_Subdomain_Rank", ["geogRank", 1]);
+mapIMDDomain.set("Wider_Barriers_Subdomain_Rank", ["barriersRank", 1]);
+mapIMDDomain.set("Indoors_Subdomain_Rank", ["indoorsRank", 1]);
+mapIMDDomain.set("Outdoors_Subdomain_Rank", ["outdoorsRank", 1]);
+mapIMDDomain.set("Total_population_mid_2015", ["totalPopn", 1]);
+mapIMDDomain.set("Dependent_Children_aged_0_15_mid_2015", [
+  "dependentChildren",
+  1,
+]);
+mapIMDDomain.set("Population_aged_16_59_mid_2015", ["popnMiddle", 1]);
+mapIMDDomain.set("Older_population_aged_60_and_over_mid_2015", [
+  "popnOlder",
+  1,
+]);
+mapIMDDomain.set("Working_age_population_18_59_64", ["popnWorking", 1]);

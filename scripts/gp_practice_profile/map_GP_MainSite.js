@@ -62,7 +62,7 @@ const overlaysTreeMain = {
 
 const baseTreeMain = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("OpenStreetMap.Mapnik")
+    .provider("OpenStreetMap.HOT") // .Mapnik
     .addTo(mapMain.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -89,6 +89,10 @@ const baseTreeMain = (function () {
             label: "Water Colour",
             layer: L.tileLayer.provider("Stamen.Watercolor"),
           },
+          {
+            label: "Stamen Terrain",
+            layer: L.tileLayer.provider("Stamen.Terrain"),
+          },
         ],
       },
       {
@@ -99,6 +103,17 @@ const baseTreeMain = (function () {
           {
             label: "ST Hybrid",
             layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+          },
+          // { // not loading
+          //   label: "Esri Grey",
+          //   layer: L.tileLayer("Esri.WorldGrayCanvas"),
+          // },
+          {// Requires Access Token
+            label: "Jawg Matrix",
+            layer: L.tileLayer.provider("Jawg.Matrix", {
+              // variant: "",
+              accessToken: "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ" //  biDemo 
+            }),
           },
         ],
       },
@@ -130,3 +145,21 @@ mapControlMain
   // .expandSelected() // expand selected option in the baselayer
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
+
+hospitalDetails.then(function (v) {
+  const nationalTrustSites = {
+    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "NHS",
+        layer: mapHospitalLayers.get("NHS Sector"),
+      },
+      {
+        label: "Independent",
+        layer: mapHospitalLayers.get("Independent Sector"),
+      },
+    ],
+  };
+  overlaysTreeMain.children[5] = nationalTrustSites;
+});

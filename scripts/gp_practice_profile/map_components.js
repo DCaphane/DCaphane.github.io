@@ -270,18 +270,10 @@ function addPracticeToMap(zoomToExtent = false) {
       pointToLayer: pcnFormatting,
       onEachFeature: function (feature, layer) {
         const popupText =
-          "<h3>" +
-          layer.feature.properties.pcn_name +
-          "</h3>" +
-          "<p>" +
-          layer.feature.properties.practice_code +
-          ": " +
-          layer.feature.properties.practice_name +
-          "<br>Clinical Director: " +
-          layer.feature.properties.clinical_director +
-          "<br>Population: " +
-          formatNumber(layer.feature.properties.list_size) +
-          "</p>";
+          `<h3>${layer.feature.properties.pcn_name}</h3>
+          <p>${layer.feature.properties.practice_code}: ${layer.feature.properties.practice_name}
+          <br>Clinical Director: ${layer.feature.properties.clinical_director}
+          <br>Population: ${formatNumber(layer.feature.properties.list_size)}</p>`;
 
         layer.bindPopup(popupText);
         layer.on("mouseover", function (e) {
@@ -1296,3 +1288,146 @@ function overlayLSOA(mapObj) {
     ],
   };
 }
+
+const mapHospitalLayers = new Map();
+
+const hospitalDetails = (async function () {
+  // https://www.nhs.uk/about-us/nhs-website-datasets/
+  // https://media.nhswebsite.nhs.uk/data/foi/Hospital.pdf
+  return await d3.dsv(
+    "�", // \u00AC
+    "Data/geo/Hospital.csv",
+    function (d) {
+
+      if (isNaN(+d.Latitude)) {
+        console.log(d.OrganisationCode, d.Latitude);
+      } else {
+        const marker = new L.marker([+d.Latitude, +d.Longitude], {
+          icon: L.BeautifyIcon.icon({
+            iconShape: "circle",
+            icon: "h-square",
+            borderColor: "transparent",
+            backgroundColor: "transparent",
+            textColor: hospitalSiteColour(d.Sector), // Text color of marker icon
+          }),
+          zIndexOffset: 1000,
+          draggable: false,
+        }).bindPopup(
+          `<h3>${d.OrganisationCode}</h3>
+            <p>${d.OrganisationCode}: ${d.OrganisationName}
+            <br>${d.Sector}
+            <br><p>${d.ParentODSCode}: ${d.ParentName}</p>`
+        );
+
+        const category = d.Sector; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+        if (!mapHospitalLayers.has(category)) {
+          // Initialize the category array if not already set.
+          mapHospitalLayers.set(category, L.layerGroup());
+        }
+        mapHospitalLayers.get(category).addLayer(marker);
+      }
+
+      //   L.layerGroup(Array.from(mapHospitalLayers.values())).addTo(map);
+
+      //   // Add to overlay control
+      //   const ol = overlayPCNs(mapHospitalLayers);
+      //   overlaysTreeMain.children[0] = ol;
+    }
+  );
+})();
+
+function hospitalSiteColour(sector) {
+  switch (sector) {
+    case "NHS Sector":
+      return "rgba(255, 0, 0)";
+    case "Independent Sector":
+      return "rgba(0,0,255)";
+  }
+}
+
+
+// Make global to enable subsequent change to overlay
+const overlaysTreePopn = {
+  label: "Overlays",
+  selectAllCheckbox: true,
+  children: [],
+};
+
+const mapPopn = {
+  map: mapInitialise.mapInit("mapPopnLSOA"),
+  scaleBar: mapInitialise.scaleBar("bottomleft"),
+  sidebar(sidebarName) {
+    return mapInitialise.sidebarLeft(this.map, sidebarName);
+  },
+};
+
+const baseTreePopn = (function () {
+  const defaultBasemap = L.tileLayer
+    .provider("Stamen.TonerHybrid")
+    .addTo(mapPopn.map);
+
+  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+  const emptyBackground = (function emptyTile() {
+    return L.tileLayer("", {
+      zoom: 0,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    });
+  })();
+
+  return {
+    label: "Base Layers <i class='fas fa-globe'></i>",
+    children: [
+      {
+        label: "Colour <i class='fas fa-layer-group'></i>;",
+        children: [
+          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
+          {
+            label: "CartoDB",
+            layer: L.tileLayer.provider("CartoDB.Voyager"),
+          },
+          {
+            label: "Water Colour",
+            layer: L.tileLayer.provider("Stamen.Watercolor"),
+          },
+        ],
+      },
+      {
+        label: "Black & White <i class='fas fa-layer-group'></i>",
+        children: [
+          { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+          { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+          {
+            label: "ST Hybrid",
+            layer: defaultBasemap,
+          },
+        ],
+      },
+      { label: "None", layer: emptyBackground },
+    ],
+  };
+})();
+
+overlaysTreePopn.children[0] = overlayTrusts();
+
+const mapControlPopn = L.control.layers.tree(baseTreePopn, overlaysTreePopn, {
+  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+  collapsed: true, // Whether or not control options are displayed
+  sortLayers: true,
+  // namedToggle: true,
+  collapseAll: "Collapse all",
+  expandAll: "Expand all",
+  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+  closedSymbol:
+    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+  openedSymbol:
+    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+});
+
+mapControlPopn
+  .addTo(mapPopn.map)
+  // .setOverlayTree(overlaysTreePopn)
+  .collapseTree() // collapse the baselayers tree
+  // .expandSelected() // expand selected option in the baselayer
+  .collapseTree(true); // true to collapse the overlays tree
+// .expandSelected(true); // expand selected option in the overlays tree

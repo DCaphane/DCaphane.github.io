@@ -34,7 +34,7 @@ const overlaysTreeSites = {
 
 const baseTreeSites = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("CartoDB.Positron")
+    .provider("Stadia.AlidadeSmoothDark") // CartoDB.Positron
     .addTo(mapSites.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -56,6 +56,14 @@ const baseTreeSites = (function () {
           {
             label: "CartoDB",
             layer: L.tileLayer.provider("CartoDB.Voyager"),
+          },
+          {
+            label: "Simple",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+          },
+          {
+            label: "Bright",
+            layer: L.tileLayer.provider("Stadia.OSMBright"),
           },
           {
             label: "Water Colour",
