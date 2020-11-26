@@ -27,7 +27,7 @@ function defaultMapSetUp() {
       center: trustSitesLoc.yorkTrust, // centre on York Hospital
       zoom: 11,
       minZoom: 6, // how far out eg. 0 = whole world
-      maxZoom: 14, // how far in, eg. to the detail (max = 18)
+      maxZoom: 17, // how far in, eg. to the detail (max = 18)
       // https://leafletjs.com/reference-1.3.4.html#latlngbounds
       maxBounds: [
         [50.0, 1.6232], //south west
@@ -269,11 +269,14 @@ function addPracticeToMap(zoomToExtent = false) {
       // https://leafletjs.com/reference-1.7.1.html#geojson
       pointToLayer: pcnFormatting,
       onEachFeature: function (feature, layer) {
-        const popupText =
-          `<h3>${layer.feature.properties.pcn_name}</h3>
-          <p>${layer.feature.properties.practice_code}: ${layer.feature.properties.practice_name}
+        const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+          <p>${layer.feature.properties.practice_code}: ${
+          layer.feature.properties.practice_name
+        }
           <br>Clinical Director: ${layer.feature.properties.clinical_director}
-          <br>Population: ${formatNumber(layer.feature.properties.list_size)}</p>`;
+          <br>Population: ${formatNumber(
+            layer.feature.properties.list_size
+          )}</p>`;
 
         layer.bindPopup(popupText);
         layer.on("mouseover", function (e) {
@@ -668,7 +671,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
   //   selectedPractice !== undefined && selectedPractice !== "All Practices"
   //     ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
   //     : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
-  mapSelectedLSOA.clear()
+  mapSelectedLSOA.clear();
   const map = this.map;
 
   // if (map.hasLayer(lsoaLayer)) {
@@ -1298,7 +1301,6 @@ const hospitalDetails = (async function () {
     "�", // \u00AC
     "Data/geo/Hospital.csv",
     function (d) {
-
       if (isNaN(+d.Latitude)) {
         console.log(d.OrganisationCode, d.Latitude);
       } else {
@@ -1345,7 +1347,6 @@ function hospitalSiteColour(sector) {
   }
 }
 
-
 // Make global to enable subsequent change to overlay
 const overlaysTreePopn = {
   label: "Overlays",
@@ -1375,6 +1376,7 @@ const baseTreePopn = (function () {
     });
   })();
 
+  // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
     label: "Base Layers <i class='fas fa-globe'></i>",
     children: [
@@ -1383,23 +1385,42 @@ const baseTreePopn = (function () {
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
-            label: "CartoDB",
-            layer: L.tileLayer.provider("CartoDB.Voyager"),
+            label: "OSM HOT",
+            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
           },
+          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
           {
             label: "Water Colour",
             layer: L.tileLayer.provider("Stamen.Watercolor"),
           },
+          { label: "Bright", layer: L.tileLayer.provider("Stadia.OSMBright") },
+          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
         ],
       },
       {
         label: "Black & White <i class='fas fa-layer-group'></i>",
         children: [
-          { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
-          { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           {
-            label: "ST Hybrid",
-            layer: defaultBasemap,
+            label: "High Contrast",
+            layer: L.tileLayer.provider("Stamen.Toner"),
+          },
+          {
+            label: "Grey",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+          },
+          { label: "ST Hybrid", layer: defaultBasemap },
+          {
+            label: "Dark",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+          },
+          {
+            label: "Jawg Matrix",
+            layer: L.tileLayer.provider("Jawg.Matrix", {
+              // // Requires Access Token
+              accessToken:
+                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
+            }),
           },
         ],
       },

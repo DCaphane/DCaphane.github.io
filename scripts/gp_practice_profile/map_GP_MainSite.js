@@ -57,12 +57,9 @@ const overlaysTreeMain = {
   children: [],
 };
 
-// Promise.all([geoDataPCN, geoDataCYCWards]).then(
-//   (values) => {
-
 const baseTreeMain = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("OpenStreetMap.HOT") // .Mapnik
+    .provider("Stadia.OSMBright") // .Mapnik
     .addTo(mapMain.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -74,45 +71,53 @@ const baseTreeMain = (function () {
     });
   })();
 
+  // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
     label: "Base Layers <i class='fas fa-globe'></i>",
     children: [
       {
         label: "Colour <i class='fas fa-layer-group'></i>;",
         children: [
-          { label: "OSM", layer: defaultBasemap },
+          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
-            label: "CartoDB",
-            layer: L.tileLayer.provider("CartoDB.Voyager"),
+            label: "OSM HOT",
+            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
           },
+          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
           {
             label: "Water Colour",
             layer: L.tileLayer.provider("Stamen.Watercolor"),
           },
-          {
-            label: "Stamen Terrain",
-            layer: L.tileLayer.provider("Stamen.Terrain"),
-          },
+          { label: "Bright", layer: defaultBasemap },
+          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
         ],
       },
       {
         label: "Black & White <i class='fas fa-layer-group'></i>",
         children: [
-          { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
-          { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+          {
+            label: "High Contrast",
+            layer: L.tileLayer.provider("Stamen.Toner"),
+          },
+          {
+            label: "Grey",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+          },
           {
             label: "ST Hybrid",
             layer: L.tileLayer.provider("Stamen.TonerHybrid"),
           },
-          // { // not loading
-          //   label: "Esri Grey",
-          //   layer: L.tileLayer("Esri.WorldGrayCanvas"),
-          // },
-          {// Requires Access Token
+          {
+            label: "Dark",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+          },
+          {
             label: "Jawg Matrix",
             layer: L.tileLayer.provider("Jawg.Matrix", {
-              // variant: "",
-              accessToken: "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ" //  biDemo 
+              // // Requires Access Token
+              accessToken:
+                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
             }),
           },
         ],

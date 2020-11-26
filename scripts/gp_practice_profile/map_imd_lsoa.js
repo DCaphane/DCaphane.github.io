@@ -90,7 +90,7 @@ const overlaysTreeIMD = {
 
 const baseTreeIMD = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("Stamen.TonerLite")
+    .provider("Stadia.AlidadeSmooth")
     .addTo(mapIMD.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -102,6 +102,7 @@ const baseTreeIMD = (function () {
     });
   })();
 
+  // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
     label: "Base Layers <i class='fas fa-globe'></i>",
     children: [
@@ -110,23 +111,42 @@ const baseTreeIMD = (function () {
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
-            label: "CartoDB",
-            layer: L.tileLayer.provider("CartoDB.Voyager"),
+            label: "OSM HOT",
+            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
           },
+          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
           {
             label: "Water Colour",
             layer: L.tileLayer.provider("Stamen.Watercolor"),
           },
+          { label: "Bright", layer: L.tileLayer.provider("Stadia.OSMBright") },
+          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
         ],
       },
       {
         label: "Black & White <i class='fas fa-layer-group'></i>",
         children: [
-          { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
-          { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           {
-            label: "ST Light",
-            layer: defaultBasemap,
+            label: "High Contrast",
+            layer: L.tileLayer.provider("Stamen.Toner"),
+          },
+          { label: "Grey", layer: defaultBasemap },
+          {
+            label: "ST Hybrid",
+            layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+          },
+          {
+            label: "Dark",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+          },
+          {
+            label: "Jawg Matrix",
+            layer: L.tileLayer.provider("Jawg.Matrix", {
+              // // Requires Access Token
+              accessToken:
+                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
+            }),
           },
         ],
       },

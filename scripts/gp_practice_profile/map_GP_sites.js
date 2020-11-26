@@ -46,6 +46,7 @@ const baseTreeSites = (function () {
     });
   })();
 
+  // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
     label: "Base Layers <i class='fas fa-globe'></i>",
     children: [
@@ -54,31 +55,42 @@ const baseTreeSites = (function () {
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
-            label: "CartoDB",
-            layer: L.tileLayer.provider("CartoDB.Voyager"),
+            label: "OSM HOT",
+            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
           },
-          {
-            label: "Simple",
-            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
-          },
-          {
-            label: "Bright",
-            layer: L.tileLayer.provider("Stadia.OSMBright"),
-          },
+          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
           {
             label: "Water Colour",
             layer: L.tileLayer.provider("Stamen.Watercolor"),
           },
+          { label: "Bright", layer: L.tileLayer.provider("Stadia.OSMBright") },
+          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
         ],
       },
       {
         label: "Black & White <i class='fas fa-layer-group'></i>",
         children: [
-          { label: "Grey", layer: defaultBasemap },
-          { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
+          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+          {
+            label: "High Contrast",
+            layer: L.tileLayer.provider("Stamen.Toner"),
+          },
+          {
+            label: "Grey",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+          },
           {
             label: "ST Hybrid",
             layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+          },
+          { label: "Dark", layer: defaultBasemap },
+          {
+            label: "Jawg Matrix",
+            layer: L.tileLayer.provider("Jawg.Matrix", {
+              // // Requires Access Token
+              accessToken:
+                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
+            }),
           },
         ],
       },
