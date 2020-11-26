@@ -53,6 +53,7 @@ function recolourLSOA() {
       : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
 
   filterFunctionLsoa.call(mapPopn, true);
+  refreshMapPopnLegend(maxValue);
 
   geoDataLsoaBoundaries.then(function () {
     layersMapLSOA.get("voyCCGPopn").eachLayer(function (layer) {
@@ -98,3 +99,117 @@ function recolourLSOA() {
     });
   });
 }
+
+function heatmapLegend(placementID, id, legendText, colourScheme = d3.interpolateYlGnBu) {
+  const legendID = id,
+    gradientID = `gradient_${id}`
+    footerMapPopn = document.getElementById(placementID);
+
+  const svgLegend = d3
+    .select(footerMapPopn)
+    .append("svg")
+    .attr(
+      "viewBox",
+      `0 0
+      ${chtWidthWide + margin.left + margin.right}
+      ${chtHeightShort / 4}`
+    )
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .append("g")
+    .attr("transform", `translate(${margin.left - 20})`);
+
+  const countScale = d3.scaleLinear().domain([0, 1]).range([0, chtWidthWide]);
+
+  //Calculate the variables for the temp gradient
+  const numStops = 10;
+  let countRange = countScale.domain();
+  countRange[2] = countRange[1] - countRange[0];
+  const countPoint = [];
+  for (let i = 0; i < numStops; i++) {
+    countPoint.push((i * countRange[2]) / (numStops - 1) + countRange[0]);
+  }
+
+  // fnDeriveRGB can be used to derive rgb colour schemes for the steps 0, 0.5 and 1
+  // const fnDeriveRGB = d3.scaleSequential(colourScheme).domain([0, 1]); // eg. d3.interpolateYlGnBu
+  const colourRange = [colourScheme(0), colourScheme(0.5), colourScheme(1)];
+  var colourScale = d3.scaleLinear().domain([0, 0.5, 1]).range(colourRange);
+
+  //Create the gradient
+  svgLegend
+    .append("defs")
+    .append("linearGradient")
+    .attr("id", gradientID)
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .selectAll("stop")
+    .data(d3.range(numStops))
+    .enter()
+    .append("stop")
+    .attr("offset", function (d, i) {
+      return countScale(countPoint[i]) / chtWidthWide;
+    })
+    .attr("stop-color", function (d, i) {
+      return colourScale(countPoint[i]);
+    });
+
+  const xScaleLegendMapPopn = d3
+    .scaleLinear()
+    // .domain([0, maxValue])
+    .range([0, chtWidthWide])
+    .nice();
+
+  const xAxisLegendMapPopn = d3
+    .axisBottom(xScaleLegendMapPopn)
+    .tickFormat(formatNumber);
+
+  svgLegend
+    .append("g")
+    // .attr("class", "x axis")
+    .attr("id", legendID)
+    .attr("transform", `translate(0, ${chtHeightShort / 4 - 33})`) // positions the axis
+    .call(xAxisLegendMapPopn)
+    .append("text")
+    .attr("x", chtWidthWide / 2)
+    .attr("dy", "30px") // positions the axis label text
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .style("fill", "#000000") // font colour
+    .text(legendText);
+
+  function updateMapPopnLegend(maxValue = 1) {
+    xScaleLegendMapPopn.domain([0, maxValue]);
+    svgLegend
+      .select(`#${legendID}`)
+      // .transition(t)
+      .call(xAxisLegendMapPopn);
+
+    svgLegend
+      .selectAll(".bar")
+      .data([0,1])
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("rect").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "bar")
+      .style("fill", `url(#${gradientID}`)
+      .attr("y", "0px")
+      .attr("width", function (d) {
+        return xScaleLegendMapPopn(maxValue);
+      })
+      .attr("height", "30px");
+  }
+
+  return updateMapPopnLegend;
+}
+
+let refreshMapPopnLegend = heatmapLegend("footerMapPopn", "mapPopnLegend", "Population");
+let refreshMapIMDLegend = heatmapLegend("footerMapIMD", "mapIMDLegend", "Rank", d3.interpolateRdGy);

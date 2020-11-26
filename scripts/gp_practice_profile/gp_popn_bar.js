@@ -41,7 +41,7 @@ function initPopnBarChart(dataInit, id) {
       "viewBox",
       `0 0
       ${chtWidthWide + margin.left + margin.right}
-${chtHeightStd + margin.top + margin.bottom}`
+${chtHeightStd + 60}`
     );
 
   let sortType = 0;
@@ -254,12 +254,12 @@ ${chtHeightStd + margin.top + margin.bottom}`
             .attr("font-size", "0.75rem")
             .attr("transform", function (d, i) {
               return `translate(
-        ${x(d) + x.bandwidth() / 2 - 5},
-      ${chtHeightStd + 30})
+        ${x(d) + x.bandwidth() / 2 - 20},
+      ${chtHeightStd + 55})
 rotate(-60)`;
             })
 
-            .attr("text-anchor", "middle")
+            .attr("text-anchor", "start")
             .text(function (d) {
               return d;
             }),

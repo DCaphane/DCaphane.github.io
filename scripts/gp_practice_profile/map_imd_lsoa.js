@@ -1,5 +1,3 @@
-imdDomain("selIMD");
-
 const mapIMD = {
   map: mapInitialise.mapInit("mapIMDLSOA"),
   scaleBar: mapInitialise.scaleBar("bottomleft"),
@@ -26,7 +24,7 @@ mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 //   ccgBoundary(true);
 // });
 
-function recolourIMDLayer(defaultIMD = "imdDecile") {
+function recolourIMDLayer(defaultIMD = "imdRank") {
   // imdRank
   Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
     dataIMD.then(function (v) {
@@ -34,6 +32,8 @@ function recolourIMDLayer(defaultIMD = "imdDecile") {
         return d[defaultIMD];
       }); // imdRank
       // console.log(maxValue);
+
+      refreshMapIMDLegend(maxValue);
 
       for (let key of layersMapIMD.keys()) {
         layersMapIMD.get(key).eachLayer(function (layer) {
@@ -49,7 +49,7 @@ function recolourIMDLayer(defaultIMD = "imdDecile") {
 
                 layer.setStyle({
                   // https://github.com/d3/d3-scale-chromatic
-                  fillColor: d3.interpolateYlGnBu(1 - value / maxValue),
+                  fillColor: d3.interpolateRdGy(value / maxValue),
                   fillOpacity: 0.9,
                   weight: 1, // border
                   color: "red", // border
@@ -159,7 +159,44 @@ mapControlIMD
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
 
-function imdDomain(id = "selIMD") {
+const mapIMDDomain = new Map();
+// mapIMDDomain.set("Proper Description", [datasetDesc, colourOrder]);
+mapIMDDomain.set("IMD Rank", ["imdRank", 1]);
+mapIMDDomain.set("IMD Decile", ["imdDecile", 1]);
+mapIMDDomain.set("Income", ["incomeRank", 1]);
+mapIMDDomain.set("Employment", ["employmentRank", 1]);
+mapIMDDomain.set("Education Skills and Training", ["educationRank", 1]);
+mapIMDDomain.set("Health Deprivation and Disability", ["healthRank", 1]);
+mapIMDDomain.set("Crime", ["crimeRank", 1]);
+mapIMDDomain.set("Barriers to Housing and Services", ["housingRank", 1]);
+mapIMDDomain.set("Living Environment", ["livingEnvironRank", 1]);
+mapIMDDomain.set("Income Deprivation Affecting Children Index", [
+  "incomeChildRank",
+  1,
+]);
+mapIMDDomain.set("Income Deprivation Affecting Older People", [
+  "incomeOlderRank",
+  1,
+]);
+mapIMDDomain.set("Children and Young People Subdomain", ["childRank", 1]);
+mapIMDDomain.set("Adult Skills Subdomain", ["adultSkillsRank", 1]);
+mapIMDDomain.set("Geographical Barriers Subdomain", ["geogRank", 1]);
+mapIMDDomain.set("Wider Barriers Subdomain", ["barriersRank", 1]);
+mapIMDDomain.set("Indoors Subdomain", ["indoorsRank", 1]);
+mapIMDDomain.set("Outdoors Subdomain", ["outdoorsRank", 1]);
+mapIMDDomain.set("Total population mid 2015", ["totalPopn", 1]);
+mapIMDDomain.set("Dependent Children aged 0 15 mid 2015", [
+  "dependentChildren",
+  1,
+]);
+mapIMDDomain.set("Population aged 16 59 mid 2015", ["popnMiddle", 1]);
+mapIMDDomain.set("Older population aged 60 and over mid 2015", [
+  "popnOlder",
+  1,
+]);
+mapIMDDomain.set("Working age population 18 59 64", ["popnWorking", 1]);
+
+(function imdDomain(id = "selIMD") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
   // Create the drop down to sort the chart
@@ -177,72 +214,23 @@ function imdDomain(id = "selIMD") {
   select.setAttribute("id", "selImdDomain");
 
   // Option constructor: args text, value, defaultSelected, selected
-  select.options.add(new Option("imdRank", 0, true, true));
-  select.options.add(new Option("imdDecile", 1));
-  select.options.add(new Option("incomeRank", 2));
-  select.options.add(new Option("employmentRank", 3));
-  select.options.add(new Option("educationRank", 4));
-  select.options.add(new Option("healthRank", 5));
-  select.options.add(new Option("crimeRank", 6));
-  select.options.add(new Option("housingRank", 7));
-  select.options.add(new Option("livingEnvironRank", 8));
-  select.options.add(new Option("incomeChildRank", 9));
-  select.options.add(new Option("incomeOlderRank", 10));
-  select.options.add(new Option("childRank", 11));
-  select.options.add(new Option("adultSkillsRank", 12));
-  select.options.add(new Option("geogRank", 13));
-  select.options.add(new Option("barriersRank", 14));
-  select.options.add(new Option("indoorsRank", 15));
-  select.options.add(new Option("outdoorsRank", 16));
-  select.options.add(new Option("totalPopn", 17));
-  select.options.add(new Option("dependentChildren", 18));
-  select.options.add(new Option("popnMiddle", 19));
-  select.options.add(new Option("popnOlder", 20));
-  select.options.add(new Option("popnWorking", 21));
+  let counter = 0;
+  for (let key of mapIMDDomain.keys()) {
+    if (counter !== 0) {
+      select.options.add(new Option(key, counter));
+    } else {
+      select.options.add(new Option(key, 0, true, true));
+    }
+    counter++;
+  }
 
   frag.appendChild(select);
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
-    const domain = d3.select("#selImdDomain option:checked").text();
+    const domainDesc = d3.select("#selImdDomain option:checked").text();
+    const domain = mapIMDDomain.get(domainDesc)[0];
     console.log(domain);
     recolourIMDLayer(domain);
   });
-}
-
-const mapIMDDomain = new Map();
-// mapIMDDomain.set("Proper Description", [datasetDesc, colourOrder]);
-mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Rank", ["imdRank", 1]);
-mapIMDDomain.set("Index_of_Multiple_Deprivation_IMD_Decile", ["imdDecile", 1]);
-mapIMDDomain.set("Income_Rank", ["incomeRank", 1]);
-mapIMDDomain.set("Employment_Rank", ["employmentRank", 1]);
-mapIMDDomain.set("Education_Skills_and_Training_Rank", ["educationRank", 1]);
-mapIMDDomain.set("Health_Deprivation_and_Disability_Rank", ["healthRank", 1]);
-mapIMDDomain.set("Crime_Rank", ["crimeRank", 1]);
-mapIMDDomain.set("Barriers_to_Housing_and_Services_Rank", ["housingRank", 1]);
-mapIMDDomain.set("Living_Environment_Rank", ["livingEnvironRank", 1]);
-mapIMDDomain.set("Income_Deprivation_Affecting_Children_Index_Rank", [
-  "incomeChildRank",
-  1,
-]);
-mapIMDDomain.set("Income_Deprivation_Affecting_Older_People_Rank", [
-  "incomeOlderRank",
-  1,
-]);
-mapIMDDomain.set("Children_and_Young_People_Subdomain_Rank", ["childRank", 1]);
-mapIMDDomain.set("Adult_Skills_Subdomain_Rank", ["adultSkillsRank", 1]);
-mapIMDDomain.set("Geographical_Barriers_Subdomain_Rank", ["geogRank", 1]);
-mapIMDDomain.set("Wider_Barriers_Subdomain_Rank", ["barriersRank", 1]);
-mapIMDDomain.set("Indoors_Subdomain_Rank", ["indoorsRank", 1]);
-mapIMDDomain.set("Outdoors_Subdomain_Rank", ["outdoorsRank", 1]);
-mapIMDDomain.set("Total_population_mid_2015", ["totalPopn", 1]);
-mapIMDDomain.set("Dependent_Children_aged_0_15_mid_2015", [
-  "dependentChildren",
-  1,
-]);
-mapIMDDomain.set("Population_aged_16_59_mid_2015", ["popnMiddle", 1]);
-mapIMDDomain.set("Older_population_aged_60_and_over_mid_2015", [
-  "popnOlder",
-  1,
-]);
-mapIMDDomain.set("Working_age_population_18_59_64", ["popnWorking", 1]);
+})();

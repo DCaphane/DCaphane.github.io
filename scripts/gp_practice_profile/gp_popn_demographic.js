@@ -237,16 +237,15 @@ ${chtHeightMini + 20}`
     .append("g")
     // .attr("class", "x axis")
     .attr("id", "axis--x--overage")
-    .attr("transform", `translate(0, ${chtHeightMini})`)
-    // .attr("x", chtWidthWide)
-    // .attr("y", 30)
+    .attr("transform", `translate(0, ${chtHeightMini - 20})`)
     .call(xAxisOverAge)
     .append("text")
     .attr("x", chtWidthWide / 2)
-    .attr("y", 50)
-    .style("text-anchor", "end")
+    .attr("dy", "35px")
+    .style("text-anchor", "middle")
     .style("font-weight", "bold")
-    .text("%");
+    .style("fill", "#000000") // font colour
+    .text("Population Aged Over 65");
 
   svgOverAge
     .append("g")

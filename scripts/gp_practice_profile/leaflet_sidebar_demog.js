@@ -80,6 +80,17 @@ const panelSettings = {
 };
 sidebarPCN.addPanel(panelSettings);
 
+
+const panelIMDSpecific = {
+	id: "pcnSpecific", // UID, used to access the panel
+	tab: '<span class="fa fa-info-circle"></span>', // content can be passed as HTML string,
+	pane: "<br><p>For further details around IMD, see <a href='https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019' target='_blank' rel='noopener noreferrer'>link</a></a></p>",
+	title: "IMD Details", // an optional pane header
+	position: "top", // optional vertical alignment, defaults to 'top'
+	disabled: false
+};
+sidebarIMD.addPanel(panelIMDSpecific);
+
 const resetSidebarText = function() {
 	const elem = (document.getElementById(
 		"pcnSpecific"
