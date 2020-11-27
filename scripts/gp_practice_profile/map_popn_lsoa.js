@@ -1,11 +1,3 @@
-const mapPopn = {
-  map: mapInitialise.mapInit("mapPopnLSOA"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
-
 mapPopn.scaleBar.addTo(mapPopn.map);
 
 const sidebarPopn = mapPopn.sidebar("sidebar3");
@@ -18,8 +10,6 @@ mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
 mapPopn.map.createPane("ccgBoundaryPane");
 mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = 374;
-
-// ccgBoundary.call(mapPopn, true);
 
 lsoaBoundary.call(mapPopn, true);
 
@@ -34,7 +24,9 @@ Promise.all([
   geoDataLsoaBoundaries,
 ]).then((v) => {
   recolourLSOA();
-  // ccgBoundary.call(mapMain, true);
+  recolourIMDLayer();
+  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
+  ccgBoundary(true);
 });
 
 // addPracticeToMap(mapPopn, layerControl2);
@@ -61,6 +53,7 @@ function recolourLSOA() {
       : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
 
   filterFunctionLsoa.call(mapPopn, true);
+  refreshMapPopnLegend(maxValue);
 
   geoDataLsoaBoundaries.then(function () {
     layersMapLSOA.get("voyCCGPopn").eachLayer(function (layer) {
@@ -75,7 +68,7 @@ function recolourLSOA() {
         value = 0;
       }
 
-      if (value > 20) {
+      if (value > minPopulationLSOA) {
         layer.setStyle({
           // https://github.com/d3/d3-scale-chromatic
           fillColor: d3.interpolateYlGnBu(value / maxValue),
@@ -107,80 +100,116 @@ function recolourLSOA() {
   });
 }
 
-// Make global to enable subsequent change to overlay
-const overlaysTreePopn = {
-  label: "Overlays",
-  selectAllCheckbox: true,
-  children: [],
-};
+function heatmapLegend(placementID, id, legendText, colourScheme = d3.interpolateYlGnBu) {
+  const legendID = id,
+    gradientID = `gradient_${id}`
+    footerMapPopn = document.getElementById(placementID);
 
-const baseTreePopn = (function () {
-  const defaultBasemap = L.tileLayer
-    .provider("Stamen.TonerHybrid")
-    .addTo(mapPopn.map);
+  const svgLegend = d3
+    .select(footerMapPopn)
+    .append("svg")
+    .attr(
+      "viewBox",
+      `0 0
+      ${chtWidthWide + margin.left + margin.right}
+      ${chtHeightShort / 4}`
+    )
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .append("g")
+    .attr("transform", `translate(${margin.left - 20})`);
 
-  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-  const emptyBackground = (function emptyTile() {
-    return L.tileLayer("", {
-      zoom: 0,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  const countScale = d3.scaleLinear().domain([0, 1]).range([0, chtWidthWide]);
+
+  //Calculate the variables for the temp gradient
+  const numStops = 10;
+  let countRange = countScale.domain();
+  countRange[2] = countRange[1] - countRange[0];
+  const countPoint = [];
+  for (let i = 0; i < numStops; i++) {
+    countPoint.push((i * countRange[2]) / (numStops - 1) + countRange[0]);
+  }
+
+  // fnDeriveRGB can be used to derive rgb colour schemes for the steps 0, 0.5 and 1
+  // const fnDeriveRGB = d3.scaleSequential(colourScheme).domain([0, 1]); // eg. d3.interpolateYlGnBu
+  const colourRange = [colourScheme(0), colourScheme(0.5), colourScheme(1)];
+  var colourScale = d3.scaleLinear().domain([0, 0.5, 1]).range(colourRange);
+
+  //Create the gradient
+  svgLegend
+    .append("defs")
+    .append("linearGradient")
+    .attr("id", gradientID)
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .selectAll("stop")
+    .data(d3.range(numStops))
+    .enter()
+    .append("stop")
+    .attr("offset", function (d, i) {
+      return countScale(countPoint[i]) / chtWidthWide;
+    })
+    .attr("stop-color", function (d, i) {
+      return colourScale(countPoint[i]);
     });
-  })();
 
-  return {
-    label: "Base Layers <i class='fas fa-globe'></i>",
-    children: [
-      {
-        label: "Colour <i class='fas fa-layer-group'></i>;",
-        children: [
-          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
-          {
-            label: "CartoDB",
-            layer: L.tileLayer.provider("CartoDB.Voyager"),
-          },
-          {
-            label: "Water Colour",
-            layer: L.tileLayer.provider("Stamen.Watercolor"),
-          },
-        ],
-      },
-      {
-        label: "Black & White <i class='fas fa-layer-group'></i>",
-        children: [
-          { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
-          { label: "B&W", layer: L.tileLayer.provider("Stamen.Toner") },
-          {
-            label: "ST Hybrid",
-            layer: defaultBasemap,
-          },
-        ],
-      },
-      { label: "None", layer: emptyBackground },
-    ],
-  };
-})();
+  const xScaleLegendMapPopn = d3
+    .scaleLinear()
+    // .domain([0, maxValue])
+    .range([0, chtWidthWide])
+    .nice();
 
-overlaysTreePopn.children[0] = overlayTrusts();
+  const xAxisLegendMapPopn = d3
+    .axisBottom(xScaleLegendMapPopn)
+    .tickFormat(formatNumber);
 
-const mapControlPopn = L.control.layers.tree(baseTreePopn, overlaysTreePopn, {
-  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
-  collapsed: true, // Whether or not control options are displayed
-  sortLayers: true,
-  // namedToggle: true,
-  collapseAll: "Collapse all",
-  expandAll: "Expand all",
-  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
-  closedSymbol:
-    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
-  openedSymbol:
-    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
-});
+  svgLegend
+    .append("g")
+    // .attr("class", "x axis")
+    .attr("id", legendID)
+    .attr("transform", `translate(0, ${chtHeightShort / 4 - 33})`) // positions the axis
+    .call(xAxisLegendMapPopn)
+    .append("text")
+    .attr("x", chtWidthWide / 2)
+    .attr("dy", "30px") // positions the axis label text
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .style("fill", "#000000") // font colour
+    .text(legendText);
 
-mapControlPopn
-  .addTo(mapPopn.map)
-  // .setOverlayTree(overlaysTreePopn)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
+  function updateMapPopnLegend(maxValue = 1) {
+    xScaleLegendMapPopn.domain([0, maxValue]);
+    svgLegend
+      .select(`#${legendID}`)
+      // .transition(t)
+      .call(xAxisLegendMapPopn);
+
+    svgLegend
+      .selectAll(".bar")
+      .data([0,1])
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("rect").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "bar")
+      .style("fill", `url(#${gradientID}`)
+      .attr("y", "0px")
+      .attr("width", function (d) {
+        return xScaleLegendMapPopn(maxValue);
+      })
+      .attr("height", "30px");
+  }
+
+  return updateMapPopnLegend;
+}
+
+let refreshMapPopnLegend = heatmapLegend("footerMapPopn", "mapPopnLegend", "Population");
+let refreshMapIMDLegend = heatmapLegend("footerMapIMD", "mapIMDLegend", "Rank", d3.interpolateRdGy);

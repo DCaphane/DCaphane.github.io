@@ -41,7 +41,7 @@ function initPopnBarChart(dataInit, id) {
       "viewBox",
       `0 0
       ${chtWidthWide + margin.left + margin.right}
-${chtHeightStd + margin.top + margin.bottom}`
+${chtHeightStd + 60}`
     );
 
   let sortType = 0;
@@ -245,44 +245,32 @@ ${chtHeightStd + margin.top + margin.bottom}`
       .join(
         (
           enter // ENTER new elements present in new data.
-        ) =>
-          enter
-            .append("text")
-            .attr("class", "axis bottom")
-            .classed("bar-label", true)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "0.75rem")
-            .attr("transform", function (d, i) {
-              return `translate(
-        ${x(d) + x.bandwidth() / 2 - 5},
-      ${chtHeightStd + 30})
-rotate(-60)`;
-            })
-
-            .attr("text-anchor", "middle")
-            .text(function (d) {
-              return d;
-            }),
+        ) => enter.append("text").call((enter) => enter),
         (
           update // UPDATE old elements present in new data.
-        ) =>
-          update.call((update) =>
-            update
-              .transition(t)
-              .delay(function ([x, y, i]) {
-                return i * 50;
-              })
-              .attr("transform", function (d, i) {
-                return `translate(
-                ${x(d) + x.bandwidth() / 2 - 5},
-              ${chtHeightStd + 30})
-        rotate(-60)`;
-              })
-          ),
+        ) => update.call((update) => update),
         (
           exit // EXIT old elements not present in new data.
-        ) => exit.call((exit) => exit.remove()) // exit.transition(t).remove()
-      );
+        ) => exit.call((exit) => exit.remove())
+      )
+    .attr("class", "axis bottom")
+    .classed("bar-label", true)
+    .attr("font-family", "sans-serif")
+      .attr("font-size", "0.65rem")
+      .transition(t)
+      .delay(function ([x, y, i]) {
+        return i * 50;
+      })
+    .attr("transform", function (d, i) {
+      return `translate(
+      ${x(d) + x.bandwidth() / 2 - 20},
+      ${chtHeightStd + 60})
+      rotate(-60)`;
+    })
+    .attr("text-anchor", "start")
+    .text(function (d) {
+      return d;
+    })
   }
 
   function barChartOrder(data) {

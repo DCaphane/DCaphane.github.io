@@ -108,13 +108,8 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     />
     <script defer src="scripts/leaflet/L.Control.Layers.Tree.js"></script>
 
-    <!-- Markers
-    https://github.com/marslan390/BeautifyMarker
-    -->
     <script
-      defer
-      src="https://use.fontawesome.com/releases/v5.8.1/js/all.js"
-      integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ"
+      src="https://kit.fontawesome.com/0e64dfdf0b.js"
       crossorigin="anonymous"
     ></script>
     <link
@@ -167,7 +162,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
     <!--script defer src="scripts/map_default_markers.js"></script -->
     <script defer src="scripts/leaflet/markers/map_beautifyMarker.js"></script>
-    <script defer src="scripts/leaflet/map_components.js"></script>
+    <script defer src="scripts/gp_practice_profile/map_components.js"></script>
 
     <script defer src="scripts/components/tooltip.js"></script>
     <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
@@ -183,8 +178,9 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
     <script defer src="scripts/gp_practice_profile/map_GP_MainSite.js"></script>
     <script defer src="scripts/gp_practice_profile/map_GP_sites.js"></script>
-    <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
+
     <script defer src="scripts/gp_practice_profile/map_imd_lsoa.js"></script>
+    <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
     <script
       defer
       src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
@@ -250,8 +246,10 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
             <div id="id01" class="tiles">
               <div class="tile wide content">
                 <h3>GP Practice - Main Site by PCN</h3>
+                <div> <!--  just a wrapper to control map height/ width-->
                 <div id="mapMain" class="map"></div>
                 <div id="sidebar" class="leaflet-sidebar collapsed"></div>
+              </div>
                 <footer id="selectedMarker" class="cta">
                   Select a marker for details
                 </footer>
@@ -301,8 +299,10 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
               <div class="tile wide content">
                 <h3>GP Practice Sites</h3>
+                <div> <!--  just a wrapper to control map height/ width-->
                 <div id="mapSites" class="map"></div>
                 <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
+                </div>
                 <footer id="selectedSite" class="cta">Associated Sites</footer>
               </div>
 
@@ -314,17 +314,21 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
               <div class="tile wide content">
                 <h3>Population by LSOA</h3>
+                <div> <!--  just a wrapper to control map height/ width-->
                 <div id="mapPopnLSOA" class="map"></div>
                 <div id="sidebar3" class="leaflet-sidebar collapsed"></div>
-                <footer class="cta"></footer>
+                </div>
+                <footer class="cta" id="footerMapPopn"></footer>
               </div>
 
               <div class="tile wide content">
                 <h3>IMD Testing</h3>
                 <div id="selIMD"></div>
+                <div> <!--  just a wrapper to control map height/ width-->
                 <div id="mapIMDLSOA" class="map"></div>
                 <div id="sidebar4" class="leaflet-sidebar collapsed"></div>
-                <footer class="cta"></footer>
+                </div>
+                <footer class="cta" id="footerMapIMD"></footer>
               </div>
             </div>
           </section>

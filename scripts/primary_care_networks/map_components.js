@@ -399,7 +399,7 @@ function filterFunctionLsoa(data, map, zoomToExtent = false) {
           ? data_popnGPLsoa.get(nearestDate).get(selectedPractice).get(lsoaCode)
           : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
 
-      if (value > 20) {
+      if (value > minPopulationLSOA) {
         return true;
       }
     },
