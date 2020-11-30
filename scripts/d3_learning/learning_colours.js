@@ -30,7 +30,13 @@ Sequential, multi-hue color schemes support a size k ranging from 3 to 9
 async function learningColourCharts() {
   const data = await d3.csv(
     "Data/d3_learning/ColourData.csv",
-    processRow // this function is applied to each row of the imported data
+    // this function is applied to each row of the imported data
+    function processRow(d, index, columnKeys) {
+      return {
+        Letter: d.Letter,
+        rnd_var: +d.Rnd_Var,
+      };
+    }
   );
 
   // console.log(data);
@@ -39,12 +45,7 @@ async function learningColourCharts() {
   colourCharts02(data);
 }
 
-function processRow(d, index, columnKeys) {
-  return {
-    Letter: d.Letter,
-    rnd_var: +d.Rnd_Var,
-  };
-}
+
 
 // default variables
 const margin = {
