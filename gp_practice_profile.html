@@ -155,6 +155,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
     />
+    <link rel="stylesheet" type="text/css" href="css\leaflet_legend.css" />
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
@@ -217,27 +218,27 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
               proident laborum incididunt consequat sit laboris ipsum. Id magna
               reprehenderit sit aute laborum ullamco occaecat aute id proident
               minim.
-              <br />
-              <label for="selPractice">Choose a GP Practice:</label>
-              <span class="search">
-                <i class="fas fa-search"></i>
-                <input
-                  type="search"
-                  autocomplete="off"
-                  list="practice-list"
-                  class="dropdown-input"
-                  id="selPractice"
-                  placeholder="code or name"
-                  name="selPractice"
-                />
-                <!-- https://github.com/LeaVerou/awesomplete/issues/17117 -->
-                <button id="btn-selPractice" class="dropdown-btn" type="button">
-                  <i class="fas fa-caret-down"></i>
-                </button>
-                <datalist id="practice-list" class="dropdown practice">
-                </datalist>
-              </span>
             </p>
+            <div class="awesearch">
+              <label for="selPractice">Choose a GP Practice:</label>
+              <i class="fas fa-search"></i>
+              <input
+                type="search"
+                autocomplete="off"
+                list="practice-list"
+                class="dropdown-input"
+                id="selPractice"
+                placeholder="code or name"
+                name="selPractice"
+                size="40"
+              />
+              <!-- https://github.com/LeaVerou/awesomplete/issues/17117 -->
+              <button id="btn-selPractice" class="dropdown-btn" type="button">
+                <i class="fas fa-caret-down"></i>
+              </button>
+              <datalist id="practice-list" class="dropdown practice">
+              </datalist>
+            </div>
           </section>
 
           <section id="sec-01" class="section anchor">
@@ -246,10 +247,11 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
             <div id="id01" class="tiles">
               <div class="tile wide content">
                 <h3>GP Practice - Main Site by PCN</h3>
-                <div> <!--  just a wrapper to control map height/ width-->
-                <div id="mapMain" class="map"></div>
-                <div id="sidebar" class="leaflet-sidebar collapsed"></div>
-              </div>
+                <div>
+                  <!--  just a wrapper to control map height/ width-->
+                  <div id="mapMain" class="map"></div>
+                  <div id="sidebar" class="leaflet-sidebar collapsed"></div>
+                </div>
                 <footer id="selectedMarker" class="cta">
                   Select a marker for details
                 </footer>
@@ -269,39 +271,41 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
               <div class="tile wide content">
                 <h3>Population Pyramid</h3>
-                <div id="cht_PopDemo">
-                  <label for="selPractice">Practice to compare:</label>
-                  <span class="search">
-                    <i class="fas fa-search"></i>
-                    <input
-                      type="search"
-                      autocomplete="off"
-                      list="practice-list2"
-                      class="dropdown-input"
-                      id="selPracticeCompare"
-                      name="selPractice"
-                      placeholder="code or name"
-                    />
-                    <button
-                      id="btn-selPracticeCompare"
-                      class="dropdown-btn"
-                      type="button"
-                    >
-                      <i class="fas fa-caret-down"></i>
-                    </button>
-                  </span>
+                <div class="awesearch">
+                  <label for="selPractice">Compare to:</label>
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="search"
+                    autocomplete="off"
+                    list="practice-list2"
+                    class="dropdown-input"
+                    id="selPracticeCompare"
+                    placeholder="code or name"
+                    name="selPractice"
+                    size="40"
+                  />
+                  <button
+                    id="btn-selPracticeCompare"
+                    class="dropdown-btn"
+                    type="button"
+                  >
+                    <i class="fas fa-caret-down"></i>
+                  </button>
                   <datalist id="practice-list2" class="dropdown practice">
                     <option value="None"></option>
                   </datalist>
                 </div>
+                <div id="cht_PopDemo"></div>
+
                 <footer class="cta" id="over65s"></footer>
               </div>
 
               <div class="tile wide content">
                 <h3>GP Practice Sites</h3>
-                <div> <!--  just a wrapper to control map height/ width-->
-                <div id="mapSites" class="map"></div>
-                <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
+                <div>
+                  <!--  just a wrapper to control map height/ width-->
+                  <div id="mapSites" class="map"></div>
+                  <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer id="selectedSite" class="cta">Associated Sites</footer>
               </div>
@@ -314,9 +318,10 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
               <div class="tile wide content">
                 <h3>Population by LSOA</h3>
-                <div> <!--  just a wrapper to control map height/ width-->
-                <div id="mapPopnLSOA" class="map"></div>
-                <div id="sidebar3" class="leaflet-sidebar collapsed"></div>
+                <div>
+                  <!--  just a wrapper to control map height/ width-->
+                  <div id="mapPopnLSOA" class="map"></div>
+                  <div id="sidebar3" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapPopn"></footer>
               </div>
@@ -324,9 +329,10 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
               <div class="tile wide content">
                 <h3>IMD Testing</h3>
                 <div id="selIMD"></div>
-                <div> <!--  just a wrapper to control map height/ width-->
-                <div id="mapIMDLSOA" class="map"></div>
-                <div id="sidebar4" class="leaflet-sidebar collapsed"></div>
+                <div>
+                  <!--  just a wrapper to control map height/ width-->
+                  <div id="mapIMDLSOA" class="map"></div>
+                  <div id="sidebar4" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapIMD"></footer>
               </div>
