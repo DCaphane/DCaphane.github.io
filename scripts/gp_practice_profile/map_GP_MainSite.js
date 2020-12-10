@@ -59,7 +59,7 @@ const overlaysTreeMain = {
 
 const baseTreeMain = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("Stadia.OSMBright") // .Mapnik
+    .provider("OpenStreetMap.Mapnik")
     .addTo(mapMain.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -78,7 +78,7 @@ const baseTreeMain = (function () {
       {
         label: "Colour <i class='fas fa-layer-group'></i>;",
         children: [
-          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
+          { label: "OSM", layer: defaultBasemap },
           {
             label: "OSM HOT",
             layer: L.tileLayer.provider("OpenStreetMap.HOT"),
@@ -88,7 +88,7 @@ const baseTreeMain = (function () {
             label: "Water Colour",
             layer: L.tileLayer.provider("Stamen.Watercolor"),
           },
-          { label: "Bright", layer: defaultBasemap },
+          { label: "Bright", layer: L.tileLayer.provider("Stadia.OSMBright") },
           { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
         ],
       },
