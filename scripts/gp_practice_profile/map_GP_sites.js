@@ -34,7 +34,7 @@ const overlaysTreeSites = {
 
 const baseTreeSites = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("Stadia.AlidadeSmoothDark") // CartoDB.Positron
+    .provider("OpenStreetMap.Mapnik")
     .addTo(mapSites.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -53,7 +53,7 @@ const baseTreeSites = (function () {
       {
         label: "Colour <i class='fas fa-layer-group'></i>;",
         children: [
-          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
+          { label: "OSM", layer: defaultBasemap },
           {
             label: "OSM HOT",
             layer: L.tileLayer.provider("OpenStreetMap.HOT"),
@@ -83,7 +83,7 @@ const baseTreeSites = (function () {
             label: "ST Hybrid",
             layer: L.tileLayer.provider("Stamen.TonerHybrid"),
           },
-          { label: "Dark", layer: defaultBasemap },
+          { label: "Dark", layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark") },
           {
             label: "Jawg Matrix",
             layer: L.tileLayer.provider("Jawg.Matrix", {
