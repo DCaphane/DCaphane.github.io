@@ -90,7 +90,7 @@ const overlaysTreeIMD = {
 
 const baseTreeIMD = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("Stadia.AlidadeSmooth")
+    .provider("OpenStreetMap.Mapnik")
     .addTo(mapIMD.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
@@ -109,7 +109,7 @@ const baseTreeIMD = (function () {
       {
         label: "Colour <i class='fas fa-layer-group'></i>;",
         children: [
-          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
+          { label: "OSM", layer: defaultBasemap },
           {
             label: "OSM HOT",
             layer: L.tileLayer.provider("OpenStreetMap.HOT"),
@@ -131,7 +131,7 @@ const baseTreeIMD = (function () {
             label: "High Contrast",
             layer: L.tileLayer.provider("Stamen.Toner"),
           },
-          { label: "Grey", layer: defaultBasemap },
+          { label: "Grey", layer: L.tileLayer.provider("Stadia.AlidadeSmooth") },
           {
             label: "ST Hybrid",
             layer: L.tileLayer.provider("Stamen.TonerHybrid"),
