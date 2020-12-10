@@ -10,8 +10,8 @@ const dataNavMain = {
 			"dc Demos": [
 				"#",
 				{
-					ECDS: ["ecds.html", {}],
-					Referrals: ["referrals.html", {}],
+					ECDS: ["#", {}],
+					Referrals: ["#", {}],
 				}
 			],
 			"Map Demos": [
@@ -53,7 +53,7 @@ const dataNavMain = {
 			]
 		}
 	],
-	"About Us": ["about_us.html", { "Sub Contact": ["#", {}] }]
+	"About Us": ["#", { "Sub Contact": ["#", {}] }]
 };
 
 // Tried using appendChild but this replaces existing nodes.
