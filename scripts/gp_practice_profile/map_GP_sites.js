@@ -19,12 +19,6 @@ mapSites.map.getPane("wardBoundaryPane").style.zIndex = 375;
 mapSites.map.createPane("ccgBoundaryPane");
 mapSites.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-// ccgBoundary.call(mapSites, true);
-// addWardGroupsToMap.call(mapSites);
-
-// GP Practice Sites - coded by PCN
-pcnSites.call(mapSites);
-
 // Make global to enable subsequent change to overlay
 const overlaysTreeSites = {
   label: "Overlays",

@@ -257,6 +257,11 @@ function homeButton() {
   ).addTo(map);
 }
 
+function defaultHomeVoY() {
+  const map = this.map;
+  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
+}
+
 const layersMapGpMain = new Map();
 
 function addPracticeToMap(zoomToExtent = false) {
@@ -307,7 +312,7 @@ function addPracticeToMap(zoomToExtent = false) {
     L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
 
     // Add to overlay control
-    const ol = overlayPCNs(layersMapGpMain);
+    const ol = overlayPCNs(layersMapGpMain); // function to align sites by pcn to overlay tree
     overlaysTreeMain.children[0] = ol;
 
     if (zoomToExtent) {
@@ -316,26 +321,97 @@ function addPracticeToMap(zoomToExtent = false) {
   });
 }
 
-function pcnSites(zoomToExtent = false) {
-  const map = this.map;
+const layersMapGPSites = new Map();
+const layersMapPopn = new Map();
+
+function gpSites(zoomToExtent = false) {
+  // This add the GP Sites layer in its entirety
+  // const map = this.map;
   geoDataPCNSites.then(function (v) {
     const sitesLayer = L.geoJson(v, {
       pointToLayer: pcnFormatting,
-      // onEachFeature: function (feature, layer) {
-      //   //console.log(layer.feature.properties.pcn_name)
-      //   subCategories[layer.feature.properties.pcn_name] = null;
-      // },
+      onEachFeature: function (feature, layer) {
+        const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+        const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+        <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
+        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
+        layer.on("click", function (e) {
+          // update other charts
+          mapSites.map.setView(e.latlng, 11);
+          console.log(layer.feature.properties.organisation_code);
+        });
+
+        // Initialize the category array if not already set.
+        if (!layersMapGPSites.has(category)) {
+          layersMapGPSites.set(category, L.layerGroup());
+        }
+        layersMapGPSites.get(category).addLayer(layer);
+      },
     });
 
-    sitesLayer.addTo(map);
-    mapWithSites.set(map, sitesLayer);
+    const popnLayer = L.geoJson(v, {
+      pointToLayer: pcnFormatting,
+      onEachFeature: function (feature, layer) {
+        const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+        const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+        <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
+        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
+        layer.on("click", function (e) {
+          // update other charts
+          mapPopn.map.setView(e.latlng, 11);
+          console.log(layer.feature.properties.organisation_code);
+        });
+
+        // Initialize the category array if not already set.
+        if (!layersMapPopn.has(category)) {
+          layersMapPopn.set(category, L.layerGroup());
+        }
+        layersMapPopn.get(category).addLayer(layer);
+      },
+    });
+
+    const gpSitesMap = L.layerGroup(Array.from(layersMapGPSites.values()));
+    gpSitesMap.addTo(mapSites.map);
+
+    const popnSitesMap = L.layerGroup(Array.from(layersMapPopn.values()));
+    popnSitesMap.addTo(mapPopn.map);
+
+    const ol = overlayPCNs(layersMapGPSites);
+    overlaysTreeSites.children[2] = ol;
+
+    const ol1 = overlayPCNs(layersMapPopn);
+    overlaysTreePopn.children[4] = ol1;
+
+    mapWithSites.set(mapSites.map, gpSitesMap); // keep track of which maps include GP Sites
+    mapWithSites.set(mapPopn.map, popnSitesMap);
     if (zoomToExtent) {
-      map.fitBounds(sitesLayer.getBounds());
+      mapSites.map.fitBounds(gpSitesMap.getBounds());
+      // mapPopn.map.fitBounds(popnSitesMap.getBounds());
     }
   });
 }
 
 function filterGPPracticeSites(zoomToExtent = false) {
+  /* This will deselect the 'entire' GP Sites layer
+  and return the filtered layer based on the selected practice
+  */
+  const map = this.map;
   mapWithSites.forEach(function (value, key) {
     if (key.hasLayer(value)) {
       key.removeLayer(value);
@@ -343,7 +419,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
 
     geoDataPCNSites.then(function (v) {
       const gpSites = L.geoJson(v, {
-        // https://leafletjs.com/reference-1.4.0.html#geojson
+        // https://leafletjs.com/reference-1.7.1.html#geojson
         pointToLayer: pcnFormatting,
         onEachFeature: function (feature, layer) {
           const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
@@ -361,24 +437,10 @@ function filterGPPracticeSites(zoomToExtent = false) {
 
           layer.on("click", function (e) {
             // update other charts
-            (selectedPractice = feature.properties.organisation_code), // register change in practice
-              (practiceName = feature.properties.organisation_name);
+            // (selectedPractice = feature.properties.organisation_code), // register change in practice
+            //   (practiceName = feature.properties.organisation_name);
             // console.log(selectedPractice + " - " + practiceName);
           });
-
-          // subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
-          // // Initialize the subCategory array if not already set.
-          // if (typeof subCategories[subCategory] === "undefined") {
-          //   for (let map of mapWithSites.keys()) {
-          //     subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
-          //   }
-          //   // control.addOverlay(
-          //   // 	subCategories[subCategory],
-          //   // 	subCategory
-          //   // );
-          // }
-          // // console.log(subCategories[subCategory]);
-          // subCategories[subCategory].addLayer(layer);
         },
         filter: function (d) {
           // match on practice
@@ -398,11 +460,30 @@ function filterGPPracticeSites(zoomToExtent = false) {
         },
       });
 
-      gpSites.addTo(key);
-      mapWithSites.set(key, gpSites);
+      gpSites.addTo(map);
 
+      const overlayFilteredSites = {
+        label: `${selectedPractice} Sites`,
+        layer: gpSites,
+        selectAllCheckbox: false,
+        // children: [
+        //   {
+        //     label: "test Desc",
+        //     layer: gpSites,
+        //   },
+        // ],
+      };
+      overlaysTreeSites.children[3] = overlayFilteredSites;
+
+      mapControlSites
+        .setOverlayTree(overlaysTreeSites)
+        .collapseTree() // collapse the baselayers tree
+        // .expandSelected() // expand selected option in the baselayer
+        .collapseTree(true);
+
+      mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
       if (zoomToExtent) {
-        key.fitBounds(gpSites.getBounds());
+        map.fitBounds(gpSites.getBounds());
       }
     });
   });
@@ -598,7 +679,7 @@ function lsoaBoundary(zoomToExtent = false) {
   geoDataLsoaBoundaries.then(function (v) {
     // This section adds the lsoa layer in its entirety along with labels (permanent Tooltip)
     const lsoaLayer = L.geoJSON(v, {
-      style: styleLsoa, // default colour scheme for lsoa boundaries
+      // style: styleLsoa, // default colour scheme for lsoa boundaries
       onEachFeature: function (feature, layer) {
         // layer.bindPopup(`<h1>${feature.properties.lsoa}</h1>`);
 
@@ -681,7 +762,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
   geoDataLsoaBoundaries.then(function (v) {
     const lsoaLayer = L.geoJson(v, {
       // https://leafletjs.com/reference-1.4.0.html#geojson
-      style: styleLsoa,
+      // style: styleLsoa,
       onEachFeature: function (feature, layer) {
         // const popupText =
         //   "<h3>" +
@@ -775,10 +856,10 @@ function refreshChartsPostPracticeChange(practice) {
   trendChart.chartTrendDraw();
   demographicChart.updateChtDemog(practice, selectedPracticeCompare);
 
-  filterGPPracticeSites(true);
+  filterGPPracticeSites.call(mapSites, true);
 
   recolourLSOA();
-  recolourIMDLayer();
+  recolourIMDLayer(imdDomainShort);
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();
@@ -1452,3 +1533,7 @@ mapControlPopn
   // .expandSelected() // expand selected option in the baselayer
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
+
+const colourScaleRed = d3.scaleSequential(d3.interpolateReds);
+const interpolatorRed = colourScaleRed.interpolator(); // read its interpolator
+const colourScaleRedReverse = (t) => interpolatorRed(1 - t); // creates a mirror image of the interpolator

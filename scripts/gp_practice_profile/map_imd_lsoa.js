@@ -25,15 +25,27 @@ mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 // });
 
 function recolourIMDLayer(defaultIMD = "imdRank") {
-  // imdRank
   Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
     dataIMD.then(function (v) {
       const maxValue = d3.max(v, function (d) {
         return d[defaultIMD];
-      }); // imdRank
-      // console.log(maxValue);
+      });
 
-      refreshMapIMDLegend(maxValue);
+      const rawValues = v.map(function (d) {
+        return d[defaultIMD];
+      });
+      // console.log(rawValues)
+
+      const colourScheme =
+        imdDomainDesc !== undefined
+          ? mapIMDDomain.get(imdDomainDesc)[1]
+          : mapIMDDomain.get("IMD Rank")[1];
+      const colour = d3
+        .scaleSequentialQuantile()
+        .domain(rawValues)
+        .interpolator(colourScheme); // d3.interpolateBlues
+
+      refreshMapIMDLegend(maxValue, colourScheme);
 
       for (let key of layersMapIMD.keys()) {
         layersMapIMD.get(key).eachLayer(function (layer) {
@@ -41,29 +53,29 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
 
           if (mapSelectedLSOA.has(lsoaCode)) {
             // the filter lsoaFunction populates a map object of lsoas (with relevant population)
-            dataIMD.then(function (v) {
-              let obj = v.find((x) => x.lsoa === lsoaCode);
-              if (obj !== undefined) {
-                // console.log(obj[defaultIMD], maxValue);
-                const value = obj[defaultIMD];
+            // dataIMD.then(function (v) {
+            let obj = v.find((x) => x.lsoa === lsoaCode);
+            if (obj !== undefined) {
+              // console.log(obj[defaultIMD], maxValue);
+              const value = obj[defaultIMD];
 
-                layer.setStyle({
-                  // https://github.com/d3/d3-scale-chromatic
-                  fillColor: d3.interpolateRdGy(value / maxValue),
-                  fillOpacity: 0.9,
-                  weight: 1, // border
-                  color: "red", // border
-                  opacity: 1,
-                  dashArray: "3",
-                });
+              layer.setStyle({
+                // https://github.com/d3/d3-scale-chromatic
+                fillColor: colour(value), //colourScheme(value / maxValue),
+                fillOpacity: 0.9,
+                weight: 1, // border
+                color: "white", // border
+                opacity: 1,
+                // dashArray: "3",
+              });
 
-                layer.bindPopup(
-                  `<h3>${layer.feature.properties.lsoa}</h3>
+              layer.bindPopup(
+                `<h3>${layer.feature.properties.lsoa}</h3>
               <p>IMD: ${formatNumber(value)}</p>
             `
-                );
-              }
-            });
+              );
+            }
+            // });
           } else {
             // if population is less than set amount, make it transparent
             layer.setStyle({
@@ -181,40 +193,76 @@ mapControlIMD
 
 const mapIMDDomain = new Map();
 // mapIMDDomain.set("Proper Description", [datasetDesc, colourOrder]);
-mapIMDDomain.set("IMD Rank", ["imdRank", 1]);
-mapIMDDomain.set("IMD Decile", ["imdDecile", 1]);
-mapIMDDomain.set("Income", ["incomeRank", 1]);
-mapIMDDomain.set("Employment", ["employmentRank", 1]);
-mapIMDDomain.set("Education Skills and Training", ["educationRank", 1]);
-mapIMDDomain.set("Health Deprivation and Disability", ["healthRank", 1]);
-mapIMDDomain.set("Crime", ["crimeRank", 1]);
-mapIMDDomain.set("Barriers to Housing and Services", ["housingRank", 1]);
-mapIMDDomain.set("Living Environment", ["livingEnvironRank", 1]);
+mapIMDDomain.set("IMD Rank", ["imdRank", colourScaleRedReverse]);
+mapIMDDomain.set("IMD Decile", ["imdDecile", colourScaleRedReverse]);
+mapIMDDomain.set("Income", ["incomeRank", colourScaleRedReverse]);
+mapIMDDomain.set("Employment", ["employmentRank", colourScaleRedReverse]);
+mapIMDDomain.set("Education Skills and Training", [
+  "educationRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Health Deprivation and Disability", [
+  "healthRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Crime", ["crimeRank", colourScaleRedReverse]);
+mapIMDDomain.set("Barriers to Housing and Services", [
+  "housingRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Living Environment", [
+  "livingEnvironRank",
+  colourScaleRedReverse,
+]);
 mapIMDDomain.set("Income Deprivation Affecting Children Index", [
   "incomeChildRank",
-  1,
+  colourScaleRedReverse,
 ]);
 mapIMDDomain.set("Income Deprivation Affecting Older People", [
   "incomeOlderRank",
-  1,
+  colourScaleRedReverse,
 ]);
-mapIMDDomain.set("Children and Young People Subdomain", ["childRank", 1]);
-mapIMDDomain.set("Adult Skills Subdomain", ["adultSkillsRank", 1]);
-mapIMDDomain.set("Geographical Barriers Subdomain", ["geogRank", 1]);
-mapIMDDomain.set("Wider Barriers Subdomain", ["barriersRank", 1]);
-mapIMDDomain.set("Indoors Subdomain", ["indoorsRank", 1]);
-mapIMDDomain.set("Outdoors Subdomain", ["outdoorsRank", 1]);
-mapIMDDomain.set("Total population mid 2015", ["totalPopn", 1]);
+mapIMDDomain.set("Children and Young People Subdomain", [
+  "childRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Adult Skills Subdomain", [
+  "adultSkillsRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Geographical Barriers Subdomain", [
+  "geogRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Wider Barriers Subdomain", [
+  "barriersRank",
+  colourScaleRedReverse,
+]);
+mapIMDDomain.set("Indoors Subdomain", ["indoorsRank", colourScaleRedReverse]);
+mapIMDDomain.set("Outdoors Subdomain", ["outdoorsRank", colourScaleRedReverse]);
+mapIMDDomain.set("Total population mid 2015", [
+  "totalPopn",
+  d3.interpolateYlGnBu,
+]);
 mapIMDDomain.set("Dependent Children aged 0 15 mid 2015", [
   "dependentChildren",
-  1,
+  d3.interpolateYlGnBu,
 ]);
-mapIMDDomain.set("Population aged 16 59 mid 2015", ["popnMiddle", 1]);
+mapIMDDomain.set("Population aged 16 59 mid 2015", [
+  "popnMiddle",
+  d3.interpolateYlGnBu,
+]);
 mapIMDDomain.set("Older population aged 60 and over mid 2015", [
   "popnOlder",
-  1,
+  d3.interpolateYlGnBu,
 ]);
-mapIMDDomain.set("Working age population 18 59 64", ["popnWorking", 1]);
+mapIMDDomain.set("Working age population 18 59 64", [
+  "popnWorking",
+  d3.interpolateYlGnBu,
+]);
+
+let imdDomainDesc = "IMD Rank",
+  imdDomainShort = "imdRank";
 
 (function imdDomain(id = "selIMD") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
@@ -248,9 +296,9 @@ mapIMDDomain.set("Working age population 18 59 64", ["popnWorking", 1]);
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
-    const domainDesc = d3.select("#selImdDomain option:checked").text();
-    const domain = mapIMDDomain.get(domainDesc)[0];
-    console.log(domain);
-    recolourIMDLayer(domain);
+    imdDomainDesc = d3.select("#selImdDomain option:checked").text();
+    imdDomainShort = mapIMDDomain.get(imdDomainDesc)[0];
+    console.log(imdDomainShort);
+    recolourIMDLayer(imdDomainShort);
   });
 })();

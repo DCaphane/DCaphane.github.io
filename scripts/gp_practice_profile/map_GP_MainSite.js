@@ -44,8 +44,12 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     });
 
     map.map.addLayer(highlightPractice);
+
     if (zoomToExtent) {
       map.map.fitBounds(highlightPractice.getBounds());
+    }
+    if (selPractice === "All Practices" || selPractice === undefined) {
+      defaultHomeVoY.call(mapMain);
     }
   });
 }
