@@ -1,4 +1,4 @@
-div#tooltip {
+.canvasTooltip {
   position: absolute;
   display: inline-block;
   padding: 10px;
@@ -9,17 +9,11 @@ div#tooltip {
   border-radius: 2px;
   pointer-events: none;
   opacity: 0;
-  z-index: 1;
+  z-index: 1000;
 }
 
 .hiddenCanvas { display: none; }
 
 canvas {
   border:  1px dotted #ccc;
-}
-
-#text-explain {
-  display: inline-block;
-  font-size: 0.75em;
-  margin-bottom: 1em;
 }
