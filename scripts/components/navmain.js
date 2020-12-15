@@ -26,7 +26,8 @@ const dataNavMain = {
 				{
 					"Nav 3a": ["d3_learning_colours.html", {}],
 					"Nav 3b": ["d3_learning_axis.html", {}],
-					"Nav 3c": ["#", {}]
+          "Nav 3c": ["d3_learning_canvas.html", {}],
+          "Nav 3d": ["#", {}]
 				}
 			],
 			"Nav 4": [
