@@ -14,7 +14,7 @@ function ramp(color, n = 512) {
   if (n > 20) {
     for (let i = 0; i < n; ++i) {
       context.fillStyle = color(i / (n - 1));
-      context.fillRect(i / n * w, 0, 1, 100); // x, y, width, height
+      context.fillRect((i / n) * w, 0, 1, 100); // x, y, width, height
     }
   } else {
     for (let i = 0; i < n; ++i) {
@@ -79,7 +79,7 @@ function legend({
       .attr("y", marginTop)
       .attr("width", width - marginLeft - marginRight)
       .attr("height", height - marginTop - marginBottom)
-      .attr("preserveAspectRatio", "none")
+      // .attr("preserveAspectRatio", "none")
       .attr(
         "xlink:href",
         ramp2(
@@ -207,4 +207,49 @@ function legend({
   return svg.node();
 }
 
-export { ramp, legend };
+const colourSchemes = [
+  // Diverging
+  "interpolateBrBG",
+  "interpolatePRGn",
+  "interpolatePiYG",
+  "interpolatePuOr",
+  "interpolateRdBu",
+  "interpolateRdGy",
+  "interpolateRdYlBu",
+  "interpolateRdYlGn",
+  "interpolateSpectral",
+  // Single Hue
+  "interpolateBlues",
+  "interpolateGreens",
+  "interpolateGreys",
+  "interpolateOranges",
+  "interpolatePurples",
+  "interpolateReds",
+  // Multi-Hue
+  "interpolateBuGn",
+  "interpolateBuPu",
+  "interpolateGnBu",
+  "interpolateOrRd",
+  "interpolatePuBuGn",
+  "interpolatePuBu",
+  "interpolatePuRd",
+  "interpolateRdPu",
+  "interpolateYlGnBu",
+  "interpolateYlGn",
+  "interpolateYlOrBr",
+  "interpolateYlOrRd",
+  "interpolateTurbo",
+  "interpolateViridis",
+  "interpolateInferno",
+  "interpolateMagma",
+  "interpolatePlasma",
+  "interpolateCividis",
+  "interpolateCool",
+  "interpolateWarm",
+  "interpolateCubehelixDefault",
+  // Cyclical
+  "interpolateRainbow",
+  "interpolateSinebow",
+];
+
+export { ramp, legend, colourSchemes };

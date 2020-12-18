@@ -12,8 +12,11 @@
   z-index: 1000;
 }
 
-.hiddenCanvas { display: none; }
+.hiddenCanvas {
+  display: none;
+}
 
 canvas {
-  border:  1px dotted #ccc;
+  border: 1px dotted #ccc;
+  /* width: 100%; */ /*Changing this impacts on the tooltip */
 }
