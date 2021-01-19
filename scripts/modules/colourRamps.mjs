@@ -7,29 +7,23 @@ function ramp(color, n = 512) {
 
   const w = canvas.width;
   // console.log(w);
-  canvas.style.height = "80px";
+  canvas.style.height = "100px";
   canvas.style.imageRendering = "-moz-crisp-edges";
   canvas.style.imageRendering = "pixelated";
 
-  if (n > 20) {
-    for (let i = 0; i < n; ++i) {
-      context.fillStyle = color(i / (n - 1));
-      context.fillRect((i / n) * w, 0, 1, 100); // x, y, width, height
-    }
-  } else {
-    for (let i = 0; i < n; ++i) {
-      context.fillStyle = color(i / (n - 1));
-      context.fillRect(i * (200 / n), 0, 200 / n, 100); // x, y, width, height
-    }
+  for (let i = 0; i < n; ++i) {
+    context.fillStyle = color(i / (n - 1));
+    context.fillRect((i / n) * w, 0, 1, 100); // x, y, width, height
   }
+
   return canvas;
 }
 
 function ramp2(color, n = 256) {
   // const canvas = d3.select("#canvasLegend")//.append("canvas");
   const canvas = document.createElement("canvas");
-
   const context = canvas.getContext("2d");
+
   for (let i = 0; i < n; ++i) {
     context.fillStyle = color(i / (n - 1));
     context.fillRect(i, 0, 1, 50);
@@ -40,13 +34,13 @@ function ramp2(color, n = 256) {
 function legend({
   color,
   title,
-  tickSize = 6,
-  width = 320,
-  height = 44 + tickSize,
+  tickSize = 10,
+  width = 500,
+  height = 80 + tickSize,
   marginTop = 18,
   marginRight = 0,
   marginBottom = 16 + tickSize,
-  marginLeft = 0,
+  marginLeft = 20,
   ticks = width / 64,
   tickFormat,
   tickValues,
@@ -79,10 +73,10 @@ function legend({
       .attr("y", marginTop)
       .attr("width", width - marginLeft - marginRight)
       .attr("height", height - marginTop - marginBottom)
-      // .attr("preserveAspectRatio", "none")
+      .attr("preserveAspectRatio", "none")
       .attr(
         "xlink:href",
-        ramp2(
+        ramp(
           color.copy().domain(d3.quantize(d3.interpolate(0, 1), n))
         ).toDataURL()
       );
@@ -105,10 +99,10 @@ function legend({
       .append("image")
       .attr("x", marginLeft)
       .attr("y", marginTop)
-      .attr("width", width - marginLeft - marginRight)
-      .attr("height", height - marginTop - marginBottom)
+      .attr("width", width - marginLeft - marginRight) // having to add magic number to align width, not sure why?
+      .attr("height", height - marginTop - marginBottom + 25)
       .attr("preserveAspectRatio", "none")
-      .attr("xlink:href", ramp2(color.interpolator()).toDataURL());
+      .attr("xlink:href", ramp(color.interpolator()).toDataURL());
 
     // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
     if (!x.ticks) {

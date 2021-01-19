@@ -1,22 +1,5 @@
 // import { canvasLegend, colours } from "../modules/colourRamps.mjs";
 
-const canvasLegend_01 = canvasLegend(
-  "container",
-  "dummyLegendID",
-  d3.interpolateSpectral
-);
-
-const canvasLegend_02 = canvasLegend(
-  "container_01",
-  "dummyLegendID_01",
-  d3.interpolateGreys
-);
-
-/* For testing purposes - to esnure these can be updated independently
-canvasLegend_01.reDrawSquares(100)
-canvasLegend_01.reDrawSquares(100, colours[0])
-*/
-
 let heatmapLegend_01, heatmapLegend_02;
 
 document.addEventListener("DOMContentLoaded", function (event) {
@@ -40,12 +23,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
 /* for testing change to number of cells and colour scheme
 colourSchemes is an array of d3 colours (see below) taken from: https://github.com/d3/d3-scale-chromatic
 
-heatmapLegend_01.reDrawSquares(50, d3[colourSchemes[6]])
-heatmapLegend_02.reDrawSquares(10, d3[colourSchemes[25]])
-heatmapLegend_01.reDrawSquares(10, d3[colourSchemes[25]])
-heatmapLegend_01.reDrawSquares(10, d3[colourSchemes[colourSchemes.length]])
-heatmapLegend_02.reDrawSquares(255, d3["interpolateSinebow"])
-heatmapLegend_01.reDrawSquares(255, d3.interpolateSpectral)
+heatmapLegend_01.reDrawSquares({noRect: 50, colourScheme: d3[colourSchemes[6]]})
+heatmapLegend_02.reDrawSquares({noRect: 10, colourScheme: d3[colourSchemes[25]]})
+heatmapLegend_01.reDrawSquares({noRect: 10, colourScheme: d3[colourSchemes[25]]})
+heatmapLegend_01.reDrawSquares({noRect: 10, colourScheme: d3[colourSchemes[colourSchemes.length]]})
+heatmapLegend_02.reDrawSquares({noRect: 255, colourScheme: d3["interpolateSinebow"]})
+heatmapLegend_01.reDrawSquares({noRect: 255, colourScheme: d3.interpolateSpectral})
 */
 
 function heatmapLegend(placementID, id, colourScheme, noRect = 100) {
@@ -143,7 +126,7 @@ function heatmapLegend(placementID, id, colourScheme, noRect = 100) {
 
   // === Bind and draw functions === //
 
-  function databind(data, noRect, colourScheme = d3.interpolateSpectral) {
+  function databind(data, noRect, colourScheme) {
     const colorScale = d3.scaleSequential(colourScheme).domain(
       d3.extent(data, function (d) {
         return d.value;
@@ -206,7 +189,7 @@ function heatmapLegend(placementID, id, colourScheme, noRect = 100) {
 
   function draw(canvas, hidden) {
     // build context
-    const context = canvas.node().getContext("2d");
+    const context = canvas.node().getContext("2d", { alpha: false });
 
     // clear canvas
     context.clearRect(0, 0, width, height);
@@ -231,7 +214,8 @@ function heatmapLegend(placementID, id, colourScheme, noRect = 100) {
     });
   } // draw()
 
-  function reDrawSquares(noRect = 255, colourScheme = d3.interpolateSpectral) {
+  function reDrawSquares({ noRect = 255, colourScheme } = {}) {
+    // https://simonsmith.io/destructuring-objects-as-function-parameters-in-es6
     data = [];
 
     d3.range(noRect).forEach(function (el) {
@@ -256,7 +240,7 @@ function heatmapLegend(placementID, id, colourScheme, noRect = 100) {
     // console.log(mouseX, mouseY)
 
     // get the toolbox for the hidden canvas
-    const hiddenCtx = hiddenCanvas.node().getContext("2d");
+    const hiddenCtx = hiddenCanvas.node().getContext("2d", { alpha: false });
 
     // Now to pick the colours from where our mouse is then stringify it in a way our map-object can read it
     const colourRGB = hiddenCtx.getImageData(mouseX, mouseY, 1, 1).data;
@@ -282,8 +266,112 @@ function heatmapLegend(placementID, id, colourScheme, noRect = 100) {
 
   return {
     reDrawSquares: reDrawSquares,
+    properties: { noRect, colourScheme },
   };
 }
+
+// === Listeners/handlers === //
+// Change the number of squares
+d3.select("#text-input").on("keydown", function (e) {
+  if (e.keyCode === 13) {
+    // e.key === "Enter"
+    if (+this.value < 1 || +this.value > 10000) {
+      // d3.select('#text-explain').classed('alert', true);
+      return;
+    } else {
+      // d3.select('#text-explain').classed('alert', false);
+      heatmapLegend_01.properties.noRect = +this.value;
+      heatmapLegend_01.reDrawSquares({
+        noRect: +this.value,
+        colourScheme: heatmapLegend_01.properties.colourScheme,
+      });
+    } // value test
+  } // keyCode 13 === return
+}); // text input listener/handler
+
+// for use in testing
+const colourSchemes = [
+  // Diverging
+  "interpolateBrBG",
+  "interpolatePRGn",
+  "interpolatePiYG",
+  "interpolatePuOr",
+  "interpolateRdBu",
+  "interpolateRdGy",
+  "interpolateRdYlBu",
+  "interpolateRdYlGn",
+  "interpolateSpectral",
+  // Single Hue
+  "interpolateBlues",
+  "interpolateGreens",
+  "interpolateGreys",
+  "interpolateOranges",
+  "interpolatePurples",
+  "interpolateReds",
+  // Multi-Hue
+  "interpolateBuGn",
+  "interpolateBuPu",
+  "interpolateGnBu",
+  "interpolateOrRd",
+  "interpolatePuBuGn",
+  "interpolatePuBu",
+  "interpolatePuRd",
+  "interpolateRdPu",
+  "interpolateYlGnBu",
+  "interpolateYlGn",
+  "interpolateYlOrBr",
+  "interpolateYlOrRd",
+  "interpolateTurbo",
+  "interpolateViridis",
+  "interpolateInferno",
+  "interpolateMagma",
+  "interpolatePlasma",
+  "interpolateCividis",
+  "interpolateCool",
+  "interpolateWarm",
+  "interpolateCubehelixDefault",
+  // Cyclical
+  "interpolateRainbow",
+  "interpolateSinebow",
+];
+
+// Change the colour scheme
+(function colourScheme() {
+  // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
+  const div = document.getElementById("colourSelector");
+  // Create the drop down to sort the chart
+  const span = document.createElement("div");
+
+  // span.setAttribute("class", "search");
+  span.textContent = "Colour: ";
+  div.appendChild(span);
+
+  // Add a drop down
+  const frag = document.createDocumentFragment(),
+    select = document.createElement("select");
+
+  select.setAttribute("class", "dropdown-input");
+  select.setAttribute("id", "selColourScheme");
+
+  // Option constructor: args text, value, defaultSelected, selected
+  select.options.add(new Option(colourSchemes[0], 0, true, true));
+  for (i = 1; i < colourSchemes.length; i++) {
+    select.options.add(new Option(colourSchemes[i], i));
+  }
+
+  frag.appendChild(select);
+  span.appendChild(frag);
+
+  d3.select(select).on("change", function () {
+    const index = document.getElementById("selColourScheme").value;
+    // console.log(index);
+    heatmapLegend_01.properties.colourScheme = d3[colourSchemes[index]];
+    heatmapLegend_01.reDrawSquares({
+      noRect: heatmapLegend_01.properties.noRect,
+      colourScheme: d3[colourSchemes[index]],
+    });
+  });
+})();
 
 /*
 http://www.datamake.io/blog/d3-canvas-full#manual
@@ -292,12 +380,28 @@ http://bl.ocks.org/larsvers/63927f8910028b2c090b9fc82b9f077d
 
 */
 
-// const log = console.log.bind(console);
-// const dir = console.dir.bind(console);
+/*
+Canvas with Lars Demo
+For the legend, add a specific canvasLegend class and use this in css
+  Consider add a ramp using mdn technique for rectangle (save reset)
+  Use above if it turns out 'tooltip' not useful...
+*/
+const canvasLegend_01 = canvasLegend(
+  "container",
+  "dummyLegendID",
+  d3.interpolateSpectral
+);
 
-// const replace = function (string) {
-//   return string.replace(/[^a-z0-9]/gi, "");
-// };
+const canvasLegend_02 = canvasLegend(
+  "container_01",
+  "dummyLegendID_01",
+  d3.interpolateGreys
+);
+
+/* For testing purposes - to esnure these can be updated independently
+canvasLegend_01.reDrawSquares(100)
+canvasLegend_01.reDrawSquares(100, colours[0])
+*/
 
 /* Original working function - returns a grid */
 function canvasLegend(placementID, id, colourScheme, value = 5000) {
@@ -322,7 +426,7 @@ function canvasLegend(placementID, id, colourScheme, value = 5000) {
     .select(canvasLocation)
     .append("canvas")
     .attr("id", idMain)
-    .classed("mainCanvas", true)
+    .attr("class", "mainCanvas")
     .attr("width", width - 60)
     .attr("height", height)
     .style("margin-left", "20px")
@@ -332,7 +436,7 @@ function canvasLegend(placementID, id, colourScheme, value = 5000) {
     .select(canvasLocation)
     .append("canvas")
     .attr("id", idHidden)
-    .classed("hiddenCanvas", true)
+    .attr("class", "hiddenCanvas")
     .attr("width", width - 60)
     .attr("height", height)
     .style("margin-left", "20px")
@@ -444,7 +548,7 @@ function canvasLegend(placementID, id, colourScheme, value = 5000) {
 
   function draw(canvas, hidden) {
     // build context
-    const context = canvas.node().getContext("2d");
+    const context = canvas.node().getContext("2d", { alpha: false });
 
     // clear canvas
     context.clearRect(0, 0, width, height);
@@ -493,7 +597,7 @@ function canvasLegend(placementID, id, colourScheme, value = 5000) {
     const mouseY = event.layerY || event.offsetY;
 
     // get the toolbox for the hidden canvas
-    const hiddenCtx = hiddenCanvas.node().getContext("2d");
+    const hiddenCtx = hiddenCanvas.node().getContext("2d", { alpha: false });
 
     // Now to pick the colours from where our mouse is then stringify it in a way our map-object can read it
     const col = hiddenCtx.getImageData(mouseX, mouseY, 1, 1).data;
@@ -523,48 +627,71 @@ function canvasLegend(placementID, id, colourScheme, value = 5000) {
   };
 }
 
-// for use in testing
-const colourSchemes = [
-  // Diverging
-  "interpolateBrBG",
-  "interpolatePRGn",
-  "interpolatePiYG",
-  "interpolatePuOr",
-  "interpolateRdBu",
-  "interpolateRdGy",
-  "interpolateRdYlBu",
-  "interpolateRdYlGn",
-  "interpolateSpectral",
-  // Single Hue
-  "interpolateBlues",
-  "interpolateGreens",
-  "interpolateGreys",
-  "interpolateOranges",
-  "interpolatePurples",
-  "interpolateReds",
-  // Multi-Hue
-  "interpolateBuGn",
-  "interpolateBuPu",
-  "interpolateGnBu",
-  "interpolateOrRd",
-  "interpolatePuBuGn",
-  "interpolatePuBu",
-  "interpolatePuRd",
-  "interpolateRdPu",
-  "interpolateYlGnBu",
-  "interpolateYlGn",
-  "interpolateYlOrBr",
-  "interpolateYlOrRd",
-  "interpolateTurbo",
-  "interpolateViridis",
-  "interpolateInferno",
-  "interpolateMagma",
-  "interpolatePlasma",
-  "interpolateCividis",
-  "interpolateCool",
-  "interpolateWarm",
-  "interpolateCubehelixDefault",
-  // Cyclical
-  "interpolateRainbow",
-  "interpolateSinebow",
-];
+// simpleRamp('container_04', 'bob', d3[colourSchemes[20]], 100) // blank if noRect > width = 694;
+simpleRamp("container_04", "bob", d3.interpolateRainbow, 200);
+function simpleRamp(placementID, id, colourScheme, noRect = 100) {
+  const canvasLocation = document.getElementById(placementID),
+    idMain = id;
+
+  const margin = { top: 20, right: 20, bottom: 0, left: 20 }; // Use this to align canvas in div
+
+  // used to determine element (div) height/ width when not specified in css
+  let width = canvasLocation.offsetWidth - margin.left - margin.right; // this is the width of the parent div, used for initial dimensions
+  const height = 100 - margin.top - margin.bottom;
+  // console.log(width)
+
+  d3.select(`#${idMain}`).remove(); // remove the canvas if it already exists
+
+  const mainCanvas = d3
+    .select(canvasLocation)
+    .append("canvas")
+    .attr("id", idMain)
+    .attr("class", "mainCanvas")
+    .attr("width", width)
+    .attr("height", height);
+
+  const canvasElem = document.getElementById(idMain);
+
+  canvasElem.style.margin = `${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px`;
+  // canvasElem.style.padding = `${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px`;
+  canvasElem.style.width = `calc(100% - ${margin.left + margin.right}px)`; // Set the canvas width to make it responsive, need the px units
+  // canvasElem.style.height = height;
+
+  const colorScale = d3.scaleSequential(colourScheme).domain([1, noRect]);
+
+  const cellWidth = Math.floor(width / noRect, 0);
+
+  const xScale = d3
+    .scaleLinear()
+    .domain([0, noRect - 1])
+    .range([0, width - cellWidth]);
+
+  const context = mainCanvas.node().getContext("2d", { alpha: false });
+
+  // clear canvas
+  context.clearRect(0, 0, width, height);
+
+  for (let i = 0; i < noRect; i++) {
+    context.save();
+    context.fillStyle = colorScale(i + 1);
+    context.translate(Math.floor(xScale(i)), 0);
+    context.fillRect(
+      0,
+      0,
+      Math.floor(xScale(i + 1)) - Math.floor(xScale(i)) + 1,
+      height
+    );
+    context.restore();
+  }
+}
+
+// .attr("x", function (d) {
+//   return Math.floor(xScale(i));
+// })
+// .attr("y", function (d, i) {
+//   return 0;
+// })
+// .attr("width", (d) => {
+//   return (
+//     Math.floor(xScale(i + 1)) - Math.floor(xScale(i)) + 1
+//   );
