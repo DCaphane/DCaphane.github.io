@@ -182,6 +182,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
     <script defer src="scripts/gp_practice_profile/map_imd_lsoa.js"></script>
     <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
+    <script defer src="scripts/gp_practice_profile/map_leaflet_d3.js"></script>
     <script
       defer
       src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
@@ -242,7 +243,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
           </section>
 
           <section id="sec-01" class="section anchor">
-            <h2>Section 01</h2>
+            <h2>Geography</h2>
 
             <div id="id01" class="tiles">
               <div class="tile wide content">
@@ -257,6 +258,22 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 </footer>
               </div>
 
+              <div class="tile wide content">
+                <h3>GP Practice Sites</h3>
+                <div>
+                  <!--  just a wrapper to control map height/ width-->
+                  <div id="mapSites" class="map"></div>
+                  <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
+                </div>
+                <footer id="selectedSite" class="cta">Associated Sites</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-02" class="section anchor">
+            <h2>Population</h2>
+
+            <div id="id02" class="tiles">
               <div class="tile wide content">
                 <h3>Trend</h3>
                 <div id="cht_PopTrend"></div>
@@ -301,16 +318,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
               </div>
 
               <div class="tile wide content">
-                <h3>GP Practice Sites</h3>
-                <div>
-                  <!--  just a wrapper to control map height/ width-->
-                  <div id="mapSites" class="map"></div>
-                  <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
-                </div>
-                <footer id="selectedSite" class="cta">Associated Sites</footer>
-              </div>
-
-              <div class="tile wide content">
                 <h3>Bar Chart</h3>
                 <div id="cht_PopBar"></div>
                 <footer class="cta"></footer>
@@ -325,7 +332,13 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 </div>
                 <footer class="cta" id="footerMapPopn"></footer>
               </div>
+            </div>
+          </section>
 
+          <section id="sec-03" class="section anchor">
+            <h2>Demographics</h2>
+
+            <div id="id03" class="tiles">
               <div class="tile wide content">
                 <h3>IMD Testing</h3>
                 <div id="selIMD"></div>
@@ -336,52 +349,27 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 </div>
                 <footer class="cta" id="footerMapIMD"></footer>
               </div>
-            </div>
-          </section>
 
-          <section id="sec-02" class="section anchor">
-            <h2>Section 02</h2>
-
-            <div id="id02" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty004"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
-
-          <section id="sec-03" class="section anchor">
-            <h2>Section 03</h2>
-
-            <div id="id03" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty008"></div>
-                <footer class="cta">...</footer>
+              <div class="tile wide content">
+                <h3>D3 and Leaflet</h3>
+                <div id="selD3Leaf"></div>
+                <div>
+                  <!--  just a wrapper to control map height/ width-->
+                  <div id="mapIMDD3" class="map"></div>
+                  <div id="sidebar5" class="leaflet-sidebar collapsed"></div>
+                </div>
+                <footer class="cta" id="footerMapD3Leaf"></footer>
               </div>
             </div>
           </section>
 
           <section id="sec-04" class="section anchor">
-            <h2>Section 04</h2>
+            <h2>Blank</h2>
 
             <div id="id04" class="tiles">
               <div class="tile content">
                 <h3>Standard Tile</h3>
                 <div id="empty012"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
-
-          <section id="sec-05" class="section anchor">
-            <h2>Section 05</h2>
-
-            <div id="id05" class="tiles">
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty016"></div>
                 <footer class="cta">...</footer>
               </div>
             </div>

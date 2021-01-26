@@ -399,7 +399,7 @@ function gpSites(zoomToExtent = false) {
     overlaysTreePopn.children[4] = ol1;
 
     mapWithSites.set(mapSites.map, gpSitesMap); // keep track of which maps include GP Sites
-    mapWithSites.set(mapPopn.map, popnSitesMap);
+    // mapWithSites.set(mapPopn.map, popnSitesMap); // do not try to use across multiple maps - need to replicate
     if (zoomToExtent) {
       mapSites.map.fitBounds(gpSitesMap.getBounds());
       // mapPopn.map.fitBounds(popnSitesMap.getBounds());
@@ -461,6 +461,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
       });
 
       gpSites.addTo(map);
+      mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
 
       const overlayFilteredSites = {
         label: `${selectedPractice} Sites`,
@@ -481,7 +482,6 @@ function filterGPPracticeSites(zoomToExtent = false) {
         // .expandSelected() // expand selected option in the baselayer
         .collapseTree(true);
 
-      mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
       if (zoomToExtent) {
         map.fitBounds(gpSites.getBounds());
       }
@@ -1188,7 +1188,7 @@ function addPracticeToMap(zoomToExtent = false) {
 
 function overlayPCNs(mapObj) {
   return {
-    label: "Primary Care Networks",
+    label: "Sites by PCN",
     selectAllCheckbox: true,
     // collapsed: true,
     children: [

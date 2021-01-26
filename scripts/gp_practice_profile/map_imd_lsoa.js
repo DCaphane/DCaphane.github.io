@@ -19,11 +19,6 @@ mapIMD.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapIMD.map.createPane("ccgBoundaryPane");
 mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-// Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
-//   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-//   ccgBoundary(true);
-// });
-
 function recolourIMDLayer(defaultIMD = "imdRank") {
   Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
     dataIMD.then(function (v) {
@@ -36,16 +31,23 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
       });
       // console.log(rawValues)
 
-      const colourScheme =
-        imdDomainDesc !== undefined
-          ? mapIMDDomain.get(imdDomainDesc)[1]
-          : mapIMDDomain.get("IMD Rank")[1];
-      const colour = d3
-        .scaleSequentialQuantile()
-        .domain(rawValues)
-        .interpolator(colourScheme); // d3.interpolateBlues
+      // const colourScheme =
+      //   imdDomainDesc !== undefined
+      //     ? mapIMDDomain.get(imdDomainDesc).colourScheme
+      //     : mapIMDDomain.get("IMD Rank").colourScheme;
 
-      refreshMapIMDLegend(maxValue, colourScheme);
+      const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
+
+      // refreshMapIMDLegend(maxValue, colourScheme);
+      imdLegend.legend({
+        color: mapIMDDomain.get(imdDomainDesc).legendColour(maxValue),
+        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+        width: 600,
+        marginLeft: 50,
+      });
 
       for (let key of layersMapIMD.keys()) {
         layersMapIMD.get(key).eachLayer(function (layer) {
@@ -192,75 +194,147 @@ mapControlIMD
 // .expandSelected(true); // expand selected option in the overlays tree
 
 const mapIMDDomain = new Map();
-// mapIMDDomain.set("Proper Description", [datasetDesc, colourOrder]);
-mapIMDDomain.set("IMD Rank", ["imdRank", colourScaleRedReverse]);
-mapIMDDomain.set("IMD Decile", ["imdDecile", colourScaleRedReverse]);
-mapIMDDomain.set("Income", ["incomeRank", colourScaleRedReverse]);
-mapIMDDomain.set("Employment", ["employmentRank", colourScaleRedReverse]);
-mapIMDDomain.set("Education Skills and Training", [
-  "educationRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Health Deprivation and Disability", [
-  "healthRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Crime", ["crimeRank", colourScaleRedReverse]);
-mapIMDDomain.set("Barriers to Housing and Services", [
-  "housingRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Living Environment", [
-  "livingEnvironRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Income Deprivation Affecting Children Index", [
-  "incomeChildRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Income Deprivation Affecting Older People", [
-  "incomeOlderRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Children and Young People Subdomain", [
-  "childRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Adult Skills Subdomain", [
-  "adultSkillsRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Geographical Barriers Subdomain", [
-  "geogRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Wider Barriers Subdomain", [
-  "barriersRank",
-  colourScaleRedReverse,
-]);
-mapIMDDomain.set("Indoors Subdomain", ["indoorsRank", colourScaleRedReverse]);
-mapIMDDomain.set("Outdoors Subdomain", ["outdoorsRank", colourScaleRedReverse]);
-mapIMDDomain.set("Total population mid 2015", [
-  "totalPopn",
-  d3.interpolateYlGnBu,
-]);
-mapIMDDomain.set("Dependent Children aged 0 15 mid 2015", [
-  "dependentChildren",
-  d3.interpolateYlGnBu,
-]);
-mapIMDDomain.set("Population aged 16 59 mid 2015", [
-  "popnMiddle",
-  d3.interpolateYlGnBu,
-]);
-mapIMDDomain.set("Older population aged 60 and over mid 2015", [
-  "popnOlder",
-  d3.interpolateYlGnBu,
-]);
-mapIMDDomain.set("Working age population 18 59 64", [
-  "popnWorking",
-  d3.interpolateYlGnBu,
-]);
 
+const defaultProperties = {
+  datasetDesc: "dummy description",
+  scale(values) {
+    return d3
+      .scaleSequentialQuantile()
+      .domain(values)
+      .interpolator(this.colourScheme);
+  },
+  legendColour(maxValue) {
+    return d3.scaleSequential([0, maxValue], this.colourScheme);
+  },
+  colourScheme: colourScaleRedReverse,
+  legendTitle: "IMD Subtitle",
+};
+
+const imdRankProperties = Object.create(defaultProperties);
+imdRankProperties.datasetDesc = "imdRank";
+imdRankProperties.legendColour = function (maxValue) {
+  return d3.scaleSequentialQuantile(d3.range(maxValue), this.colourScheme);
+};
+imdRankProperties.tickFormat = ",.0f";
+// This works but re-written entire object so no value?
+/*
+const imdDecileProperties = Object.create(defaultProperties);
+imdDecileProperties.datasetDesc = "imdDecile"
+imdDecileProperties.scale = function(v) {
+  const max = d3.max(v);
+  return d3
+    .scaleOrdinal(this.colourScheme)
+    .domain(d3.range(1, max + 1))
+    .range(this.colourScheme[max]);
+}
+imdDecileProperties.legendColour = function(maxValue) {
+  return d3.scaleOrdinal(
+    d3.range(1, maxValue + 1),
+    this.colourScheme[maxValue]
+  );
+}
+imdDecileProperties.colourScheme = d3.schemeSpectral
+*/
+
+const incomeRankProperties = Object.create(defaultProperties);
+incomeRankProperties.datasetDesc = "imdRank";
+const employmentRankProperties = Object.create(defaultProperties);
+employmentRankProperties.datasetDesc = "employmentRank";
+const educationRankProperties = Object.create(defaultProperties);
+educationRankProperties.datasetDesc = "educationRank";
+const healthRankProperties = Object.create(defaultProperties);
+healthRankProperties.datasetDesc = "healthRank";
+const crimeRankProperties = Object.create(defaultProperties);
+crimeRankProperties.datasetDesc = "crimeRank";
+const housingRankProperties = Object.create(defaultProperties);
+housingRankProperties.datasetDesc = "housingRank";
+const livingEnvironRankProperties = Object.create(defaultProperties);
+livingEnvironRankProperties.datasetDesc = "livingEnvironRank";
+const incomeChildRankProperties = Object.create(defaultProperties);
+incomeChildRankProperties.datasetDesc = "incomeChildRank";
+const incomeOlderRankProperties = Object.create(defaultProperties);
+incomeOlderRankProperties.datasetDesc = "incomeOlderRank";
+const childRankProperties = Object.create(defaultProperties);
+childRankProperties.datasetDesc = "childRank";
+const adultSkillsRankProperties = Object.create(defaultProperties);
+adultSkillsRankProperties.datasetDesc = "adultSkillsRank";
+const geogRankProperties = Object.create(defaultProperties);
+geogRankProperties.datasetDesc = "geogRank";
+const barriersRankProperties = Object.create(defaultProperties);
+barriersRankProperties.datasetDesc = "barriersRank";
+const indoorsRankProperties = Object.create(defaultProperties);
+indoorsRankProperties.datasetDesc = "indoorsRank";
+const outdoorsRankProperties = Object.create(defaultProperties);
+outdoorsRankProperties.datasetDesc = "outdoorsRank";
+const totalPopnProperties = Object.create(defaultProperties);
+totalPopnProperties.datasetDesc = "totalPopn";
+totalPopnProperties.colourScheme = d3.interpolateYlGnBu;
+const dependentChildrenProperties = Object.create(defaultProperties);
+dependentChildrenProperties.datasetDesc = "dependentChildren";
+dependentChildrenProperties.colourScheme = d3.interpolateYlGnBu;
+const popnMiddleProperties = Object.create(defaultProperties);
+popnMiddleProperties.datasetDesc = "popnMiddle";
+popnMiddleProperties.colourScheme = d3.interpolateYlGnBu;
+const popnOlderProperties = Object.create(defaultProperties);
+popnOlderProperties.datasetDesc = "popnOlder";
+popnOlderProperties.colourScheme = d3.interpolateYlGnBu;
+const popnWorkingProperties = Object.create(defaultProperties);
+popnWorkingProperties.datasetDesc = "popnWorking";
+popnWorkingProperties.colourScheme = d3.interpolateYlGnBu;
+
+mapIMDDomain.set("IMD Rank", imdRankProperties);
+mapIMDDomain.set("IMD Decile", {
+  datasetDesc: "imdDecile",
+  scale(v) {
+    const max = d3.max(v);
+    return d3
+      .scaleOrdinal(this.colourScheme)
+      .domain(d3.range(1, max + 1))
+      .range(this.colourScheme[max]);
+    // .interpolator(this.colourScheme);
+  },
+  legendColour(maxValue) {
+    return d3.scaleOrdinal(
+      d3.range(1, maxValue + 1),
+      this.colourScheme[maxValue]
+    );
+  },
+  colourScheme: d3.schemeSpectral,
+});
+mapIMDDomain.set("Income", incomeRankProperties);
+mapIMDDomain.set("Employment", employmentRankProperties);
+mapIMDDomain.set("Education Skills and Training", educationRankProperties);
+mapIMDDomain.set("Health Deprivation and Disability", healthRankProperties);
+mapIMDDomain.set("Crime", crimeRankProperties);
+mapIMDDomain.set("Barriers to Housing and Services", housingRankProperties);
+mapIMDDomain.set("Living Environment", livingEnvironRankProperties);
+mapIMDDomain.set(
+  "Income Deprivation Affecting Children Index",
+  incomeChildRankProperties
+);
+mapIMDDomain.set(
+  "Income Deprivation Affecting Older People",
+  incomeOlderRankProperties
+);
+mapIMDDomain.set("Children and Young People Subdomain", childRankProperties);
+mapIMDDomain.set("Adult Skills Subdomain", adultSkillsRankProperties);
+mapIMDDomain.set("Geographical Barriers Subdomain", geogRankProperties);
+mapIMDDomain.set("Wider Barriers Subdomain", barriersRankProperties);
+mapIMDDomain.set("Indoors Subdomain", indoorsRankProperties);
+mapIMDDomain.set("Outdoors Subdomain", outdoorsRankProperties);
+mapIMDDomain.set("Total population mid 2015", totalPopnProperties);
+mapIMDDomain.set(
+  "Dependent Children aged 0 15 mid 2015",
+  dependentChildrenProperties
+);
+mapIMDDomain.set("Population aged 16 59 mid 2015", popnMiddleProperties);
+mapIMDDomain.set(
+  "Older population aged 60 and over mid 2015",
+  popnOlderProperties
+);
+mapIMDDomain.set("Working age population 18 59 64", popnWorkingProperties);
+
+// default values
 let imdDomainDesc = "IMD Rank",
   imdDomainShort = "imdRank";
 
@@ -297,7 +371,7 @@ let imdDomainDesc = "IMD Rank",
 
   d3.select(select).on("change", function () {
     imdDomainDesc = d3.select("#selImdDomain option:checked").text();
-    imdDomainShort = mapIMDDomain.get(imdDomainDesc)[0];
+    imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
     console.log(imdDomainShort);
     recolourIMDLayer(imdDomainShort);
   });
