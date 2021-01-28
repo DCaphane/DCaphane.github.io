@@ -82,10 +82,10 @@ https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/
 .tiles {
   margin: 2em;
   display: grid;
-  grid-gap: 20px;
+  grid-gap: 40px;
   grid-template-columns: repeat(
     auto-fill,
-    minmax(240px, 1fr)
+    minmax(300px, 1fr)
   ); /* auto was previously 200px*/
   grid-auto-flow: dense; /* row is the default eg. row dense*/
 }

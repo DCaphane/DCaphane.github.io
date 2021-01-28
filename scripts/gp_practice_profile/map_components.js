@@ -257,6 +257,11 @@ function homeButton() {
   ).addTo(map);
 }
 
+function defaultHomeVoY() {
+  const map = this.map;
+  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
+}
+
 const layersMapGpMain = new Map();
 
 function addPracticeToMap(zoomToExtent = false) {
@@ -307,7 +312,7 @@ function addPracticeToMap(zoomToExtent = false) {
     L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
 
     // Add to overlay control
-    const ol = overlayPCNs(layersMapGpMain);
+    const ol = overlayPCNs(layersMapGpMain); // function to align sites by pcn to overlay tree
     overlaysTreeMain.children[0] = ol;
 
     if (zoomToExtent) {
@@ -316,26 +321,97 @@ function addPracticeToMap(zoomToExtent = false) {
   });
 }
 
-function pcnSites(zoomToExtent = false) {
-  const map = this.map;
+const layersMapGPSites = new Map();
+const layersMapPopn = new Map();
+
+function gpSites(zoomToExtent = false) {
+  // This add the GP Sites layer in its entirety
+  // const map = this.map;
   geoDataPCNSites.then(function (v) {
     const sitesLayer = L.geoJson(v, {
       pointToLayer: pcnFormatting,
-      // onEachFeature: function (feature, layer) {
-      //   //console.log(layer.feature.properties.pcn_name)
-      //   subCategories[layer.feature.properties.pcn_name] = null;
-      // },
+      onEachFeature: function (feature, layer) {
+        const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+        const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+        <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
+        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
+        layer.on("click", function (e) {
+          // update other charts
+          mapSites.map.setView(e.latlng, 11);
+          console.log(layer.feature.properties.organisation_code);
+        });
+
+        // Initialize the category array if not already set.
+        if (!layersMapGPSites.has(category)) {
+          layersMapGPSites.set(category, L.layerGroup());
+        }
+        layersMapGPSites.get(category).addLayer(layer);
+      },
     });
 
-    sitesLayer.addTo(map);
-    mapWithSites.set(map, sitesLayer);
+    const popnLayer = L.geoJson(v, {
+      pointToLayer: pcnFormatting,
+      onEachFeature: function (feature, layer) {
+        const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+        const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+        <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
+        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+
+        layer.bindPopup(popupText);
+        layer.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        layer.on("mouseout", function (e) {
+          this.closePopup();
+        });
+        layer.on("click", function (e) {
+          // update other charts
+          mapPopn.map.setView(e.latlng, 11);
+          console.log(layer.feature.properties.organisation_code);
+        });
+
+        // Initialize the category array if not already set.
+        if (!layersMapPopn.has(category)) {
+          layersMapPopn.set(category, L.layerGroup());
+        }
+        layersMapPopn.get(category).addLayer(layer);
+      },
+    });
+
+    const gpSitesMap = L.layerGroup(Array.from(layersMapGPSites.values()));
+    gpSitesMap.addTo(mapSites.map);
+
+    const popnSitesMap = L.layerGroup(Array.from(layersMapPopn.values()));
+    popnSitesMap.addTo(mapPopn.map);
+
+    const ol = overlayPCNs(layersMapGPSites);
+    overlaysTreeSites.children[2] = ol;
+
+    const ol1 = overlayPCNs(layersMapPopn);
+    overlaysTreePopn.children[4] = ol1;
+
+    mapWithSites.set(mapSites.map, gpSitesMap); // keep track of which maps include GP Sites
+    // mapWithSites.set(mapPopn.map, popnSitesMap); // do not try to use across multiple maps - need to replicate
     if (zoomToExtent) {
-      map.fitBounds(sitesLayer.getBounds());
+      mapSites.map.fitBounds(gpSitesMap.getBounds());
+      // mapPopn.map.fitBounds(popnSitesMap.getBounds());
     }
   });
 }
 
 function filterGPPracticeSites(zoomToExtent = false) {
+  /* This will deselect the 'entire' GP Sites layer
+  and return the filtered layer based on the selected practice
+  */
+  const map = this.map;
   mapWithSites.forEach(function (value, key) {
     if (key.hasLayer(value)) {
       key.removeLayer(value);
@@ -343,7 +419,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
 
     geoDataPCNSites.then(function (v) {
       const gpSites = L.geoJson(v, {
-        // https://leafletjs.com/reference-1.4.0.html#geojson
+        // https://leafletjs.com/reference-1.7.1.html#geojson
         pointToLayer: pcnFormatting,
         onEachFeature: function (feature, layer) {
           const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
@@ -361,24 +437,10 @@ function filterGPPracticeSites(zoomToExtent = false) {
 
           layer.on("click", function (e) {
             // update other charts
-            (selectedPractice = feature.properties.organisation_code), // register change in practice
-              (practiceName = feature.properties.organisation_name);
+            // (selectedPractice = feature.properties.organisation_code), // register change in practice
+            //   (practiceName = feature.properties.organisation_name);
             // console.log(selectedPractice + " - " + practiceName);
           });
-
-          // subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
-          // // Initialize the subCategory array if not already set.
-          // if (typeof subCategories[subCategory] === "undefined") {
-          //   for (let map of mapWithSites.keys()) {
-          //     subCategories[subCategory] = L.layerGroup().addTo(map); // subCategories {object} used to create an object with key = subCategory, value is array
-          //   }
-          //   // control.addOverlay(
-          //   // 	subCategories[subCategory],
-          //   // 	subCategory
-          //   // );
-          // }
-          // // console.log(subCategories[subCategory]);
-          // subCategories[subCategory].addLayer(layer);
         },
         filter: function (d) {
           // match on practice
@@ -398,11 +460,30 @@ function filterGPPracticeSites(zoomToExtent = false) {
         },
       });
 
-      gpSites.addTo(key);
-      mapWithSites.set(key, gpSites);
+      gpSites.addTo(map);
+      mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
+
+      const overlayFilteredSites = {
+        label: `${selectedPractice} Sites`,
+        layer: gpSites,
+        selectAllCheckbox: false,
+        // children: [
+        //   {
+        //     label: "test Desc",
+        //     layer: gpSites,
+        //   },
+        // ],
+      };
+      overlaysTreeSites.children[3] = overlayFilteredSites;
+
+      mapControlSites
+        .setOverlayTree(overlaysTreeSites)
+        .collapseTree() // collapse the baselayers tree
+        // .expandSelected() // expand selected option in the baselayer
+        .collapseTree(true);
 
       if (zoomToExtent) {
-        key.fitBounds(gpSites.getBounds());
+        map.fitBounds(gpSites.getBounds());
       }
     });
   });
@@ -598,7 +679,7 @@ function lsoaBoundary(zoomToExtent = false) {
   geoDataLsoaBoundaries.then(function (v) {
     // This section adds the lsoa layer in its entirety along with labels (permanent Tooltip)
     const lsoaLayer = L.geoJSON(v, {
-      style: styleLsoa, // default colour scheme for lsoa boundaries
+      // style: styleLsoa, // default colour scheme for lsoa boundaries
       onEachFeature: function (feature, layer) {
         // layer.bindPopup(`<h1>${feature.properties.lsoa}</h1>`);
 
@@ -681,7 +762,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
   geoDataLsoaBoundaries.then(function (v) {
     const lsoaLayer = L.geoJson(v, {
       // https://leafletjs.com/reference-1.4.0.html#geojson
-      style: styleLsoa,
+      // style: styleLsoa,
       onEachFeature: function (feature, layer) {
         // const popupText =
         //   "<h3>" +
@@ -775,10 +856,10 @@ function refreshChartsPostPracticeChange(practice) {
   trendChart.chartTrendDraw();
   demographicChart.updateChtDemog(practice, selectedPracticeCompare);
 
-  filterGPPracticeSites(true);
+  filterGPPracticeSites.call(mapSites, true);
 
   recolourLSOA();
-  recolourIMDLayer();
+  recolourIMDLayer(imdDomainShort);
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();
@@ -1107,7 +1188,7 @@ function addPracticeToMap(zoomToExtent = false) {
 
 function overlayPCNs(mapObj) {
   return {
-    label: "Primary Care Networks",
+    label: "Sites by PCN",
     selectAllCheckbox: true,
     // collapsed: true,
     children: [
@@ -1452,3 +1533,380 @@ mapControlPopn
   // .expandSelected() // expand selected option in the baselayer
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
+
+const colourScaleRed = d3.scaleSequential(d3.interpolateReds);
+const interpolatorRed = colourScaleRed.interpolator(); // read its interpolator
+const colourScaleRedReverse = (t) => interpolatorRed(1 - t); // creates a mirror image of the interpolator
+
+function legendWrapper(placementID, legendID) {
+  // https://observablehq.com/@mbostock/color-ramp
+  // https://observablehq.com/@d3/color-legend
+
+  function ramp(color, n = 512) {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.style.margin = "14px 14px 0 14px";
+    canvas.style.width = "calc(100% - 28px)";
+
+    const w = canvas.width;
+    // console.log(w);
+    canvas.style.height = "100px";
+    canvas.style.imageRendering = "-moz-crisp-edges";
+    canvas.style.imageRendering = "pixelated";
+
+    for (let i = 0; i < n; ++i) {
+      context.fillStyle = color(i / (n - 1));
+      context.fillRect((i / n) * w, 0, 1, 100); // x, y, width, height
+    }
+
+    return canvas;
+  }
+
+  function legend({
+    color,
+    title,
+    leftSubTitle,
+    rightSubTitle,
+    tickSize = 10,
+    width = 500,
+    height = 80 + tickSize,
+    marginTop = 18,
+    marginRight = 0,
+    marginBottom = 16 + tickSize,
+    marginLeft = 20,
+    ticks = width / 64,
+    tickFormat,
+    tickValues,
+  } = {}) {
+    d3.select(`#${legendID}`).remove(); // remove the element (legend) if it already exists
+    const canvasLocation = document.getElementById(placementID);
+
+    const svg = d3
+      .select(canvasLocation)
+      .append("svg")
+      .attr("id", legendID)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
+      .style("overflow", "visible")
+      .style("display", "block");
+
+    let tickAdjust = (g) =>
+      g.selectAll(".tick line").attr("y1", marginTop + marginBottom - height);
+    let x;
+
+    // Continuous
+    if (color.interpolate) {
+      const n = Math.min(color.domain().length, color.range().length);
+
+      x = color
+        .copy()
+        .rangeRound(
+          d3.quantize(d3.interpolate(marginLeft, width - marginRight), n)
+        );
+
+      svg
+        .append("image")
+        .attr("x", marginLeft)
+        .attr("y", marginTop)
+        .attr("width", width - marginLeft - marginRight)
+        .attr("height", height - marginTop - marginBottom)
+        .attr("preserveAspectRatio", "none")
+        .attr(
+          "xlink:href",
+          ramp(
+            color.copy().domain(d3.quantize(d3.interpolate(0, 1), n))
+          ).toDataURL()
+        );
+    }
+
+    // Sequential
+    else if (color.interpolator) {
+      x = Object.assign(
+        color
+          .copy()
+          .interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
+        {
+          range() {
+            return [marginLeft, width - marginRight];
+          },
+        }
+      );
+
+      svg
+        .append("image")
+        .attr("x", marginLeft)
+        .attr("y", marginTop)
+        .attr("width", width - marginLeft - marginRight) // having to add magic number to align width, not sure why?
+        .attr("height", height - marginTop - marginBottom + 25)
+        .attr("preserveAspectRatio", "none")
+        .attr("xlink:href", ramp(color.interpolator()).toDataURL());
+
+      // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
+      if (!x.ticks) {
+        if (tickValues === undefined) {
+          const n = Math.round(ticks + 1);
+          tickValues = d3
+            .range(n)
+            .map((i) => d3.quantile(color.domain(), i / (n - 1)));
+        }
+        if (typeof tickFormat !== "function") {
+          tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat);
+        }
+      }
+    }
+
+    // Threshold
+    else if (color.invertExtent) {
+      const thresholds = color.thresholds
+        ? color.thresholds() // scaleQuantize
+        : color.quantiles
+        ? color.quantiles() // scaleQuantile
+        : color.domain(); // scaleThreshold
+
+      const thresholdFormat =
+        tickFormat === undefined
+          ? (d) => d
+          : typeof tickFormat === "string"
+          ? d3.format(tickFormat)
+          : tickFormat;
+
+      x = d3
+        .scaleLinear()
+        .domain([-1, color.range().length - 1])
+        .rangeRound([marginLeft, width - marginRight]);
+
+      svg
+        .append("g")
+        .selectAll("rect")
+        .data(color.range())
+        .join("rect")
+        .attr("x", (d, i) => x(i - 1))
+        .attr("y", marginTop)
+        .attr("width", (d, i) => x(i) - x(i - 1))
+        .attr("height", height - marginTop - marginBottom)
+        .attr("fill", (d) => d);
+
+      tickValues = d3.range(thresholds.length);
+      tickFormat = (i) => thresholdFormat(thresholds[i], i);
+    }
+
+    // Ordinal
+    else {
+      x = d3
+        .scaleBand()
+        .domain(color.domain())
+        .rangeRound([marginLeft, width - marginRight]);
+
+      svg
+        .append("g")
+        .selectAll("rect")
+        .data(color.domain())
+        .join("rect")
+        .attr("x", x)
+        .attr("y", marginTop)
+        .attr("width", Math.max(0, x.bandwidth() - 1))
+        .attr("height", height - marginTop - marginBottom)
+        .attr("fill", color);
+
+      tickAdjust = () => {};
+    }
+
+    svg
+      .append("g")
+      .attr("transform", `translate(0,${height - marginBottom})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .ticks(ticks, typeof tickFormat === "string" ? tickFormat : undefined)
+          .tickFormat(typeof tickFormat === "function" ? tickFormat : undefined)
+          .tickSize(tickSize)
+          .tickValues(tickValues)
+      )
+      .call(tickAdjust)
+      .call((g) => g.select(".domain").remove())
+      .call((g) =>
+        g
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", marginTop + marginBottom - height - 6)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "middle")
+          .attr("font-weight", "bold")
+          .text(title)
+      )
+      .call((g) =>
+        g
+          .append("text")
+          .attr("x", marginLeft)
+          .attr("y", marginTop + marginBottom - height - 6)
+          .attr("fill", "red")
+          .attr("text-anchor", "start")
+          // .attr("font-weight", "bold")
+          .text(leftSubTitle)
+      )
+      .call((g) =>
+        g
+          .append("text")
+          .attr("x", width)
+          .attr("y", marginTop + marginBottom - height - 6)
+          .attr("fill", "red")
+          .attr("text-anchor", "end")
+          // .attr("font-weight", "bold")
+          .text(rightSubTitle)
+      );
+
+    return svg.node();
+  }
+
+  return {
+    legend: legend,
+  };
+}
+
+/*
+The following was the original heatmap legend code using svg rather than canvas for the colour ramp
+This has been replaced using the above legendWrapper function
+*/
+
+/*
+
+
+function heatmapLegend(
+  placementID,
+  id,
+  legendText
+  // colourScheme = d3.interpolateYlGnBu
+) {
+  const legendID = id,
+    // gradientID = `gradient_${id}`;
+    footerMapPopn = document.getElementById(placementID);
+
+  const svgLegend = d3
+    .select(footerMapPopn)
+    .append("svg")
+    .attr(
+      "viewBox",
+      `0 0
+      ${chtWidthWide + margin.left + margin.right}
+      ${chtHeightShort / 4}`
+    )
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .append("g")
+    .attr("transform", `translate(${margin.left - 20})`);
+
+  const xScaleLegendMapPopn = d3
+    .scaleLinear()
+    // .domain([0, maxValue])
+    .range([0, chtWidthWide])
+    .nice();
+
+  const xAxisLegendMapPopn = d3
+    .axisBottom(xScaleLegendMapPopn)
+    .tickFormat(formatNumber);
+
+  svgLegend
+    .append("g")
+    // .attr("class", "x axis")
+    .attr("id", legendID)
+    .attr("transform", `translate(0, ${chtHeightShort / 4 - 33})`) // positions the axis
+    .call(xAxisLegendMapPopn)
+    .append("text")
+    .attr("x", chtWidthWide / 2)
+    .attr("dy", "30px") // positions the axis label text
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .style("fill", "#000000") // font colour
+    .text(legendText);
+
+  // axis sub headings
+  d3.select(`#${legendID}`)
+    .append("text")
+    .attr("x", 0)
+    .attr("dy", "30px") // positions the axis label text
+    .style("text-anchor", "start")
+    // .style("font-weight", "bold")
+    .style("fill", "#ff0000") // font colour
+    .text("High Deprivation");
+
+  d3.select(`#${legendID}`)
+    .append("text")
+    .attr("x", chtWidthWide)
+    .attr("dy", "30px") // positions the axis label text
+    .style("text-anchor", "end")
+    // .style("font-weight", "bold")
+    .style("fill", "#ff0000") // font colour
+    .text("Low Deprivation");
+
+  function updateMapPopnLegend(
+    maxValue = 1,
+    colourScheme = d3.interpolateYlGnBu
+  ) {
+    // legend is made up from lots of small rect
+    let noRect = 100; // how many rect make up the legend
+    if (maxValue < 20) {
+      noRect = maxValue;
+      xScaleLegendMapPopn.domain([1, maxValue]);
+    } else {
+      xScaleLegendMapPopn.domain([0, maxValue]);
+    }
+    let defaultWidth = Math.floor(chtWidthWide / noRect); // approx size of each individual rect
+
+    const data = d3.range(noRect), // array [0, 1, 2, ..., 99]
+      xScale = d3
+        .scaleLinear()
+        .domain(d3.extent(data))
+        .range([0, chtWidthWide - defaultWidth]);
+
+    const colourScale = d3
+      .scaleSequential()
+      .interpolator(colourScheme)
+      .domain(d3.extent(data));
+
+    svgLegend
+      .selectAll(".legendRect")
+      .data(data)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("rect").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "legendRect")
+      .attr("x", function (d) {
+        return Math.floor(xScale(d));
+      })
+      .attr("width", (d) => {
+        if (d == 99) {
+          return 6;
+        }
+        return Math.floor(xScale(d + 1)) - Math.floor(xScale(d)) + 1;
+      })
+      .attr("y", "0px")
+      .attr("height", "30")
+      .attr("fill", (d) => colourScale(d));
+    // .attr("stroke", "red");
+
+    svgLegend
+      .select(`#${legendID}`)
+      // .transition(t)
+      .call(xAxisLegendMapPopn);
+  }
+
+  return updateMapPopnLegend;
+}
+
+// let refreshMapPopnLegend = heatmapLegend(
+//   "footerMapPopn",
+//   "mapPopnLegend",
+//   "Population"
+// );
+// let refreshMapIMDLegend = heatmapLegend("footerMapIMD", "mapIMDLegend", "Rank");
+
+*/

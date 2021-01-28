@@ -54,7 +54,6 @@
 { "type": "Feature", "properties": { "parent_organisation_code": "B82064", "pcn_name": "South Hambleton And Ryedale", "organisation_code": "B82064000", "organisation_name": "Tollerton Surgery", "postcode": "YO61 1QW" }, "geometry": { "type": "Point", "coordinates": [ -1.214502, 54.071077 ] } },
 { "type": "Feature", "properties": { "parent_organisation_code": "B82002", "pcn_name": "South Hambleton And Ryedale", "organisation_code": "B82002000", "organisation_name": "Millfield Surgery", "postcode": "YO61 3JR" }, "geometry": { "type": "Point", "coordinates": [ -1.192496, 54.125406 ] } },
 { "type": "Feature", "properties": { "parent_organisation_code": "B82079", "pcn_name": "South Hambleton And Ryedale", "organisation_code": "B82079000", "organisation_name": "Stillington Surgery", "postcode": "YO61 1LL" }, "geometry": { "type": "Point", "coordinates": [ -1.108927, 54.103615 ] } },
-{ "type": "Feature", "properties": { "parent_organisation_code": "B82097", "pcn_name": "Selby Town", "organisation_code": "B82097000", "organisation_name": "Scott Road Medical Centre", "postcode": "YO8 4BL" }, "geometry": { "type": "Point", "coordinates": [ -1.07483, 53.785053 ] } },
-{ "type": "Feature", "properties": { "parent_organisation_code": "B82629", "pcn_name": null, "organisation_code": "B82629000", "organisation_name": "Whitby Drive Medical Centre - Closed", "postcode": "YO31 1EX" }, "geometry": { "type": "Point", "coordinates": [ -1.049586, 53.970408 ] } }
+{ "type": "Feature", "properties": { "parent_organisation_code": "B82097", "pcn_name": "Selby Town", "organisation_code": "B82097000", "organisation_name": "Scott Road Medical Centre", "postcode": "YO8 4BL" }, "geometry": { "type": "Point", "coordinates": [ -1.07483, 53.785053 ] } }
 ]
 }

@@ -1,8 +1,8 @@
 /* for testing only */
-* {
-  /* Background: rgba(255,0,0,0.1); */
-  /* outline: 1px solid red; */
-}
+/* * {
+  Background: rgba(255,0,0,0.1);
+  outline: 1px solid red;
+} */
 
 * {
   padding: 0;
@@ -39,7 +39,7 @@ body {
 
 #article-right {
   width: calc(100% - 40px);
-  max-width: 1600px;
+  max-width: 1800px;
   margin: 0 auto;
 }
 
@@ -150,7 +150,7 @@ img {
 */
 
 .map {
-  min-height: 500px;
+  min-height: 600px;
 }
 
 /*

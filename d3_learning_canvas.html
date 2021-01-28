@@ -38,12 +38,16 @@
 
     <script
       defer
-      src="scripts/d3_learning/learning_colours.js"
+      src="scripts/d3_learning/learning_canvas.js"
       type="module"
     ></script>
 
+    <script defer src="scripts/d3_learning/learning_canvas2.js"></script>
+
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
+
+    <link rel="stylesheet" type="text/css" href="css/d3_learning_canvas.css" />
 
     <link
       rel="stylesheet"
@@ -75,7 +79,7 @@
   <body>
     <div class="wrapper">
       <section id="hero">
-        <a href="/" class="logo"> <h1>Understanding D3 Colours</h1> </a>
+        <a href="/" class="logo"> <h1>Understanding D3 & Canvas</h1> </a>
       </section>
 
       <div class="wrapper-nav">
@@ -91,7 +95,7 @@
           <section id="sec-00" class="section anchor">
             <h2>Introduction</h2>
             <p>
-              Leraning about D3 Colours (v6) Ut consequat commodo qui veniam id
+              Leraning about D3 (v6) and Canvas Ut consequat commodo qui veniam id
               pariatur do consequat ullamco in do pariatur cupidatat anim.
               Dolore et occaecat cillum ipsum proident laborum incididunt
               consequat sit laboris ipsum. Id magna reprehenderit sit aute
@@ -99,22 +103,93 @@
             </p>
           </section>
 
-          <section id="sec-01" class="section anchor">
-            <h2>Ordinal (Categorical) Scales</h2>
+          <section id="sec-03" class="section anchor">
+            <h2>Exploring Canvas</h2>
 
-            <div id="id01" class="tiles">
-              <div class="tile widest content">
-                <h3>Standard Tile</h3>
-                <div id="img_Colour_01">
-                  eg. schemeCategory20. Notice the repeats after 20
-                </div>
+            <div id="id03" class="tiles">
+              <div class="tile wide content">
+                <h3>Colour Ramp 1</h3>
+                <input type="text" id="text-input" value="200">
+                <div id="container_02"></div>
+                <footer class="cta" id="colourSelector"></footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Colour Ramp 2</h3>
+                <div id="container_03"></div>
                 <footer class="cta">...</footer>
               </div>
 
-              <div class="tile widest content">
+              <div class="tile wide content">
+                <h3>Simple Ramp 1</h3>
+                <div id="container_04"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Simple Ramp 2</h3>
+                <div id="container_05"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+            </div>
+          </section>
+
+          <section id="sec-02" class="section anchor">
+            <h2>Canvas with Lars</h2>
+
+            <div id="id02" class="tiles">
+              <div class="tile wide content">
+                <h3>
+                  <a
+                    href="http://bl.ocks.org/larsvers/6049de0bcfa50f95d3dcbf1e3e44ad48"
+                    >Coloured grids</a
+                  >
+                </h3>
+                <div id="container"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Understanding</h3>
+                <div id="container_01"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile content">
                 <h3>Standard Tile</h3>
-                <div id="img_Colour_01a">
-                  eg. schemeCategory20. Notice the repeats after 20
+                <div id="empty007"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-01" class="section anchor">
+            <h2>Ramps and Legends (Bostock)</h2>
+
+            <div id="id01" class="tiles">
+              <div class="tile widest content">
+                <h3>Colour Ramp</h3>
+                <div id="explore_01"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Legend - in progress</h3>
+                <div id="legendTesting"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>My First Canvas</h3>
+                <div id="empty009">
+                  <canvas
+                    id="myCanvas"
+                    width="500"
+                    height="500"
+                    style="border: 1px solid #000000"
+                  >
+                  </canvas>
                 </div>
                 <footer class="cta">...</footer>
               </div>
@@ -139,65 +214,6 @@
               <div class="tile content">
                 <h3>Standard Tile</h3>
                 <div id="empty003"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
-
-          <section id="sec-03" class="section anchor">
-            <h2>Section 2</h2>
-
-            <div id="id03" class="tiles">
-              <div class="tile widest content">
-                <h3>Standard Tile</h3>
-                <div id="explore_01"></div>
-                <footer class="cta">...</footer>
-              </div>
-
-              <div class="tile wide content">
-                <h3>Wide Tile</h3>
-                <div id="empty009">
-                </div>
-                <footer class="cta">...</footer>
-              </div>
-
-              <div class="tile wide content">
-                <h3>Wide Tile</h3>
-                <div id="legendTesting"></div>
-                <footer class="cta">...</footer>
-              </div>
-            </div>
-          </section>
-
-          <section id="sec-02" class="section anchor">
-            <h2>Idea</h2>
-
-            <div id="id02" class="tiles">
-              <div class="tile widest content">
-                <h3>Idea</h3>
-              </div>
-
-              <div class="tile content">
-                <h3>Understanding</h3>
-                <div id="img_Colour_03"></div>
-                <footer class="cta">...</footer>
-              </div>
-
-              <div class="tile wide content">
-                <h3>Wide Tile</h3>
-                <div id="img_Colour_04"></div>
-                <footer class="cta">...</footer>
-              </div>
-
-              <div class="tile wide content">
-                <h3>Wide Tile</h3>
-                <div id="empty006"></div>
-                <footer class="cta">...</footer>
-              </div>
-
-              <div class="tile content">
-                <h3>Standard Tile</h3>
-                <div id="empty007"></div>
                 <footer class="cta">...</footer>
               </div>
             </div>

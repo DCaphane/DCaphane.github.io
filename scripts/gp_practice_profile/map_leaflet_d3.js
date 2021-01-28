@@ -1,35 +1,72 @@
-const mapSites = {
-  map: mapInitialise.mapInit("mapSites"),
+const mapD3 = {
+  map: mapInitialise.mapInit("mapIMDD3"),
   scaleBar: mapInitialise.scaleBar("bottomleft"),
   sidebar(sidebarName) {
     return mapInitialise.sidebarLeft(this.map, sidebarName);
   },
 };
 
-mapSites.scaleBar.addTo(mapSites.map);
+mapD3.scaleBar.addTo(mapD3.map);
 
-const sidebarSites = mapSites.sidebar("sidebar2");
+const sidebarD3 = mapD3.sidebar("sidebar5");
 
-homeButton.call(mapSites);
+homeButton.call(mapD3);
 
 // Panes to control zIndex of geoJson layers
-mapSites.map.createPane("wardBoundaryPane");
-mapSites.map.getPane("wardBoundaryPane").style.zIndex = 375;
+mapD3.map.createPane("lsoaBoundaryPane");
+mapD3.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
-mapSites.map.createPane("ccgBoundaryPane");
-mapSites.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapD3.map.createPane("ccgBoundaryPane");
+mapD3.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-// Make global to enable subsequent change to overlay
-const overlaysTreeSites = {
-  label: "Overlays",
-  selectAllCheckbox: true,
-  children: [],
-};
 
-const baseTreeSites = (function () {
+let imdDomainDescD3 = "IMD Rank",
+  imdDomainShortD3 = "imdRank";
+
+(function imdDomainD3(id = "selD3Leaf") {
+  // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
+  const div = document.getElementById(id);
+  // Create the drop down to sort the chart
+  const span = document.createElement("div");
+
+  span.setAttribute("class", "search");
+  span.textContent = "Domain: ";
+  div.appendChild(span);
+
+  // Add a drop down
+  const frag = document.createDocumentFragment(),
+    select = document.createElement("select");
+
+  select.setAttribute("class", "dropdown-input");
+  select.setAttribute("id", "selImdDomainD3");
+
+  // Option constructor: args text, value, defaultSelected, selected
+  let counter = 0;
+  for (let key of mapIMDDomain.keys()) {
+    if (counter !== 0) {
+      select.options.add(new Option(key, counter));
+    } else {
+      select.options.add(new Option(key, 0, true, true));
+    }
+    counter++;
+  }
+
+  frag.appendChild(select);
+  span.appendChild(frag);
+
+  d3.select(select).on("change", function () {
+    imdDomainDesc = d3.select("#selImdDomainD3 option:checked").text();
+    imdDomainShort = mapIMDDomain.get(imdDomainDesc)[0];
+    console.log(imdDomainShortD3);
+    // recolourIMDLayer(imdDomainShort);
+  });
+})();
+
+
+const baseTreeD3Leaf = (function () {
   const defaultBasemap = L.tileLayer
-    .provider("Stadia.AlidadeSmoothDark") // CartoDB.Positron
-    .addTo(mapSites.map);
+    .provider("Stadia.AlidadeSmooth")
+    .addTo(mapD3.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
   const emptyBackground = (function emptyTile() {
@@ -69,15 +106,15 @@ const baseTreeSites = (function () {
             label: "High Contrast",
             layer: L.tileLayer.provider("Stamen.Toner"),
           },
-          {
-            label: "Grey",
-            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
-          },
+          { label: "Grey", layer: defaultBasemap },
           {
             label: "ST Hybrid",
             layer: L.tileLayer.provider("Stamen.TonerHybrid"),
           },
-          { label: "Dark", layer: defaultBasemap },
+          {
+            label: "Dark",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+          },
           {
             label: "Jawg Matrix",
             layer: L.tileLayer.provider("Jawg.Matrix", {
@@ -92,31 +129,3 @@ const baseTreeSites = (function () {
     ],
   };
 })();
-
-overlaysTreeSites.children[0] = overlayTrusts();
-
-const mapControlSites = L.control.layers.tree(
-  baseTreeSites,
-  overlaysTreeSites,
-  {
-    // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
-    collapsed: true, // Whether or not control options are displayed
-    sortLayers: true,
-    // namedToggle: true,
-    collapseAll: "Collapse all",
-    expandAll: "Expand all",
-    // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
-    closedSymbol:
-      "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
-    openedSymbol:
-      "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
-  }
-);
-
-mapControlSites
-  .addTo(mapSites.map)
-  // .setOverlayTree(overlaysTreeSites)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
