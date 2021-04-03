@@ -1534,9 +1534,9 @@ mapControlPopn
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
 
-const colourScaleRed = d3.scaleSequential(d3.interpolateReds);
-const interpolatorRed = colourScaleRed.interpolator(); // read its interpolator
-const colourScaleRedReverse = (t) => interpolatorRed(1 - t); // creates a mirror image of the interpolator
+// const colourScaleRed = d3.scaleSequential(d3.interpolateReds);
+// const interpolatorRed = colourScaleRed.interpolator(); // read its interpolator
+// const colourScaleRedReverse = (t) => interpolatorRed(1 - t); // creates a mirror image of the interpolator
 
 function legendWrapper(placementID, legendID) {
   // https://observablehq.com/@mbostock/color-ramp

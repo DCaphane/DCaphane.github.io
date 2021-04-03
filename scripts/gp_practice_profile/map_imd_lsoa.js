@@ -52,7 +52,7 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
       const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
 
       imdLegend.legend({
-        color: mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
         title: mapIMDDomain.get(imdDomainDesc).legendTitle,
         leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
         rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
@@ -217,25 +217,22 @@ Some scales require the whole dataset (values) for the domain. This can be deriv
 Other scales only require the min and max values as an array. This can be derived using d3.extent (values) or d3.min and d3.max
 */
 const noLSOAs = 32_844; // this is the number of lsoas nationally
-const arrNoLSOAs = d3.range(1, noLSOAs + 1);
+const arrNoLSOAs = d3.range(1, noLSOAs + 1); // returns an array [1, 2, ..., noLSOAs]
 
 const defaultIMDProperties = {
   datasetDesc: "datasetFieldName", // which field in the dataset to refer to
   scale(values) {
     // values not used here but are used in the population fields so need to pass the parameter
-    return d3
-      .scaleSequentialQuantile()
-      .domain(arrNoLSOAs)
-      .interpolator(this.colourScheme);
+    return d3.scaleQuantize().domain([1, noLSOAs]).range(d3.quantize(this.colourScheme, 10));
   },
-  legendColour(values) {
-    // values not used here but are used in the population fields so need to pass the parameter
-    return d3
-      .scaleSequential()
-      .domain([1, noLSOAs + 1])
-      .interpolator(this.colourScheme);
-  },
-  colourScheme: colourScaleRedReverse,
+  // legendColour(values) {
+  //   // values not used here but are used in the population fields so need to pass the parameter
+  //   return d3
+  //     .scaleSequential()
+  //     .domain([1, noLSOAs + 1])
+  //     .interpolator(this.colourScheme);
+  // },
+  colourScheme: (t) => d3.interpolateReds(1 - t), // this reverses the interpolateReds colour scheme
   legendTitle: "IMD Subtitle",
   leftSubTitle: "Most Deprived",
   rightSubTitle: "Least Deprived",
@@ -255,18 +252,18 @@ const defaultIMDPopnProperties = {
     // .domain(d3.extent(values))
     // .range(d3.quantize(this.colourScheme, 10));
   },
-  legendColour(values) {
-    // values not used here but are used in the population fields so need to pass the parameter
-    return d3
-      .scaleSequential()
-      .domain(d3.extent(values))
-      .interpolator(this.colourScheme);
-    // Alternative option example
-    // return d3.scaleQuantize()
-    // .domain(d3.extent(values))
-    // .range(d3.quantize(this.colourScheme, 10));
-  },
-  colourScheme: d3.interpolateYlGnBu,
+  // legendColour(values) {
+  //   // values not used here but are used in the population fields so need to pass the parameter
+  //   return d3
+  //     .scaleSequentialQuantile()
+  //     .domain((values))
+  //     .interpolator(this.colourScheme);
+  //   // Alternative option example
+  //   // return d3.scaleQuantize()
+  //   // .domain(d3.extent(values))
+  //   // .range(d3.quantize(this.colourScheme, 10));
+  // },
+  colourScheme: d3.interpolateBlues,
   legendTitle: "Sub Population",
   leftSubTitle: "",
   rightSubTitle: "",
@@ -275,20 +272,8 @@ const defaultIMDPopnProperties = {
 
 const imdRankProperties = Object.create(defaultIMDProperties);
 imdRankProperties.datasetDesc = "imdRank";
-imdRankProperties.scale = function (values) {
-  return d3
-    .scaleQuantize() // Essentially creating deciles here
-    .domain([1, noLSOAs])
-    .range(this.colourScheme[10]); // d3.quantize(colourScaleRedReverse, 10)
-};
-imdRankProperties.legendColour = function (values) {
-  return d3.scaleQuantize().domain([1, noLSOAs]).range(this.colourScheme[10]); // d3.quantize(colourScaleRedReverse, 10)
-};
-
-imdRankProperties.colourScheme = d3.schemePiYG;
-
 const incomeRankProperties = Object.create(defaultIMDProperties);
-incomeRankProperties.datasetDesc = "imdRank";
+incomeRankProperties.datasetDesc = "incomeRank";
 const employmentRankProperties = Object.create(defaultIMDProperties);
 employmentRankProperties.datasetDesc = "employmentRank";
 const educationRankProperties = Object.create(defaultIMDProperties);
@@ -335,7 +320,7 @@ mapIMDDomain.set("IMD Decile", {
     const deciles = 10;
     return d3
       .scaleOrdinal()
-      .domain(arrNoLSOAs)
+      .domain(d3.range(1, deciles + 1))
       .range(this.colourScheme[deciles]);
   },
   legendColour() {

@@ -75,6 +75,90 @@ const baseTreeMain = (function () {
     });
   })();
 
+  /*
+Ordnance Survey demo
+Need to import mapbox-gl
+Through OS Vector Tile API you can connect to different layers for different use cases, including a detailed basemap and several data overlays.
+https://osdatahub.os.uk/docs/vts/technicalSpecification
+
+Can also use for data overlays
+https://api.os.uk/maps/vector/v1/vts/{layer-name} eg. boundaries, greenspace
+
+See also for stylesheets:
+https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets
+https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/
+  OS_VTS_3857_No_Labels.json
+  OS_VTS_3857_Open_Outdoor.json
+  OS_VTS_3857_Greyscale.json
+  OS_VTS_3857_Dark.json
+  OS_VTS_3857_Light.json
+  */
+  const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35",
+    serviceUrl = "https://api.os.uk/maps/vector/v1/vts";
+  let copyrightStatement =
+    "Contains OS data &copy; Crown copyright and database rights YYYY"; // '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>'
+  copyrightStatement = copyrightStatement.replace(
+    "YYYY",
+    new Date().getFullYear()
+  );
+  // Load and display vector tile layer on the map.
+  const osBaseLayerDefault = L.mapboxGL({
+    attribution: copyrightStatement,
+    style: `${serviceUrl}/resources/styles?key=${apiKey}`,
+    transformRequest: (url) => {
+      return {
+        url: (url += "&srs=3857"),
+      };
+    },
+  });
+
+  const osBaseLayerLight = L.mapboxGL({
+    attribution:
+      '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>',
+    style:
+      "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
+    transformRequest: (url) => {
+      if (!/[?&]key=/.test(url)) url += "?key=" + apiKey;
+      return {
+        url: url + "&srs=3857",
+      };
+    },
+  });
+
+  // https://api.os.uk/maps/vector/v1/vts/boundaries/resources/styles?key=npRUEEMn3OTN7lx7RPJednU5SOiRSt35
+  const osOverlayBoundary = L.mapboxGL({
+    attribution:
+      '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>',
+    style: `${serviceUrl}/boundaries/resources/styles?key=${apiKey}`,
+    transformRequest: (url) => {
+      return {
+        url: (url += "&srs=3857"),
+      };
+    },
+  });
+
+  const osOverlay = {
+    label: "OS Test <i class='material-icons md-12'>category</i>",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "Boundary",
+        layer: osOverlayBoundary,
+      },
+    ],
+  };
+
+  overlaysTreeMain.children[6] = osOverlay;
+
+  /*
+  -- To refresh
+  mapControlMain
+  .setOverlayTree(overlaysTreeMain)
+  .collapseTree() // collapse the baselayers tree
+  // .expandSelected() // expand selected option in the baselayer
+  .collapseTree(true);
+  */
+
   // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
     label: "Base Layers <i class='fas fa-globe'></i>",
@@ -124,6 +208,14 @@ const baseTreeMain = (function () {
                 "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
             }),
           },
+        ],
+      },
+      {
+        label: "Ordance Survey <i class='fas fa-layer-group'></i>",
+        children: [
+          { label: "Default", layer: osBaseLayerDefault },
+          { label: "Light", layer: osBaseLayerLight },
+          // { label: "Boundary", layer: osOverlayBoundary },
         ],
       },
       { label: "None", layer: emptyBackground },
