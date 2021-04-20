@@ -23,9 +23,9 @@ let genID = generateUniqueID();
   );
   // Object.assign(data, {y: "↑ Close $"});
 
-  const margin = { top: 20, right: 20, bottom: 30, left: 40 },
-    height = 440,
-    width = 600,
+  const margin = { top: 20, right: 10, bottom: 30, left: 85 },
+    height = 400,
+    width = 450,
     miniMapHeight = 100;
 
   function xAxis(g, x, height) {
