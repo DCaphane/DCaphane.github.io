@@ -1,3 +1,17 @@
+/*
+Brush Resources
+
+https://observablehq.com/@d3/focus-context
+https://stackoverflow.com/q/65896903
+https://stackoverflow.com/q/14665482
+
+https://observablehq.com/@d3/brush-snapping-transitions
+
+-- To Do
+Add a bit to the x domain so the last month is completely visible
+Add a bit to the y domain so the circles are visible (not below 0)
+*/
+
 function initTrendChart(dataInit, id) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
@@ -319,10 +333,25 @@ Line and marker transitions
   //   }
 
   // If click anywhere on miniMap chart, will jump back to the default selection
-  function brushended({ selection }) {
+  // function brushended({ selection }) {
+  //   if (!selection) {
+  //     gb.call(brush.move, fullRangeSelection); // defaultSelection
+  //   }
+  // }
+
+  function brushended(event) {
+    const selection = event.selection;
+    // If no selection (ie. user just clicks in brush area) then pick a default range
     if (!selection) {
       gb.call(brush.move, fullRangeSelection); // defaultSelection
     }
+    if (!event.sourceEvent || !selection) return;
+    // The below is used to snap the brush (ie. fix it the a given interval)
+    const interval = d3.timeMonth.every(1);
+    const [x0, x1] = selection.map((d) => interval.round(x.invert(d)));
+    d3.select(this)
+      .transition()
+      .call(brush.move, x1 > x0 ? [x0, x1].map(x) : null);
   }
 
   function updateChart(focusX, focusY) {
@@ -335,7 +364,11 @@ Line and marker transitions
         return focusX(d.period);
       })
       .attr("cy", function (d) {
-        return focusY(d.population);
+        if (d.population === undefined) {
+          return focusY(0);
+        } else {
+          return focusY(d.population);
+        }
       });
   }
 
@@ -567,6 +600,5 @@ Line and marker transitions
 
   return {
     chartTrendDraw: chartTrendDraw,
-    // test: test
   };
 }
