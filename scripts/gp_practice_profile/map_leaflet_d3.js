@@ -1,5 +1,9 @@
 /*
 
+https://bost.ocks.org/mike/bubble-map/
+
+https://labs.os.uk/public/os-data-hub-tutorials/web-development/d3-overlay
+
 Drawing points of interest using this demo:
   https://chewett.co.uk/blog/1030/overlaying-geo-data-leaflet-version-1-3-d3-js-version-4/
 
@@ -32,7 +36,7 @@ let imdDomainDescD3 = "IMD Rank",
   imdDomainShortD3 = "imdRank";
 
 // use for temp demp only to center in London
-mapD3.map.setView([51.505548, -0.075316], 16);
+mapD3.map.setView([-41.2858, 174.7868], 13);
 
 (function imdDomainD3(id = "selD3Leaf") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
@@ -78,77 +82,78 @@ mapD3.map.setView([51.505548, -0.075316], 16);
 
   // by default, Leaflet adds an initial g element inside this svg
   // both the SVG and g can be accessed via D3
-  const svg = d3.select("#mapIMDD3").select("svg");
-  const g = svg.select("g");
+  const svg = d3.select("#mapIMDD3").select("svg"),
+   g = svg.select("g");
 
-  const pointsOfInterest = [
-    { coordinate: [51.506532, -0.074624] },
-    { coordinate: [51.504452, -0.076028] },
-    { coordinate: [51.505548, -0.075316] },
-    { coordinate: [51.508109, -0.076061] },
-    { coordinate: [51.506019, -0.073639] },
-  ];
 
-  pointsOfInterest.forEach(function (d) {
-    d.latLong = new L.LatLng(d.coordinate[0], d.coordinate[1]);
-  });
-  // console.log(pointsOfInterest)
+// Project any point to map's current state
+// function projectPoint(lon, lat) {
+//   var point = mapD3.map.project(new mapboxgl.LngLat(lon, lat));
+//   this.stream.point(point.x, point.y);
+// }
+    function projectPoint(x, y) {
+      let point = mapD3.map.latLngToLayerPoint(new L.LatLng(y, x));
+      this.stream.point(point.x, point.y);
+    }
 
-  var feature = g
-    .selectAll("circle")
-    .data(pointsOfInterest)
-    .enter()
-    .append("circle")
-    .style("stroke", "black")
-    .style("opacity", 0.4)
-    .style("fill", "blue")
-    .attr("r", 10);
+    var transform = d3.geoTransform({ point: projectPoint });
+    var path = d3.geoPath().projection(transform);
 
-  function drawAndUpdateCircles() {
-    feature.attr("transform", function (d) {
-      var layerPoint = mapD3.map.latLngToLayerPoint(d.latLong);
-      return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
-    });
-  }
 
-  drawAndUpdateCircles();
-  mapD3.map.on("moveend", drawAndUpdateCircles);
+    const d3Noob = {
+      "type": "FeatureCollection",
+      "features": [ {
+       "type": "Feature",
+       "geometry": {
+        "type": "Polygon",
+        "coordinates": [ [
+        [ 174.78, -41.29 ],
+        [ 174.79, -41.29 ],
+        [ 174.79, -41.28 ],
+        [ 174.78, -41.28 ],
+        [ 174.78, -41.29 ]
+        ] ]
+        }
+       }
+      ]
+      }
 
-  geoDataLsoaBoundaries.then(function (v) {
-    const projection = d3.geoMercator();
-    const geoGenerator = d3.geoPath().projection(projection);
+      const d3_features = g.selectAll("path")
+      .data(d3Noob.features)
+      .enter().append("path");
 
-    // v is the full dataset
-    // console.log(v)
+   // initialize the path data
+   d3_features.attr("d", path)
+    .style("fill-opacity", 0.7)
+    .attr('fill','blue');
 
-    // v.features.forEach(function (d) {
-    //   console.log(d)
-    // const a = geoGenerator(d)
-    // console.log(a)
-    // })
 
-    // const u = g
-    //   .selectAll('path')
-    // .data(v.features)
 
-    // u.enter()
-    //   .append('path')
-    //   .attr('d', geoGenerator)
-    // .attr('class', "d3-map")
+  // geoDataLsoaBoundaries.then(function (v) {
+  //   const projection = d3.geoMercator();
+  //   const geoGenerator = d3.geoPath().projection(projection);
 
-    // const transform = d3.geoTransform({ point: projectPoint }),
-    // path = d3.geoPath().projection(transform)
+  //   // v is the full dataset
+  //   // console.log(v)
 
-    // const d3_features = g.selectAll('path')
-    //   .data(v.features)
-    //   .enter()
-    // .append('path')
+  //   v.features.forEach(function (d) {
+  //   const a = geoGenerator(d)
+  //     // console.log(a)
 
-    // function projectPoint(x, y) {
-    //   let point = map.latLngToLayerPoint(new L.LatLng(y, x));
-    //   this.stream.point(point.x, point.y);
-    // }
-  });
+  //     const u = g
+  //     .selectAll('path')
+  //   .data(v.features)
+
+  //   u.enter()
+  //     .append('path')
+  //     .attr('d', geoGenerator)
+  //     .style("stroke", "black")
+  //     .style("opacity", 0.4)
+  //     .style("fill", "pink")
+  //   })
+
+  // });
+
 })();
 
 const baseTreeD3Leaf = (function () {
