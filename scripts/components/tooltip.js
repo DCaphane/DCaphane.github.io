@@ -17,7 +17,8 @@ function createTooltip() {
       .style("pointer-events", "none")
       .style("text-align", "center")
       .style("font", "12px sans-serif")
-      .style("color", "white"); // font colour
+      .style("color", "white") // font colour
+      .style("z-index", "999");  // bring tooltip to front
 
     return t;
   }
