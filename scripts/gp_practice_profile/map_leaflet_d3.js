@@ -26,6 +26,9 @@ const sidebarD3 = mapD3.sidebar("sidebar5");
 homeButton.call(mapD3);
 
 // Panes to control zIndex of geoJson layers
+mapD3.map.createPane("test");
+mapD3.map.getPane("test").style.zIndex = 376;
+
 mapD3.map.createPane("lsoaBoundaryPane");
 mapD3.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
@@ -36,7 +39,7 @@ let imdDomainDescD3 = "IMD Rank",
   imdDomainShortD3 = "imdRank";
 
 // use for temp demp only to center in London
-mapD3.map.setView([-41.2858, 174.7868], 13);
+// mapD3.map.setView([-41.2858, 174.7868], 13);
 
 (function imdDomainD3(id = "selD3Leaf") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
@@ -76,84 +79,92 @@ mapD3.map.setView([-41.2858, 174.7868], 13);
     // recolourIMDLayer(imdDomainShort);
   });
 
+  // Define the div for the tooltip
+  const tooltipD3Lsoa = newTooltip.tooltip(div);
+  tooltipD3Lsoa.style("height", "40px");
+
   // add SVG to Leaflet map via Leaflet
-  const svgLayer = L.svg();
-  svgLayer.addTo(mapD3.map);
+  // const svgLayer = L.svg();
+  // svgLayer.addTo(mapD3.map);
+  // D3Noob
+  var svg = d3.select(mapD3.map.getPane("test")).append("svg"),
+    g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
   // by default, Leaflet adds an initial g element inside this svg
   // both the SVG and g can be accessed via D3
-  const svg = d3.select("#mapIMDD3").select("svg"),
-   g = svg.select("g");
+  // const svg = d3.select("#mapIMDD3").select("svg"),
+  //   g = svg.select("g");
+  // g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
+  // Project any point to map's current state
+  function projectPoint(x, y) {
+    const point = mapD3.map.latLngToLayerPoint(new L.LatLng(y, x));
+    this.stream.point(point.x, point.y);
+  }
 
-// Project any point to map's current state
-// function projectPoint(lon, lat) {
-//   var point = mapD3.map.project(new mapboxgl.LngLat(lon, lat));
-//   this.stream.point(point.x, point.y);
-// }
-    function projectPoint(x, y) {
-      let point = mapD3.map.latLngToLayerPoint(new L.LatLng(y, x));
-      this.stream.point(point.x, point.y);
-    }
+  const transform = d3.geoTransform({ point: projectPoint }),
+    path = d3.geoPath().projection(transform);
 
-    var transform = d3.geoTransform({ point: projectPoint });
-    var path = d3.geoPath().projection(transform);
+  geoDataLsoaBoundaries.then(function (v) {
+    // v is the full dataset
+    // console.log(v);
 
+    const d3Lsoa = g.selectAll("path").data(v.features).enter().append("path");
 
-    const d3Noob = {
-      "type": "FeatureCollection",
-      "features": [ {
-       "type": "Feature",
-       "geometry": {
-        "type": "Polygon",
-        "coordinates": [ [
-        [ 174.78, -41.29 ],
-        [ 174.79, -41.29 ],
-        [ 174.79, -41.28 ],
-        [ 174.78, -41.28 ],
-        [ 174.78, -41.29 ]
-        ] ]
-        }
-       }
-      ]
+    // Every time the map changes, update the SVG paths
+    mapD3.map.on("viewreset", reset);
+    mapD3.map.on("move", reset);
+    mapD3.map.on("moveend", reset);
+
+    reset();
+
+    function reset() {
+      const bounds = path.bounds(v);
+
+      var topLeft = bounds[0],
+        bottomRight = bounds[1];
+
+      svg
+        .attr("width", bottomRight[0] - topLeft[0])
+        .attr("height", bottomRight[1] - topLeft[1])
+        .style("left", topLeft[0] + "px")
+        .style("top", topLeft[1] + "px");
+
+      g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+      // initialize the path data
+      d3Lsoa
+        .attr("d", path)
+        .style("fill-opacity", 0.1)
+        .style("stroke", "red")
+        .style("fill", "blue")
+        // .on("mouseover", function (event, d) {
+        //   const sel = d3.select(this);
+        //   console.log(sel);
+        // })
+        .style("pointer-events", "all");
+
+      d3Lsoa.on("click", click);
+      function click(event, d) {
+        // console.log(d.properties.lsoa);
+        newTooltip.counter++;
+        newTooltip.mouseover(tooltipD3Lsoa, d.properties.lsoa, event);
       }
 
-      const d3_features = g.selectAll("path")
-      .data(d3Noob.features)
-      .enter().append("path");
+      d3Lsoa.on("mouseover", mouse_over);
+      function mouse_over(event, d) {
+        // console.log(d.properties.lsoa)
+        newTooltip.counter++;
+        newTooltip.mouseover(tooltipD3Lsoa, d.properties.lsoa, event);
+      }
 
-   // initialize the path data
-   d3_features.attr("d", path)
-    .style("fill-opacity", 0.7)
-    .attr('fill','blue');
-
-
-
-  // geoDataLsoaBoundaries.then(function (v) {
-  //   const projection = d3.geoMercator();
-  //   const geoGenerator = d3.geoPath().projection(projection);
-
-  //   // v is the full dataset
-  //   // console.log(v)
-
-  //   v.features.forEach(function (d) {
-  //   const a = geoGenerator(d)
-  //     // console.log(a)
-
-  //     const u = g
-  //     .selectAll('path')
-  //   .data(v.features)
-
-  //   u.enter()
-  //     .append('path')
-  //     .attr('d', geoGenerator)
-  //     .style("stroke", "black")
-  //     .style("opacity", 0.4)
-  //     .style("fill", "pink")
-  //   })
-
-  // });
-
+      d3Lsoa.on("mouseout", mouse_out);
+      function mouse_out(event, d) {
+        // console.log(d.properties.lsoa)
+        newTooltip.mouseout(tooltipD3Lsoa);
+      }
+    }
+  });
 })();
 
 const baseTreeD3Leaf = (function () {
