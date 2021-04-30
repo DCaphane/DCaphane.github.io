@@ -11,7 +11,7 @@ Drawing points of interest using this demo:
 
 */
 
-const mapD3 = {
+const mapD3Bubble = {
   map: mapInitialise.mapInit("mapIMDD3"),
   scaleBar: mapInitialise.scaleBar("bottomleft"),
   sidebar(sidebarName) {
@@ -19,29 +19,23 @@ const mapD3 = {
   },
 };
 
-mapD3.scaleBar.addTo(mapD3.map);
+mapD3Bubble.scaleBar.addTo(mapD3Bubble.map);
 
-const sidebarD3 = mapD3.sidebar("sidebar5");
+const sidebarD3 = mapD3Bubble.sidebar("sidebar5");
 
-homeButton.call(mapD3);
+homeButton.call(mapD3Bubble);
 
 // Panes to control zIndex of geoJson layers
-mapD3.map.createPane("test");
-mapD3.map.getPane("test").style.zIndex = 376;
+mapD3Bubble.map.createPane("lsoaBoundaryPane");
+mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 
-mapD3.map.createPane("lsoaBoundaryPane");
-mapD3.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
-
-mapD3.map.createPane("ccgBoundaryPane");
-mapD3.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapD3Bubble.map.createPane("ccgBoundaryPane");
+mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
 let imdDomainDescD3 = "IMD Rank",
   imdDomainShortD3 = "imdRank";
 
-// use for temp demp only to center in London
-// mapD3.map.setView([-41.2858, 174.7868], 13);
-
-(function imdDomainD3(id = "selD3Leaf") {
+function imdDomainD3(id = "selD3Leaf") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
   // Create the drop down to sort the chart
@@ -73,9 +67,9 @@ let imdDomainDescD3 = "IMD Rank",
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
-    imdDomainDesc = d3.select("#selImdDomainD3 option:checked").text();
-    imdDomainShort = mapIMDDomain.get(imdDomainDesc)[0];
-    console.log(imdDomainShortD3);
+    imdDomainDescD3 = d3.select("#selImdDomainD3 option:checked").text();
+    imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
+    console.log(imdDomainDescD3);
     // recolourIMDLayer(imdDomainShort);
   });
 
@@ -84,21 +78,15 @@ let imdDomainDescD3 = "IMD Rank",
   tooltipD3Lsoa.style("height", "40px");
 
   // add SVG to Leaflet map via Leaflet
-  // const svgLayer = L.svg();
-  // svgLayer.addTo(mapD3.map);
-  // D3Noob
-  var svg = d3.select(mapD3.map.getPane("test")).append("svg"),
-    g = svg.append("g").attr("class", "leaflet-zoom-hide");
+  const svgLayer = L.svg();
+  svgLayer.addTo(mapD3Bubble.map);
 
-  // by default, Leaflet adds an initial g element inside this svg
-  // both the SVG and g can be accessed via D3
-  // const svg = d3.select("#mapIMDD3").select("svg"),
-  //   g = svg.select("g");
-  // g = svg.append("g").attr("class", "leaflet-zoom-hide");
+  const svg = d3.select("#mapIMDD3").select("svg"),
+    g = svg.select("g");
 
   // Project any point to map's current state
   function projectPoint(x, y) {
-    const point = mapD3.map.latLngToLayerPoint(new L.LatLng(y, x));
+    const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
     this.stream.point(point.x, point.y);
   }
 
@@ -108,69 +96,103 @@ let imdDomainDescD3 = "IMD Rank",
   geoDataLsoaBoundaries.then(function (v) {
     // v is the full dataset
     // console.log(v);
+    const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
 
-    const d3Lsoa = g.selectAll("path").data(v.features).enter().append("path");
+    let lsoaGeoFlip = turf.flip(v); // this reverses the long/ lat of GeoJSON to lat/ Long required for Leaflet
 
-    // Every time the map changes, update the SVG paths
-    mapD3.map.on("viewreset", reset);
-    mapD3.map.on("move", reset);
-    mapD3.map.on("moveend", reset);
+    const lsoaData = [];
+    lsoaGeoFlip.features.forEach(function (d) {
+      let obj = {};
 
-    reset();
+      obj.lsoa = d.properties.lsoa; // lsoa code
+      const poly = L.polygon(d.geometry.coordinates); // Leaflet polygon which can subsequently be used
+      obj.lsoaCentre = poly.getBounds().getCenter(); // Centre of each polygon
+      // obj.lsoaCentre = turf.centerOfMass(d);
+      obj.lsoaPopulation = data_popnGPLsoa
+        .get(nearestDate)
+        .get("All")
+        .get(d.properties.lsoa);
+      lsoaData.push(obj);
+    });
+    // console.log(lsoaData)
 
-    function reset() {
-      const bounds = path.bounds(v);
+    // const maxValue = d3.max(data_popnGPLsoa.get(nearestDate).get("All").values())
+    const radius = d3
+      .scaleSqrt()
+      .domain([0, 10000]) // 1e4
+      .range([0, 20]);
 
-      var topLeft = bounds[0],
-        bottomRight = bounds[1];
+    const d3Bubble = g
+      .attr("class", "bubble")
+      .selectAll("circle")
+      .data(
+        lsoaData.sort(function (a, b) {
+          return b.lsoaPopulation - a.lsoaPopulation;
+        }, lsoaData.lsoa)
+      ) // sort the bubbles so smaller populations appear above larger population
+      .enter()
+      .append("circle")
+      .attr("r", function (d) {
+        return radius(d.lsoaPopulation);
+      })
+      // .attr("fill", "blue") // initially set in css
+      .style("pointer-events", "all");
 
-      svg
-        .attr("width", bottomRight[0] - topLeft[0])
-        .attr("height", bottomRight[1] - topLeft[1])
-        .style("left", topLeft[0] + "px")
-        .style("top", topLeft[1] + "px");
+    refreshBubbles();
 
-      g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+    function refreshBubbles() {
+      d3Bubble.attr("transform", function (d) {
+        const layerPoint = mapD3Bubble.map.latLngToLayerPoint(d.lsoaCentre);
+        return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
+      });
 
-      // initialize the path data
-      d3Lsoa
-        .attr("d", path)
-        .style("fill-opacity", 0.1)
-        .style("stroke", "red")
-        .style("fill", "blue")
-        // .on("mouseover", function (event, d) {
-        //   const sel = d3.select(this);
-        //   console.log(sel);
-        // })
-        .style("pointer-events", "all");
-
-      d3Lsoa.on("click", click);
+      d3Bubble.on("click", click);
       function click(event, d) {
-        // console.log(d.properties.lsoa);
+        // console.log(d.lsoa);
+        const str = `<strong>${d.lsoa}</strong><br>
+      <span style="color:red">
+        ${formatNumber(d.lsoaPopulation)}
+        </span>`;
         newTooltip.counter++;
-        newTooltip.mouseover(tooltipD3Lsoa, d.properties.lsoa, event);
+        newTooltip.mouseover(tooltipD3Lsoa, str, event);
       }
 
-      d3Lsoa.on("mouseover", mouse_over);
+      d3Bubble.on("mouseover", mouse_over);
       function mouse_over(event, d) {
         // console.log(d.properties.lsoa)
+        const str = `<strong>${d.lsoa}</strong><br>
+      <span style="color:red">
+        ${formatNumber(d.lsoaPopulation)}
+        </span>`;
         newTooltip.counter++;
-        newTooltip.mouseover(tooltipD3Lsoa, d.properties.lsoa, event);
+        newTooltip.mouseover(tooltipD3Lsoa, str, event);
       }
 
-      d3Lsoa.on("mouseout", mouse_out);
+      d3Bubble.on("mouseout", mouse_out);
       function mouse_out(event, d) {
         // console.log(d.properties.lsoa)
         newTooltip.mouseout(tooltipD3Lsoa);
       }
     }
-  });
-})();
 
-const baseTreeD3Leaf = (function () {
+    // Every time the map changes, update the SVG paths
+    mapD3Bubble.map.on("viewreset", refreshBubbles);
+    mapD3Bubble.map.on("move", refreshBubbles);
+    mapD3Bubble.map.on("moveend", refreshBubbles);
+  });
+};
+
+// Make global to enable subsequent change to overlay
+const overlaysTreeBubble = {
+  label: "Overlays",
+  selectAllCheckbox: true,
+  children: [],
+};
+
+const baseTreeD3Bubble = (function () {
   const defaultBasemap = L.tileLayer
     .provider("Stadia.AlidadeSmooth")
-    .addTo(mapD3.map);
+    .addTo(mapD3Bubble.map);
 
   // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
   const emptyBackground = (function emptyTile() {
@@ -233,3 +255,28 @@ const baseTreeD3Leaf = (function () {
     ],
   };
 })();
+
+
+overlaysTreeBubble.children[0] = overlayTrusts();
+
+const mapControlBubble = L.control.layers.tree(baseTreeD3Bubble, overlaysTreeBubble, {
+  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+  collapsed: true, // Whether or not control options are displayed
+  sortLayers: true,
+  // namedToggle: true,
+  collapseAll: "Collapse all",
+  expandAll: "Expand all",
+  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+  closedSymbol:
+    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+  openedSymbol:
+    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+});
+
+mapControlBubble
+  .addTo(mapD3Bubble.map)
+  // .setOverlayTree(overlaysTreeBubble)
+  .collapseTree() // collapse the baselayers tree
+  // .expandSelected() // expand selected option in the baselayer
+  .collapseTree(true); // true to collapse the overlays tree
+// .expandSelected(true); // expand selected option in the overlays tree

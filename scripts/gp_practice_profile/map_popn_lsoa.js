@@ -44,6 +44,7 @@ Promise.all([
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
   ccgBoundary(true);
+  imdDomainD3();
 });
 
 // addPracticeToMap(mapPopn, layerControl2);

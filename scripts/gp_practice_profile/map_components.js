@@ -662,11 +662,33 @@ function ccgBoundary(zoomToExtent = true) {
       // .expandSelected() // expand selected option in the baselayer
       .collapseTree(true);
 
+    const ccgBoundaryCopy4 = L.geoJson(ccgBoundary.toGeoJSON(), {
+      style: styleCCG,
+      pane: "ccgBoundaryPane",
+    });
+    const overlayCCGsD3 = {
+      label: "CCG Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Vale of York",
+          layer: ccgBoundaryCopy4, //layersMapBoundaries.get("voyCCGMain"),
+        },
+      ],
+    };
+    overlaysTreeBubble.children[1] = overlayCCGsD3;
+    mapControlBubble
+      .setOverlayTree(overlaysTreeBubble)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true);
+
     if (zoomToExtent) {
       mapMain.map.fitBounds(ccgBoundary.getBounds());
       mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
       mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
       mapIMD.map.fitBounds(ccgBoundaryCopy3.getBounds());
+      mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
     }
   });
 }
@@ -704,7 +726,7 @@ function lsoaBoundary(zoomToExtent = false) {
 
     // const lsoaLayerCopy1 = L.geoJson(lsoaLayer.toGeoJSON(), {
     //   // style: styleCCG,
-    //   // pane: "ccgBoundaryPane",
+    //   // pane: "lsoaBoundaryPane",
     // });
     if (!layersMapLSOA.has("voyCCGPopn")) {
       layersMapLSOA.set("voyCCGPopn", lsoaLayer);
@@ -719,6 +741,28 @@ function lsoaBoundary(zoomToExtent = false) {
       const ol = overlayLSOA(layersMapIMD);
       overlaysTreeIMD.children[2] = ol;
     });
+
+    const lsoaLayerCopy1 = L.geoJson(lsoaLayer.toGeoJSON(), {
+      style: styleLsoa, // default colour scheme for lsoa boundaries
+      pane: "lsoaBoundaryPane",
+    });
+    const overlayLsoaD3Bubble = {
+      label: "LSOA Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Vale of York",
+          layer: lsoaLayerCopy1, //layersMapBoundaries.get("voyCCGMain"),
+        },
+      ],
+    };
+    overlaysTreeBubble.children[0] = overlayLsoaD3Bubble;
+    mapControlPopn
+      .setOverlayTree(overlaysTreeBubble)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true);
+
     // if (zoomToExtent) {
     //   mapPopn.map.fitBounds(lsoaLayer.getBounds());
     //   // mapIMD.map.fitBounds(lsoaLayerCopy1.getBounds());
@@ -1764,8 +1808,6 @@ function legendWrapper(placementID, legendID) {
     legend: legend,
   };
 }
-
-
 
 function generateUniqueID() {
   /*
