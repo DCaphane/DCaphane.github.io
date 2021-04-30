@@ -66,7 +66,7 @@ Line and marker transitions
     .scaleTime()
     // .domain(d3.extent(data, (d) => d.period))
     .nice()
-    .range([margin.left, width - margin.right]);
+    .range([margin.left + 4, width - margin.right - 8]); // marker size, r = 6 + line size
 
   function yAxis(g, y, title) {
     g.attr("transform", `translate(${margin.left},0)`)
@@ -93,7 +93,7 @@ Line and marker transitions
     .scaleLinear()
     // .domain([0, d3.max(data, (d) => d.population)])
     // .domain(d3.extent(data, (d) => d.population))
-    .range([height - margin.bottom, margin.top]);
+    .range([height - margin.bottom - 3, margin.top + 2]);
 
   const yMini = d3.scaleLinear().rangeRound([miniMapHeight, 0]);
 

@@ -223,7 +223,10 @@ const defaultIMDProperties = {
   datasetDesc: "datasetFieldName", // which field in the dataset to refer to
   scale(values) {
     // values not used here but are used in the population fields so need to pass the parameter
-    return d3.scaleQuantize().domain([1, noLSOAs]).range(d3.quantize(this.colourScheme, 10));
+    return d3
+      .scaleQuantize()
+      .domain([1, noLSOAs])
+      .range(d3.quantize(this.colourScheme, 10));
   },
   // legendColour(values) {
   //   // values not used here but are used in the population fields so need to pass the parameter

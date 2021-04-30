@@ -97,3 +97,11 @@
 #axis--yBar--overage .domain{
   stroke: rgba(0, 0, 0, 0);
 }
+
+/* for the d3 bubble chart */
+.bubble {
+  fill-opacity: .5;
+  stroke: #fff;
+  stroke-width: .5px;
+  fill: red;
+}
