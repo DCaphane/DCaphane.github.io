@@ -8,6 +8,10 @@ Drawing points of interest using this demo:
   https://chewett.co.uk/blog/1030/overlaying-geo-data-leaflet-version-1-3-d3-js-version-4/
 
 
+To Do:
+Add values to circle tooltip text
+Brush chart - why does this extend to right (check adjustment to pixels)
+Zoom to extent after selecting practice - what function does this?
 
 */
 
@@ -70,7 +74,7 @@ function imdDomainD3(id = "selD3Leaf") {
     imdDomainDescD3 = d3.select("#selImdDomainD3 option:checked").text();
     imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
     console.log(imdDomainDescD3);
-    // recolourIMDLayer(imdDomainShort);
+    updateBubbleColour(imdDomainShortD3);
   });
 
   // Define the div for the tooltip
@@ -93,14 +97,37 @@ function imdDomainD3(id = "selD3Leaf") {
   const transform = d3.geoTransform({ point: projectPoint }),
     path = d3.geoPath().projection(transform);
 
+  let d3BubbleEnter;
+
+  function updateBubbleColour(defaultIMD = "imdRank") {
+    dataIMD.then(function (v) {
+      const rawValues = v.map(function (d) {
+        return d[defaultIMD];
+      });
+      // console.log(rawValues)
+
+      const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
+
+      d3BubbleEnter.style("fill", function (d) {
+        let obj = v.find((x) => x.lsoa === d.lsoa);
+        if (obj !== undefined) {
+          // console.log(obj[defaultIMD], maxValue);
+          const value = obj[defaultIMD];
+          return colour(value);
+        } else {
+          return null;
+        }
+      });
+    });
+  }
+
   geoDataLsoaBoundaries.then(function (v) {
     // v is the full dataset
     // console.log(v);
     const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
 
     let lsoaGeoFlip = turf.flip(v); // this reverses the long/ lat of GeoJSON to lat/ Long required for Leaflet
-
-    const lsoaData = [];
+    lsoaData = [];
     lsoaGeoFlip.features.forEach(function (d) {
       let obj = {};
 
@@ -122,14 +149,21 @@ function imdDomainD3(id = "selD3Leaf") {
       .domain([0, 10000]) // 1e4
       .range([0, 20]);
 
-    const d3Bubble = g
+    const d3BubbleSelection = g
       .attr("class", "bubble")
       .selectAll("circle")
       .data(
-        lsoaData.sort(function (a, b) {
-          return b.lsoaPopulation - a.lsoaPopulation;
-        }, lsoaData.lsoa)
-      ) // sort the bubbles so smaller populations appear above larger population
+        lsoaData.sort(
+          function (a, b) {
+            return b.lsoaPopulation - a.lsoaPopulation;
+          },
+          function (d) {
+            return d.lsoa;
+          }
+        )
+      ); // sort the bubbles so smaller populations appear above larger population
+
+    d3BubbleEnter = d3BubbleSelection
       .enter()
       .append("circle")
       .attr("r", function (d) {
@@ -141,12 +175,12 @@ function imdDomainD3(id = "selD3Leaf") {
     refreshBubbles();
 
     function refreshBubbles() {
-      d3Bubble.attr("transform", function (d) {
+      d3BubbleEnter.attr("transform", function (d) {
         const layerPoint = mapD3Bubble.map.latLngToLayerPoint(d.lsoaCentre);
         return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
       });
 
-      d3Bubble.on("click", click);
+      d3BubbleEnter.on("click", click);
       function click(event, d) {
         // console.log(d.lsoa);
         const str = `<strong>${d.lsoa}</strong><br>
@@ -157,7 +191,7 @@ function imdDomainD3(id = "selD3Leaf") {
         newTooltip.mouseover(tooltipD3Lsoa, str, event);
       }
 
-      d3Bubble.on("mouseover", mouse_over);
+      d3BubbleEnter.on("mouseover", mouse_over);
       function mouse_over(event, d) {
         // console.log(d.properties.lsoa)
         const str = `<strong>${d.lsoa}</strong><br>
@@ -168,7 +202,7 @@ function imdDomainD3(id = "selD3Leaf") {
         newTooltip.mouseover(tooltipD3Lsoa, str, event);
       }
 
-      d3Bubble.on("mouseout", mouse_out);
+      d3BubbleEnter.on("mouseout", mouse_out);
       function mouse_out(event, d) {
         // console.log(d.properties.lsoa)
         newTooltip.mouseout(tooltipD3Lsoa);
@@ -180,7 +214,7 @@ function imdDomainD3(id = "selD3Leaf") {
     mapD3Bubble.map.on("move", refreshBubbles);
     mapD3Bubble.map.on("moveend", refreshBubbles);
   });
-};
+}
 
 // Make global to enable subsequent change to overlay
 const overlaysTreeBubble = {
@@ -256,22 +290,25 @@ const baseTreeD3Bubble = (function () {
   };
 })();
 
-
 overlaysTreeBubble.children[0] = overlayTrusts();
 
-const mapControlBubble = L.control.layers.tree(baseTreeD3Bubble, overlaysTreeBubble, {
-  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
-  collapsed: true, // Whether or not control options are displayed
-  sortLayers: true,
-  // namedToggle: true,
-  collapseAll: "Collapse all",
-  expandAll: "Expand all",
-  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
-  closedSymbol:
-    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
-  openedSymbol:
-    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
-});
+const mapControlBubble = L.control.layers.tree(
+  baseTreeD3Bubble,
+  overlaysTreeBubble,
+  {
+    // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+    collapsed: true, // Whether or not control options are displayed
+    sortLayers: true,
+    // namedToggle: true,
+    collapseAll: "Collapse all",
+    expandAll: "Expand all",
+    // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+    closedSymbol:
+      "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+    openedSymbol:
+      "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+  }
+);
 
 mapControlBubble
   .addTo(mapD3Bubble.map)
