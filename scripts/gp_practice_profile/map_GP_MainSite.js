@@ -87,14 +87,18 @@ https://api.os.uk/maps/vector/v1/vts/{layer-name} eg. boundaries, greenspace
 See also for stylesheets:
 https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets
 https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/
+
+Leaflet:
+  https://osdatahub.os.uk/projects/OSMapsWebDemo
   OS_VTS_3857_No_Labels.json
   OS_VTS_3857_Open_Outdoor.json
   OS_VTS_3857_Greyscale.json
   OS_VTS_3857_Dark.json
   OS_VTS_3857_Light.json
   */
+
   const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35",
-    serviceUrl = "https://api.os.uk/maps/vector/v1/vts";
+    serviceUrl = "https://api.os.uk/maps/raster/v1/zxy";
   let copyrightStatement =
     "Contains OS data &copy; Crown copyright and database rights YYYY"; // '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>'
   copyrightStatement = copyrightStatement.replace(
@@ -102,29 +106,28 @@ https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/
     new Date().getFullYear()
   );
   // Load and display vector tile layer on the map.
-  const osBaseLayerDefault = L.mapboxGL({
-    attribution: copyrightStatement,
-    style: `${serviceUrl}/resources/styles?key=${apiKey}`,
-    transformRequest: (url) => {
-      return {
-        url: (url += "&srs=3857"),
-      };
-    },
-  });
+  const osBaseLayerLight = L.tileLayer(
+    serviceUrl + "/Light_3857/{z}/{x}/{y}.png?key=" + apiKey,
+    { maxZoom: 20, attribution: copyrightStatement }
+  );
 
-  const osBaseLayerLight = L.mapboxGL({
-    attribution:
-      '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>',
-    style:
-      "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
-    transformRequest: (url) => {
-      if (!/[?&]key=/.test(url)) url += "?key=" + apiKey;
-      return {
-        url: url + "&srs=3857",
-      };
-    },
-  });
+  const osBaseLayerRoad = L.tileLayer(
+    serviceUrl + "/Road_3857/{z}/{x}/{y}.png?key=" + apiKey,
+    { maxZoom: 20, attribution: copyrightStatement }
+  );
 
+  const osBaseLayerOutdoor = L.tileLayer(
+    serviceUrl + "/Outdoor_3857/{z}/{x}/{y}.png?key=" + apiKey,
+    { maxZoom: 20, attribution: copyrightStatement }
+  );
+
+  // Doesn't exist for 3857 projection
+  // const osBaseLayerLeisure = L.tileLayer(
+  //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { maxZoom: 20, attribution: copyrightStatement }
+  //   );
+
+  /*
+  // Explore Ordnance Survey Overlay without mapBoxGL and how to format
   // https://api.os.uk/maps/vector/v1/vts/boundaries/resources/styles?key=npRUEEMn3OTN7lx7RPJednU5SOiRSt35
   const osOverlayBoundary = L.mapboxGL({
     attribution:
@@ -149,6 +152,7 @@ https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/
   };
 
   overlaysTreeMain.children[6] = osOverlay;
+*/
 
   /*
   -- To refresh
@@ -213,9 +217,10 @@ https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/
       {
         label: "Ordance Survey <i class='fas fa-layer-group'></i>",
         children: [
-          { label: "Default", layer: osBaseLayerDefault },
           { label: "Light", layer: osBaseLayerLight },
-          // { label: "Boundary", layer: osOverlayBoundary },
+          { label: "Road", layer: osBaseLayerRoad },
+          { label: "Outdoor", layer: osBaseLayerOutdoor },
+          // { label: "Leisure", layer: osBaseLayerLeisure },
         ],
       },
       { label: "None", layer: emptyBackground },

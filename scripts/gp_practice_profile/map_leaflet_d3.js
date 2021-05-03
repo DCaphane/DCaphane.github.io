@@ -126,34 +126,36 @@ function imdDomainD3(id = "selD3Leaf") {
     // console.log(v);
     const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
 
-    let lsoaGeoFlip = turf.flip(v); // this reverses the long/ lat of GeoJSON to lat/ Long required for Leaflet
-    lsoaData = [];
-    lsoaGeoFlip.features.forEach(function (d) {
-      let obj = {};
+    const lsoaCentroidDetails = [];
 
-      obj.lsoa = d.properties.lsoa; // lsoa code
-      const poly = L.polygon(d.geometry.coordinates); // Leaflet polygon which can subsequently be used
-      obj.lsoaCentre = poly.getBounds().getCenter(); // Centre of each polygon
-      // obj.lsoaCentre = turf.centerOfMass(d);
-      obj.lsoaPopulation = data_popnGPLsoa
-        .get(nearestDate)
-        .get("All")
-        .get(d.properties.lsoa);
-      lsoaData.push(obj);
+    L.geoJson(v, {
+      onEachFeature: function (feature, layer) {
+        let obj = {};
+        obj.lsoa = layer.feature.properties.lsoa; // lsoa code
+        obj.lsoaCentre = layer.getBounds().getCenter(); // centre of the layer polygon
+        obj.lsoaPopulation = data_popnGPLsoa
+          .get(nearestDate)
+          .get("All")
+          .get(layer.feature.properties.lsoa);
+        lsoaCentroidDetails.push(obj);
+      },
     });
-    // console.log(lsoaData)
+    // console.log(lsoaCentroidDetails)
 
-    // const maxValue = d3.max(data_popnGPLsoa.get(nearestDate).get("All").values())
+    const maxValue = d3.max(
+      data_popnGPLsoa.get(nearestDate).get("All").values()
+    );
+    // console.log(maxValue)
     const radius = d3
       .scaleSqrt()
-      .domain([0, 10000]) // 1e4
+      .domain([0, maxValue]) // 1e4 or 10,000
       .range([0, 20]);
 
     const d3BubbleSelection = g
       .attr("class", "bubble")
       .selectAll("circle")
       .data(
-        lsoaData.sort(
+        lsoaCentroidDetails.sort(
           function (a, b) {
             return b.lsoaPopulation - a.lsoaPopulation;
           },
