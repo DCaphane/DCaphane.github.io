@@ -15,7 +15,6 @@ Add a bit to the y domain so the circles are visible (not below 0)
 function initTrendChart(dataInit, id) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
-  const genID = generateUniqueID();
   // Explanation of clip path: http://www.d3noob.org/2015/07/clipped-paths-in-d3js-aka-clippath.html
   const clipIdTrend = genID.uid("clip");
   // clipIdTrend = {id: "O-clip-1", href: "http://127.0.0.1:5501/d3_learning_focus.html#O-clip-1"}

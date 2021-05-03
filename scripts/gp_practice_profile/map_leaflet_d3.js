@@ -36,6 +36,8 @@ mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapD3Bubble.map.createPane("ccgBoundaryPane");
 mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
+const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"))
+
 let imdDomainDescD3 = "IMD Rank",
   imdDomainShortD3 = "imdRank";
 
@@ -107,6 +109,16 @@ function imdDomainD3(id = "selD3Leaf") {
       // console.log(rawValues)
 
       const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
+
+      lsoaCentroidLegend.legend({
+        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+        width: 600,
+        marginLeft: 50,
+      });
 
       d3BubbleEnter.style("fill", function (d) {
         let obj = v.find((x) => x.lsoa === d.lsoa);

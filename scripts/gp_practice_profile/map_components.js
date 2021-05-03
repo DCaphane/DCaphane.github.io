@@ -12,7 +12,9 @@ Reusable map components:
 /* Add a sidebar
 https://github.com/nickpeihl/leaflet-sidebar-v2
 */
+const genID = generateUniqueID(); // genID.uid
 
+// Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
 
 const mapInitialise = defaultMapSetUp();
@@ -890,6 +892,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
     if (zoomToExtent) {
       map.fitBounds(lsoaLayer.getBounds());
       mapIMD.map.fitBounds(lsoaLayer.getBounds());
+      mapD3Bubble.map.fitBounds(lsoaLayer.getBounds());
     }
   });
 }
@@ -1623,13 +1626,13 @@ function legendWrapper(placementID, legendID) {
     tickFormat,
     tickValues,
   } = {}) {
-    d3.select(`#${legendID}`).remove(); // remove the element (legend) if it already exists
+    d3.select(`#${legendID.id}`).remove(); // remove the element (legend) if it already exists
     const canvasLocation = document.getElementById(placementID);
 
     const svg = d3
       .select(canvasLocation)
       .append("svg")
-      .attr("id", legendID)
+      .attr("id", legendID.id)
       .attr("width", width)
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height])

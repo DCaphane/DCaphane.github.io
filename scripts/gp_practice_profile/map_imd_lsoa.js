@@ -30,7 +30,7 @@ mapIMD.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapIMD.map.createPane("ccgBoundaryPane");
 mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-const imdLegend = legendWrapper("footerMapIMD", "imdLegend");
+const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
 function recolourIMDLayer(defaultIMD = "imdRank") {
   Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
