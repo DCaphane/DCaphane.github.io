@@ -485,7 +485,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
         .collapseTree(true);
 
       if (zoomToExtent) {
-        map.fitBounds(gpSites.getBounds());
+        map.fitBounds(gpSites.getBounds().pad(0.1));
       }
     });
   });
@@ -907,6 +907,7 @@ function refreshChartsPostPracticeChange(practice) {
 
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
+  bubbleTest.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();

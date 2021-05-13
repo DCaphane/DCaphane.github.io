@@ -11,7 +11,7 @@ mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapPopn.map.createPane("ccgBoundaryPane");
 mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-const popnLegend = legendWrapper("footerMapPopn", "popnLegend");
+const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
 lsoaBoundary.call(mapPopn, true);
 gpSites();
@@ -34,7 +34,7 @@ gpSites();
 //   // // .expandSelected() // expand selected option in the baselayer
 //   // .collapseTree(true);
 // })();
-
+let bubbleTest;
 Promise.all([
   dataPopulationGP,
   dataPopulationGPLsoa,
@@ -44,7 +44,7 @@ Promise.all([
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
   ccgBoundary(true);
-  imdDomainD3();
+  bubbleTest = imdDomainD3();
 });
 
 // addPracticeToMap(mapPopn, layerControl2);

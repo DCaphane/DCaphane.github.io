@@ -10,9 +10,15 @@ Drawing points of interest using this demo:
 
 To Do:
 Add values to circle tooltip text
-Brush chart - why does this extend to right (check adjustment to pixels)
-Zoom to extent after selecting practice - what function does this?
+Filter D3 Circles - what function does this? map_components.js function filterFunctionLsoa and refreshChartsPostPracticeChange
 
+
+Store Selection values in an object:
+  objSelection{
+  selectedPractice: All
+  selectedDate: ...
+  nearestDate: ... // can be recalculated each time selectedDate changes - method?
+  }
 */
 
 const mapD3Bubble = {
@@ -36,7 +42,7 @@ mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapD3Bubble.map.createPane("ccgBoundaryPane");
 mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"))
+const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
 let imdDomainDescD3 = "IMD Rank",
   imdDomainShortD3 = "imdRank";
@@ -59,13 +65,10 @@ function imdDomainD3(id = "selD3Leaf") {
   select.setAttribute("id", "selImdDomainD3");
 
   // Option constructor: args text, value, defaultSelected, selected
-  let counter = 0;
+  select.options.add(new Option("Population", 0, true, true));
+  let counter = 1; // start at 1 and append population as 0 option
   for (let key of mapIMDDomain.keys()) {
-    if (counter !== 0) {
-      select.options.add(new Option(key, counter));
-    } else {
-      select.options.add(new Option(key, 0, true, true));
-    }
+    select.options.add(new Option(key, counter));
     counter++;
   }
 
@@ -74,14 +77,18 @@ function imdDomainD3(id = "selD3Leaf") {
 
   d3.select(select).on("change", function () {
     imdDomainDescD3 = d3.select("#selImdDomainD3 option:checked").text();
-    imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
+    if (imdDomainDescD3 !== "Population") {
+      imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
+    } else {
+      imdDomainShortD3 = "Population";
+    }
     console.log(imdDomainDescD3);
     updateBubbleColour(imdDomainShortD3);
   });
 
   // Define the div for the tooltip
   const tooltipD3Lsoa = newTooltip.tooltip(div);
-  tooltipD3Lsoa.style("height", "40px");
+  tooltipD3Lsoa.style("height", "55px").style("width", "150px");
 
   // add SVG to Leaflet map via Leaflet
   const svgLayer = L.svg();
@@ -90,144 +97,299 @@ function imdDomainD3(id = "selD3Leaf") {
   const svg = d3.select("#mapIMDD3").select("svg"),
     g = svg.select("g");
 
+  // svg for bubble legend
+  const bubbleLegend = d3
+    .select("#footerMapD3Leaf")
+    .append("svg")
+    .attr("width", "100")
+    .attr("height", "50")
+    .attr("viewBox", [0, 0, 100, 50])
+    // .attr("preserveAspectRatio", "xMidYMid meet")
+    .append("g")
+    .attr("class", "bubble-legend");
+
   // Project any point to map's current state
   function projectPoint(x, y) {
     const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
     this.stream.point(point.x, point.y);
   }
 
+  // is this used?
   const transform = d3.geoTransform({ point: projectPoint }),
     path = d3.geoPath().projection(transform);
 
   let d3BubbleEnter;
 
-  function updateBubbleColour(defaultIMD = "imdRank") {
-    dataIMD.then(function (v) {
-      const rawValues = v.map(function (d) {
-        return d[defaultIMD];
-      });
-      // console.log(rawValues)
+  function updateBubbleColour(defaultIMD = "Population") {
+    if (defaultIMD !== "Population") {
+      dataIMD.then(function (v) {
+        const rawValues = v.map(function (d) {
+          return d[defaultIMD];
+        });
+        // console.log(rawValues)
 
-      const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
+        const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
+
+        lsoaCentroidLegend.legend({
+          color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+          title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+          leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+          rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+          tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+          width: 600,
+          marginLeft: 50,
+        });
+
+        d3BubbleEnter.style("fill", function (d) {
+          let obj = v.find((x) => x.lsoa === d.lsoa);
+          if (obj !== undefined) {
+            // console.log(obj[defaultIMD], maxValue);
+            const value = obj[defaultIMD];
+            return colour(value);
+          } else {
+            return null;
+          }
+        });
+      });
+    } else {
+      // Style and legend for population
+      const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+      const maxValue =
+        selectedPractice !== undefined && selectedPractice !== "All Practices"
+          ? d3.max(
+              data_popnGPLsoa.get(nearestDate).get(selectedPractice).values()
+            )
+          : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
 
       lsoaCentroidLegend.legend({
-        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+        color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
+        title: "Population",
         width: 600,
         marginLeft: 50,
       });
 
       d3BubbleEnter.style("fill", function (d) {
-        let obj = v.find((x) => x.lsoa === d.lsoa);
-        if (obj !== undefined) {
-          // console.log(obj[defaultIMD], maxValue);
-          const value = obj[defaultIMD];
-          return colour(value);
-        } else {
-          return null;
-        }
+        return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
       });
-    });
+    }
   }
+
+  const lsoaCentroidDetails = [];
 
   geoDataLsoaBoundaries.then(function (v) {
     // v is the full dataset
     // console.log(v);
-    const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
 
-    const lsoaCentroidDetails = [];
-
+    /* From the LSOA polygon, populate an array of objects showing:
+     lsoa name, polygon center, default to 0 population as will subsequently be derived*/
     L.geoJson(v, {
       onEachFeature: function (feature, layer) {
         let obj = {};
         obj.lsoa = layer.feature.properties.lsoa; // lsoa code
         obj.lsoaCentre = layer.getBounds().getCenter(); // centre of the layer polygon
-        obj.lsoaPopulation = data_popnGPLsoa
-          .get(nearestDate)
-          .get("All")
-          .get(layer.feature.properties.lsoa);
+        obj.lsoaPopulation = 0;
         lsoaCentroidDetails.push(obj);
       },
     });
-    // console.log(lsoaCentroidDetails)
 
-    const maxValue = d3.max(
-      data_popnGPLsoa.get(nearestDate).get("All").values()
-    );
-    // console.log(maxValue)
+    // Initialise D3 Circle Map
+    updateD3BubbleLsoa();
+  });
+
+  function updateD3BubbleLsoa() {
+    const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
+
+    // Update the population details
+    lsoaCentroidDetails.forEach((lsoa) => {
+      let value =
+        selectedPractice !== undefined && selectedPractice !== "All Practices"
+          ? data_popnGPLsoa
+              .get(nearestDate)
+              .get(selectedPractice)
+              .get(lsoa.lsoa)
+          : data_popnGPLsoa.get(nearestDate).get("All").get(lsoa.lsoa);
+
+      if (value === undefined) {
+        value = 0;
+      }
+      lsoa.lsoaPopulation = value;
+    });
+
+    const maxValue = d3.max(lsoaCentroidDetails, function (d) {
+        return d.lsoaPopulation;
+      }),
+      maxValueNice = Math.ceil(maxValue / 100) * 100; //  round to the nearest 100
+
     const radius = d3
       .scaleSqrt()
       .domain([0, maxValue]) // 1e4 or 10,000
       .range([0, 20]);
 
-    const d3BubbleSelection = g
-      .attr("class", "bubble")
-      .selectAll("circle")
-      .data(
-        lsoaCentroidDetails.sort(
-          function (a, b) {
-            return b.lsoaPopulation - a.lsoaPopulation;
-          },
-          function (d) {
-            return d.lsoa;
-          }
-        )
-      ); // sort the bubbles so smaller populations appear above larger population
+    const d3BubbleSelection = g.selectAll("circle").data(
+      lsoaCentroidDetails.sort(
+        // sort the bubbles so smaller populations appear above larger population
+        function (a, b) {
+          return b.lsoaPopulation - a.lsoaPopulation;
+        },
+        function (d) {
+          return d.lsoa;
+        }
+      )
+    );
 
     d3BubbleEnter = d3BubbleSelection
-      .enter()
-      .append("circle")
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) =>
+          enter
+            .append("circle")
+            .on("click", function (event, d) {
+              // console.log(d.lsoa);
+              const str = `<strong>${
+                d.lsoa
+              }</strong><br>Pop'n <span style="color:red">${formatNumber(
+                d.lsoaPopulation
+              )}</span>`;
+              newTooltip.counter++;
+              newTooltip.mouseover(tooltipD3Lsoa, str, event);
+            })
+            .on("mouseover", function (event, d) {
+              dataIMD.then(function (v) {
+                const str = `LSOA: <strong>${
+                  d.lsoa
+                }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+                  d.lsoaPopulation
+                )}</span>`;
+
+                let subString;
+                if (imdDomainDescD3 !== "Population") {
+                  let obj = v.find((x) => x.lsoa === d.lsoa);
+
+                  if (obj !== undefined) {
+                    const value = obj[imdDomainShortD3];
+
+                    subString = `<br><strong>${imdDomainDescD3}:
+                  </strong><span style="color:red">${formatNumber(
+                    value
+                  )}</span>`;
+                  } else {
+                    return "";
+                  }
+                }
+
+                newTooltip.counter++;
+                newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
+              });
+            })
+            .on("mouseout", function (event, d) {
+              newTooltip.mouseout(tooltipD3Lsoa);
+            })
+            .call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "bubble")
       .attr("r", function (d) {
         return radius(d.lsoaPopulation);
       })
-      // .attr("fill", "blue") // initially set in css
+      // .style("fill", function (d) {
+      //   return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
+      // })
+      .style("fill-opacity", function (d) {
+        const lsoaCode = d.lsoa;
+
+        let value =
+          selectedPractice !== undefined && selectedPractice !== "All Practices"
+            ? data_popnGPLsoa
+                .get(nearestDate)
+                .get(selectedPractice)
+                .get(lsoaCode)
+            : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
+
+        if (value > minPopulationLSOA) {
+          return 0.8;
+        } else {
+          return 0.1;
+        }
+      })
       .style("pointer-events", "all");
 
     refreshBubbles();
+    updateBubbleColour();
 
-    function refreshBubbles() {
-      d3BubbleEnter.attr("transform", function (d) {
-        const layerPoint = mapD3Bubble.map.latLngToLayerPoint(d.lsoaCentre);
-        return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
-      });
+    const legendData = [maxValue / 10, maxValue / 2, maxValue];
+    const d3BubbleLegend = bubbleLegend
+      .selectAll(".bubble-legend")
+      .data(legendData)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("circle").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "bubble-legend")
+      .attr("transform", "translate(50,50)") // this is bubbleLegend svg width / 2, and move to bottom
+      .attr("cy", function (d) {
+        return -radius(d);
+      })
+      .attr("r", radius);
 
-      d3BubbleEnter.on("click", click);
-      function click(event, d) {
-        // console.log(d.lsoa);
-        const str = `<strong>${d.lsoa}</strong><br>
-      <span style="color:red">
-        ${formatNumber(d.lsoaPopulation)}
-        </span>`;
-        newTooltip.counter++;
-        newTooltip.mouseover(tooltipD3Lsoa, str, event);
-      }
+    const d3BubbleLegendText = bubbleLegend
+      .selectAll(".bubble-legend-text")
+      .data(legendData)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) =>
+          enter
+            .append("text")
+            .attr("class", "bubble-legend-text")
+            .call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
 
-      d3BubbleEnter.on("mouseover", mouse_over);
-      function mouse_over(event, d) {
-        // console.log(d.properties.lsoa)
-        const str = `<strong>${d.lsoa}</strong><br>
-      <span style="color:red">
-        ${formatNumber(d.lsoaPopulation)}
-        </span>`;
-        newTooltip.counter++;
-        newTooltip.mouseover(tooltipD3Lsoa, str, event);
-      }
+      .attr("transform", "translate(50,50)") // this is bubbleLegend svg width / 2, and move to bottom
+      .attr("y", function (d) {
+        return -2 * radius(d);
+      })
+      .attr("dy", "1.3em")
+      .text(d3.format(".1s"));
+  }
 
-      d3BubbleEnter.on("mouseout", mouse_out);
-      function mouse_out(event, d) {
-        // console.log(d.properties.lsoa)
-        newTooltip.mouseout(tooltipD3Lsoa);
-      }
-    }
+  function refreshBubbles() {
+    d3BubbleEnter.attr("transform", function (d) {
+      const layerPoint = mapD3Bubble.map.latLngToLayerPoint(d.lsoaCentre);
+      return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
+    });
 
-    // Every time the map changes, update the SVG paths
-    mapD3Bubble.map.on("viewreset", refreshBubbles);
-    mapD3Bubble.map.on("move", refreshBubbles);
-    mapD3Bubble.map.on("moveend", refreshBubbles);
-  });
+    return {
+      updateD3BubbleLsoa: updateD3BubbleLsoa,
+    };
+  }
+
+  // Every time the map changes, update the SVG paths
+  mapD3Bubble.map.on("viewreset move moveend", refreshBubbles);
+  // mapD3Bubble.map.on("move", refreshBubbles);
+  // mapD3Bubble.map.on("moveend", refreshBubbles);
+
+  return {
+    updateD3BubbleLsoa: updateD3BubbleLsoa,
+  };
 }
 
 // Make global to enable subsequent change to overlay

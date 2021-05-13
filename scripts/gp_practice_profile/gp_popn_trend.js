@@ -229,11 +229,13 @@ Line and marker transitions
   //   .attr("id", "axis--y--mini")
   //   .call(yAxisMini);
 
+  // Controls the brush range
+  // Need to match the x-scale Range
   const brush = d3
     .brushX()
     .extent([
-      [margin.left, 0.5],
-      [width - margin.right, miniMapHeight - margin.bottom + 0.5],
+      [x.range()[0], 0.5],
+      [x.range()[1], miniMapHeight - margin.bottom + 0.5],
       0,
     ]);
   // .on("brush", brushed)
@@ -462,6 +464,7 @@ Line and marker transitions
                 selectedPracticeCompare
               );
               recolourLSOA();
+              bubbleTest.updateD3BubbleLsoa();
             })
             .on("mouseover", function (event, d) {
               const sel = d3.select(this);
