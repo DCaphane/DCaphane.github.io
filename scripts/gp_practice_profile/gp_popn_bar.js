@@ -77,7 +77,7 @@ ${chtHeightStd + 60}`
     .text("Population");
 
   function fnRedrawBarChart() {
-    const newData = d.get(selectedDate);
+    const newData = d.get(userSelections.selectedDate);
 
     /* Convert map to array of objects
   https://github.com/d3/d3-array#transformations
@@ -176,7 +176,7 @@ ${chtHeightStd + 60}`
       )
       .attr("class", "bar")
       .classed("barPopn highlight", function (d) {
-        return d.practice === selectedPractice;
+        return d.practice === userSelections.selectedPractice;
       })
       .transition(t)
       .attr("fill", function (d) {
@@ -253,24 +253,24 @@ ${chtHeightStd + 60}`
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
       )
-    .attr("class", "axis bottom")
-    .classed("bar-label", true)
-    .attr("font-family", "sans-serif")
+      .attr("class", "axis bottom")
+      .classed("bar-label", true)
+      .attr("font-family", "sans-serif")
       .attr("font-size", "0.65rem")
       .transition(t)
       .delay(function ([x, y, i]) {
         return i * 50;
       })
-    .attr("transform", function (d, i) {
-      return `translate(
+      .attr("transform", function (d, i) {
+        return `translate(
       ${x(d) + x.bandwidth() / 2 - 20},
       ${chtHeightStd + 60})
       rotate(-60)`;
-    })
-    .attr("text-anchor", "start")
-    .text(function (d) {
-      return d;
-    })
+      })
+      .attr("text-anchor", "start")
+      .text(function (d) {
+        return d;
+      });
   }
 
   function barChartOrder(data) {

@@ -11,7 +11,7 @@ mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
 mapPopn.map.createPane("ccgBoundaryPane");
 mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
-const popnLegend = legendWrapper("footerMapPopn", "popnLegend");
+const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
 lsoaBoundary.call(mapPopn, true);
 gpSites();
@@ -34,7 +34,7 @@ gpSites();
 //   // // .expandSelected() // expand selected option in the baselayer
 //   // .collapseTree(true);
 // })();
-
+let bubbleTest;
 Promise.all([
   dataPopulationGP,
   dataPopulationGPLsoa,
@@ -44,6 +44,7 @@ Promise.all([
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
   ccgBoundary(true);
+  bubbleTest = imdDomainD3();
 });
 
 // addPracticeToMap(mapPopn, layerControl2);
@@ -56,23 +57,30 @@ GP by LSOA population data published quarterly
 Use the below to match the selected dates to the quarterly dates
 Function to determine nearest value in array
 */
-const nearestValue = (arr, val) =>
-  arr.reduce(
-    (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
-    Infinity
-  ) + val;
+// const nearestValue = (arr, val) =>
+//   arr.reduce(
+//     (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
+//     Infinity
+//   ) + val;
 
 function recolourLSOA() {
-  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
   const maxValue =
-    selectedPractice !== undefined && selectedPractice !== "All Practices"
-      ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
-      : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+    userSelections.selectedPractice !== undefined &&
+    userSelections.selectedPractice !== "All Practices"
+      ? d3.max(
+          data_popnGPLsoa
+            .get(userSelections.nearestDate())
+            .get(userSelections.selectedPractice)
+            .values()
+        )
+      : d3.max(
+          data_popnGPLsoa.get(userSelections.nearestDate()).get("All").values()
+        );
   /*
   const rawPopn =
-    selectedPractice !== undefined && selectedPractice !== "All Practices"
-      ? [...data_popnGPLsoa.get(nearestDate).get(selectedPractice).values()]
-      : [...data_popnGPLsoa.get(nearestDate).get("All").values()];
+    userSelections.selectedPractice !== undefined && userSelections.selectedPractice !== "All Practices"
+      ? [...data_popnGPLsoa.get(userSelections.nearestDate()).get(userSelections.selectedPractice).values()]
+      : [...data_popnGPLsoa.get(userSelections.nearestDate()).get("All").values()];
 
   const maxValue = d3.max(rawPopn);
   const colour = d3.scaleSequentialQuantile()
@@ -93,9 +101,16 @@ function recolourLSOA() {
       const lsoaCode = layer.feature.properties.lsoa;
 
       let value =
-        selectedPractice !== undefined && selectedPractice !== "All Practices"
-          ? data_popnGPLsoa.get(nearestDate).get(selectedPractice).get(lsoaCode)
-          : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
+        userSelections.selectedPractice !== undefined &&
+        userSelections.selectedPractice !== "All Practices"
+          ? data_popnGPLsoa
+              .get(userSelections.nearestDate())
+              .get(userSelections.selectedPractice)
+              .get(lsoaCode)
+          : data_popnGPLsoa
+              .get(userSelections.nearestDate())
+              .get("All")
+              .get(lsoaCode);
 
       if (value === undefined) {
         value = 0;
@@ -124,8 +139,8 @@ function recolourLSOA() {
 
       layer.bindPopup(
         `<h3>${layer.feature.properties.lsoa}</h3>
-          <p>${selectedPractice}</p>
-          <p>${formatPeriod(nearestDate)}</p>
+          <p>${userSelections.selectedPractice}</p>
+          <p>${formatPeriod(userSelections.nearestDate())}</p>
       Pop'n: ${formatNumber(value)}
       `
       );

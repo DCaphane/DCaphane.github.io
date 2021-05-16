@@ -12,7 +12,9 @@ Reusable map components:
 /* Add a sidebar
 https://github.com/nickpeihl/leaflet-sidebar-v2
 */
+const genID = generateUniqueID(); // genID.uid
 
+// Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
 
 const mapInitialise = defaultMapSetUp();
@@ -292,13 +294,14 @@ function addPracticeToMap(zoomToExtent = false) {
         });
         layer.on("click", function (e) {
           // update other charts
-          (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+          (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
             (practiceName = feature.properties.practice_name);
-          // console.log(selectedPractice + " - " + practiceName);
-          document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
+          // console.log(userSelections.selectedPractice + " - " + practiceName);
+          document.getElementById("selPractice").value =
+            userSelections.selectedPractice; // change the selection box dropdown to reflect clicked practice
           // option to zoom to marker
           map.setView(e.latlng, 11);
-          refreshChartsPostPracticeChange(selectedPractice);
+          refreshChartsPostPracticeChange(userSelections.selectedPractice);
         });
 
         const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -437,9 +440,9 @@ function filterGPPracticeSites(zoomToExtent = false) {
 
           layer.on("click", function (e) {
             // update other charts
-            // (selectedPractice = feature.properties.organisation_code), // register change in practice
+            // (userSelections.selectedPractice = feature.properties.organisation_code), // register change in practice
             //   (practiceName = feature.properties.organisation_name);
-            // console.log(selectedPractice + " - " + practiceName);
+            // console.log(userSelections.selectedPractice + " - " + practiceName);
           });
         },
         filter: function (d) {
@@ -447,11 +450,11 @@ function filterGPPracticeSites(zoomToExtent = false) {
           const strPractice = d.properties.organisation_code;
 
           if (
-            selectedPractice !== undefined &&
-            selectedPractice !== "All Practices"
+            userSelections.selectedPractice !== undefined &&
+            userSelections.selectedPractice !== "All Practices"
           ) {
             return strPractice.substring(0, 6) ===
-              selectedPractice.substring(0, 6)
+              userSelections.selectedPractice.substring(0, 6)
               ? true
               : false;
           } else {
@@ -464,7 +467,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
       mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
 
       const overlayFilteredSites = {
-        label: `${selectedPractice} Sites`,
+        label: `${userSelections.selectedPractice} Sites`,
         layer: gpSites,
         selectAllCheckbox: false,
         // children: [
@@ -483,7 +486,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
         .collapseTree(true);
 
       if (zoomToExtent) {
-        map.fitBounds(gpSites.getBounds());
+        map.fitBounds(gpSites.getBounds().pad(0.1));
       }
     });
   });
@@ -662,11 +665,33 @@ function ccgBoundary(zoomToExtent = true) {
       // .expandSelected() // expand selected option in the baselayer
       .collapseTree(true);
 
+    const ccgBoundaryCopy4 = L.geoJson(ccgBoundary.toGeoJSON(), {
+      style: styleCCG,
+      pane: "ccgBoundaryPane",
+    });
+    const overlayCCGsD3 = {
+      label: "CCG Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Vale of York",
+          layer: ccgBoundaryCopy4, //layersMapBoundaries.get("voyCCGMain"),
+        },
+      ],
+    };
+    overlaysTreeBubble.children[1] = overlayCCGsD3;
+    mapControlBubble
+      .setOverlayTree(overlaysTreeBubble)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true);
+
     if (zoomToExtent) {
       mapMain.map.fitBounds(ccgBoundary.getBounds());
       mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
       mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
       mapIMD.map.fitBounds(ccgBoundaryCopy3.getBounds());
+      mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
     }
   });
 }
@@ -704,7 +729,7 @@ function lsoaBoundary(zoomToExtent = false) {
 
     // const lsoaLayerCopy1 = L.geoJson(lsoaLayer.toGeoJSON(), {
     //   // style: styleCCG,
-    //   // pane: "ccgBoundaryPane",
+    //   // pane: "lsoaBoundaryPane",
     // });
     if (!layersMapLSOA.has("voyCCGPopn")) {
       layersMapLSOA.set("voyCCGPopn", lsoaLayer);
@@ -719,6 +744,28 @@ function lsoaBoundary(zoomToExtent = false) {
       const ol = overlayLSOA(layersMapIMD);
       overlaysTreeIMD.children[2] = ol;
     });
+
+    const lsoaLayerCopy1 = L.geoJson(lsoaLayer.toGeoJSON(), {
+      style: styleLsoa, // default colour scheme for lsoa boundaries
+      pane: "lsoaBoundaryPane",
+    });
+    const overlayLsoaD3Bubble = {
+      label: "LSOA Boundaries",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Vale of York",
+          layer: lsoaLayerCopy1, //layersMapBoundaries.get("voyCCGMain"),
+        },
+      ],
+    };
+    overlaysTreeBubble.children[0] = overlayLsoaD3Bubble;
+    mapControlPopn
+      .setOverlayTree(overlaysTreeBubble)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true);
+
     // if (zoomToExtent) {
     //   mapPopn.map.fitBounds(lsoaLayer.getBounds());
     //   // mapIMD.map.fitBounds(lsoaLayerCopy1.getBounds());
@@ -747,11 +794,6 @@ function lsoaBoundary(zoomToExtent = false) {
 const mapSelectedLSOA = new Map();
 
 function filterFunctionLsoa(zoomToExtent = false) {
-  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
-  // const maxValue =
-  //   selectedPractice !== undefined && selectedPractice !== "All Practices"
-  //     ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
-  //     : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
   mapSelectedLSOA.clear();
   const map = this.map;
 
@@ -807,12 +849,16 @@ function filterFunctionLsoa(zoomToExtent = false) {
         const lsoaCode = d.properties.lsoa;
 
         let value =
-          selectedPractice !== undefined && selectedPractice !== "All Practices"
+          userSelections.selectedPractice !== undefined &&
+          userSelections.selectedPractice !== "All Practices"
             ? data_popnGPLsoa
-                .get(nearestDate)
-                .get(selectedPractice)
+                .get(userSelections.nearestDate())
+                .get(userSelections.selectedPractice)
                 .get(lsoaCode)
-            : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
+            : data_popnGPLsoa
+                .get(userSelections.nearestDate())
+                .get("All")
+                .get(lsoaCode);
 
         if (value > minPopulationLSOA) {
           mapSelectedLSOA.set(lsoaCode, value);
@@ -830,7 +876,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
       selectAllCheckbox: true,
       children: [
         {
-          label: practiceLookup.get(selectedPractice),
+          label: practiceLookup.get(userSelections.selectedPractice),
           layer: lsoaLayer,
         },
       ],
@@ -846,6 +892,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
     if (zoomToExtent) {
       map.fitBounds(lsoaLayer.getBounds());
       mapIMD.map.fitBounds(lsoaLayer.getBounds());
+      mapD3Bubble.map.fitBounds(lsoaLayer.getBounds());
     }
   });
 }
@@ -854,12 +901,16 @@ function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
   highlightFeature(practice, mapMain); // console.log(event.text.label, event.text.value)
   trendChart.chartTrendDraw();
-  demographicChart.updateChtDemog(practice, selectedPracticeCompare);
+  demographicChart.updateChtDemog(
+    practice,
+    userSelections.selectedPracticeCompare
+  );
 
   filterGPPracticeSites.call(mapSites, true);
 
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
+  bubbleTest.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();
@@ -996,10 +1047,10 @@ const pcnFormatting = function (feature, latlng) {
 
 //         layer.on("click", function (e) {
 //           // update other charts
-//           (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+//           (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
 //             (practiceName = feature.properties.practice_name),
 //             (selectedPCN = feature.properties.pcn_name);
-//           console.log(selectedPractice + " - " + practiceName);
+//           console.log(userSelections.selectedPractice + " - " + practiceName);
 
 //           filterFunctionPCN2(mapPCNSite.map, mapPCNSite.layerControl);
 //           // updateTextPractice();
@@ -1067,9 +1118,9 @@ const pcnFormatting = function (feature, latlng) {
 
 //         layer.on("click", function (e) {
 //           // update other charts
-//           (selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
+//           (userSelections.selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
 //             (practiceName = feature.properties.organisation_name);
-//           // console.log(selectedPractice + " - " + practiceName);
+//           // console.log(userSelections.selectedPractice + " - " + practiceName);
 //         });
 
 //         subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -1155,11 +1206,11 @@ function addPracticeToMap(zoomToExtent = false) {
       });
       layer.on("click", function (e) {
         // update other charts
-        (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+        (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
           (practiceName = feature.properties.practice_name);
-        // console.log(selectedPractice + " - " + practiceName);
-        document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
-        refreshChartsPostPracticeChange(selectedPractice);
+        // console.log(userSelections.selectedPractice + " - " + practiceName);
+        document.getElementById("selPractice").value = userSelections.selectedPractice; // change the selection box dropdown to reflect clicked practice
+        refreshChartsPostPracticeChange(userSelections.selectedPractice);
       });
 
       category = feature.properties.locality; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -1534,9 +1585,9 @@ mapControlPopn
   .collapseTree(true); // true to collapse the overlays tree
 // .expandSelected(true); // expand selected option in the overlays tree
 
-const colourScaleRed = d3.scaleSequential(d3.interpolateReds);
-const interpolatorRed = colourScaleRed.interpolator(); // read its interpolator
-const colourScaleRedReverse = (t) => interpolatorRed(1 - t); // creates a mirror image of the interpolator
+// const colourScaleRed = d3.scaleSequential(d3.interpolateReds);
+// const interpolatorRed = colourScaleRed.interpolator(); // read its interpolator
+// const colourScaleRedReverse = (t) => interpolatorRed(1 - t); // creates a mirror image of the interpolator
 
 function legendWrapper(placementID, legendID) {
   // https://observablehq.com/@mbostock/color-ramp
@@ -1579,13 +1630,13 @@ function legendWrapper(placementID, legendID) {
     tickFormat,
     tickValues,
   } = {}) {
-    d3.select(`#${legendID}`).remove(); // remove the element (legend) if it already exists
+    d3.select(`#${legendID.id}`).remove(); // remove the element (legend) if it already exists
     const canvasLocation = document.getElementById(placementID);
 
     const svg = d3
       .select(canvasLocation)
       .append("svg")
-      .attr("id", legendID)
+      .attr("id", legendID.id)
       .attr("width", width)
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height])
@@ -1762,6 +1813,35 @@ function legendWrapper(placementID, legendID) {
 
   return {
     legend: legend,
+  };
+}
+
+function generateUniqueID() {
+  /*
+  To generate a unique ID
+  https://talk.observablehq.com/t/what-does-dom-uid-xxx-do/4015
+  https://github.com/observablehq/stdlib/blob/master/src/dom/uid.js
+
+  If you call fn.uid() once you get an object containing as property id the string "O-1". Call it again to get “O-2”.
+  If you pass in a string it will be part of the unique identifier. e.g. call fn.uid('foo') the third time and you get the string "O-foo-3".
+  */
+  let count = 0;
+
+  function uid(name) {
+    function Id(id) {
+      this.id = id;
+      this.href = new URL(`#${id}`, location) + "";
+    }
+
+    Id.prototype.toString = function () {
+      return "url(" + this.href + ")";
+    };
+
+    return new Id("O-" + (name == null ? "" : name + "-") + ++count);
+  }
+
+  return {
+    uid: uid,
   };
 }
 

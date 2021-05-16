@@ -26,7 +26,7 @@
     />
 
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+      href="https://fonts.googleapis.com/css?family=Roboto:400,900|Material+Icons&display=swap"
       rel="stylesheet"
     />
 
@@ -75,7 +75,11 @@
     />
     <link rel="stylesheet" href="css/components/awesomplete.css" />
     <!-- causes problems if try to defer awesomplete... -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.js"
+      integrity="sha512-t3zV/oAkSZUrvb/7p1q1+uh/i56JinQ+bmiulnHhbHZc7dq09CxJ1BByyi7A4+lF76+CcJtSVFtb7na7Oe7Cgg=="
+      crossorigin="anonymous"
+    ></script>
 
     <!-- leaflet -->
     <link
@@ -97,7 +101,23 @@ https://github.com/leaflet-extras/leaflet-providers
 http://leaflet-extras.github.io/leaflet-providers/preview/
 -->
     <script defer src="scripts/leaflet/leaflet-providers.js"></script>
-
+    <!-- Mapbox GL for OS Vector Layer-->
+    <!-- <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css"
+      rel="stylesheet"
+    /> -->
+    <link
+      rel="stylesheet"
+      href="https://labs.os.uk/public/os-api-branding/v0.2.0/os-api-branding.css"
+    />
+    <script
+      defer
+      src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"
+    ></script>
+    <script
+      defer
+      src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"
+    ></script>
     <!-- Tree layer control
     https://github.com/jjimenezshaw/Leaflet.Control.Layers.Tree/
     -->
@@ -166,30 +186,30 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     <script defer src="scripts/gp_practice_profile/map_components.js"></script>
 
     <script defer src="scripts/components/tooltip.js"></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/component_practice_dropdown.js"
+    ></script>
     <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
 
     <script defer src="scripts/gp_practice_profile/gp_popn_trend.js"></script>
+    <script defer src="scripts/gp_practice_profile/gp_popn_bar.js"></script>
 
     <script
       defer
       src="scripts/gp_practice_profile/gp_popn_demographic.js"
     ></script>
 
-    <script defer src="scripts/gp_practice_profile/gp_popn_bar.js"></script>
-
     <script defer src="scripts/gp_practice_profile/map_GP_MainSite.js"></script>
     <script defer src="scripts/gp_practice_profile/map_GP_sites.js"></script>
 
     <script defer src="scripts/gp_practice_profile/map_imd_lsoa.js"></script>
-    <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
     <script defer src="scripts/gp_practice_profile/map_leaflet_d3.js"></script>
+    <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
+
     <script
       defer
       src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
-    ></script>
-    <script
-      defer
-      src="scripts/gp_practice_profile/component_practice_dropdown.js"
     ></script>
 
     <style></style>
@@ -340,7 +360,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
 
             <div id="id03" class="tiles">
               <div class="tile wide content">
-                <h3>IMD Testing</h3>
+                <h3>Deprivation by LSOA</h3>
                 <div id="selIMD"></div>
                 <div>
                   <!--  just a wrapper to control map height/ width-->
@@ -351,7 +371,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
               </div>
 
               <div class="tile wide content">
-                <h3>D3 and Leaflet</h3>
+                <h3>Deprivation by LSOA Centre</h3>
                 <div id="selD3Leaf"></div>
                 <div>
                   <!--  just a wrapper to control map height/ width-->
