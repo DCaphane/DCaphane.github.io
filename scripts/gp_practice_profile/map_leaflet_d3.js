@@ -9,16 +9,12 @@ Drawing points of interest using this demo:
 
 
 To Do:
-Add values to circle tooltip text
-Filter D3 Circles - what function does this? map_components.js function filterFunctionLsoa and refreshChartsPostPracticeChange
+Filter D3 Circles - what function do this:
+  map_components.js
+    function filterFunctionLsoa
+    refreshChartsPostPracticeChange
 
 
-Store Selection values in an object:
-  objSelection{
-  selectedPractice: All
-  selectedDate: ...
-  nearestDate: ... // can be recalculated each time selectedDate changes - method?
-  }
 */
 
 const mapD3Bubble = {
@@ -153,13 +149,21 @@ function imdDomainD3(id = "selD3Leaf") {
       });
     } else {
       // Style and legend for population
-      const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
       const maxValue =
-        selectedPractice !== undefined && selectedPractice !== "All Practices"
+        userSelections.selectedPractice !== undefined &&
+        userSelections.selectedPractice !== "All Practices"
           ? d3.max(
-              data_popnGPLsoa.get(nearestDate).get(selectedPractice).values()
+              data_popnGPLsoa
+                .get(userSelections.nearestDate())
+                .get(userSelections.selectedPractice)
+                .values()
             )
-          : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
+          : d3.max(
+              data_popnGPLsoa
+                .get(userSelections.nearestDate())
+                .get("All")
+                .values()
+            );
 
       lsoaCentroidLegend.legend({
         color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
@@ -195,19 +199,22 @@ function imdDomainD3(id = "selD3Leaf") {
     // Initialise D3 Circle Map
     updateD3BubbleLsoa();
   });
+  userSelections.selectedDate;
 
   function updateD3BubbleLsoa() {
-    const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
-
     // Update the population details
     lsoaCentroidDetails.forEach((lsoa) => {
       let value =
-        selectedPractice !== undefined && selectedPractice !== "All Practices"
+        userSelections.selectedPractice !== undefined &&
+        userSelections.selectedPractice !== "All Practices"
           ? data_popnGPLsoa
-              .get(nearestDate)
-              .get(selectedPractice)
+              .get(userSelections.nearestDate())
+              .get(userSelections.selectedPractice)
               .get(lsoa.lsoa)
-          : data_popnGPLsoa.get(nearestDate).get("All").get(lsoa.lsoa);
+          : data_popnGPLsoa
+              .get(userSelections.nearestDate())
+              .get("All")
+              .get(lsoa.lsoa);
 
       if (value === undefined) {
         value = 0;
@@ -246,13 +253,32 @@ function imdDomainD3(id = "selD3Leaf") {
             .append("circle")
             .on("click", function (event, d) {
               // console.log(d.lsoa);
-              const str = `<strong>${
-                d.lsoa
-              }</strong><br>Pop'n <span style="color:red">${formatNumber(
-                d.lsoaPopulation
-              )}</span>`;
-              newTooltip.counter++;
-              newTooltip.mouseover(tooltipD3Lsoa, str, event);
+              dataIMD.then(function (v) {
+                const str = `LSOA: <strong>${
+                  d.lsoa
+                }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+                  d.lsoaPopulation
+                )}</span>`;
+
+                let subString;
+                if (imdDomainDescD3 !== "Population") {
+                  let obj = v.find((x) => x.lsoa === d.lsoa);
+
+                  if (obj !== undefined) {
+                    const value = obj[imdDomainShortD3];
+
+                    subString = `<br><strong>${imdDomainDescD3}:
+                  </strong><span style="color:red">${formatNumber(
+                    value
+                  )}</span>`;
+                  } else {
+                    return "";
+                  }
+                }
+
+                newTooltip.counter++;
+                newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
+              });
             })
             .on("mouseover", function (event, d) {
               dataIMD.then(function (v) {
@@ -304,12 +330,16 @@ function imdDomainD3(id = "selD3Leaf") {
         const lsoaCode = d.lsoa;
 
         let value =
-          selectedPractice !== undefined && selectedPractice !== "All Practices"
+          userSelections.selectedPractice !== undefined &&
+          userSelections.selectedPractice !== "All Practices"
             ? data_popnGPLsoa
-                .get(nearestDate)
-                .get(selectedPractice)
+                .get(userSelections.nearestDate())
+                .get(userSelections.selectedPractice)
                 .get(lsoaCode)
-            : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
+            : data_popnGPLsoa
+                .get(userSelections.nearestDate())
+                .get("All")
+                .get(lsoaCode);
 
         if (value > minPopulationLSOA) {
           return 0.8;

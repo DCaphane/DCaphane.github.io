@@ -28,9 +28,25 @@ let data_popnGPLsoa,
 const practiceLookup = new Map();
 const newTooltip = createTooltip();
 
-let selectedPractice,
-  selectedPracticeCompare = "None",
-  selectedDate;
+// Try storing user Selections in an object
+const userSelections = {
+  selectedPractice: "All Practices",
+  selectedPracticeCompare: "None",
+  selectedDate: null,
+  nearestDate(arr = arrayGPLsoaDates) {
+    // arr will typically be arrayGPLsoaDates here
+    // Align the selected period to the nearest quarterly period
+    return (
+      arr.reduce(
+        (p, n) =>
+          Math.abs(p) > Math.abs(n - this.selectedDate)
+            ? n - this.selectedDate
+            : p,
+        Infinity
+      ) + this.selectedDate
+    );
+  },
+};
 
 // https://github.com/d3/d3-time-format
 const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
@@ -87,18 +103,22 @@ const dataPopulationGP = (async function () {
   );
 
   // dataImport = data;
-  setDefaults(data);
+  // setDefaults(data);
+  // for default initial date, use the most recent period
+  userSelections.selectedDate = d3.max(data, function (d) {
+    return d.Period;
+  });
+
+  // List of practices (sorted A-Z) for use in drop down ------------------------
+  uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
   practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
   trendChart = initTrendChart(data, "cht_PopTrend");
   trendChart.chartTrendDraw();
 
-  demographicChart = initChartDemog(data, "cht_PopDemo");
-  demographicChart.updateChtDemog();
-
   barChart = initPopnBarChart(data, "cht_PopBar");
   barChart.fnRedrawBarChart();
 
-  return;
+  return data;
 })();
 
 const dataPopulationGPLsoa = (async function () {
@@ -160,23 +180,22 @@ const dataIMD = (async function () {
   });
 })();
 
+// function setDefaults(data) {
+// // List of practices (sorted A-Z) for use in drop down ------------------------
+// uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
 
+// const test = d3.group(data, d => d.Practice).keys().sort();
+// console.log(test)
+// This is hard coded to order ages in correct order
+// uniqueAgeBands = new Map([...uniqueAgeBandsOrg.entries()].sort());
 
-function setDefaults(data) {
-  // List of practices (sorted A-Z) for use in drop down ------------------------
-  uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
-
-  // const test = d3.group(data, d => d.Practice).keys().sort();
-  // console.log(test)
-  // This is hard coded to order ages in correct order
-  // uniqueAgeBands = new Map([...uniqueAgeBandsOrg.entries()].sort());
-
-  // for default initial date, use the most recent period
-  selectedDate = d3.max(data, function (d) {
-    return d.Period;
-  });
-  // console.log(selectedDate)
-}
+// for default initial date, use the most recent period
+// userSelections.selectedDate = d3.max(data, function (d) {
+//   return d.Period;
+// });
+// userSelections.selectedDate = selectedDate;
+// console.log(selectedDate)
+// }
 
 function titleCase(str) {
   return str

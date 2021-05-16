@@ -6,6 +6,13 @@ Based on this example:
     Transitions: https://gist.github.com/martinjc/7fa5deb1782da2fc6da15c3fad02c88b
     */
 
+
+dataPopulationGP.then(function (data) {
+  demographicChart = initChartDemog(data, "cht_PopDemo");
+  demographicChart.updateChtDemog();
+})
+
+
 function initChartDemog(dataInit, id) {
   const div = document.getElementById(id);
   // Total by Period and Age Band - Trend Chart Filtered
@@ -29,7 +36,7 @@ function initChartDemog(dataInit, id) {
     (d) => d.Age_Band
   );
 
-  // const dataLevel_03 = d.get(+selectedDate); // data_DemoInit
+  // const dataLevel_03 = d.get(+userSelections.selectedDate); // data_DemoInit
 
   // by age/ sex, by practice by period
   const dataLevel_04 = d3.rollup(
@@ -267,16 +274,18 @@ ${chtHeightMini + 20}`
     let chtDataP1, chtDataP2;
 
     // Main Practice Data
-    if (selectedPractice === "Default") {
+    if (userSelections.selectedPractice === "Default") {
       practiceMain = undefined;
     }
 
     if (!practiceMain || practiceMain === "All Practices") {
       practiceMain = undefined;
       // no practice selected, undefined - use the original data source (All Practices)
-      chtDataP1 = data_DemoInit.get(selectedDate);
+      chtDataP1 = data_DemoInit.get(userSelections.selectedDate);
     } else {
-      chtDataP1 = dataLevel_04.get(practiceMain).get(selectedDate);
+      chtDataP1 = dataLevel_04
+        .get(practiceMain)
+        .get(userSelections.selectedDate);
     }
 
     // Comparison Practice Data
@@ -285,9 +294,11 @@ ${chtHeightMini + 20}`
       // no practice comparison selected
       chtDataP2 = emptyDemog;
     } else if (practiceComp === "All Practices") {
-      chtDataP2 = data_DemoInit.get(selectedDate);
+      chtDataP2 = data_DemoInit.get(userSelections.selectedDate);
     } else {
-      chtDataP2 = dataLevel_04.get(practiceComp).get(selectedDate);
+      chtDataP2 = dataLevel_04
+        .get(practiceComp)
+        .get(userSelections.selectedDate);
     }
 
     chartDemogDraw(chtDataP1, chtDataP2);
@@ -543,16 +554,18 @@ ${chtHeightMini + 20}`
 
     const arrOverAge = [
       {
-        practice: !selectedPractice ? "All Practices" : selectedPractice,
+        practice: !userSelections.selectedPractice
+          ? "All Practices"
+          : userSelections.selectedPractice,
         popn: { selPopn: selectedPop1, pct: selectedPop1 / totalPop1 },
       },
     ];
 
-    if (selectedPracticeCompare === "None") {
+    if (userSelections.selectedPracticeCompare === "None") {
       // do nothing
     } else {
       const objCompare = {
-        practice: selectedPracticeCompare,
+        practice: userSelections.selectedPracticeCompare,
         popn: { selPopn: selectedPop2, pct: selectedPop2 / totalPop2 },
       };
       arrOverAge.push(objCompare);
@@ -657,7 +670,7 @@ ${chtHeightMini + 20}`
         return yScaleOverAge(d.practice);
       })
       .attr("dx", "5px")
-      .attr("dy", (yScaleOverAge.bandwidth() / 2) + 7)
+      .attr("dy", yScaleOverAge.bandwidth() / 2 + 7)
       .text(function (d) {
         return formatPercent1dp(d.popn.pct);
       });

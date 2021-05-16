@@ -375,11 +375,14 @@ Line and marker transitions
 
   function chartTrendDraw() {
     let newData; // This is a map, use keys and values to retrieve values
-    if (!selectedPractice || selectedPractice === "All Practices") {
+    if (
+      !userSelections.selectedPractice ||
+      userSelections.selectedPractice === "All Practices"
+    ) {
       // no practice selected, default
       newData = d;
     } else {
-      newData = dataLevel_02.get(selectedPractice);
+      newData = dataLevel_02.get(userSelections.selectedPractice);
     }
 
     dataArr = Array.from(newData, ([key, value]) => ({
@@ -448,7 +451,7 @@ Line and marker transitions
             // })
             // mouse events need to go before any transitions
             .on("click", function (event, d) {
-              selectedDate = d.period;
+              userSelections.selectedDate = d.period;
               console.log("selectedDate:", formatPeriod(d.period)); // selectedDate
               // line below needs to be selectAll (2 instances, current and new?)
               // this removes any previously applied formatting
@@ -460,8 +463,8 @@ Line and marker transitions
               sel.raise();
               sel.classed("highlight", true);
               demographicChart.updateChtDemog(
-                selectedPractice,
-                selectedPracticeCompare
+                userSelections.selectedPractice,
+                userSelections.selectedPracticeCompare
               );
               recolourLSOA();
               bubbleTest.updateD3BubbleLsoa();
@@ -486,7 +489,7 @@ Line and marker transitions
               sel.lower();
               sel.attr("class", "trend-circle faa-vertical animated-hover");
               sel.classed("highlight animated", function (d) {
-                return d.period === selectedDate;
+                return d.period === userSelections.selectedDate;
               });
               newTooltip.mouseout(tooltipTrend);
             })
@@ -522,7 +525,7 @@ Line and marker transitions
       )
       .attr("class", "trend-circle faa-vertical animated-hover")
       .classed("highlight animated", function (d) {
-        return d.period === selectedDate;
+        return d.period === userSelections.selectedDate;
       })
       // .transition(t)
       .attr("r", 6)

@@ -294,13 +294,14 @@ function addPracticeToMap(zoomToExtent = false) {
         });
         layer.on("click", function (e) {
           // update other charts
-          (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+          (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
             (practiceName = feature.properties.practice_name);
-          // console.log(selectedPractice + " - " + practiceName);
-          document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
+          // console.log(userSelections.selectedPractice + " - " + practiceName);
+          document.getElementById("selPractice").value =
+            userSelections.selectedPractice; // change the selection box dropdown to reflect clicked practice
           // option to zoom to marker
           map.setView(e.latlng, 11);
-          refreshChartsPostPracticeChange(selectedPractice);
+          refreshChartsPostPracticeChange(userSelections.selectedPractice);
         });
 
         const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -439,9 +440,9 @@ function filterGPPracticeSites(zoomToExtent = false) {
 
           layer.on("click", function (e) {
             // update other charts
-            // (selectedPractice = feature.properties.organisation_code), // register change in practice
+            // (userSelections.selectedPractice = feature.properties.organisation_code), // register change in practice
             //   (practiceName = feature.properties.organisation_name);
-            // console.log(selectedPractice + " - " + practiceName);
+            // console.log(userSelections.selectedPractice + " - " + practiceName);
           });
         },
         filter: function (d) {
@@ -449,11 +450,11 @@ function filterGPPracticeSites(zoomToExtent = false) {
           const strPractice = d.properties.organisation_code;
 
           if (
-            selectedPractice !== undefined &&
-            selectedPractice !== "All Practices"
+            userSelections.selectedPractice !== undefined &&
+            userSelections.selectedPractice !== "All Practices"
           ) {
             return strPractice.substring(0, 6) ===
-              selectedPractice.substring(0, 6)
+              userSelections.selectedPractice.substring(0, 6)
               ? true
               : false;
           } else {
@@ -466,7 +467,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
       mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
 
       const overlayFilteredSites = {
-        label: `${selectedPractice} Sites`,
+        label: `${userSelections.selectedPractice} Sites`,
         layer: gpSites,
         selectAllCheckbox: false,
         // children: [
@@ -793,11 +794,6 @@ function lsoaBoundary(zoomToExtent = false) {
 const mapSelectedLSOA = new Map();
 
 function filterFunctionLsoa(zoomToExtent = false) {
-  const nearestDate = nearestValue(arrayGPLsoaDates, selectedDate);
-  // const maxValue =
-  //   selectedPractice !== undefined && selectedPractice !== "All Practices"
-  //     ? d3.max(data_popnGPLsoa.get(nearestDate).get(selectedPractice).values())
-  //     : d3.max(data_popnGPLsoa.get(nearestDate).get("All").values());
   mapSelectedLSOA.clear();
   const map = this.map;
 
@@ -853,12 +849,16 @@ function filterFunctionLsoa(zoomToExtent = false) {
         const lsoaCode = d.properties.lsoa;
 
         let value =
-          selectedPractice !== undefined && selectedPractice !== "All Practices"
+          userSelections.selectedPractice !== undefined &&
+          userSelections.selectedPractice !== "All Practices"
             ? data_popnGPLsoa
-                .get(nearestDate)
-                .get(selectedPractice)
+                .get(userSelections.nearestDate())
+                .get(userSelections.selectedPractice)
                 .get(lsoaCode)
-            : data_popnGPLsoa.get(nearestDate).get("All").get(lsoaCode);
+            : data_popnGPLsoa
+                .get(userSelections.nearestDate())
+                .get("All")
+                .get(lsoaCode);
 
         if (value > minPopulationLSOA) {
           mapSelectedLSOA.set(lsoaCode, value);
@@ -876,7 +876,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
       selectAllCheckbox: true,
       children: [
         {
-          label: practiceLookup.get(selectedPractice),
+          label: practiceLookup.get(userSelections.selectedPractice),
           layer: lsoaLayer,
         },
       ],
@@ -901,7 +901,10 @@ function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
   highlightFeature(practice, mapMain); // console.log(event.text.label, event.text.value)
   trendChart.chartTrendDraw();
-  demographicChart.updateChtDemog(practice, selectedPracticeCompare);
+  demographicChart.updateChtDemog(
+    practice,
+    userSelections.selectedPracticeCompare
+  );
 
   filterGPPracticeSites.call(mapSites, true);
 
@@ -1044,10 +1047,10 @@ const pcnFormatting = function (feature, latlng) {
 
 //         layer.on("click", function (e) {
 //           // update other charts
-//           (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+//           (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
 //             (practiceName = feature.properties.practice_name),
 //             (selectedPCN = feature.properties.pcn_name);
-//           console.log(selectedPractice + " - " + practiceName);
+//           console.log(userSelections.selectedPractice + " - " + practiceName);
 
 //           filterFunctionPCN2(mapPCNSite.map, mapPCNSite.layerControl);
 //           // updateTextPractice();
@@ -1115,9 +1118,9 @@ const pcnFormatting = function (feature, latlng) {
 
 //         layer.on("click", function (e) {
 //           // update other charts
-//           (selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
+//           (userSelections.selectedPractice = feature.properties.organisation_code), // change the practice to whichever was clicked
 //             (practiceName = feature.properties.organisation_name);
-//           // console.log(selectedPractice + " - " + practiceName);
+//           // console.log(userSelections.selectedPractice + " - " + practiceName);
 //         });
 
 //         subCategory = feature.properties.pcn_name; // subCategory variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -1203,11 +1206,11 @@ function addPracticeToMap(zoomToExtent = false) {
       });
       layer.on("click", function (e) {
         // update other charts
-        (selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
+        (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
           (practiceName = feature.properties.practice_name);
-        // console.log(selectedPractice + " - " + practiceName);
-        document.getElementById("selPractice").value = selectedPractice; // change the selection box dropdown to reflect clicked practice
-        refreshChartsPostPracticeChange(selectedPractice);
+        // console.log(userSelections.selectedPractice + " - " + practiceName);
+        document.getElementById("selPractice").value = userSelections.selectedPractice; // change the selection box dropdown to reflect clicked practice
+        refreshChartsPostPracticeChange(userSelections.selectedPractice);
       });
 
       category = feature.properties.locality; // category variable, used to store the distinct feature eg. phc_no, practice_group etc

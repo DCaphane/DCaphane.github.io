@@ -33,12 +33,15 @@ function updateDropdowns() {
 
       if (practiceLookup.has(pCode)) {
         docFrag.appendChild(
-          createElem("option", pCode + ": " + titleCase(practiceLookup.get(pCode)))
+          createElem(
+            "option",
+            pCode + ": " + titleCase(practiceLookup.get(pCode))
+          )
         ); // Note that this does NOT go to the DOM
       } else {
         createElem("option", pCode);
       }
-    };
+    }
 
     dropDowns[i].append(docFrag);
   }
@@ -65,11 +68,11 @@ function updateDropdowns() {
   // https://github.com/LeaVerou/awesomplete/issues/17034
   input1.addEventListener("awesomplete-select", function (event) {
     if (event.text.value !== "All Practices") {
-      selectedPractice = event.text.value.substring(0, 6);
+      userSelections.selectedPractice = event.text.value.substring(0, 6);
     } else {
-      selectedPractice = event.text.value;
+      userSelections.selectedPractice = event.text.value;
     }
-    refreshChartsPostPracticeChange(selectedPractice);
+    refreshChartsPostPracticeChange(userSelections.selectedPractice);
   });
 
   const input2 = document.getElementById("selPracticeCompare");
@@ -94,13 +97,16 @@ function updateDropdowns() {
 
   input2.addEventListener("awesomplete-select", function (event) {
     if (event.text.value !== "All Practices") {
-      selectedPracticeCompare = event.text.value.substring(0, 6);
+      userSelections.selectedPracticeCompare = event.text.value.substring(0, 6);
     } else {
-      selectedPracticeCompare = event.text.value;
+      userSelections.selectedPracticeCompare = event.text.value;
     }
 
-    console.log("Compare: " + selectedPracticeCompare);
-    demographicChart.updateChtDemog(selectedPractice, selectedPracticeCompare);
+    console.log("Compare: " + userSelections.selectedPracticeCompare);
+    demographicChart.updateChtDemog(
+      userSelections.selectedPractice,
+      userSelections.selectedPracticeCompare
+    );
   });
 }
 
