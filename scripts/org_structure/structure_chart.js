@@ -12,28 +12,29 @@ Useful Links
     This requires use of DOM.uid in the d3.hierarchy formula (included within observable)
     To enable here, need to include link to observable library in html
 		See demo: https://bl.ocks.org/Fil/4839ed6cea933ae91bfe06213d00231f
-	
+
 	d3.v3 including search and full screen options
 		https://bl.ocks.org/bumbeishvili/dbc0beff4baf64674b0f05b94cb4462e
 
 */
 
-const { DOM, require } = new observablehq.Library();
+// const { DOM, require } = new observablehq.Library();
+const genID = generateUniqueID(); // genID.uid
 
 // d3.json('https://gist.githubusercontent.com/bumbeishvili/dc0d47bc95ef359fdc75b63cd65edaf2/raw/c33a3a1ef4ba927e3e92b81600c8c6ada345c64b/orgChart.json')
 // d3.json('/Data/org_structure/testing.json').then((dataSource) => {
 const dataFlattened = d3
   .hierarchy(chiefFinanceOfficer) // accountableOfficer
   .descendants()
-  .map((d, i) => Object.assign(d, { id: DOM.uid().id }))
-  .map(d =>
+  .map((d, i) => Object.assign(d, { id: genID.uid().id }))
+  .map((d) =>
     Object.assign(d.data, {
       id: d.id,
-      parentId: d.parent && d.parent.id
+      parentId: d.parent && d.parent.id,
     })
   );
 
-let data = dataFlattened.map(d => {
+let data = dataFlattened.map((d) => {
   const width = Math.round(Math.random() * 50 + 300);
   const height = Math.round(Math.random() * 20 + 130);
   const cornerShape = ["ORIGINAL", "ROUNDED", "CIRCLE"][
@@ -58,13 +59,13 @@ let data = dataFlattened.map(d => {
       red: d.borderColor.red,
       green: d.borderColor.green,
       blue: d.borderColor.blue,
-      alpha: d.borderColor.alpha
+      alpha: d.borderColor.alpha,
     },
     backgroundColor: {
       red: d.backgroundColor.red,
       green: d.backgroundColor.green,
       blue: d.backgroundColor.blue,
-      alpha: d.backgroundColor.alpha
+      alpha: d.backgroundColor.alpha,
     },
     nodeImage: {
       url: d.imageUrl,
@@ -79,12 +80,12 @@ let data = dataFlattened.map(d => {
         red: 19,
         green: 123,
         blue: 128,
-        alpha: 1
-      }
+        alpha: 1,
+      },
     },
     nodeIcon: {
       icon: "https://to.ly/1yZnX",
-      size: 30
+      size: 30,
     },
     template: `<div>
                         <div style="margin-left:${titleMarginLeft}px;
@@ -96,14 +97,12 @@ let data = dataFlattened.map(d => {
                                     margin-top:3px;
                                     font-size:16px;
                                ">${d.positionName} </div>
-      
+
                        <div style="margin-left:${titleMarginLeft}px;
                                     margin-top:3px;
                                     font-size:14px;
-                               "><span class="fas fa-envelope"></span>${
-                                 d.eMail
-                               }</div>
-      
+                               "><span class="fas fa-envelope"></span>${d.eMail}</div>
+
                        <div style="margin-left:${contentMarginLeft}px;
                                    margin-top:15px;
                                    font-size:13px;
@@ -111,20 +110,18 @@ let data = dataFlattened.map(d => {
                                    bottom:5px;
                                   ">
                             <div>${d.area}</div>
-                            <div style="margin-top:5px"><span class="fas fa-phone"></span>${
-                              d.telephone
-                            }</div>
+                            <div style="margin-top:5px"><span class="fas fa-phone"></span>${d.telephone}</div>
                        </div>
                     </div>`,
     connectorLineColor: {
       red: 220,
       green: 189,
       blue: 207,
-      alpha: 1
+      alpha: 1,
     },
     connectorLineWidth: 5,
     dashArray: "",
-    expanded: expanded
+    expanded: expanded,
   };
 });
 
@@ -134,12 +131,12 @@ Chart()
   .svgWidth(window.innerWidth)
   .svgHeight(window.innerHeight)
   .initialZoom(0.5)
-  .onNodeClick(d => {
+  .onNodeClick((d) => {
     console.log(d + " node clicked");
     console.log(
       "%c %s",
       "color: blue; background: white",
-      dataFlattened.find(x => x.id === d).name
+      dataFlattened.find((x) => x.id === d).name
     ); // eg .name for particular attribute
   })
   .render();
@@ -166,14 +163,14 @@ function Chart() {
     strokeWidth: 3,
     dropShadowId: null,
     initialZoom: 1,
-    onNodeClick: d => d
+    onNodeClick: (d) => d,
   };
 
   //InnerFunctions which will update visuals
   var updateData;
 
   //Main chart object
-  var main = function() {
+  var main = function () {
     //Drawing containers
     var container = d3.select(attrs.container);
     var containerRect = container.node().getBoundingClientRect();
@@ -187,7 +184,7 @@ function Chart() {
       chartTopMargin: null,
       chartLeftMargin: null,
       chartWidth: null,
-      chartHeight: null
+      chartHeight: null,
     };
     calc.id = "ID" + Math.floor(Math.random() * 1000000); // id for event handlings
     calc.chartLeftMargin = attrs.marginLeft;
@@ -195,8 +192,8 @@ function Chart() {
     calc.chartWidth = attrs.svgWidth - attrs.marginRight - calc.chartLeftMargin;
     calc.chartHeight =
       attrs.svgHeight - attrs.marginBottom - calc.chartTopMargin;
-    calc.nodeMaxWidth = d3.max(attrs.data, d => d.width);
-    calc.nodeMaxHeight = d3.max(attrs.data, d => d.height);
+    calc.nodeMaxWidth = d3.max(attrs.data, (d) => d.width);
+    calc.nodeMaxHeight = d3.max(attrs.data, (d) => d.height);
 
     attrs.depth = calc.nodeMaxHeight + 100;
 
@@ -204,7 +201,7 @@ function Chart() {
 
     //********************  LAYOUTS  ***********************
     const layouts = {
-      treemap: null
+      treemap: null,
     };
 
     layouts.treemap = d3
@@ -214,7 +211,7 @@ function Chart() {
 
     // ******************* BEHAVIORS . **********************
     const behaviors = {
-      zoom: null
+      zoom: null,
     };
 
     behaviors.zoom = d3.zoom().on("zoom", zoomed);
@@ -222,10 +219,10 @@ function Chart() {
     //****************** ROOT node work ************************
     const root = d3
       .stratify()
-      .id(function(d) {
+      .id(function (d) {
         return d.nodeId;
       })
-      .parentId(function(d) {
+      .parentId(function (d) {
         return d.parentNodeId;
       })(attrs.data);
 
@@ -234,10 +231,10 @@ function Chart() {
 
     const allNodes = layouts.treemap(root).descendants();
 
-    allNodes.forEach(d => {
+    allNodes.forEach((d) => {
       Object.assign(d.data, {
         directSubordinates: d.children ? d.children.length : 0,
-        totalSubordinates: d.descendants().length - 1
+        totalSubordinates: d.descendants().length - 1,
       });
     });
 
@@ -248,7 +245,7 @@ function Chart() {
     var svg = container
       .patternify({
         tag: "svg",
-        selector: "svg-chart-container"
+        selector: "svg-chart-container",
       })
       .attr("width", attrs.svgWidth)
       .attr("height", attrs.svgHeight)
@@ -261,7 +258,7 @@ function Chart() {
     var chart = svg
       .patternify({
         tag: "g",
-        selector: "chart"
+        selector: "chart",
       })
       .attr(
         "transform",
@@ -271,7 +268,7 @@ function Chart() {
     var centerG = chart
       .patternify({
         tag: "g",
-        selector: "center-group"
+        selector: "center-group",
       })
       .attr(
         "transform",
@@ -288,12 +285,12 @@ function Chart() {
 
     const defs = svg.patternify({
       tag: "defs",
-      selector: "image-defs"
+      selector: "image-defs",
     });
 
     const filterDefs = svg.patternify({
       tag: "defs",
-      selector: "filter-defs"
+      selector: "filter-defs",
     });
 
     var filter = filterDefs
@@ -307,7 +304,7 @@ function Chart() {
     filter
       .patternify({
         tag: "feGaussianBlur",
-        selector: "feGaussianBlur-element"
+        selector: "feGaussianBlur-element",
       })
       .attr("in", "SourceAlpha")
       .attr("stdDeviation", 3.1)
@@ -338,7 +335,7 @@ function Chart() {
 
     var feMerge = filter.patternify({
       tag: "feMerge",
-      selector: "feMerge-element"
+      selector: "feMerge-element",
     });
 
     feMerge
@@ -353,7 +350,7 @@ function Chart() {
     update(root);
 
     // Smoothly handle data updating
-    updateData = function() {};
+    updateData = function () {};
 
     //#########################################  UTIL FUNCS ##################################
     function setDropShadowId(d) {
@@ -363,10 +360,10 @@ function Chart() {
       //@ts-ignore
       if (typeof DOM != "undefined") {
         //@ts-ignore
-        id = DOM.uid(d.id).id;
+        id = genID.uid(d.id).id;
       }
       Object.assign(d, {
-        dropShadowId: id
+        dropShadowId: id,
       });
     }
 
@@ -413,13 +410,13 @@ function Chart() {
       const path = `
             M ${x} ${y}
             L ${x} ${y + h * yrvs}
-            C  ${x} ${y + h * yrvs + r * yrvs} ${x} ${y +
-        h * yrvs +
-        r * yrvs} ${x + r * xrvs} ${y + h * yrvs + r * yrvs}
+            C  ${x} ${y + h * yrvs + r * yrvs} ${x} ${
+        y + h * yrvs + r * yrvs
+      } ${x + r * xrvs} ${y + h * yrvs + r * yrvs}
             L ${x + w * xrvs + r * xrvs} ${y + h * yrvs + r * yrvs}
-            C ${ex}  ${y + h * yrvs + r * yrvs} ${ex}  ${y +
-        h * yrvs +
-        r * yrvs} ${ex} ${ey - h * yrvs}
+            C ${ex}  ${y + h * yrvs + r * yrvs} ${ex}  ${
+        y + h * yrvs + r * yrvs
+      } ${ex} ${ey - h * yrvs}
             L ${ex} ${ey}
  `;
       return path;
@@ -456,7 +453,7 @@ function Chart() {
       const treeData = layouts.treemap(root);
 
       // Get tree nodes and links
-      const nodes = treeData.descendants().map(d => {
+      const nodes = treeData.descendants().map((d) => {
         if (d.width) return d;
 
         let imageWidth = 100;
@@ -522,19 +519,19 @@ function Chart() {
           height,
           imageCenterTopDistance,
           imageCenterLeftDistance,
-          dropShadowId
+          dropShadowId,
         });
       });
 
       const links = treeData.descendants().slice(1);
 
       // Set constant depth for each nodes
-      nodes.forEach(d => (d.y = d.depth * attrs.depth));
+      nodes.forEach((d) => (d.y = d.depth * attrs.depth));
       // ------------------- FILTERS ---------------------
 
       const patternsSelection = defs
         .selectAll(".pattern")
-        .data(nodes, d => d.id);
+        .data(nodes, (d) => d.id);
 
       const patternEnterSelection = patternsSelection.enter().append("pattern");
 
@@ -543,34 +540,30 @@ function Chart() {
         .attr("class", "pattern")
         .attr("height", 1)
         .attr("width", 1)
-        .attr("id", d => d.id);
+        .attr("id", (d) => d.id);
 
       const patternImages = patterns
         .patternify({
           tag: "image",
           selector: "pattern-image",
-          data: d => [d]
+          data: (d) => [d],
         })
         .attr("x", 0)
         .attr("y", 0)
-        .attr("height", d => d.imageWidth)
-        .attr("width", d => d.imageHeight)
-        .attr("xlink:href", d => d.data.nodeImage.url)
-        .attr("viewbox", d => `0 0 ${d.imageWidth * 2} ${d.imageHeight}`)
+        .attr("height", (d) => d.imageWidth)
+        .attr("width", (d) => d.imageHeight)
+        .attr("xlink:href", (d) => d.data.nodeImage.url)
+        .attr("viewbox", (d) => `0 0 ${d.imageWidth * 2} ${d.imageHeight}`)
         .attr("preserveAspectRatio", "xMidYMin slice");
 
-      patternsSelection
-        .exit()
-        .transition()
-        .duration(attrs.duration)
-        .remove();
+      patternsSelection.exit().transition().duration(attrs.duration).remove();
 
       // --------------------------  LINKS ----------------------
 
       // Update the links...
       var linkSelection = centerG
         .selectAll("path.link")
-        .data(links, function(d) {
+        .data(links, function (d) {
           return d.id;
         });
 
@@ -579,10 +572,10 @@ function Chart() {
         .enter()
         .insert("path", "g")
         .attr("class", "link")
-        .attr("d", function(d) {
+        .attr("d", function (d) {
           var o = {
             x: source.x0,
-            y: source.y0
+            y: source.y0,
           };
           return diagonal(o, o);
         });
@@ -593,14 +586,14 @@ function Chart() {
       // Styling links
       linkUpdate
         .attr("fill", "none")
-        .attr("stroke-width", d => d.data.connectorLineWidth || 2)
-        .attr("stroke", d => {
+        .attr("stroke-width", (d) => d.data.connectorLineWidth || 2)
+        .attr("stroke", (d) => {
           if (d.data.connectorLineColor) {
             return rgbaObjToColor(d.data.connectorLineColor);
           }
           return "green";
         })
-        .attr("stroke-dasharray", d => {
+        .attr("stroke-dasharray", (d) => {
           if (d.data.dashArray) {
             return d.data.dashArray;
           }
@@ -611,7 +604,7 @@ function Chart() {
       linkUpdate
         .transition()
         .duration(attrs.duration)
-        .attr("d", function(d) {
+        .attr("d", function (d) {
           return diagonal(d, d.parent);
         });
 
@@ -620,10 +613,10 @@ function Chart() {
         .exit()
         .transition()
         .duration(attrs.duration)
-        .attr("d", function(d) {
+        .attr("d", function (d) {
           var o = {
             x: source.x,
-            y: source.y
+            y: source.y,
           };
           return diagonal(o, o);
         })
@@ -631,18 +624,20 @@ function Chart() {
 
       // --------------------------  NODES ----------------------
       // Updating nodes
-      const nodesSelection = centerG.selectAll("g.node").data(nodes, d => d.id);
+      const nodesSelection = centerG
+        .selectAll("g.node")
+        .data(nodes, (d) => d.id);
 
       // Enter any new nodes at the parent's previous position.
       var nodeEnter = nodesSelection
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", function(d) {
+        .attr("transform", function (d) {
           return "translate(" + source.x0 + "," + source.y0 + ")";
         })
         .attr("cursor", "pointer")
-        .on("click", function(d) {
+        .on("click", function (d) {
           if (
             [...d3.event.srcElement.classList].includes("node-button-circle")
           ) {
@@ -656,11 +651,11 @@ function Chart() {
         .patternify({
           tag: "rect",
           selector: "node-rect",
-          data: d => [d]
+          data: (d) => [d],
         })
         .attr("width", 1e-6)
         .attr("height", 1e-6)
-        .style("fill", function(d) {
+        .style("fill", function (d) {
           return d._children ? "lightsteelblue" : "#fff";
         });
 
@@ -669,47 +664,47 @@ function Chart() {
         .patternify({
           tag: "foreignObject",
           selector: "node-foreign-object",
-          data: d => [d]
+          data: (d) => [d],
         })
-        .attr("width", d => d.width)
-        .attr("height", d => d.height)
-        .attr("x", d => -d.width / 2)
-        .attr("y", d => -d.height / 2);
+        .attr("width", (d) => d.width)
+        .attr("height", (d) => d.height)
+        .attr("x", (d) => -d.width / 2)
+        .attr("y", (d) => -d.height / 2);
 
       // Add foreign object
       fo.patternify({
         tag: "xhtml:div",
         selector: "node-foreign-object-div",
-        data: d => [d]
+        data: (d) => [d],
       })
-        .style("width", d => d.width + "px")
-        .style("height", d => d.height + "px")
+        .style("width", (d) => d.width + "px")
+        .style("height", (d) => d.height + "px")
         .style("color", "white")
-        .html(d => d.data.template);
+        .html((d) => d.data.template);
 
       nodeEnter
         .patternify({
           tag: "image",
           selector: "node-icon-image",
-          data: d => [d]
+          data: (d) => [d],
         })
-        .attr("width", d => d.data.nodeIcon.size)
-        .attr("height", d => d.data.nodeIcon.size)
-        .attr("xlink:href", d => d.data.nodeIcon.icon)
-        .attr("x", d => -d.width / 2 + 5)
-        .attr("y", d => d.height / 2 - d.data.nodeIcon.size - 5);
+        .attr("width", (d) => d.data.nodeIcon.size)
+        .attr("height", (d) => d.data.nodeIcon.size)
+        .attr("xlink:href", (d) => d.data.nodeIcon.icon)
+        .attr("x", (d) => -d.width / 2 + 5)
+        .attr("y", (d) => d.height / 2 - d.data.nodeIcon.size - 5);
 
       nodeEnter
         .patternify({
           tag: "text",
           selector: "node-icon-text-total",
-          data: d => [d]
+          data: (d) => [d],
         })
         .text("test")
-        .attr("x", d => -d.width / 2 + 7)
-        .attr("y", d => d.height / 2 - d.data.nodeIcon.size - 5)
+        .attr("x", (d) => -d.width / 2 + 7)
+        .attr("y", (d) => d.height / 2 - d.data.nodeIcon.size - 5)
         //.attr('text-anchor','middle')
-        .text(d => d.data.totalSubordinates + " Subordinates")
+        .text((d) => d.data.totalSubordinates + " Subordinates")
         .attr("fill", attrs.nodeTextFill)
         .attr("font-weight", "bold");
 
@@ -717,12 +712,12 @@ function Chart() {
         .patternify({
           tag: "text",
           selector: "node-icon-text-direct",
-          data: d => [d]
+          data: (d) => [d],
         })
         .text("test")
-        .attr("x", d => -d.width / 2 + 10 + d.data.nodeIcon.size)
-        .attr("y", d => d.height / 2 - 10)
-        .text(d => d.data.directSubordinates + " Direct ")
+        .attr("x", (d) => -d.width / 2 + 10 + d.data.nodeIcon.size)
+        .attr("y", (d) => d.height / 2 - 10)
+        .text((d) => d.data.directSubordinates + " Direct ")
         .attr("fill", attrs.nodeTextFill)
         .attr("font-weight", "bold");
 
@@ -730,14 +725,14 @@ function Chart() {
       const nodeImageGroups = nodeEnter.patternify({
         tag: "g",
         selector: "node-image-group",
-        data: d => [d]
+        data: (d) => [d],
       });
 
       // Node image rectangle
       nodeImageGroups.patternify({
         tag: "rect",
         selector: "node-image-rect",
-        data: d => [d]
+        data: (d) => [d],
       });
 
       // Node button circle group
@@ -745,7 +740,7 @@ function Chart() {
         .patternify({
           tag: "g",
           selector: "node-button-g",
-          data: d => [d]
+          data: (d) => [d],
         })
         .on("click", click);
 
@@ -753,7 +748,7 @@ function Chart() {
       nodeButtonGroups.patternify({
         tag: "circle",
         selector: "node-button-circle",
-        data: d => [d]
+        data: (d) => [d],
       });
 
       // Add button text
@@ -761,7 +756,7 @@ function Chart() {
         .patternify({
           tag: "text",
           selector: "node-button-text",
-          data: d => [d]
+          data: (d) => [d],
         })
         .attr("pointer-events", "none");
 
@@ -775,13 +770,13 @@ function Chart() {
         .transition()
         .attr("opacity", 0)
         .duration(attrs.duration)
-        .attr("transform", function(d) {
+        .attr("transform", function (d) {
           return "translate(" + d.x + "," + d.y + ")";
         })
         .attr("opacity", 1);
 
       // Move images to desired positions
-      nodeUpdate.selectAll(".node-image-group").attr("transform", d => {
+      nodeUpdate.selectAll(".node-image-group").attr("transform", (d) => {
         let x = -d.imageWidth / 2 - d.width / 2;
         let y = -d.imageHeight / 2 - d.height / 2;
         return `translate(${x},${y})`;
@@ -789,36 +784,36 @@ function Chart() {
 
       nodeUpdate
         .select(".node-image-rect")
-        .attr("fill", d => `url(#${d.id})`)
-        .attr("width", d => d.imageWidth)
-        .attr("height", d => d.imageHeight)
-        .attr("stroke", d => d.imageBorderColor)
-        .attr("stroke-width", d => d.imageBorderWidth)
-        .attr("rx", d => d.imageRx)
-        .attr("y", d => d.imageCenterTopDistance)
-        .attr("x", d => d.imageCenterLeftDistance)
-        .attr("filter", d => d.dropShadowId);
+        .attr("fill", (d) => `url(#${d.id})`)
+        .attr("width", (d) => d.imageWidth)
+        .attr("height", (d) => d.imageHeight)
+        .attr("stroke", (d) => d.imageBorderColor)
+        .attr("stroke-width", (d) => d.imageBorderWidth)
+        .attr("rx", (d) => d.imageRx)
+        .attr("y", (d) => d.imageCenterTopDistance)
+        .attr("x", (d) => d.imageCenterLeftDistance)
+        .attr("filter", (d) => d.dropShadowId);
 
       // Update  node attributes and style
       nodeUpdate
         .select(".node-rect")
-        .attr("width", d => d.data.width)
-        .attr("height", d => d.data.height)
-        .attr("x", d => -d.data.width / 2)
-        .attr("y", d => -d.data.height / 2)
-        .attr("rx", d => d.data.borderRadius || 0)
-        .attr("stroke-width", d => d.data.borderWidth || attrs.strokeWidth)
+        .attr("width", (d) => d.data.width)
+        .attr("height", (d) => d.data.height)
+        .attr("x", (d) => -d.data.width / 2)
+        .attr("y", (d) => -d.data.height / 2)
+        .attr("rx", (d) => d.data.borderRadius || 0)
+        .attr("stroke-width", (d) => d.data.borderWidth || attrs.strokeWidth)
         .attr("cursor", "pointer")
-        .attr("stroke", d => d.borderColor)
-        .style("fill", d => d.backgroundColor);
+        .attr("stroke", (d) => d.borderColor)
+        .style("fill", (d) => d.backgroundColor);
 
       // Move node button group to the desired position
       nodeUpdate
         .select(".node-button-g")
-        .attr("transform", d => {
+        .attr("transform", (d) => {
           return `translate(0,${d.data.height / 2})`;
         })
-        .attr("opacity", d => {
+        .attr("opacity", (d) => {
           if (d.children || d._children) {
             return 1;
           }
@@ -829,9 +824,9 @@ function Chart() {
       nodeUpdate
         .select(".node-button-circle")
         .attr("r", 16)
-        .attr("stroke-width", d => d.data.borderWidth || attrs.strokeWidth)
+        .attr("stroke-width", (d) => d.data.borderWidth || attrs.strokeWidth)
         .attr("fill", attrs.backgroundColor)
-        .attr("stroke", d => d.borderColor);
+        .attr("stroke", (d) => d.borderColor);
 
       // Restyle texts
       nodeUpdate
@@ -839,11 +834,11 @@ function Chart() {
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
         .attr("fill", attrs.defaultTextFill)
-        .attr("font-size", d => {
+        .attr("font-size", (d) => {
           if (d.children) return 40;
           return 26;
         })
-        .text(d => {
+        .text((d) => {
           if (d.children) return "-";
           return "+";
         });
@@ -855,10 +850,10 @@ function Chart() {
         .attr("opacity", 1)
         .transition()
         .duration(attrs.duration)
-        .attr("transform", function(d) {
+        .attr("transform", function (d) {
           return "translate(" + source.x + "," + source.y + ")";
         })
-        .on("end", function() {
+        .on("end", function () {
           d3.select(this).remove();
         })
         .attr("opacity", 0);
@@ -876,11 +871,11 @@ function Chart() {
         .selectAll(".node-image-rect")
         .attr("width", 10)
         .attr("height", 10)
-        .attr("x", d => d.width / 2)
-        .attr("y", d => d.height / 2);
+        .attr("x", (d) => d.width / 2)
+        .attr("y", (d) => d.height / 2);
 
       // Store the old positions for transition.
-      nodes.forEach(function(d) {
+      nodes.forEach(function (d) {
         d.x0 = d.x;
         d.y0 = d.y;
       });
@@ -888,7 +883,7 @@ function Chart() {
       // debugger;
     }
 
-    d3.select(window).on("resize." + attrs.id, function() {
+    d3.select(window).on("resize." + attrs.id, function () {
       var containerRect = container.node().getBoundingClientRect();
       //	if (containerRect.width > 0) attrs.svgWidth = containerRect.width;
       //	main();
@@ -896,7 +891,7 @@ function Chart() {
   };
 
   //----------- PROTOTYPE FUNCTIONS  ----------------------
-  d3.selection.prototype.patternify = function(params) {
+  d3.selection.prototype.patternify = function (params) {
     var container = this;
     var selector = params.selector;
     var elementTag = params.tag;
@@ -912,19 +907,16 @@ function Chart() {
       return i;
     });
     selection.exit().remove();
-    selection = selection
-      .enter()
-      .append(elementTag)
-      .merge(selection);
+    selection = selection.enter().append(elementTag).merge(selection);
     selection.attr("class", selector);
     return selection;
   };
 
   //Dynamic keys functions
-  Object.keys(attrs).forEach(key => {
+  Object.keys(attrs).forEach((key) => {
     // Attach variables to main function
     //@ts-ignore
-    main[key] = function(_) {
+    main[key] = function (_) {
       var string = `attrs['${key}'] = _`;
       if (!arguments.length) {
         return eval(` attrs['${key}'];`);
@@ -941,7 +933,7 @@ function Chart() {
 
   //Exposed update functions
   //@ts-ignore
-  main["data"] = function(value) {
+  main["data"] = function (value) {
     if (!arguments.length) return attrs.data;
     attrs.data = value;
     if (typeof updateData === "function") {
@@ -952,7 +944,7 @@ function Chart() {
 
   // Run  visual
   //@ts-ignore
-  main["render"] = function() {
+  main["render"] = function () {
     main();
     return main;
   };
@@ -976,9 +968,38 @@ function findInTree(rootElement, searchText) {
 
     var childUsers = user.children ? user.children : user._children;
     if (childUsers) {
-      childUsers.forEach(function(childUser) {
+      childUsers.forEach(function (childUser) {
         recursivelyFindIn(childUser, searchText);
       });
     }
   }
+}
+
+function generateUniqueID() {
+  /*
+  To generate a unique ID
+  https://talk.observablehq.com/t/what-does-dom-uid-xxx-do/4015
+  https://github.com/observablehq/stdlib/blob/master/src/dom/uid.js
+
+  If you call fn.uid() once you get an object containing as property id the string "O-1". Call it again to get “O-2”.
+  If you pass in a string it will be part of the unique identifier. e.g. call fn.uid('foo') the third time and you get the string "O-foo-3".
+  */
+  let count = 0;
+
+  function uid(name) {
+    function Id(id) {
+      this.id = id;
+      this.href = new URL(`#${id}`, location) + "";
+    }
+
+    Id.prototype.toString = function () {
+      return "url(" + this.href + ")";
+    };
+
+    return new Id("O-" + (name == null ? "" : name + "-") + ++count);
+  }
+
+  return {
+    uid: uid,
+  };
 }
