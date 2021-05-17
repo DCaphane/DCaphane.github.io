@@ -299,8 +299,8 @@ function addPracticeToMap(zoomToExtent = false) {
           // console.log(userSelections.selectedPractice + " - " + practiceName);
           document.getElementById("selPractice").value =
             userSelections.selectedPractice; // change the selection box dropdown to reflect clicked practice
-          // option to zoom to marker
-          map.setView(e.latlng, 11);
+          // option to zoom to marker - now handled in fn refreshChartsPostPracticeChange
+          // map.setView(e.latlng, 11);
           refreshChartsPostPracticeChange(userSelections.selectedPractice);
         });
 
@@ -899,7 +899,7 @@ function filterFunctionLsoa(zoomToExtent = false) {
 
 function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
-  highlightFeature(practice, mapMain); // console.log(event.text.label, event.text.value)
+  highlightFeature(practice, mapMain, true); // console.log(event.text.label, event.text.value)
   trendChart.chartTrendDraw();
   demographicChart.updateChtDemog(
     practice,
