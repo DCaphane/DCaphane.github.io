@@ -17,7 +17,7 @@ const defaultOptions = {
   isAlphaNumericIcon: true, // enables text, set below
   text: "test",
   borderColor: null,
-  textColor: null
+  textColor: null,
 };
 
 // const markerDefault = Object.create(defaultOptions);
@@ -30,7 +30,7 @@ const markerDefault = {
   iconShape: "marker",
   icon: "circle",
   iconAnchor: [14, 28],
-  isAlphaNumericIcon: false
+  isAlphaNumericIcon: false,
 };
 
 const circleDefault = {
@@ -42,79 +42,80 @@ const doughnutDefault = {
   iconShape: "doughnut",
   icon: "circle",
   isAlphaNumericIcon: false,
-  borderWidth: 5
+  borderWidth: 5,
 };
 
 const circleDotDefault = {
   iconShape: "circle-dot",
-  icon: "square"
+  icon: "square",
 };
 
 const rectangleDefault = {
   iconShape: "rectangle",
-  icon: "square"
+  icon: "square",
 };
 
 const rectangleDotDefault = {
   iconShape: "rectangle-dot",
-  icon: "square"
+  icon: "square",
 };
 
 const highlightDefault = {
-  iconShape: "doughnut",
-  icon: "circle",
-  isAlphaNumericIcon: false,
-  borderWidth: 5,
+  // iconShape: "doughnut",
+  // icon: "circle",
+  // isAlphaNumericIcon: false,
+  // borderWidth: 5,
   backgroundColor: "hsla(360, 100%, 100%, 0)", // transparent
   iconSize: [46, 46],
-  iconAnchor: [23, 30],
-  customClasses: "faa-flash animated faa-fast" // flash is only one that works, can add faa-fast or faa-slow to control speed
+  iconAnchor: [23, 28], // [23, 23] works for circle but not marker
+  className: "highlightMarker",
+  html: '<div class="map-marker-highlight"></div>',
 };
 
 // Colours
 const defaultRed = {
   borderColor: "rgba(228,26,28,1)",
-  textColor: "rgba(228,26,28,0.5)"
+  textColor: "rgba(228,26,28,0.5)",
 };
 
 const defaultBlue = {
   borderColor: "rgba(55,126,184,1)",
-  textColor: "rgba(55,126,184,0.7)"
+  textColor: "rgba(55,126,184,0.7)",
 };
 
 const defaultGreen = {
   borderColor: "rgba(77,175,74,1)",
-  textColor: "rgba(77,175,74,0.5)"
+  textColor: "rgba(77,175,74,0.5)",
 };
 
 const defaultPurple = {
   borderColor: "rgba(152,78,163,1)",
-  textColor: "rgba(152,78,163,0.5)"
+  textColor: "rgba(152,78,163,0.5)",
 };
 
 const defaultOrange = {
   borderColor: "rgba(255,127,0,1)",
-  textColor: "rgba(255,127,0,0.5)"
+  textColor: "rgba(255,127,0,0.5)",
 };
 
 const defaultYellow = {
   borderColor: "rgba(255,255,51,1)",
-  textColor: "rgba(255,255,51,0.5)"
+  textColor: "rgba(255,255,51,0.5)",
 };
 
 const defaultBrown = {
   borderColor: "rgba(166,86,40,1)",
-  textColor: "rgba(166,86,40,0.8)"
+  textColor: "rgba(166,86,40,0.8)",
 };
 
 const defaultPink = {
   borderColor: "rgba(247,129,191,1)",
-  textColor: "rgba(247,129,191,0.8)"
+  textColor: "rgba(247,129,191,0.8)",
 };
 
 const defaultWhite = {
   borderColor: "hsla(360, 100%, 100%, 1)",
-  textColor: "hsla(360, 100%, 100%, 0.8)"
+  textColor: "hsla(360, 100%, 100%, 0.8)",
 };
 
 // default map marker style - map marker
@@ -190,7 +191,7 @@ const arrMarkerIcons = [
   markerOrange,
   markerYellow,
   markerBrown,
-  markerPink
+  markerPink,
 ];
 
 // map marker style - circle
@@ -267,7 +268,7 @@ const arrCircleIcons = [
   circleOrange,
   circleYellow,
   circleBrown,
-  circlePink
+  circlePink,
 ];
 
 // map marker style - doughnut
@@ -343,7 +344,7 @@ const arrDoughnutIcons = [
   doughnutOrange,
   doughnutYellow,
   doughnutBrown,
-  doughnutPink
+  doughnutPink,
 ];
 
 // map marker style - circleDot
@@ -419,7 +420,7 @@ const arrCircleDotIcons = [
   circleDotOrange,
   circleDotYellow,
   circleDotBrown,
-  circleDotPink
+  circleDotPink,
 ];
 
 // Rectangle Marker
@@ -495,7 +496,7 @@ const arrRectangleIcons = [
   rectangleOrange,
   rectangleYellow,
   rectangleBrown,
-  rectanglePink
+  rectanglePink,
 ];
 
 // map marker style - rectangleDot
@@ -571,7 +572,7 @@ const arrRectangleDotIcons = [
   rectangleDotOrange,
   rectangleDotYellow,
   rectangleDotBrown,
-  rectangleDotPink
+  rectangleDotPink,
 ];
 
 // map marker style - highlight
@@ -647,5 +648,5 @@ const arrHighlightIcons = [
   highlightOrange,
   highlightYellow,
   highlightBrown,
-  highlightPink
+  highlightPink,
 ];

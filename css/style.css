@@ -231,3 +231,28 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+/* CSS animation to add a circle highlight around selected practice */
+.map-marker-highlight {
+  /* z-index: 1; */
+  border: 5px solid yellow;
+  border-radius: 50px;
+  height: 46px;
+  width: 46px;
+  animation: pulsate 1s ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes pulsate {
+  0% {
+    transform: scale(0.3, 0.3);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2, 1.2);
+    opacity: 0;
+  }
+}
