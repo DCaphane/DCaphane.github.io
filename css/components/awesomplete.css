@@ -46,6 +46,7 @@
   order: 4;
   align-self: center;
   position: relative;
+  border-radius: 5px;
   top: -5px;
   left: -15px;
   border-left: none;

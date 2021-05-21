@@ -32,6 +32,7 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
 
   geoDataPCN.then(function (v) {
     // geoDataGPMain
+
     highlightPractice = L.geoJSON(v, {
       pointToLayer: function (feature, latlng) {
         if (feature.properties.practice_code === selPractice) {
@@ -46,7 +47,9 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     map.map.addLayer(highlightPractice);
 
     if (zoomToExtent) {
-      map.map.fitBounds(highlightPractice.getBounds());
+      // map.map.fitBounds(highlightPractice.getBounds());
+      const practiceLocation = highlightPractice.getBounds().getCenter();
+      map.map.setView(practiceLocation, 10);
     }
     if (selPractice === "All Practices" || selPractice === undefined) {
       defaultHomeVoY.call(mapMain);

@@ -23,66 +23,65 @@ const defaultText = `<br>
 /* add an overview panel */
 const panelOverview = {
   id: "pcnOverview", // UID, used to access the panel
-  tab: '<span class="fa fa-bars"></sp>', // content can be passed as HTML string,
+  tab: '<span class="fas fa-bars"></sp>', // content can be passed as HTML string,
   pane: defaultText,
   title: "Overview", // an optional pane header
   position: "top", // optional vertical alignment, defaults to 'top'
-  disabled: false
+  disabled: false,
 };
 sidebarPCN.addPanel(panelOverview);
 sidebarSites.addPanel(panelOverview);
 
 const panelSpecific = {
   id: "pcnSpecific", // UID, used to access the panel
-  tab: '<span class="fa fa-info-circle"></span>', // content can be passed as HTML string,
+  tab: '<span class="fas fa-info-circle"></span>', // content can be passed as HTML string,
   pane: "<br><p>Select a PCN for further details</p>",
   title: "PCN Specific", // an optional pane header
   position: "top", // optional vertical alignment, defaults to 'top'
-  disabled: false
+  disabled: false,
 };
 sidebarPCN.addPanel(panelSpecific);
 
 /* add a dummy messages panel */
 const panelMail = {
   id: "mail",
-  tab: '<span class="fa fa-envelope"></span>',
+  tab: '<span class="fas fa-envelope"></span>',
   pane: "<br><h1>Send a message..., add a button here?<p/>",
   title: "Messages",
   position: "top",
-  disabled: false
+  disabled: false,
 };
 sidebarPCN.addPanel(panelMail);
 
 /* add a dummy messages panel */
 const panelDummy = {
   id: "dummy",
-  tab: '<span class="fa fa-user"></span>',
-  pane:
-    "<br><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>",
+  tab: '<span class="fas fa-user"></span>',
+  pane: "<br><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>",
   title: "Testing",
   position: "top",
-  disabled: true
+  disabled: true,
 };
 sidebarPCN.addPanel(panelDummy);
 
 /* add a Settings messages panel */
 const panelSettings = {
   id: "settings",
-  tab: '<span class="fa fa-cog"></span>',
+  tab: '<span class="fas fa-cog"></span>',
   pane: `<br><p><button onclick="sidebarPCN.enablePanel(\'dummy\')">enable dummy panel</button>
     <button onclick="sidebarPCN.disablePanel(\'dummy\')">disable dummy panel</button></p>
     <br><h1><button onclick="resetSidebarText()">Reset Text</button>`,
   title: "Settings",
   position: "bottom",
-  disabled: false
+  disabled: false,
 };
 sidebarPCN.addPanel(panelSettings);
 
-const resetSidebarText = function() {
+const resetSidebarText = function () {
   const elem = (document.getElementById("pcnSpecific").innerHTML = defaultPCN);
 };
 
-const updateSidebarText = function(sidebarID, pcn) {
+const updateSidebarText = function (sidebarID, pcn) {
   const elem = document.getElementById(sidebarID); // eg. 'pcnOverview'
   switch (pcn) {
     case "Selby Town PCN":
