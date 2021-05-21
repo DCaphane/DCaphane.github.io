@@ -181,14 +181,19 @@ Line and marker transitions
     .text("Population");
 */
 
-  const trendMarkers = svgTrend.append("g");
-  trendMarkers.attr("clip-path", clipIdTrend);
+/*
+The order trendPath and trendMarkers determines which appears on top
+To have the markers on top, draw the path (line) first and then 'paint' the circles on top
+*/
 
   const trendPath = svgTrend
     .append("path")
     // .datum(dataArr)
     .attr("clip-path", clipIdTrend)
     .attr("class", "trend-line");
+
+  const trendMarkers = svgTrend.append("g");
+  trendMarkers.attr("clip-path", clipIdTrend);
 
   // Toggle the y-axis on the trend chart to show 0 or nice
   const trendYAxisZero = document.getElementById("trend-yAxis");
@@ -430,6 +435,24 @@ Line and marker transitions
 
     // svgTrend.select("#axis--y").transition(t).call(yAxis).selectAll("text");
 
+    svgTrend
+      .selectAll(".trend-line")
+      .datum(dataArr)
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.call((enter) => enter.append("path")),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("class", "trend-line")
+      // .transition(t)
+      .attr("d", plotLine(x, y.copy().range([height - margin.bottom, 4])));
+
     // https://observablehq.com/@d3/selection-join
     // Circle Markers
     trendMarkers
@@ -528,38 +551,20 @@ Line and marker transitions
         return d.period === userSelections.selectedDate;
       })
       // .transition(t)
-      .attr("r", 6)
+      .attr("r", 5)
       .attr("cx", function (d) {
         return x(d.period);
       })
       .attr("cy", function (d) {
         return y(d.population);
-      })
-      .style("fill", "rgba(70, 180, 130, 0.5");
+      });
+    // .style("fill", "rgba(70, 180, 130, 0.5");
 
     // svgTrend
     // .select("#axis--x")
     // .transition(t)
     // .call(xAxis)
     // .selectAll("text");
-
-    svgTrend
-      .selectAll(".trend-line")
-      .datum(dataArr)
-      .join(
-        (
-          enter // ENTER new elements present in new data.
-        ) => enter.call((enter) => enter.append("path")),
-        (
-          update // UPDATE old elements present in new data.
-        ) => update.call((update) => update),
-        (
-          exit // EXIT old elements not present in new data.
-        ) => exit.call((exit) => exit.remove())
-      )
-      .attr("class", "trend-line")
-      // .transition(t)
-      .attr("d", plotLine(x, y.copy().range([height - margin.bottom, 4])));
 
     // svgMini
     // .select("#axis--x--mini")

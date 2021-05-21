@@ -232,6 +232,14 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+/* Animations */
+/*     <!-- https://l-lin.github.io/font-awesome-animation/ -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/fontawesome_animation.css"
+    />
+     */
 /* CSS animation to add a circle highlight around selected practice */
 .map-marker-highlight {
   /* z-index: 1; */
@@ -254,5 +262,44 @@ input:checked + .slider:before {
   100% {
     transform: scale(1.2, 1.2);
     opacity: 0;
+  }
+}
+
+.faa-parent.animated-hover:hover > .faa-vertical,
+.faa-vertical.animated,
+.faa-vertical.animated-hover:hover {
+  -webkit-animation: vertical 2s ease infinite;
+  animation: vertical 2s ease infinite;
+}
+
+@keyframes vertical {
+  0% {
+    -webkit-transform: translate(0, -3px);
+    transform: translate(0, -3px);
+  }
+  4% {
+    -webkit-transform: translate(0, 3px);
+    transform: translate(0, 3px);
+  }
+  8% {
+    -webkit-transform: translate(0, -3px);
+    transform: translate(0, -3px);
+  }
+  12% {
+    -webkit-transform: translate(0, 3px);
+    transform: translate(0, 3px);
+  }
+  16% {
+    -webkit-transform: translate(0, -3px);
+    transform: translate(0, -3px);
+  }
+  20% {
+    -webkit-transform: translate(0, 3px);
+    transform: translate(0, 3px);
+  }
+  100%,
+  22% {
+    -webkit-transform: translate(0, 0);
+    transform: translate(0, 0);
   }
 }

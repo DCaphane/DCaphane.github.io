@@ -84,7 +84,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   // Define the div for the tooltip
   const tooltipD3Lsoa = newTooltip.tooltip(div);
-  tooltipD3Lsoa.style("height", "55px").style("width", "150px");
+  tooltipD3Lsoa.style("height", "65px").style("width", "160px");
 
   // add SVG to Leaflet map via Leaflet
   const svgLayer = L.svg();
