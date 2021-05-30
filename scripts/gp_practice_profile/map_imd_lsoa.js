@@ -33,78 +33,73 @@ mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
 function recolourIMDLayer(defaultIMD = "imdRank") {
-  Promise.all([geoDataLsoaBoundaries, dataIMD]).then(() => {
-    dataIMD.then(function (v) {
-      // const maxValue = d3.max(v, function (d) {
-      //   return d[defaultIMD];
-      // });
+  // const maxValue = d3.max(v, function (d) {
+  //   return d[defaultIMD];
+  // });
 
-      /*
+  /*
       rawValues are the values in the appropriate field
       These are ignored for the IMD indicators as these are hardcoded based on the number of LSOAs: 1 to 32,844
       However, for the population figures, these are used
       */
-      const rawValues = v.map(function (d) {
-        return d[defaultIMD];
-      });
-      // console.log(rawValues)
+  const rawValues = dataIMD.map(function (d) {
+    return d[defaultIMD];
+  });
+  // console.log(rawValues)
 
-      const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
+  const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
 
-      imdLegend.legend({
-        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
-        width: 600,
-        marginLeft: 50,
-      });
+  imdLegend.legend({
+    color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+    title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+    leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+    rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+    tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+    width: 600,
+    marginLeft: 50,
+  });
 
-      for (let key of layersMapIMD.keys()) {
-        layersMapIMD.get(key).eachLayer(function (layer) {
-          const lsoaCode = layer.feature.properties.lsoa;
+  for (let key of layersMapIMD.keys()) {
+    layersMapIMD.get(key).eachLayer(function (layer) {
+      const lsoaCode = layer.feature.properties.lsoa;
 
-          if (mapSelectedLSOA.has(lsoaCode)) {
-            // the filter lsoaFunction populates a map object of lsoas (with relevant population)
-            // dataIMD.then(function (v) {
-            let obj = v.find((x) => x.lsoa === lsoaCode);
-            if (obj !== undefined) {
-              // console.log(obj[defaultIMD], maxValue);
-              const value = obj[defaultIMD];
+      if (mapSelectedLSOA.has(lsoaCode)) {
+        // the filter lsoaFunction populates a map object of lsoas (with relevant population)
+        let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
+        if (obj !== undefined) {
+          // console.log(obj[defaultIMD], maxValue);
+          const value = obj[defaultIMD];
 
-              layer.setStyle({
-                // https://github.com/d3/d3-scale-chromatic
-                fillColor: colour(value), //colourScheme(value / maxValue),
-                fillOpacity: 0.6,
-                weight: 1, // border
-                color: "white", // border
-                opacity: 1,
-                // dashArray: "3",
-              });
+          layer.setStyle({
+            // https://github.com/d3/d3-scale-chromatic
+            fillColor: colour(value), //colourScheme(value / maxValue),
+            fillOpacity: 0.6,
+            weight: 1, // border
+            color: "white", // border
+            opacity: 1,
+            // dashArray: "3",
+          });
 
-              layer.bindPopup(
-                `<h3>${layer.feature.properties.lsoa}</h3>
+          layer.bindPopup(
+            `<h3>${layer.feature.properties.lsoa}</h3>
               <p>IMD: ${formatNumber(value)}</p>
             `
-              );
-            }
-            // });
-          } else {
-            // if population is less than set amount, make it transparent
-            layer.setStyle({
-              // no (transparent) background
-              fillColor: "#ff0000", // background
-              fillOpacity: 0, // transparent
-              weight: 0, // border
-              color: "red", // border
-              opacity: 0,
-            });
-          }
+          );
+        }
+        // });
+      } else {
+        // if population is less than set amount, make it transparent
+        layer.setStyle({
+          // no (transparent) background
+          fillColor: "#ff0000", // background
+          fillOpacity: 0, // transparent
+          weight: 0, // border
+          color: "red", // border
+          opacity: 0,
         });
       }
     });
-  });
+  }
 }
 
 // Make global to enable subsequent change to overlay
@@ -197,13 +192,7 @@ const mapControlIMD = L.control.layers.tree(baseTreeIMD, overlaysTreeIMD, {
     "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
 });
 
-mapControlIMD
-  .addTo(mapIMD.map)
-  // .setOverlayTree(overlaysTreeIMD)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
+mapControlIMD.addTo(mapIMD.map);
 
 const mapIMDDomain = new Map();
 

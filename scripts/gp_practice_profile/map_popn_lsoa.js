@@ -13,56 +13,6 @@ mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = 374;
 
 const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
-lsoaBoundary.call(mapPopn, true);
-gpSites();
-
-// (function addSitesToMap() {
-//   const maps = [mapSites]; // maps to add sites to: mapPopn
-
-//   for (const map of maps) {
-//     gpSites.call(map);
-//   }
-
-//   // Add to overlay control
-//   // const ol = overlayPCNs(layersMapGPSites);
-//   // overlaysTreeSites.children[2] = ol;
-//   // overlaysTreePopn.children[4] = ol;
-
-//   // mapControlSites
-//   // .setOverlayTree(overlaysTreeSites)
-//   // .collapseTree() // collapse the baselayers tree
-//   // // .expandSelected() // expand selected option in the baselayer
-//   // .collapseTree(true);
-// })();
-let bubbleTest;
-Promise.all([
-  dataPopulationGP,
-  dataPopulationGPLsoa,
-  geoDataLsoaBoundaries,
-]).then((v) => {
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
-  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  ccgBoundary(true);
-  bubbleTest = imdDomainD3();
-});
-
-// addPracticeToMap(mapPopn, layerControl2);
-// geoDataGPMain.then(function(v){
-//   addPracticeToMap(v, mapPopn, layerControl2)
-// })
-
-/*
-GP by LSOA population data published quarterly
-Use the below to match the selected dates to the quarterly dates
-Function to determine nearest value in array
-*/
-// const nearestValue = (arr, val) =>
-//   arr.reduce(
-//     (p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p),
-//     Infinity
-//   ) + val;
-
 function recolourLSOA() {
   const maxValue =
     userSelections.selectedPractice !== undefined &&
@@ -96,54 +46,71 @@ function recolourLSOA() {
     marginLeft: 50,
   });
 
-  geoDataLsoaBoundaries.then(function () {
-    layersMapLSOA.get("voyCCGPopn").eachLayer(function (layer) {
-      const lsoaCode = layer.feature.properties.lsoa;
+  layersMapLSOA.get("voyCCGPopn").eachLayer(function (layer) {
+    const lsoaCode = layer.feature.properties.lsoa;
 
-      let value =
-        userSelections.selectedPractice !== undefined &&
-        userSelections.selectedPractice !== "All Practices"
-          ? data_popnGPLsoa
-              .get(userSelections.nearestDate())
-              .get(userSelections.selectedPractice)
-              .get(lsoaCode)
-          : data_popnGPLsoa
-              .get(userSelections.nearestDate())
-              .get("All")
-              .get(lsoaCode);
+    let value =
+      userSelections.selectedPractice !== undefined &&
+      userSelections.selectedPractice !== "All Practices"
+        ? data_popnGPLsoa
+            .get(userSelections.nearestDate())
+            .get(userSelections.selectedPractice)
+            .get(lsoaCode)
+        : data_popnGPLsoa
+            .get(userSelections.nearestDate())
+            .get("All")
+            .get(lsoaCode);
 
-      if (value === undefined) {
-        value = 0;
-      }
+    if (value === undefined) {
+      value = 0;
+    }
 
-      if (value > minPopulationLSOA) {
-        layer.setStyle({
-          // https://github.com/d3/d3-scale-chromatic
-          fillColor: d3.interpolateYlGnBu(value / maxValue), // colour(value),
-          fillOpacity: 0.9,
-          weight: 1, // border
-          color: "white", // border
-          opacity: 1,
-          // dashArray: "3",
-        });
-      } else {
-        layer.setStyle({
-          // no (transparent) background
-          fillColor: "#ff0000", // background
-          fillOpacity: 0, // transparent
-          weight: 0, // border
-          color: "red", // border
-          opacity: 0,
-        });
-      }
+    if (value > minPopulationLSOA) {
+      layer.setStyle({
+        // https://github.com/d3/d3-scale-chromatic
+        fillColor: d3.interpolateYlGnBu(value / maxValue), // colour(value),
+        fillOpacity: 0.9,
+        weight: 1, // border
+        color: "white", // border
+        opacity: 1,
+        // dashArray: "3",
+      });
+    } else {
+      layer.setStyle({
+        // no (transparent) background
+        fillColor: "#ff0000", // background
+        fillOpacity: 0, // transparent
+        weight: 0, // border
+        color: "red", // border
+        opacity: 0,
+      });
+    }
 
-      layer.bindPopup(
-        `<h3>${layer.feature.properties.lsoa}</h3>
+    layer.bindPopup(
+      `<h3>${layer.feature.properties.lsoa}</h3>
           <p>${userSelections.selectedPractice}</p>
           <p>${formatPeriod(userSelections.nearestDate())}</p>
       Pop'n: ${formatNumber(value)}
       `
-      );
-    });
+    );
   });
 }
+
+// Function to initialise geo charts - run after everything has been declared...
+// consider if promise (to wait for importGeoData needs to be run here...)
+
+function refreshGeoChart() {
+  lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
+  recolourLSOA();
+  recolourIMDLayer(imdDomainShort);
+  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
+  ccgBoundary(true);
+}
+
+Promise.allSettled([importPopnData, importGeoData]).then((values) => {
+  initGeoCharts();
+  initD3Charts();
+  bubbleTest = imdDomainD3();
+  // Dependent on Population data...
+  refreshGeoChart();
+});

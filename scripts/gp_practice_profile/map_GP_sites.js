@@ -113,10 +113,4 @@ const mapControlSites = L.control.layers.tree(
   }
 );
 
-mapControlSites
-  .addTo(mapSites.map)
-  // .setOverlayTree(overlaysTreeSites)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
+mapControlSites.addTo(mapSites.map);

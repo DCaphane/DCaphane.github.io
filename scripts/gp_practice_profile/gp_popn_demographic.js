@@ -6,13 +6,6 @@ Based on this example:
     Transitions: https://gist.github.com/martinjc/7fa5deb1782da2fc6da15c3fad02c88b
     */
 
-
-dataPopulationGP.then(function (data) {
-  demographicChart = initChartDemog(data, "cht_PopDemo");
-  demographicChart.updateChtDemog();
-})
-
-
 function initChartDemog(dataInit, id) {
   const div = document.getElementById(id);
   // Total by Period and Age Band - Trend Chart Filtered
