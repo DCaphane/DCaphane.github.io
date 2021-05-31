@@ -107,9 +107,13 @@ function refreshGeoChart() {
   ccgBoundary(true);
 }
 
-Promise.allSettled([importPopnData, importGeoData]).then((values) => {
-  initGeoCharts();
+importPopnData.then(() => {
   initD3Charts();
+});
+
+Promise.allSettled([importPopnData, importGeoData]).then((values) => {
+  addNationalTrustSites();
+  initGeoCharts();
   bubbleTest = imdDomainD3();
   // Dependent on Population data...
   refreshGeoChart();

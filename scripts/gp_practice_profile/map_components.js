@@ -84,9 +84,9 @@ let // geo coded data
   geoDataPCNSites,
   geoDataCYCWards,
   geoDataCCGBoundary,
-  geoDataLsoaBoundaries,
-  // Organisation Data
-  hospitalDetails;
+  geoDataLsoaBoundaries;
+// Organisation Data
+// hospitalDetails; -- handled in map object
 
 // Promises to import the geo data
 const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
@@ -128,7 +128,7 @@ const importGeoData = (async function displayContent() {
       geoDataCYCWards = values[2].value;
       geoDataCCGBoundary = values[3].value;
       geoDataLsoaBoundaries = values[4].value;
-      hospitalDetails = values[5].value;
+      // hospitalDetails = values[5].value;
       // gpDetails = values[6].value;
     })
     .then(() => {
@@ -1464,50 +1464,6 @@ function overlayLSOA(mapObj) {
 
 const mapHospitalLayers = new Map();
 
-// const hospitalDetails = (async function () {
-//   // https://www.nhs.uk/about-us/nhs-website-datasets/
-//   // https://media.nhswebsite.nhs.uk/data/foi/Hospital.pdf
-//   return await d3.dsv(
-//     "�", // \u00AC
-//     "Data/geo/Hospital.csv",
-//     function (d) {
-//       if (isNaN(+d.Latitude)) {
-//         console.log(d.OrganisationCode, d.Latitude);
-//       } else {
-//         const marker = new L.marker([+d.Latitude, +d.Longitude], {
-//           icon: L.BeautifyIcon.icon({
-//             iconShape: "circle",
-//             icon: "h-square",
-//             borderColor: "transparent",
-//             backgroundColor: "transparent",
-//             textColor: hospitalSiteColour(d.Sector), // Text color of marker icon
-//           }),
-//           zIndexOffset: 1000,
-//           draggable: false,
-//         }).bindPopup(
-//           `<h3>${d.OrganisationCode}</h3>
-//             <p>${d.OrganisationCode}: ${d.OrganisationName}
-//             <br>${d.Sector}
-//             <br><p>${d.ParentODSCode}: ${d.ParentName}</p>`
-//         );
-
-//         const category = d.Sector; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-//         if (!mapHospitalLayers.has(category)) {
-//           // Initialize the category array if not already set.
-//           mapHospitalLayers.set(category, L.layerGroup());
-//         }
-//         mapHospitalLayers.get(category).addLayer(marker);
-//       }
-
-//       //   L.layerGroup(Array.from(mapHospitalLayers.values())).addTo(map);
-
-//       //   // Add to overlay control
-//       //   const ol = overlayPCNs(mapHospitalLayers);
-//       //   overlaysTreeMain.children[0] = ol;
-//     }
-//   );
-// })();
-
 function processDataHospitalSite(d) {
   if (isNaN(+d.Latitude)) {
     console.log(d.OrganisationCode, d.Latitude);
@@ -1537,6 +1493,7 @@ function processDataHospitalSite(d) {
     mapHospitalLayers.get(category).addLayer(marker);
   }
 
+  // Reference if wanted to auto add to map
   //   L.layerGroup(Array.from(mapHospitalLayers.values())).addTo(map);
 
   //   // Add to overlay control
