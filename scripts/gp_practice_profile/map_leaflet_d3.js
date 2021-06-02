@@ -33,10 +33,10 @@ homeButton.call(mapD3Bubble);
 
 // Panes to control zIndex of geoJson layers
 mapD3Bubble.map.createPane("lsoaBoundaryPane");
-mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
+mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = zIndexWard;
 
 mapD3Bubble.map.createPane("ccgBoundaryPane");
-mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
@@ -118,34 +118,32 @@ function imdDomainD3(id = "selD3Leaf") {
 
   function updateBubbleColour(defaultIMD = "Population") {
     if (defaultIMD !== "Population") {
-      dataIMD.then(function (v) {
-        const rawValues = v.map(function (d) {
-          return d[defaultIMD];
-        });
-        // console.log(rawValues)
+      const rawValues = dataIMD.map(function (d) {
+        return d[defaultIMD];
+      });
+      // console.log(rawValues)
 
-        const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
+      const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
 
-        lsoaCentroidLegend.legend({
-          color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-          title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-          leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-          rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-          tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
-          width: 600,
-          marginLeft: 50,
-        });
+      lsoaCentroidLegend.legend({
+        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+        width: 600,
+        marginLeft: 50,
+      });
 
-        d3BubbleEnter.style("fill", function (d) {
-          let obj = v.find((x) => x.lsoa === d.lsoa);
-          if (obj !== undefined) {
-            // console.log(obj[defaultIMD], maxValue);
-            const value = obj[defaultIMD];
-            return colour(value);
-          } else {
-            return null;
-          }
-        });
+      d3BubbleEnter.style("fill", function (d) {
+        let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
+        if (obj !== undefined) {
+          // console.log(obj[defaultIMD], maxValue);
+          const value = obj[defaultIMD];
+          return colour(value);
+        } else {
+          return null;
+        }
       });
     } else {
       // Style and legend for population
@@ -180,25 +178,24 @@ function imdDomainD3(id = "selD3Leaf") {
 
   const lsoaCentroidDetails = [];
 
-  geoDataLsoaBoundaries.then(function (v) {
-    // v is the full dataset
-    // console.log(v);
+  // v is the full dataset
+  // console.log(v);
 
-    /* From the LSOA polygon, populate an array of objects showing:
+  /* From the LSOA polygon, populate an array of objects showing:
      lsoa name, polygon center, default to 0 population as will subsequently be derived*/
-    L.geoJson(v, {
-      onEachFeature: function (feature, layer) {
-        let obj = {};
-        obj.lsoa = layer.feature.properties.lsoa; // lsoa code
-        obj.lsoaCentre = layer.getBounds().getCenter(); // centre of the layer polygon
-        obj.lsoaPopulation = 0;
-        lsoaCentroidDetails.push(obj);
-      },
-    });
-
-    // Initialise D3 Circle Map
-    updateD3BubbleLsoa();
+  L.geoJson(geoDataLsoaBoundaries, {
+    onEachFeature: function (feature, layer) {
+      let obj = {};
+      obj.lsoa = layer.feature.properties.lsoa; // lsoa code
+      obj.lsoaCentre = layer.getBounds().getCenter(); // centre of the layer polygon
+      obj.lsoaPopulation = 0;
+      lsoaCentroidDetails.push(obj);
+    },
   });
+
+  // Initialise D3 Circle Map
+  updateD3BubbleLsoa();
+
   userSelections.selectedDate;
 
   function updateD3BubbleLsoa() {
@@ -253,60 +250,56 @@ function imdDomainD3(id = "selD3Leaf") {
             .append("circle")
             .on("click", function (event, d) {
               // console.log(d.lsoa);
-              dataIMD.then(function (v) {
-                const str = `LSOA: <strong>${
-                  d.lsoa
-                }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-                  d.lsoaPopulation
-                )}</span>`;
+              const str = `LSOA: <strong>${
+                d.lsoa
+              }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+                d.lsoaPopulation
+              )}</span>`;
 
-                let subString;
-                if (imdDomainDescD3 !== "Population") {
-                  let obj = v.find((x) => x.lsoa === d.lsoa);
+              let subString;
+              if (imdDomainDescD3 !== "Population") {
+                let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
 
-                  if (obj !== undefined) {
-                    const value = obj[imdDomainShortD3];
+                if (obj !== undefined) {
+                  const value = obj[imdDomainShortD3];
 
-                    subString = `<br><strong>${imdDomainDescD3}:
+                  subString = `<br><strong>${imdDomainDescD3}:
                   </strong><span style="color:red">${formatNumber(
                     value
                   )}</span>`;
-                  } else {
-                    return "";
-                  }
+                } else {
+                  return "";
                 }
+              }
 
-                newTooltip.counter++;
-                newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
-              });
+              newTooltip.counter++;
+              newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
             })
             .on("mouseover", function (event, d) {
-              dataIMD.then(function (v) {
-                const str = `LSOA: <strong>${
-                  d.lsoa
-                }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-                  d.lsoaPopulation
-                )}</span>`;
+              const str = `LSOA: <strong>${
+                d.lsoa
+              }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+                d.lsoaPopulation
+              )}</span>`;
 
-                let subString;
-                if (imdDomainDescD3 !== "Population") {
-                  let obj = v.find((x) => x.lsoa === d.lsoa);
+              let subString;
+              if (imdDomainDescD3 !== "Population") {
+                let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
 
-                  if (obj !== undefined) {
-                    const value = obj[imdDomainShortD3];
+                if (obj !== undefined) {
+                  const value = obj[imdDomainShortD3];
 
-                    subString = `<br><strong>${imdDomainDescD3}:
+                  subString = `<br><strong>${imdDomainDescD3}:
                   </strong><span style="color:red">${formatNumber(
                     value
                   )}</span>`;
-                  } else {
-                    return "";
-                  }
+                } else {
+                  return "";
                 }
+              }
 
-                newTooltip.counter++;
-                newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
-              });
+              newTooltip.counter++;
+              newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
             })
             .on("mouseout", function (event, d) {
               newTooltip.mouseout(tooltipD3Lsoa);
@@ -397,7 +390,8 @@ function imdDomainD3(id = "selD3Leaf") {
       .attr("y", function (d) {
         return -2 * radius(d);
       })
-      .attr("dy", "1.3em")
+      .attr("dx", "3em")
+      .attr("dy", "1em")
       .text(d3.format(".1s"));
   }
 
@@ -516,10 +510,4 @@ const mapControlBubble = L.control.layers.tree(
   }
 );
 
-mapControlBubble
-  .addTo(mapD3Bubble.map)
-  // .setOverlayTree(overlaysTreeBubble)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
+mapControlBubble.addTo(mapD3Bubble.map);

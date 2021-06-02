@@ -14,10 +14,10 @@ homeButton.call(mapSites);
 
 // Panes to control zIndex of geoJson layers
 mapSites.map.createPane("wardBoundaryPane");
-mapSites.map.getPane("wardBoundaryPane").style.zIndex = 375;
+mapSites.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
 
 mapSites.map.createPane("ccgBoundaryPane");
-mapSites.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapSites.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 // Make global to enable subsequent change to overlay
 const overlaysTreeSites = {
@@ -113,10 +113,4 @@ const mapControlSites = L.control.layers.tree(
   }
 );
 
-mapControlSites
-  .addTo(mapSites.map)
-  // .setOverlayTree(overlaysTreeSites)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
+mapControlSites.addTo(mapSites.map);

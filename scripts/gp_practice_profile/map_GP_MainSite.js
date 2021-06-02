@@ -14,55 +14,38 @@ homeButton.call(mapMain);
 
 // Panes to control zIndex of geoJson layers
 mapMain.map.createPane("wardBoundaryPane");
-mapMain.map.getPane("wardBoundaryPane").style.zIndex = 375;
+mapMain.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
 
 mapMain.map.createPane("ccgBoundaryPane");
-mapMain.map.getPane("ccgBoundaryPane").style.zIndex = 374;
-
-// ccgBoundary.call(mapMain, true);
-addWardGroupsToMap.call(mapMain);
-
-// update to addPCNToMap2.call(mapMain);
-addPracticeToMap.call(mapMain);
+mapMain.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 function highlightFeature(selPractice, map, zoomToExtent = false) {
   if (typeof highlightPractice !== "undefined") {
     map.map.removeLayer(highlightPractice);
   }
 
-  geoDataPCN.then(function (v) {
-    // geoDataGPMain
-
-    highlightPractice = L.geoJSON(v, {
-      pointToLayer: function (feature, latlng) {
-        if (feature.properties.practice_code === selPractice) {
-          return (markerLayer = L.marker(latlng, {
-            icon: arrHighlightIcons[5],
-            zIndexOffset: -5,
-          }));
-        }
-      },
-    });
-
-    map.map.addLayer(highlightPractice);
-
-    if (zoomToExtent) {
-      // map.map.fitBounds(highlightPractice.getBounds());
-      const practiceLocation = highlightPractice.getBounds().getCenter();
-      map.map.setView(practiceLocation, 10);
-    }
-    if (selPractice === "All Practices" || selPractice === undefined) {
-      defaultHomeVoY.call(mapMain);
-    }
+  highlightPractice = L.geoJSON(geoDataPCN, {
+    pointToLayer: function (feature, latlng) {
+      if (feature.properties.practice_code === selPractice) {
+        return (markerLayer = L.marker(latlng, {
+          icon: arrHighlightIcons[5],
+          zIndexOffset: -5,
+        }));
+      }
+    },
   });
-}
 
-// Make global to enable subsequent change to overlay
-const overlaysTreeMain = {
-  label: "Overlays",
-  selectAllCheckbox: true,
-  children: [],
-};
+  map.map.addLayer(highlightPractice);
+
+  if (zoomToExtent) {
+    // map.map.fitBounds(highlightPractice.getBounds());
+    const practiceLocation = highlightPractice.getBounds().getCenter();
+    map.map.setView(practiceLocation, 10);
+  }
+  if (selPractice === "All Practices" || selPractice === undefined) {
+    defaultHomeVoY.call(mapMain);
+  }
+}
 
 const baseTreeMain = (function () {
   const defaultBasemap = L.tileLayer
@@ -157,15 +140,6 @@ Leaflet:
   overlaysTreeMain.children[6] = osOverlay;
 */
 
-  /*
-  -- To refresh
-  mapControlMain
-  .setOverlayTree(overlaysTreeMain)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true);
-  */
-
   // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
     label: "Base Layers <i class='fas fa-globe'></i>",
@@ -247,15 +221,10 @@ const mapControlMain = L.control.layers.tree(baseTreeMain, overlaysTreeMain, {
     "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
 });
 
-mapControlMain
-  .addTo(mapMain.map)
-  // .setOverlayTree(overlaysTreeMain)
-  .collapseTree() // collapse the baselayers tree
-  // .expandSelected() // expand selected option in the baselayer
-  .collapseTree(true); // true to collapse the overlays tree
-// .expandSelected(true); // expand selected option in the overlays tree
+mapControlMain.addTo(mapMain.map);
 
-hospitalDetails.then(function (v) {
+function addNationalTrustSites() {
+  // promHospitalDetails.then(() => {
   const nationalTrustSites = {
     label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
     selectAllCheckbox: true,
@@ -271,4 +240,4 @@ hospitalDetails.then(function (v) {
     ],
   };
   overlaysTreeMain.children[5] = nationalTrustSites;
-});
+}

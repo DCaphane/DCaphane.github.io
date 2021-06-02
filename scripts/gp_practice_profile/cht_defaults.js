@@ -18,12 +18,7 @@ const selPracticeDropDown = document.getElementById("selPractice"),
   selPracticeCompareDropDown = document.getElementById("selPracticeCompare");
 
 // Load the initial data and then variations on this for subsequent filtering
-let data_popnGPLsoa,
-  arrayGPLsoaDates,
-  trendChart,
-  barChart,
-  demographicChart,
-  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
+let trendChart, barChart, demographicChart, bubbleTest;
 
 const practiceLookup = new Map();
 const newTooltip = createTooltip();
@@ -47,6 +42,7 @@ const userSelections = {
     );
   },
 };
+const genID = generateUniqueID(); // genID.uid
 
 // https://github.com/d3/d3-time-format
 const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
@@ -67,135 +63,347 @@ function practiceDetailsDropDown() {
     // "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03M&RelStatus=active&Limit=1000"
   ];
 
-  urls.forEach((url) => {
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        const organisations = data.Organisations;
+  d3.json(urls[0])
+    .then((data) => {
+      const organisations = data.Organisations;
 
-        organisations.forEach((d) => {
-          const orgID = d["OrgId"];
-          const orgName = d["Name"];
+      organisations.forEach((d) => {
+        const orgID = d["OrgId"];
+        const orgName = d["Name"];
 
-          practiceLookup.set(orgID, orgName); // add bank holiday date to the map as an integer
-        });
-      })
-      .then(() => updateDropdowns());
-  });
+        practiceLookup.set(orgID, orgName); // add bank holiday date to the map as an integer
+      });
+    })
+    .then(() => updateDropdowns());
 }
 
-const dataPopulationGP = (async function () {
-  const data = await d3.csv(
+let dataPopulationGP,
+  // dataPopulationGPLsoa,
+  data_popnGPLsoa,
+  arrayGPLsoaDates,
+  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
+
+const promDataGPPopn = d3.csv(
     "Data/GP_Practice_Populations_slim.csv",
-    // this function is applied to each row of the imported data
-    function (d, index, columnKeys) {
-      // Loop through the raw data to format columns as appropriate
-      return {
-        Practice: d.Practice_Mapped.substring(0, 6),
-        Locality: d.Locality,
-        Age_Band: d.Age_Band,
-        Period: +parseDate(d.Period),
-        Male_Pop: +d.Male,
-        Female_Pop: +d.Female,
-        Total_Pop: +d.Total,
-      };
-    }
-  );
-
-  // dataImport = data;
-  // setDefaults(data);
-  // for default initial date, use the most recent period
-  userSelections.selectedDate = d3.max(data, function (d) {
-    return d.Period;
-  });
-
-  // List of practices (sorted A-Z) for use in drop down ------------------------
-  uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
-  practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
-  trendChart = initTrendChart(data, "cht_PopTrend");
-  trendChart.chartTrendDraw();
-
-  barChart = initPopnBarChart(data, "cht_PopBar");
-  barChart.fnRedrawBarChart();
-
-  return data;
-})();
-
-const dataPopulationGPLsoa = (async function () {
-  const data = await d3.csv(
+    processDataGPPopulation
+  ),
+  promDataGPPopnLsoa = d3.csv(
     "Data/population_gp_lsoa.csv",
-    // this function is applied to each row of the imported data
-    function (d, index, columnKeys) {
-      return {
-        period: +parseDate2(d.period),
-        practice: d.practice_code,
-        lsoa: d.lsoa,
-        population: +d.population,
-      };
+    processDataPopulationGPLsoa
+  );
+
+const importPopnData = (async function displayContent() {
+  await Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(
+    (values) => {
+      // if (values[0].status === "fulfilled") {
+      dataPopulationGP = values[0].value;
+      // }
+      // dataPopulationGPLsoa = values[1].value;
+
+      data_popnGPLsoa = d3.rollup(
+        values[1].value,
+        (v) => d3.sum(v, (d) => d.population),
+        (d) => d.period,
+        (d) => d.practice,
+        (d) => d.lsoa
+      );
+
+      userSelections.selectedDate = d3.max(dataPopulationGP, function (d) {
+        return d.Period;
+      });
+
+      // List of practices (sorted A-Z) for use in drop down ------------------------
+      uniquePractices = [
+        ...new Set(dataPopulationGP.map((item) => item.Practice)),
+      ].sort();
+      practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
+
+      // GP LSOA Population is Quarterly so not a 1:1 match with trend data
+      // Will use closest value
+      arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
     }
   );
-
-  data_popnGPLsoa = d3.rollup(
-    data,
-    (v) => d3.sum(v, (d) => d.population),
-    (d) => d.period,
-    (d) => d.practice,
-    (d) => d.lsoa
-  );
-
-  // GP LSOA Population is Quarterly so not a 1:1 match with trend data
-  // Will use closest value
-  arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
-
-  return;
+  // .then((values) => {
+  // })
 })();
 
-const dataIMD = (async function () {
-  return await d3.csv("Data/imd_lsoa_ccg.csv", function (d, index, columnKeys) {
-    return {
-      lsoa: d.LSOA_code_2011,
-      imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
-      imdDecile: +d.Index_of_Multiple_Deprivation_IMD_Decile,
-      incomeRank: +d.Income_Rank,
-      employmentRank: +d.Employment_Rank,
-      educationRank: +d.Education_Skills_and_Training_Rank,
-      healthRank: +d.Health_Deprivation_and_Disability_Rank,
-      crimeRank: +d.Crime_Rank,
-      housingRank: +d.Barriers_to_Housing_and_Services_Rank,
-      livingEnvironRank: +d.Living_Environment_Rank,
-      incomeChildRank: +d.Income_Deprivation_Affecting_Children_Index_Rank,
-      incomeOlderRank: +d.Income_Deprivation_Affecting_Older_People_Rank,
-      childRank: +d.Children_and_Young_People_Subdomain_Rank,
-      adultSkillsRank: +d.Adult_Skills_Subdomain_Rank,
-      geogRank: +d.Geographical_Barriers_Subdomain_Rank,
-      barriersRank: +d.Wider_Barriers_Subdomain_Rank,
-      indoorsRank: +d.Indoors_Subdomain_Rank,
-      outdoorsRank: +d.Outdoors_Subdomain_Rank,
-      totalPopn: +d.Total_population_mid_2015,
-      dependentChildren: +d.Dependent_Children_aged_0_15_mid_2015,
-      popnMiddle: +d.Population_aged_16_59_mid_2015,
-      popnOlder: +d.Older_population_aged_60_and_over_mid_2015,
-      popnWorking: +d.Working_age_population_18_59_64,
+function processDataGPPopulation(d, index, columnKeys) {
+  // Loop through the raw data to format columns as appropriate
+  return {
+    Practice: d.Practice_Mapped.substring(0, 6),
+    Locality: d.Locality,
+    Age_Band: d.Age_Band,
+    Period: +parseDate(d.Period),
+    Male_Pop: +d.Male,
+    Female_Pop: +d.Female,
+    Total_Pop: +d.Total,
+  };
+}
+
+function processDataPopulationGPLsoa(d) {
+  return {
+    period: +parseDate2(d.period),
+    practice: d.practice_code,
+    lsoa: d.lsoa,
+    population: +d.population,
+  };
+}
+
+function generateUniqueID() {
+  /*
+  To generate a unique ID
+  https://talk.observablehq.com/t/what-does-dom-uid-xxx-do/4015
+  https://github.com/observablehq/stdlib/blob/master/src/dom/uid.js
+
+  If you call fn.uid() once you get an object containing as property id the string "O-1". Call it again to get “O-2”.
+  If you pass in a string it will be part of the unique identifier. e.g. call fn.uid('foo') the third time and you get the string "O-foo-3".
+  */
+  let count = 0;
+
+  function uid(name) {
+    function Id(id) {
+      this.id = id;
+      this.href = new URL(`#${id}`, location) + "";
+    }
+
+    Id.prototype.toString = function () {
+      return "url(" + this.href + ")";
     };
-  });
-})();
 
-// function setDefaults(data) {
-// // List of practices (sorted A-Z) for use in drop down ------------------------
-// uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
+    return new Id("O-" + (name == null ? "" : name + "-") + ++count);
+  }
 
-// const test = d3.group(data, d => d.Practice).keys().sort();
-// console.log(test)
-// This is hard coded to order ages in correct order
-// uniqueAgeBands = new Map([...uniqueAgeBandsOrg.entries()].sort());
+  return {
+    uid: uid,
+  };
+}
 
-// for default initial date, use the most recent period
-// userSelections.selectedDate = d3.max(data, function (d) {
-//   return d.Period;
-// });
-// userSelections.selectedDate = selectedDate;
-// console.log(selectedDate)
-// }
+function legendWrapper(placementID, legendID) {
+  // https://observablehq.com/@mbostock/color-ramp
+  // https://observablehq.com/@d3/color-legend
+
+  function ramp(color, n = 512) {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.style.margin = "14px 14px 0 14px";
+    canvas.style.width = "calc(100% - 28px)";
+
+    const w = canvas.width;
+    // console.log(w);
+    canvas.style.height = "100px";
+    canvas.style.imageRendering = "-moz-crisp-edges";
+    canvas.style.imageRendering = "pixelated";
+
+    for (let i = 0; i < n; ++i) {
+      context.fillStyle = color(i / (n - 1));
+      context.fillRect((i / n) * w, 0, 1, 100); // x, y, width, height
+    }
+
+    return canvas;
+  }
+
+  function legend({
+    color,
+    title,
+    leftSubTitle,
+    rightSubTitle,
+    tickSize = 10,
+    width = 500,
+    height = 80 + tickSize,
+    marginTop = 18,
+    marginRight = 0,
+    marginBottom = 16 + tickSize,
+    marginLeft = 20,
+    ticks = width / 64,
+    tickFormat,
+    tickValues,
+  } = {}) {
+    d3.select(`#${legendID.id}`).remove(); // remove the element (legend) if it already exists
+    const canvasLocation = document.getElementById(placementID);
+
+    const svg = d3
+      .select(canvasLocation)
+      .append("svg")
+      .attr("id", legendID.id)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
+      .style("overflow", "visible")
+      .style("display", "block");
+
+    let tickAdjust = (g) =>
+      g.selectAll(".tick line").attr("y1", marginTop + marginBottom - height);
+    let x;
+
+    // Continuous
+    if (color.interpolate) {
+      const n = Math.min(color.domain().length, color.range().length);
+
+      x = color
+        .copy()
+        .rangeRound(
+          d3.quantize(d3.interpolate(marginLeft, width - marginRight), n)
+        );
+
+      svg
+        .append("image")
+        .attr("x", marginLeft)
+        .attr("y", marginTop)
+        .attr("width", width - marginLeft - marginRight)
+        .attr("height", height - marginTop - marginBottom)
+        .attr("preserveAspectRatio", "none")
+        .attr(
+          "xlink:href",
+          ramp(
+            color.copy().domain(d3.quantize(d3.interpolate(0, 1), n))
+          ).toDataURL()
+        );
+    }
+
+    // Sequential
+    else if (color.interpolator) {
+      x = Object.assign(
+        color
+          .copy()
+          .interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
+        {
+          range() {
+            return [marginLeft, width - marginRight];
+          },
+        }
+      );
+
+      svg
+        .append("image")
+        .attr("x", marginLeft)
+        .attr("y", marginTop)
+        .attr("width", width - marginLeft - marginRight) // having to add magic number to align width, not sure why?
+        .attr("height", height - marginTop - marginBottom + 25)
+        .attr("preserveAspectRatio", "none")
+        .attr("xlink:href", ramp(color.interpolator()).toDataURL());
+
+      // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
+      if (!x.ticks) {
+        if (tickValues === undefined) {
+          const n = Math.round(ticks + 1);
+          tickValues = d3
+            .range(n)
+            .map((i) => d3.quantile(color.domain(), i / (n - 1)));
+        }
+        if (typeof tickFormat !== "function") {
+          tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat);
+        }
+      }
+    }
+
+    // Threshold
+    else if (color.invertExtent) {
+      const thresholds = color.thresholds
+        ? color.thresholds() // scaleQuantize
+        : color.quantiles
+        ? color.quantiles() // scaleQuantile
+        : color.domain(); // scaleThreshold
+
+      const thresholdFormat =
+        tickFormat === undefined
+          ? (d) => d
+          : typeof tickFormat === "string"
+          ? d3.format(tickFormat)
+          : tickFormat;
+
+      x = d3
+        .scaleLinear()
+        .domain([-1, color.range().length - 1])
+        .rangeRound([marginLeft, width - marginRight]);
+
+      svg
+        .append("g")
+        .selectAll("rect")
+        .data(color.range())
+        .join("rect")
+        .attr("x", (d, i) => x(i - 1))
+        .attr("y", marginTop)
+        .attr("width", (d, i) => x(i) - x(i - 1))
+        .attr("height", height - marginTop - marginBottom)
+        .attr("fill", (d) => d);
+
+      tickValues = d3.range(thresholds.length);
+      tickFormat = (i) => thresholdFormat(thresholds[i], i);
+    }
+
+    // Ordinal
+    else {
+      x = d3
+        .scaleBand()
+        .domain(color.domain())
+        .rangeRound([marginLeft, width - marginRight]);
+
+      svg
+        .append("g")
+        .selectAll("rect")
+        .data(color.domain())
+        .join("rect")
+        .attr("x", x)
+        .attr("y", marginTop)
+        .attr("width", Math.max(0, x.bandwidth() - 1))
+        .attr("height", height - marginTop - marginBottom)
+        .attr("fill", color);
+
+      tickAdjust = () => {};
+    }
+
+    svg
+      .append("g")
+      .attr("transform", `translate(0,${height - marginBottom})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .ticks(ticks, typeof tickFormat === "string" ? tickFormat : undefined)
+          .tickFormat(typeof tickFormat === "function" ? tickFormat : undefined)
+          .tickSize(tickSize)
+          .tickValues(tickValues)
+      )
+      .call(tickAdjust)
+      .call((g) => g.select(".domain").remove())
+      .call((g) =>
+        g
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", marginTop + marginBottom - height - 6)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "middle")
+          .attr("font-weight", "bold")
+          .text(title)
+      )
+      .call((g) =>
+        g
+          .append("text")
+          .attr("x", marginLeft)
+          .attr("y", marginTop + marginBottom - height - 6)
+          .attr("fill", "red")
+          .attr("text-anchor", "start")
+          // .attr("font-weight", "bold")
+          .text(leftSubTitle)
+      )
+      .call((g) =>
+        g
+          .append("text")
+          .attr("x", width)
+          .attr("y", marginTop + marginBottom - height - 6)
+          .attr("fill", "red")
+          .attr("text-anchor", "end")
+          // .attr("font-weight", "bold")
+          .text(rightSubTitle)
+      );
+
+    return svg.node();
+  }
+
+  return {
+    legend: legend,
+  };
+}
 
 function titleCase(str) {
   return str
