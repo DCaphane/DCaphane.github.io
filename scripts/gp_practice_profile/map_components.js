@@ -84,7 +84,8 @@ let // geo coded data
   geoDataPCNSites,
   geoDataCYCWards,
   geoDataCCGBoundary,
-  geoDataLsoaBoundaries;
+  geoDataLsoaBoundaries,
+  dataIMD; // not geo data but only used in map chart
 // Organisation Data
 // hospitalDetails; -- handled in map object
 
@@ -104,7 +105,8 @@ const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
     "�", // \u00AC
     "Data/geo/Hospital.csv",
     processDataHospitalSite
-  );
+  ),
+  promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD);
 // promGPPracticeDetails = d3.json(
 //   "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000"
 // );
@@ -118,6 +120,7 @@ const importGeoData = (async function displayContent() {
     promGeoDataCCGBoundary,
     promGeoDataLsoaBoundaries,
     promHospitalDetails,
+    promDataIMD,
     // promGPPracticeDetails,
   ])
     .then((values) => {
@@ -129,7 +132,8 @@ const importGeoData = (async function displayContent() {
       geoDataCCGBoundary = values[3].value;
       geoDataLsoaBoundaries = values[4].value;
       // hospitalDetails = values[5].value;
-      // gpDetails = values[6].value;
+      dataIMD = values[6].value;
+      // gpDetails = values[7].value;
     })
     .then(() => {
       // Assumption here that everything in other scripts is declared before this step...
@@ -1499,6 +1503,35 @@ function processDataHospitalSite(d) {
   //   // Add to overlay control
   //   const ol = overlayPCNs(mapHospitalLayers);
   //   overlaysTreeMain.children[0] = ol;
+}
+
+
+function processDataIMD(d) {
+  return {
+    lsoa: d.LSOA_code_2011,
+    imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
+    imdDecile: +d.Index_of_Multiple_Deprivation_IMD_Decile,
+    incomeRank: +d.Income_Rank,
+    employmentRank: +d.Employment_Rank,
+    educationRank: +d.Education_Skills_and_Training_Rank,
+    healthRank: +d.Health_Deprivation_and_Disability_Rank,
+    crimeRank: +d.Crime_Rank,
+    housingRank: +d.Barriers_to_Housing_and_Services_Rank,
+    livingEnvironRank: +d.Living_Environment_Rank,
+    incomeChildRank: +d.Income_Deprivation_Affecting_Children_Index_Rank,
+    incomeOlderRank: +d.Income_Deprivation_Affecting_Older_People_Rank,
+    childRank: +d.Children_and_Young_People_Subdomain_Rank,
+    adultSkillsRank: +d.Adult_Skills_Subdomain_Rank,
+    geogRank: +d.Geographical_Barriers_Subdomain_Rank,
+    barriersRank: +d.Wider_Barriers_Subdomain_Rank,
+    indoorsRank: +d.Indoors_Subdomain_Rank,
+    outdoorsRank: +d.Outdoors_Subdomain_Rank,
+    totalPopn: +d.Total_population_mid_2015,
+    dependentChildren: +d.Dependent_Children_aged_0_15_mid_2015,
+    popnMiddle: +d.Population_aged_16_59_mid_2015,
+    popnOlder: +d.Older_population_aged_60_and_over_mid_2015,
+    popnWorking: +d.Working_age_population_18_59_64,
+  };
 }
 
 function hospitalSiteColour(sector) {

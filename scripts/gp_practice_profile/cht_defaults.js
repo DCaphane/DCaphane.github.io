@@ -80,7 +80,6 @@ function practiceDetailsDropDown() {
 let dataPopulationGP,
   // dataPopulationGPLsoa,
   data_popnGPLsoa,
-  dataIMD,
   arrayGPLsoaDates,
   uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
@@ -91,44 +90,39 @@ const promDataGPPopn = d3.csv(
   promDataGPPopnLsoa = d3.csv(
     "Data/population_gp_lsoa.csv",
     processDataPopulationGPLsoa
-  ),
-  promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD);
+  );
 
 const importPopnData = (async function displayContent() {
-  await Promise.allSettled([
-    promDataGPPopn,
-    promDataGPPopnLsoa,
-    promDataIMD,
-  ]).then((values) => {
-    // if (values[0].status === "fulfilled") {
-    dataPopulationGP = values[0].value;
-    // }
-    // dataPopulationGPLsoa = values[1].value;
+  await Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(
+    (values) => {
+      // if (values[0].status === "fulfilled") {
+      dataPopulationGP = values[0].value;
+      // }
+      // dataPopulationGPLsoa = values[1].value;
 
-    data_popnGPLsoa = d3.rollup(
-      values[1].value,
-      (v) => d3.sum(v, (d) => d.population),
-      (d) => d.period,
-      (d) => d.practice,
-      (d) => d.lsoa
-    );
+      data_popnGPLsoa = d3.rollup(
+        values[1].value,
+        (v) => d3.sum(v, (d) => d.population),
+        (d) => d.period,
+        (d) => d.practice,
+        (d) => d.lsoa
+      );
 
-    dataIMD = values[2].value;
+      userSelections.selectedDate = d3.max(dataPopulationGP, function (d) {
+        return d.Period;
+      });
 
-    userSelections.selectedDate = d3.max(dataPopulationGP, function (d) {
-      return d.Period;
-    });
+      // List of practices (sorted A-Z) for use in drop down ------------------------
+      uniquePractices = [
+        ...new Set(dataPopulationGP.map((item) => item.Practice)),
+      ].sort();
+      practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
 
-    // List of practices (sorted A-Z) for use in drop down ------------------------
-    uniquePractices = [
-      ...new Set(dataPopulationGP.map((item) => item.Practice)),
-    ].sort();
-    practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
-
-    // GP LSOA Population is Quarterly so not a 1:1 match with trend data
-    // Will use closest value
-    arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
-  });
+      // GP LSOA Population is Quarterly so not a 1:1 match with trend data
+      // Will use closest value
+      arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
+    }
+  );
   // .then((values) => {
   // })
 })();
@@ -170,34 +164,6 @@ function processDataPopulationGPLsoa(d) {
     practice: d.practice_code,
     lsoa: d.lsoa,
     population: +d.population,
-  };
-}
-
-function processDataIMD(d) {
-  return {
-    lsoa: d.LSOA_code_2011,
-    imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
-    imdDecile: +d.Index_of_Multiple_Deprivation_IMD_Decile,
-    incomeRank: +d.Income_Rank,
-    employmentRank: +d.Employment_Rank,
-    educationRank: +d.Education_Skills_and_Training_Rank,
-    healthRank: +d.Health_Deprivation_and_Disability_Rank,
-    crimeRank: +d.Crime_Rank,
-    housingRank: +d.Barriers_to_Housing_and_Services_Rank,
-    livingEnvironRank: +d.Living_Environment_Rank,
-    incomeChildRank: +d.Income_Deprivation_Affecting_Children_Index_Rank,
-    incomeOlderRank: +d.Income_Deprivation_Affecting_Older_People_Rank,
-    childRank: +d.Children_and_Young_People_Subdomain_Rank,
-    adultSkillsRank: +d.Adult_Skills_Subdomain_Rank,
-    geogRank: +d.Geographical_Barriers_Subdomain_Rank,
-    barriersRank: +d.Wider_Barriers_Subdomain_Rank,
-    indoorsRank: +d.Indoors_Subdomain_Rank,
-    outdoorsRank: +d.Outdoors_Subdomain_Rank,
-    totalPopn: +d.Total_population_mid_2015,
-    dependentChildren: +d.Dependent_Children_aged_0_15_mid_2015,
-    popnMiddle: +d.Population_aged_16_59_mid_2015,
-    popnOlder: +d.Older_population_aged_60_and_over_mid_2015,
-    popnWorking: +d.Working_age_population_18_59_64,
   };
 }
 
