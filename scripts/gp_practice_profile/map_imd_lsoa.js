@@ -25,10 +25,10 @@ homeButton.call(mapIMD);
 
 // Panes to control zIndex of geoJson layers
 mapIMD.map.createPane("lsoaBoundaryPane");
-mapIMD.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
+mapIMD.map.getPane("lsoaBoundaryPane").style.zIndex = zIndexWard;
 
 mapIMD.map.createPane("ccgBoundaryPane");
-mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapIMD.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 

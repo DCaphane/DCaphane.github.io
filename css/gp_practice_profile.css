@@ -40,6 +40,12 @@
   stroke: blue;
 }
 
+.selected-period-marker {
+  stroke: darkred;
+  stroke-width: 1px;
+  fill: red;
+}
+
 /* For the demographic bars */
 .bar {
   fill-opacity: 0.7;

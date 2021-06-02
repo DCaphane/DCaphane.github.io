@@ -127,24 +127,6 @@ const importPopnData = (async function displayContent() {
   // })
 })();
 
-function initD3Charts() {
-  trendChart = initTrendChart(dataPopulationGP, "cht_PopTrend");
-  trendChart.chartTrendDraw();
-
-  barChart = initPopnBarChart(dataPopulationGP, "cht_PopBar");
-  barChart.fnRedrawBarChart();
-
-  demographicChart = initChartDemog(dataPopulationGP, "cht_PopDemo");
-  demographicChart.updateChtDemog();
-
-  // // Dependent on Population data...
-  // recolourLSOA();
-  // recolourIMDLayer(imdDomainShort);
-  // L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  // ccgBoundary(true);
-  // bubbleTest = imdDomainD3();
-}
-
 function processDataGPPopulation(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate
   return {

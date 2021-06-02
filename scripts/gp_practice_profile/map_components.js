@@ -13,6 +13,8 @@ https://github.com/nickpeihl/leaflet-sidebar-v2
 
 // Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
+const zIndexWard = 375;
+const zIndexCCG = 374;
 
 const mapInitialise = (function defaultMapSetUp() {
   // for initialising maps
@@ -1504,7 +1506,6 @@ function processDataHospitalSite(d) {
   //   const ol = overlayPCNs(mapHospitalLayers);
   //   overlaysTreeMain.children[0] = ol;
 }
-
 
 function processDataIMD(d) {
   return {

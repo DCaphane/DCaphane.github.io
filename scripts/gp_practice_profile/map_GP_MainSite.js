@@ -14,10 +14,10 @@ homeButton.call(mapMain);
 
 // Panes to control zIndex of geoJson layers
 mapMain.map.createPane("wardBoundaryPane");
-mapMain.map.getPane("wardBoundaryPane").style.zIndex = 375;
+mapMain.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
 
 mapMain.map.createPane("ccgBoundaryPane");
-mapMain.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapMain.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 function highlightFeature(selPractice, map, zoomToExtent = false) {
   if (typeof highlightPractice !== "undefined") {

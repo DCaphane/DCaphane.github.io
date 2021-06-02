@@ -14,10 +14,10 @@ homeButton.call(mapSites);
 
 // Panes to control zIndex of geoJson layers
 mapSites.map.createPane("wardBoundaryPane");
-mapSites.map.getPane("wardBoundaryPane").style.zIndex = 375;
+mapSites.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
 
 mapSites.map.createPane("ccgBoundaryPane");
-mapSites.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapSites.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 // Make global to enable subsequent change to overlay
 const overlaysTreeSites = {

@@ -181,7 +181,7 @@ Line and marker transitions
     .text("Population");
 */
 
-/*
+  /*
 The order trendPath and trendMarkers determines which appears on top
 To have the markers on top, draw the path (line) first and then 'paint' the circles on top
 */
@@ -227,6 +227,8 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
   //   .call(xAxis);
 
   svgMini.append("path").attr("fill", "steelblue").attr("class", "trend-line");
+  const selectedPeriodMini = svgMini.append("g");
+  // const selectedPeriodMarker = d3.symbol().type(d3.symbolCircle).size(64);
 
   // svgMini
   //   .append("g")
@@ -378,6 +380,25 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
       });
   }
 
+  function updateMiniMarker() {
+    // Used to display a marker showing the selected date
+    selectedPeriodMini
+      .selectAll("circle")
+      .data(dataArr, function (d) {
+        return d.period;
+      })
+      .classed("selected-period-marker", function (d) {
+        return d.period === userSelections.selectedDate;
+      })
+      .style("opacity", function (d) {
+        if (d.period === userSelections.selectedDate) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+  }
+
   function chartTrendDraw() {
     let newData; // This is a map, use keys and values to retrieve values
     if (
@@ -485,6 +506,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
               const sel = d3.select(this);
               sel.raise();
               sel.classed("highlight", true);
+              updateMiniMarker();
               demographicChart.updateChtDemog(
                 userSelections.selectedPractice,
                 userSelections.selectedPracticeCompare
@@ -598,6 +620,33 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
         "d",
         plotLineMini(x, yMini.range([miniMapHeight - margin.bottom, 4]))
       );
+
+    selectedPeriodMini
+      .selectAll("circle") // trend circles
+      .data(dataArr, function (d) {
+        return d.period;
+      })
+      .join(
+        (
+          enter // ENTER new elements present in new data.
+        ) => enter.append("circle").call((enter) => enter),
+        (
+          update // UPDATE old elements present in new data.
+        ) => update.call((update) => update),
+        (
+          exit // EXIT old elements not present in new data.
+        ) => exit.call((exit) => exit.remove())
+      )
+      .attr("r", 3)
+      .attr("cx", function (d) {
+        return x(d.period);
+      })
+      .attr("cy", function (d) {
+        yMini.range([miniMapHeight - margin.bottom, 4]);
+        return yMini(d.population);
+      });
+
+    updateMiniMarker();
 
     // moveBrush(defaultSelection)
     if (initialiseBool) {

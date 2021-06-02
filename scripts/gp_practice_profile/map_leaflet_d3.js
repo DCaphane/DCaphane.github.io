@@ -33,10 +33,10 @@ homeButton.call(mapD3Bubble);
 
 // Panes to control zIndex of geoJson layers
 mapD3Bubble.map.createPane("lsoaBoundaryPane");
-mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
+mapD3Bubble.map.getPane("lsoaBoundaryPane").style.zIndex = zIndexWard;
 
 mapD3Bubble.map.createPane("ccgBoundaryPane");
-mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
@@ -390,7 +390,8 @@ function imdDomainD3(id = "selD3Leaf") {
       .attr("y", function (d) {
         return -2 * radius(d);
       })
-      .attr("dy", "1.3em")
+      .attr("dx", "3em")
+      .attr("dy", "1em")
       .text(d3.format(".1s"));
   }
 

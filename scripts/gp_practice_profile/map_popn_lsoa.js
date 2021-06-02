@@ -6,10 +6,10 @@ homeButton.call(mapPopn);
 
 // Panes to control zIndex of geoJson layers
 mapPopn.map.createPane("lsoaBoundaryPane");
-mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = 375;
+mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = zIndexWard;
 
 mapPopn.map.createPane("ccgBoundaryPane");
-mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = 374;
+mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
@@ -96,8 +96,19 @@ function recolourLSOA() {
   });
 }
 
-// Function to initialise geo charts - run after everything has been declared...
+// Functions to initialise D3 and geo charts - run after everything has been declared...
 // consider if promise (to wait for importGeoData needs to be run here...)
+
+function initD3Charts() {
+  trendChart = initTrendChart(dataPopulationGP, "cht_PopTrend");
+  trendChart.chartTrendDraw();
+
+  barChart = initPopnBarChart(dataPopulationGP, "cht_PopBar");
+  barChart.fnRedrawBarChart();
+
+  demographicChart = initChartDemog(dataPopulationGP, "cht_PopDemo");
+  demographicChart.updateChtDemog();
+}
 
 function refreshGeoChart() {
   lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
