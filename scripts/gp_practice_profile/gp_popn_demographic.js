@@ -170,7 +170,10 @@ function initChartDemog(dataInit, id) {
   yScale.domain(ageBands);
   const emptyDemog = emptyDemographic();
 
-  const tooltipDemog = newTooltip.tooltip(div).style("height", "60px");
+  const tooltipDemog = newTooltip
+    .tooltip(div)
+    .style("height", "65px")
+    .style("width", "120px");
 
   svgDemog
     .append("g")
@@ -301,9 +304,16 @@ ${chtHeightMini + 20}`
     // d3 transition
     let t = d3.transition().duration(750).ease(d3.easeQuadInOut); // https://bl.ocks.org/d3noob/1ea51d03775b9650e8dfd03474e202fe
 
-    const totalPop1 = fnTotalPopulation(dataP1),
-      totalPop2 = fnTotalPopulation(dataP2);
-    // console.log({pop1: totalPop1, pop2: totalPop2})
+    const totalPop1 = fnTotalPopulation(dataP1, "total"),
+      totalPop2 = fnTotalPopulation(dataP2, "total"),
+      totalPop1Male = fnTotalPopulation(dataP1, "male"),
+      totalPop1Female = fnTotalPopulation(dataP1, "female");
+    console.log({
+      pop1: totalPop1,
+      pop2: totalPop2,
+      pop1Male: totalPop1Male,
+      pop1Female: totalPop1Female,
+    });
 
     // find the maximum data value on either side
     // since this will be shared by both of the x-axes
@@ -382,32 +392,7 @@ ${chtHeightMini + 20}`
       .join(
         (
           enter // ENTER new elements present in new data.
-        ) =>
-          enter
-            .append("rect")
-            // mouse events need to go before any transitions
-            .on("click", function (event, d) {
-              console.log("selAge:", d.ageBand);
-            })
-            .on("mouseover", function (event, d) {
-              const sel = d3.select(this);
-              sel.attr("class", "bar hover");
-              // newTooltip.mouseover(sel, tooltipDemog);
-
-              const str = `<strong>Male: ${d.ageBand} yrs</strong><br>
-            <span style="color:red">
-              Popn: ${formatNumber(d.population.male)}
-              </span><br>
-            % Popn: ${formatPercent1dp(d.population.male / totalPop1)}
-              `;
-              newTooltip.mouseover(tooltipDemog, str, event);
-            })
-            .on("mouseout", function () {
-              const sel = d3.select(this);
-              sel.attr("class", "bar left");
-              newTooltip.mouseout(tooltipDemog);
-            })
-            .call((enter) => enter),
+        ) => enter.append("rect").call((enter) => enter),
         (
           update // UPDATE old elements present in new data.
         ) => update.call((update) => update),
@@ -415,6 +400,30 @@ ${chtHeightMini + 20}`
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.transition(t).remove())
       )
+      // mouse events need to go before any transitions
+      .on("click", function (event, d) {
+        console.log("selAge:", d.ageBand);
+      })
+      .on("mouseover", function (event, d) {
+        const sel = d3.select(this);
+        sel.attr("class", "bar hover");
+        // newTooltip.mouseover(sel, tooltipDemog);
+
+        const str = `<strong>Male: ${d.ageBand} yrs</strong><br>
+            <span style="color:red">
+              Pop'n: ${formatNumber(d.population.male)}
+              </span><br>
+            % Total: ${formatPercent1dp(d.population.male / totalPop1)}
+            <br>
+            % Male: ${formatPercent1dp(d.population.male / totalPop1Male)}
+              `;
+        newTooltip.mouseover(tooltipDemog, str, event);
+      })
+      .on("mouseout", function () {
+        const sel = d3.select(this);
+        sel.attr("class", "bar left");
+        newTooltip.mouseout(tooltipDemog);
+      })
       .attr("class", "bar left")
       .transition(t)
       .attr("transform", translation(pointA, 0) + "scale(-1, 1)")
@@ -435,30 +444,7 @@ ${chtHeightMini + 20}`
       .join(
         (
           enter // ENTER new elements present in new data.
-        ) =>
-          enter
-            .append("rect")
-            .on("click", function (event, d) {
-              console.log("selAge:", d.ageBand);
-            })
-            .on("mouseover", function (event, d) {
-              const sel = d3.select(this);
-              sel.attr("class", "bar hover");
-
-              const str = `<strong>Female: ${d.ageBand} yrs</strong><br>
-            <span style="color:red">
-              Popn: ${formatNumber(d.population.female)}
-              </span><br>
-            % Popn: ${formatPercent1dp(d.population.female / totalPop1)}
-              `;
-              newTooltip.mouseover(tooltipDemog, str, event);
-            })
-            .on("mouseout", function () {
-              const sel = d3.select(this);
-              sel.attr("class", "bar right");
-              newTooltip.mouseout(tooltipDemog);
-            })
-            .call((enter) => enter),
+        ) => enter.append("rect").call((enter) => enter),
         (
           update // UPDATE old elements present in new data.
         ) => update.call((update) => update),
@@ -466,6 +452,28 @@ ${chtHeightMini + 20}`
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.transition(t).remove())
       )
+      .on("click", function (event, d) {
+        console.log("selAge:", d.ageBand);
+      })
+      .on("mouseover", function (event, d) {
+        const sel = d3.select(this);
+        sel.attr("class", "bar hover");
+
+        const str = `<strong>Female: ${d.ageBand} yrs</strong><br>
+    <span style="color:red">
+      Pop'n: ${formatNumber(d.population.female)}
+      </span><br>
+    % Total: ${formatPercent1dp(d.population.female / totalPop1)}
+    <br>
+    % Female: ${formatPercent1dp(d.population.female / totalPop1Female)}
+      `;
+        newTooltip.mouseover(tooltipDemog, str, event);
+      })
+      .on("mouseout", function () {
+        const sel = d3.select(this);
+        sel.attr("class", "bar right");
+        newTooltip.mouseout(tooltipDemog);
+      })
       .attr("class", "bar right")
       .transition(t)
       .attr("transform", translation(pointB, 0))
@@ -673,13 +681,14 @@ ${chtHeightMini + 20}`
     return "translate(" + x + "," + y + ")";
   }
 
-  function fnTotalPopulation(data) {
-    // Get the total population size and create a function for returning the percentage
+  function fnTotalPopulation(data, gender = "total") {
+    // Get the population size and create a function for returning the percentage
+    // gender can be total, female or male
     let totalPop = 0;
 
     if (data.size > 0) {
       for (let value of data.values()) {
-        totalPop += value.total;
+        totalPop += value[gender];
       }
     }
 
