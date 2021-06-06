@@ -245,66 +245,7 @@ function imdDomainD3(id = "selD3Leaf") {
       .join(
         (
           enter // ENTER new elements present in new data.
-        ) =>
-          enter
-            .append("circle")
-            .on("click", function (event, d) {
-              // console.log(d.lsoa);
-              const str = `LSOA: <strong>${
-                d.lsoa
-              }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-                d.lsoaPopulation
-              )}</span>`;
-
-              let subString;
-              if (imdDomainDescD3 !== "Population") {
-                let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
-
-                if (obj !== undefined) {
-                  const value = obj[imdDomainShortD3];
-
-                  subString = `<br><strong>${imdDomainDescD3}:
-                  </strong><span style="color:red">${formatNumber(
-                    value
-                  )}</span>`;
-                } else {
-                  return "";
-                }
-              }
-
-              newTooltip.counter++;
-              newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
-            })
-            .on("mouseover", function (event, d) {
-              const str = `LSOA: <strong>${
-                d.lsoa
-              }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-                d.lsoaPopulation
-              )}</span>`;
-
-              let subString;
-              if (imdDomainDescD3 !== "Population") {
-                let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
-
-                if (obj !== undefined) {
-                  const value = obj[imdDomainShortD3];
-
-                  subString = `<br><strong>${imdDomainDescD3}:
-                  </strong><span style="color:red">${formatNumber(
-                    value
-                  )}</span>`;
-                } else {
-                  return "";
-                }
-              }
-
-              newTooltip.counter++;
-              newTooltip.mouseover(tooltipD3Lsoa, str + subString, event);
-            })
-            .on("mouseout", function (event, d) {
-              newTooltip.mouseout(tooltipD3Lsoa);
-            })
-            .call((enter) => enter),
+        ) => enter.append("circle").call((enter) => enter),
         (
           update // UPDATE old elements present in new data.
         ) => update.call((update) => update),
@@ -312,6 +253,66 @@ function imdDomainD3(id = "selD3Leaf") {
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
       )
+      .on("click", function (event, d) {
+        console.log(d.lsoa);
+        const pos = this.getBoundingClientRect();
+        const str = `LSOA: <strong>${
+          d.lsoa
+        }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+          d.lsoaPopulation
+        )}</span>`;
+
+        let subString;
+        if (imdDomainDescD3 !== "Population") {
+          let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
+
+          if (obj !== undefined) {
+            const value = obj[imdDomainShortD3];
+
+            subString = `<br><strong>${imdDomainDescD3}:
+          </strong><span style="color:red">${formatNumber(value)}</span>`;
+          } else {
+            return "";
+          }
+        }
+
+        newTooltip.counter++;
+        newTooltip.mouseover(tooltipD3Lsoa, str + subString, event, pos);
+      })
+      .on("mouseover", function (event, d) {
+        const sel = d3.select(this);
+        sel.classed("hover", true);
+        sel.raise();
+        const pos = this.getBoundingClientRect();
+        const str = `LSOA: <strong>${
+          d.lsoa
+        }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+          d.lsoaPopulation
+        )}</span>`;
+
+        let subString;
+        if (imdDomainDescD3 !== "Population") {
+          let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
+
+          if (obj !== undefined) {
+            const value = obj[imdDomainShortD3];
+
+            subString = `<br><strong>${imdDomainDescD3}:
+          </strong><span style="color:red">${formatNumber(value)}</span>`;
+          } else {
+            return "";
+          }
+        }
+
+        newTooltip.counter++;
+        newTooltip.mouseover(tooltipD3Lsoa, str + subString, event, pos);
+      })
+      .on("mouseout", function (event, d) {
+        const sel = d3.select(this);
+        sel.classed("hover", false);
+        sel.lower();
+        newTooltip.mouseout(tooltipD3Lsoa);
+      })
       .attr("class", "bubble")
       .attr("r", function (d) {
         return radius(d.lsoaPopulation);
@@ -403,6 +404,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
     return {
       updateD3BubbleLsoa: updateD3BubbleLsoa,
+      updateBubbleColour: updateBubbleColour,
     };
   }
 
@@ -413,6 +415,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   return {
     updateD3BubbleLsoa: updateD3BubbleLsoa,
+    updateBubbleColour: updateBubbleColour,
   };
 }
 

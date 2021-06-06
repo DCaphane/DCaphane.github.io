@@ -516,10 +516,12 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
             })
             .on("mouseover", function (event, d) {
               const sel = d3.select(this);
+
               sel.raise(); // brings the marker to the top
               sel.classed("highlight toTop", true);
 
-              // console.log(event.target);
+              const pos = this.getBoundingClientRect();
+
               const str = `<strong>${formatPeriod(
                 new Date(d.period)
               )}</strong><br>
@@ -527,7 +529,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
               ${formatNumber(d.population)}
               </span>`;
               newTooltip.counter++;
-              newTooltip.mouseover(tooltipTrend, str, event);
+              newTooltip.mouseover(tooltipTrend, str, event, pos);
             })
             .on("mouseout", function (event, d) {
               const sel = d3.select(this);

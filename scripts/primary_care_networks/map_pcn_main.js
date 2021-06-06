@@ -28,7 +28,8 @@ addPCNToMap2.call(mapPCNMain);
 
 let updateTextPractice = function () {
   const elem = document.getElementById("selectedMarker");
-  elem.innerHTML = selectedPractice + ": " + practiceLookup.get(selectedPractice);
+  elem.innerHTML =
+    selectedPractice + ": " + practiceLookup.get(selectedPractice);
 };
 
 let updateTextPCN = function () {
@@ -247,12 +248,6 @@ Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
     });
     // .addTo(mapPCNMain.map);
 
-    mapControl
-      .addTo(mapPCNMain.map)
-      // .setOverlayTree(overlaysTree)
-      .collapseTree() // collapse the baselayers tree
-      // .expandSelected() // expand selected option in the baselayer
-      .collapseTree(true); // true to collapse the overlays tree
-    // .expandSelected(true); // expand selected option in the overlays tree
+    mapControl.addTo(mapPCNMain.map);
   }
 );

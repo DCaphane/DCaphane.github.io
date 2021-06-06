@@ -226,9 +226,9 @@ Promise.all([geoDataPCN, geoDataCCGBoundary, geoDataCYCWards]).then(
     mapControl
       .addTo(mapPCNSite.map)
       // .setOverlayTree(overlaysTree)
-      .collapseTree() // collapse the baselayers tree
+      // .collapseTree() // collapse the baselayers tree
       // .expandSelected() // expand selected option in the baselayer
-      .collapseTree(true); // true to collapse the overlays tree
+      // .collapseTree(true); // true to collapse the overlays tree
     // .expandSelected(true); // expand selected option in the overlays tree
   }
 );

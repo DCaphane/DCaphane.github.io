@@ -205,7 +205,7 @@ function initChartDemog(dataInit, id) {
   const tooltipOverAge = newTooltip
     .tooltip(footer)
     .style("height", "60px")
-    .style("width", "180px");
+    .style("width", "220px");
   // Population over age ...
 
   const chtHeightMini = chtHeightShort / 2;
@@ -308,12 +308,12 @@ ${chtHeightMini + 20}`
       totalPop2 = fnTotalPopulation(dataP2, "total"),
       totalPop1Male = fnTotalPopulation(dataP1, "male"),
       totalPop1Female = fnTotalPopulation(dataP1, "female");
-    console.log({
-      pop1: totalPop1,
-      pop2: totalPop2,
-      pop1Male: totalPop1Male,
-      pop1Female: totalPop1Female,
-    });
+    // console.log({
+    //   pop1: totalPop1,
+    //   pop2: totalPop2,
+    //   pop1Male: totalPop1Male,
+    //   pop1Female: totalPop1Female,
+    // });
 
     // find the maximum data value on either side
     // since this will be shared by both of the x-axes
@@ -404,10 +404,11 @@ ${chtHeightMini + 20}`
       .on("click", function (event, d) {
         console.log("selAge:", d.ageBand);
       })
-      .on("mouseover", function (event, d) {
+      .on("mousemove", function (event, d) {
         const sel = d3.select(this);
         sel.attr("class", "bar hover");
-        // newTooltip.mouseover(sel, tooltipDemog);
+
+        const pos = this.getBoundingClientRect();
 
         const str = `<strong>Male: ${d.ageBand} yrs</strong><br>
             <span style="color:red">
@@ -417,7 +418,7 @@ ${chtHeightMini + 20}`
             <br>
             % Male: ${formatPercent1dp(d.population.male / totalPop1Male)}
               `;
-        newTooltip.mouseover(tooltipDemog, str, event);
+        newTooltip.mousemoveH(tooltipDemog, str, event, pos);
       })
       .on("mouseout", function () {
         const sel = d3.select(this);
@@ -455,10 +456,10 @@ ${chtHeightMini + 20}`
       .on("click", function (event, d) {
         console.log("selAge:", d.ageBand);
       })
-      .on("mouseover", function (event, d) {
+      .on("mousemove", function (event, d) {
         const sel = d3.select(this);
         sel.attr("class", "bar hover");
-
+        const pos = this.getBoundingClientRect();
         const str = `<strong>Female: ${d.ageBand} yrs</strong><br>
     <span style="color:red">
       Pop'n: ${formatNumber(d.population.female)}
@@ -467,7 +468,7 @@ ${chtHeightMini + 20}`
     <br>
     % Female: ${formatPercent1dp(d.population.female / totalPop1Female)}
       `;
-        newTooltip.mouseover(tooltipDemog, str, event);
+        newTooltip.mousemoveH(tooltipDemog, str, event, pos);
       })
       .on("mouseout", function () {
         const sel = d3.select(this);
@@ -612,22 +613,7 @@ ${chtHeightMini + 20}`
       .join(
         (
           enter // ENTER new elements present in new data.
-        ) =>
-          enter
-            .append("rect")
-            .on("mouseover", function (event, d) {
-              const str = `<strong>${d.practice}</strong><br>
-    <span style="color:red">
-    Population over ${ageOver}: ${formatNumber(d.popn.selPopn)}
-      </span><br>
-    Percent over ${ageOver}: ${formatPercent1dp(d.popn.pct)}
-      `;
-              newTooltip.mouseover(tooltipOverAge, str, event);
-            })
-            .on("mouseout", function () {
-              newTooltip.mouseout(tooltipOverAge);
-            })
-            .call((enter) => enter),
+        ) => enter.append("rect").call((enter) => enter),
         (
           update // UPDATE old elements present in new data.
         ) => update.call((update) => update),
@@ -635,6 +621,23 @@ ${chtHeightMini + 20}`
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
       )
+      .on("mouseover", function (event, d) {
+        const pos = this.getBoundingClientRect();
+        const test = practiceLookup.has(d.practice)
+          ? `: ${titleCase(practiceLookup.get(d.practice))}`
+          : "";
+        const str = `<strong>${d.practice}${test}</strong><br>
+<span style="color:red">
+Population over ${ageOver}: ${formatNumber(d.popn.selPopn)}
+</span><br>
+Percent over ${ageOver}: ${formatPercent1dp(d.popn.pct)}
+`;
+        newTooltip.mouseover(tooltipOverAge, str, event, pos);
+      })
+      .on("mouseout", function () {
+        newTooltip.mouseout(tooltipOverAge);
+      })
+
       .attr("class", "bar")
       .transition(t)
       .attr("fill", function (d) {
