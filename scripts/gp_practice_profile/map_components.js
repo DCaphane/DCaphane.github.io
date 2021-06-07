@@ -954,9 +954,7 @@ function refreshChartsPostPracticeChange(practice) {
 
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
-  // consider wrapping below two lines in an update function
   bubbleTest.updateD3BubbleLsoa();
-  bubbleTest.updateBubbleColour(imdDomainShortD3); // ensures colour matches dropdown
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();

@@ -32,9 +32,12 @@ function createTooltip() {
   }
 
   // Tooltip Functions
+
+  const navHeight = document.getElementById("nav-main").offsetHeight;
+
   // function that change the tooltip when user hover / move / leave a cell
 
-  function mouseover(tooltip, str, event, pos, x = 0, y = 0) {
+  function mouseover(tooltip, str, event, pos, { x = 0, y = 0 } = {}) {
     /*
     event can be used to position tooltip when mouse enters but this can be variable
     Use const pos = this.getBoundingClientRect() to put tooltip in a constant (y) position
@@ -49,19 +52,29 @@ function createTooltip() {
       tooltipHeight = parseInt(tooltip.style("height"));
     // console.log({w: tooltipWidth, h: tooltipHeight})
 
-    tooltip.style("opacity", 0.9); // .transition().duration(50)
+    const distFromTop = event.pageY - window.scrollY - navHeight; // how far from top
+    // console.log({navHeight: navHeight, eY: event.pageY, sY: window.scrollY, ttH: tooltipHeight, y: y})
+    let adj =
+      distFromTop - tooltipHeight + y > 8
+        ? 0
+        : -(distFromTop - tooltipHeight + y - 8);
+
     tooltip
+      .style("opacity", 0.9) // .transition().duration(50)
       .html(str)
       .style("left", `${event.pageX - tooltipWidth / 2 + x}px`) // d3 but tooltip appears where the mouse enters
-      // .style("top", `${event.pageY}px`) // d3 but tooltip appears where the mouse enters
+      // .style("top", `${event.pageY - tooltipHeight - 5 + y + adj}px`) // d3 but tooltip appears where the mouse enters
       // .style(
       //   "left",
       //   `${window.scrollY + pos.left + pos.width / 2 - tooltipWidth / 2 + x}px`
       // )
-      .style("top", `${window.scrollY + pos.y - tooltipHeight - 5 + y}px`); // scrollY is how far down page scrolled, pos.Y is relative to viewport
+      .style(
+        "top",
+        `${window.scrollY + pos.y - tooltipHeight - 5 + y + adj}px`
+      ); // scrollY is how far down page scrolled, pos.Y is relative to viewport
   }
 
-  function mousemoveH(tooltip, str, event, pos, x = 0, y = 0) {
+  function mousemoveH(tooltip, str, event, pos, { x = 0, y = 0 } = {}) {
     /*
     moving tooltip for horizontal bars
     */
@@ -69,8 +82,14 @@ function createTooltip() {
       tooltipHeight = parseInt(tooltip.style("height"));
     // console.log({w: tooltipWidth, h: tooltipHeight})
 
-    tooltip.style("opacity", 0.9); // .transition().duration(50)
+    const distFromTop = event.pageY - window.scrollY - navHeight; // how far from top
+    let adj =
+      distFromTop - tooltipHeight + y > 8
+        ? 0
+        : -(distFromTop - tooltipHeight + y - 8);
+
     tooltip
+      .style("opacity", 0.9) // .transition().duration(50)
       .html(str)
       .style("left", `${event.pageX - tooltipWidth / 2 + x}px`) // d3 but tooltip appears where the mouse enters
       // .style("top", `${event.pageY - tooltipHeight - 5 + y}px`) // d3 but tooltip appears where the mouse enters
@@ -78,22 +97,31 @@ function createTooltip() {
       //   "left",
       //   `${window.scrollY + pos.left + pos.width / 2 - tooltipWidth / 2 + x}px`
       // )
-      .style("top", `${window.scrollY + pos.y - tooltipHeight - 5 + y}px`); // scrollY is how far down page scrolled, pos.Y is relative to viewport
+      .style(
+        "top",
+        `${window.scrollY + pos.y - tooltipHeight - 5 + y + adj}px`
+      ); // scrollY is how far down page scrolled, pos.Y is relative to viewport
   }
 
-  function mousemoveV(tooltip, str, event, pos, x = 0, y = 0) {
+  function mousemoveV(tooltip, str, event, pos, { x = 0, y = 0 } = {}) {
     /*
     moving tooltip for vertical bars
     */
     const tooltipWidth = parseInt(tooltip.style("width")),
       tooltipHeight = parseInt(tooltip.style("height"));
-    // console.log({w: tooltipWidth, h: tooltipHeight})
+    // console.log({w: tooltipWidth, h: tooltipHeight, y: y})
 
-    tooltip.style("opacity", 0.9); // .transition().duration(50)
+    const distFromTop = event.pageY - window.scrollY - navHeight; // how far from top
+    let adj =
+      distFromTop - tooltipHeight + y > 8
+        ? 0
+        : -(distFromTop - tooltipHeight + y - 8);
+
     tooltip
+      .style("opacity", 0.9) // .transition().duration(50)
       .html(str)
       .style("left", `${event.pageX - tooltipWidth / 2 + x}px`) // d3 but tooltip appears where the mouse enters
-      .style("top", `${event.pageY - tooltipHeight - 5 + y}px`); // d3 but tooltip appears where the mouse enters
+      .style("top", `${event.pageY - tooltipHeight - 5 + y + adj}px`); // d3 but tooltip appears where the mouse enters
     // .style(
     //   "left",
     //   `${window.scrollY + pos.left + pos.width / 2 - tooltipWidth / 2 + x}px`

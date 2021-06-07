@@ -40,8 +40,8 @@ mapD3Bubble.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
-let imdDomainDescD3 = "IMD Rank",
-  imdDomainShortD3 = "imdRank";
+let imdDomainDescD3 = "Population",
+  imdDomainShortD3 = "Population";
 
 function imdDomainD3(id = "selD3Leaf") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
@@ -291,6 +291,7 @@ function imdDomainD3(id = "selD3Leaf") {
         )}</span>`;
 
         let subString;
+
         if (imdDomainDescD3 !== "Population") {
           let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
 
@@ -302,7 +303,22 @@ function imdDomainD3(id = "selD3Leaf") {
           } else {
             return "";
           }
+        } else {
+          subString = "";
         }
+        //  // Option to return IMD Rank as a default option instead of "" above
+        // else {
+        //   let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
+
+        //   if (obj !== undefined) {
+        //     const value = obj.imdRank;
+
+        //     subString = `<br><strong>IMD Rank:
+        //   </strong><span style="color:red">${formatNumber(value)}</span>`;
+        //   } else {
+        //     return "";
+        //   }
+        // }
 
         newTooltip.counter++;
         newTooltip.mouseover(tooltipD3Lsoa, str + subString, event, pos);
@@ -344,7 +360,7 @@ function imdDomainD3(id = "selD3Leaf") {
       .style("pointer-events", "all");
 
     refreshBubbles();
-    updateBubbleColour();
+    updateBubbleColour(imdDomainShortD3); // ensures colour matches dropdown
 
     const legendData = [maxValue / 10, maxValue / 2, maxValue];
     const d3BubbleLegend = bubbleLegend
@@ -404,7 +420,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
     return {
       updateD3BubbleLsoa: updateD3BubbleLsoa,
-      updateBubbleColour: updateBubbleColour,
+      // updateBubbleColour: updateBubbleColour,
     };
   }
 
@@ -415,7 +431,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   return {
     updateD3BubbleLsoa: updateD3BubbleLsoa,
-    updateBubbleColour: updateBubbleColour,
+    // updateBubbleColour: updateBubbleColour,
   };
 }
 

@@ -162,7 +162,7 @@ ${chtHeightStd + 60}`
   </span><br>
 Popn: ${formatNumber(d.population)}
   `;
-        newTooltip.mousemoveV(tooltipPopnBar, str, event, pos, 0, -30);
+        newTooltip.mousemoveV(tooltipPopnBar, str, event, pos, { y: -30 });
       })
       .on("mouseout", function () {
         const sel = d3.select(this);
