@@ -494,57 +494,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
             //   return [x, y, i];
             // })
             // mouse events need to go before any transitions
-            .on("click", function (event, d) {
-              userSelections.selectedDate = d.period;
-              console.log("selectedDate:", formatPeriod(d.period)); // selectedDate
-              // line below needs to be selectAll (2 instances, current and new?)
-              // this removes any previously applied formatting
-              d3.selectAll(".trend-circle.highlight").attr(
-                "class",
-                "trend-circle"
-              );
-              const sel = d3.select(this);
-              sel.raise();
-              sel.classed("highlight", true);
-              updateMiniMarker();
-              demographicChart.updateChtDemog(
-                userSelections.selectedPractice,
-                userSelections.selectedPracticeCompare
-              );
-              recolourLSOA();
-              bubbleTest.updateD3BubbleLsoa();
-            })
-            .on("mouseover", function (event, d) {
-              const sel = d3.select(this);
-              sel.raise(); // brings the marker to the top
-              sel.classed("highlight toTop", true);
 
-              // console.log(event.target);
-              const str = `<strong>${formatPeriod(
-                new Date(d.period)
-              )}</strong><br>
-            <span style="color:red">
-              ${formatNumber(d.population)}
-              </span>`;
-              newTooltip.counter++;
-              newTooltip.mouseover(tooltipTrend, str, event);
-            })
-            .on("mouseout", function (event, d) {
-              const sel = d3.select(this);
-              sel.lower();
-              sel.attr("class", "trend-circle faa-vertical animated-hover");
-              sel.classed("highlight animated", function (d) {
-                return d.period === userSelections.selectedDate;
-              });
-              newTooltip.mouseout(tooltipTrend);
-            })
-            // .on("mouseleave", function () {
-            //   const item = d3.select(this);
-
-            // })
-            // .on("mousemove", function (event, d) {
-
-            // })
             .call(
               (enter) => enter
               // .transition(t)
@@ -568,7 +518,55 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
       )
-      .attr("class", "trend-circle faa-vertical animated-hover")
+      .on("click", function (event, d) {
+        userSelections.selectedDate = d.period;
+        console.log("selectedDate:", formatPeriod(d.period)); // selectedDate
+        // line below needs to be selectAll (2 instances, current and new?)
+        // this removes any previously applied formatting
+        d3.selectAll(".trend-circle.highlight").attr("class", "trend-circle");
+        const sel = d3.select(this);
+        sel.raise();
+        sel.classed("highlight", true);
+        updateMiniMarker();
+        demographicChart.updateChtDemog(
+          userSelections.selectedPractice,
+          userSelections.selectedPracticeCompare
+        );
+        recolourLSOA();
+        bubbleTest.updateD3BubbleLsoa();
+      })
+      .on("mouseover", function (event, d) {
+        const sel = d3.select(this);
+
+        sel.raise(); // brings the marker to the top
+        sel.classed("highlight toTop", true);
+
+        const pos = this.getBoundingClientRect();
+
+        const str = `<strong>${formatPeriod(new Date(d.period))}</strong><br>
+    <span style="color:red">
+      ${formatNumber(d.population)}
+      </span>`;
+        newTooltip.counter++;
+        newTooltip.mouseover(tooltipTrend, str, event, pos);
+      })
+      .on("mouseout", function (event, d) {
+        const sel = d3.select(this);
+        sel.lower();
+        sel.attr("class", "trend-circle faa-vertical");
+        sel.classed("highlight animated", function (d) {
+          return d.period === userSelections.selectedDate;
+        });
+        newTooltip.mouseout(tooltipTrend);
+      })
+      // .on("mouseleave", function () {
+      //   const item = d3.select(this);
+
+      // })
+      // .on("mousemove", function (event, d) {
+
+      // })
+      .attr("class", "trend-circle faa-vertical")
       .classed("highlight animated", function (d) {
         return d.period === userSelections.selectedDate;
       })

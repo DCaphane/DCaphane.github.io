@@ -232,6 +232,10 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.tooltip {
+  pointer-events: none;
+}
+
 /* Animations */
 /*     <!-- https://l-lin.github.io/font-awesome-animation/ -->
     <link

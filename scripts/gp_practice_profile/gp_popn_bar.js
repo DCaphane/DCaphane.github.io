@@ -129,32 +129,7 @@ ${chtHeightStd + 60}`
         ) =>
           enter
             .append("rect")
-            .on("click", function (event, d) {
-              console.log("selPractice:", d.practice);
-            })
-            .on("mouseover", function (event, d) {
-              const sel = d3.select(this);
-              sel.attr("fill", "red");
-              const str = `<strong>Code: ${d.practice}</strong><br>
-      <span style="color:red">
-        ${practiceLookup.get(d.practice)}
-        </span><br>
-      Popn: ${formatNumber(d.population)}
-        `;
-              newTooltip.mouseover(tooltipPopnBar, str, event);
-            })
-            .on("mouseout", function () {
-              const sel = d3.select(this);
-              newTooltip.mouseout(tooltipPopnBar);
-              sel
-                .transition("tempFill")
-                .duration(250)
-                .attr("fill", function (d) {
-                  return d3.interpolateGreys(
-                    d3.max([1.0 - d.population / yMax, 0.4])
-                  );
-                });
-            })
+
             .call((enter) =>
               enter
                 .attr("x", function (d) {
@@ -174,6 +149,33 @@ ${chtHeightStd + 60}`
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
       )
+      .on("click", function (event, d) {
+        console.log("selPractice:", d.practice);
+      })
+      .on("mousemove", function (event, d) {
+        const sel = d3.select(this);
+        sel.attr("fill", "red");
+        const pos = this.getBoundingClientRect();
+        const str = `<strong>Code: ${d.practice}</strong><br>
+<span style="color:red">
+  ${practiceLookup.get(d.practice)}
+  </span><br>
+Popn: ${formatNumber(d.population)}
+  `;
+        newTooltip.mousemoveV(tooltipPopnBar, str, event, pos, { y: -30 });
+      })
+      .on("mouseout", function () {
+        const sel = d3.select(this);
+        newTooltip.mouseout(tooltipPopnBar);
+        sel
+          .transition("tempFill")
+          .duration(250)
+          .attr("fill", function (d) {
+            return d3.interpolateGreys(
+              d3.max([1.0 - d.population / yMax, 0.4])
+            );
+          });
+      })
       .attr("class", "bar")
       .classed("barPopn highlight", function (d) {
         return d.practice === userSelections.selectedPractice;
