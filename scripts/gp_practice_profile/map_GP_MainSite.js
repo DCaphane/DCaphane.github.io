@@ -35,15 +35,16 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     },
   });
 
-  map.map.addLayer(highlightPractice);
-
-  if (zoomToExtent) {
-    // map.map.fitBounds(highlightPractice.getBounds());
-    const practiceLocation = highlightPractice.getBounds().getCenter();
-    map.map.setView(practiceLocation, 10);
-  }
   if (selPractice === "All Practices" || selPractice === undefined) {
     defaultHomeVoY.call(mapMain);
+  } else {
+    map.map.addLayer(highlightPractice);
+
+    if (zoomToExtent) {
+      // map.map.fitBounds(highlightPractice.getBounds());
+      const practiceLocation = highlightPractice.getBounds().getCenter();
+      map.map.setView(practiceLocation, 10);
+    }
   }
 }
 
