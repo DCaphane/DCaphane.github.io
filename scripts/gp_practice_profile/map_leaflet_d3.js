@@ -182,12 +182,17 @@ function imdDomainD3(id = "selD3Leaf") {
   // console.log(v);
 
   /* From the LSOA polygon, populate an array of objects showing:
-     lsoa name, polygon center, default to 0 population as will subsequently be derived*/
-  L.geoJson(geoDataLsoaBoundaries, {
+     lsoa name, polygon center, default to 0 population as will subsequently be derived
+    Can derive the geometric centre using geoDataLsoaBoundaries and .getCenter()
+    Population centroid figures are published
+     */
+  L.geoJson(geoDateLsoaPopnCentroid, {
     onEachFeature: function (feature, layer) {
       let obj = {};
-      obj.lsoa = layer.feature.properties.lsoa; // lsoa code
-      obj.lsoaCentre = layer.getBounds().getCenter(); // centre of the layer polygon
+      obj.lsoa = layer.feature.properties.lsoa11cd; // lsoa code
+      // obj.lsoaCentre = layer.getBounds().getCenter(); // geometric centre of the layer polygon (lsoa)
+      const coordsLngLat = layer.feature.geometry.coordinates;
+      obj.lsoaCentre = [coordsLngLat[1], coordsLngLat[0]]; // reverse order of LngLat to LatLng
       obj.lsoaPopulation = 0;
       lsoaCentroidDetails.push(obj);
     },
@@ -509,7 +514,7 @@ const baseTreeD3Bubble = (function () {
   };
 })();
 
-overlaysTreeBubble.children[0] = overlayTrusts();
+overlaysTreeBubble.children[3] = overlayTrusts();
 
 const mapControlBubble = L.control.layers.tree(
   baseTreeD3Bubble,

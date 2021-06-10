@@ -26,7 +26,7 @@ function createTooltip() {
       .style("text-align", "center")
       .style("font", "12px sans-serif")
       .style("color", "white") // font colour
-      .style("z-index", "999"); // bring tooltip to front
+      .style("z-index", "100000"); // bring tooltip to front, needed for D3 tooltip on Leaflet
 
     return t;
   }
