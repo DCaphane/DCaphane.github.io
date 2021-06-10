@@ -223,22 +223,3 @@ const mapControlMain = L.control.layers.tree(baseTreeMain, overlaysTreeMain, {
 });
 
 mapControlMain.addTo(mapMain.map);
-
-function addNationalTrustSites() {
-  // promHospitalDetails.then(() => {
-  const nationalTrustSites = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "NHS",
-        layer: mapHospitalLayers.get("NHS Sector"),
-      },
-      {
-        label: "Independent",
-        layer: mapHospitalLayers.get("Independent Sector"),
-      },
-    ],
-  };
-  overlaysTreeMain.children[5] = nationalTrustSites;
-}

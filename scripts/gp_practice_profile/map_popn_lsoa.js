@@ -97,7 +97,6 @@ function recolourLSOA() {
 }
 
 // Functions to initialise D3 and geo charts - run after everything has been declared...
-// consider if promise (to wait for importGeoData needs to be run here...)
 
 function initD3Charts() {
   trendChart = initTrendChart(dataPopulationGP, "cht_PopTrend");
@@ -116,6 +115,7 @@ function refreshGeoChart() {
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
   ccgBoundary(true);
+  overlayTrustsNational();
 }
 
 importPopnData.then(() => {
@@ -123,7 +123,6 @@ importPopnData.then(() => {
 });
 
 Promise.allSettled([importPopnData, importGeoData]).then((values) => {
-  addNationalTrustSites();
   initGeoCharts();
   bubbleTest = imdDomainD3();
   // Dependent on Population data...

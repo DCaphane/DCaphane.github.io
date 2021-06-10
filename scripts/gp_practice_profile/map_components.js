@@ -87,6 +87,7 @@ let // geo coded data
   geoDataCYCWards,
   geoDataCCGBoundary,
   geoDataLsoaBoundaries,
+  geoDateLsoaPopnCentroid,
   dataIMD; // not geo data but only used in map chart
 // Organisation Data
 // hospitalDetails; -- handled in map object
@@ -103,10 +104,13 @@ const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
   promGeoDataLsoaBoundaries = d3.json(
     "Data/geo/lsoa_gp_selected_simple20cp6.geojson"
   ),
+  promGeoDateLsoaPopnCentroid = d3.json(
+    "Data/geo/lsoa_population_centroid_03q.geojson"
+  ),
   promHospitalDetails = d3.dsv(
     "�", // \u00AC
-    "Data/geo/Hospital.csv",
-    processDataHospitalSite
+    "Data/geo/Hospital.csv"
+    // processDataHospitalSite
   ),
   promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD);
 // promGPPracticeDetails = d3.json(
@@ -121,7 +125,8 @@ const importGeoData = (async function displayContent() {
     promGeoDataCYCWards,
     promGeoDataCCGBoundary,
     promGeoDataLsoaBoundaries,
-    promHospitalDetails,
+    promGeoDateLsoaPopnCentroid,
+    // promHospitalDetails,
     promDataIMD,
     // promGPPracticeDetails,
   ])
@@ -133,12 +138,14 @@ const importGeoData = (async function displayContent() {
       geoDataCYCWards = values[2].value;
       geoDataCCGBoundary = values[3].value;
       geoDataLsoaBoundaries = values[4].value;
-      // hospitalDetails = values[5].value;
+      geoDateLsoaPopnCentroid = values[5].value;
+      // promHospitalDetails is 6
       dataIMD = values[6].value;
-      // gpDetails = values[7].value;
+      // gpDetails = values[8].value;
     })
     .then(() => {
       // Assumption here that everything in other scripts is declared before this step...
+      // console.log(geoDateLsoaPopnCentroid)
     });
 })();
 
@@ -150,7 +157,13 @@ function initGeoCharts() {
   // // from map_popn_lsoa.js
   gpSites();
 
-  // refresh Overlay Options
+  // refresh Overlay Options - ensures everything is loaded
+  refreshMapOverlayControls();
+}
+
+// Functions to refresh the map overlay buttons
+
+function refreshMapOverlayControls() {
   refreshMapMainControl();
   refreshMapControlSites();
   refreshMapControlPopn();
@@ -158,7 +171,6 @@ function initGeoCharts() {
   refreshMapControlBubble();
 }
 
-// Functions to refresh the map overlay buttons
 function refreshMapMainControl() {
   mapControlMain
     .setOverlayTree(overlaysTreeMain)
@@ -183,13 +195,13 @@ function refreshMapControlPopn() {
     .collapseTree(true);
 }
 
-function refreshMapControlPopn2() {
-  mapControlPopn
-    .setOverlayTree(overlaysTreeBubble)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
+// function refreshMapControlPopn2() {
+//   mapControlPopn
+//     .setOverlayTree(overlaysTreeBubble)
+//     .collapseTree() // collapse the baselayers tree
+//     // .expandSelected() // expand selected option in the baselayer
+//     .collapseTree(true);
+// }
 
 function refreshMapControlIMD() {
   mapControlIMD
@@ -742,7 +754,7 @@ function ccgBoundary(zoomToExtent = true) {
     ],
   };
   overlaysTreeBubble.children[1] = overlayCCGsD3;
-  refreshMapControlBubble;
+  refreshMapControlBubble();
 
   if (zoomToExtent) {
     mapMain.map.fitBounds(ccgBoundary.getBounds());
@@ -813,7 +825,7 @@ function lsoaBoundary(zoomToExtent = false) {
     ],
   };
   overlaysTreeBubble.children[0] = overlayLsoaD3Bubble;
-  refreshMapControlPopn2();
+  refreshMapControlBubble();
 
   // if (zoomToExtent) {
   //   mapPopn.map.fitBounds(lsoaLayer.getBounds());
@@ -1380,6 +1392,47 @@ function overlayTrusts() {
   };
 }
 
+async function overlayTrustsNational() {
+  const mapHospitalLayers = await processDataHospitalSite();
+
+  const nationalTrusts = {
+    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "NHS",
+        layer: mapHospitalLayers.get("NHS Sector"),
+      },
+      {
+        label: "Independent",
+        layer: mapHospitalLayers.get("Independent Sector"),
+      },
+    ],
+  };
+  overlaysTreeMain.children[5] = nationalTrusts;
+  refreshMapMainControl();
+
+  const mapHospitalLayers1 = await processDataHospitalSite();
+
+  const nationalTrusts1 = {
+    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "NHS",
+        layer: mapHospitalLayers1.get("NHS Sector"),
+      },
+      {
+        label: "Independent",
+        layer: mapHospitalLayers1.get("Independent Sector"),
+      },
+    ],
+  };
+
+  overlaysTreeBubble.children[4] = nationalTrusts1;
+  refreshMapControlBubble();
+}
+
 function overlayWards(mapObj) {
   return {
     label: "Ward Boundaries",
@@ -1468,37 +1521,40 @@ function overlayLSOA(mapObj) {
   };
 }
 
-const mapHospitalLayers = new Map();
-
-function processDataHospitalSite(d) {
-  if (isNaN(+d.Latitude)) {
-    console.log(d.OrganisationCode, d.Latitude);
-  } else {
-    const marker = new L.marker([+d.Latitude, +d.Longitude], {
-      icon: L.BeautifyIcon.icon({
-        iconShape: "circle",
-        icon: "h-square",
-        borderColor: "transparent",
-        backgroundColor: "transparent",
-        textColor: hospitalSiteColour(d.Sector), // Text color of marker icon
-      }),
-      zIndexOffset: 1000,
-      draggable: false,
-    }).bindPopup(
-      `<h3>${d.OrganisationCode}</h3>
+async function processDataHospitalSite() {
+  const data = await promHospitalDetails; // details of national hospital sites
+  const mapHospitalLayers = new Map();
+  data.forEach((d) => {
+    if (isNaN(+d.Latitude)) {
+      console.log(d.OrganisationCode, d.Latitude);
+    } else {
+      const marker = new L.marker([+d.Latitude, +d.Longitude], {
+        icon: L.BeautifyIcon.icon({
+          iconShape: "circle",
+          icon: "h-square",
+          borderColor: "transparent",
+          backgroundColor: "transparent",
+          textColor: hospitalSiteColour(d.Sector), // Text color of marker icon
+        }),
+        zIndexOffset: 1000,
+        draggable: false,
+      }).bindPopup(
+        `<h3>${d.OrganisationCode}</h3>
         <p>${d.OrganisationCode}: ${d.OrganisationName}
         <br>${d.Sector}
         <br><p>${d.ParentODSCode}: ${d.ParentName}</p>`
-    );
+      );
 
-    const category = d.Sector; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-    if (!mapHospitalLayers.has(category)) {
-      // Initialize the category array if not already set.
-      mapHospitalLayers.set(category, L.layerGroup());
+      const category = d.Sector; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+      if (!mapHospitalLayers.has(category)) {
+        // Initialize the category array if not already set.
+        mapHospitalLayers.set(category, L.layerGroup());
+      }
+      mapHospitalLayers.get(category).addLayer(marker);
     }
-    mapHospitalLayers.get(category).addLayer(marker);
-  }
+  });
 
+  return mapHospitalLayers;
   // Reference if wanted to auto add to map
   //   L.layerGroup(Array.from(mapHospitalLayers.values())).addTo(map);
 
@@ -1626,7 +1682,7 @@ const baseTreePopn = (function () {
   };
 })();
 
-overlaysTreePopn.children[0] = overlayTrusts();
+overlaysTreePopn.children[0] = overlayTrusts(); // Add selected hospitals to overlay
 
 const mapControlPopn = L.control.layers.tree(baseTreePopn, overlaysTreePopn, {
   // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
