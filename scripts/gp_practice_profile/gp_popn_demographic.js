@@ -623,10 +623,10 @@ ${chtHeightMini + 20}`
       )
       .on("mouseover", function (event, d) {
         const pos = this.getBoundingClientRect();
-        const test = practiceLookup.has(d.practice)
+        const practiceName = practiceLookup.has(d.practice)
           ? `: ${titleCase(practiceLookup.get(d.practice))}`
           : "";
-        const str = `<strong>${d.practice}${test}</strong><br>
+        const str = `<strong>${d.practice}${practiceName}</strong><br>
 <span style="color:red">
 Population over ${ageOver}: ${formatNumber(d.popn.selPopn)}
 </span><br>

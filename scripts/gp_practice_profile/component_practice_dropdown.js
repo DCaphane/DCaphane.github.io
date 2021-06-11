@@ -35,7 +35,7 @@ function updateDropdowns() {
         docFrag.appendChild(
           createElem(
             "option",
-            pCode + ": " + titleCase(practiceLookup.get(pCode))
+            `${pCode}: ${titleCase(practiceLookup.get(pCode))}`
           )
         ); // Note that this does NOT go to the DOM
       } else {

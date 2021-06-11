@@ -26,7 +26,17 @@ const newTooltip = createTooltip();
 // Try storing user Selections in an object
 const userSelections = {
   selectedPractice: "All Practices",
+  selectedPracticeName() {
+    return practiceLookup.has(this.selectedPractice)
+      ? titleCase(practiceLookup.get(this.selectedPractice))
+      : "";
+  },
   selectedPracticeCompare: "None",
+  selectedPracticeCompareName() {
+    return practiceLookup.has(this.selectedPracticeCompare)
+      ? titleCase(practiceLookup.get(this.selectedPracticeCompare))
+      : "";
+  },
   selectedDate: null,
   nearestDate(arr = arrayGPLsoaDates) {
     // arr will typically be arrayGPLsoaDates here
@@ -71,7 +81,7 @@ function practiceDetailsDropDown() {
         const orgID = d["OrgId"];
         const orgName = d["Name"];
 
-        practiceLookup.set(orgID, orgName); // add bank holiday date to the map as an integer
+        practiceLookup.set(orgID, orgName);
       });
     })
     .then(() => updateDropdowns());

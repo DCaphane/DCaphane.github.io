@@ -109,8 +109,8 @@ const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
   ),
   promHospitalDetails = d3.dsv(
     "�", // \u00AC
-    "Data/geo/Hospital.csv"
-    // processDataHospitalSite
+    "Data/geo/Hospital.csv",
+    processDataHospitalSite
   ),
   promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD);
 // promGPPracticeDetails = d3.json(
@@ -391,11 +391,9 @@ function addPracticeToMap(zoomToExtent = false) {
       });
       layer.on("click", function (e) {
         // update other charts
-        (userSelections.selectedPractice = feature.properties.practice_code), // change the practice to whichever was clicked
-          (practiceName = feature.properties.practice_name);
+        userSelections.selectedPractice = feature.properties.practice_code; // change the practice to whichever was clicked
+        // practiceName = feature.properties.practice_name;
         // console.log(userSelections.selectedPractice + " - " + practiceName);
-        document.getElementById("selPractice").value =
-          userSelections.selectedPractice; // change the selection box dropdown to reflect clicked practice
         // option to zoom to marker - now handled in fn refreshChartsPostPracticeChange
         // map.setView(e.latlng, 11);
         refreshChartsPostPracticeChange(userSelections.selectedPractice);
@@ -955,7 +953,11 @@ function filterFunctionLsoa(zoomToExtent = false) {
 
 function refreshChartsPostPracticeChange(practice) {
   console.log(practice);
-  highlightFeature(practice, mapMain, true); // console.log(event.text.label, event.text.value)
+  // change the selection box dropdown to reflect clicked practice
+  document.getElementById("selPractice").value = `${
+    userSelections.selectedPractice
+  }: ${userSelections.selectedPracticeName()}`;
+  highlightFeature(practice, mapMain, true);
   trendChart.chartTrendDraw();
   demographicChart.updateChtDemog(
     practice,
@@ -1392,47 +1394,6 @@ function overlayTrusts() {
   };
 }
 
-async function overlayTrustsNational() {
-  const mapHospitalLayers = await processDataHospitalSite();
-
-  const nationalTrusts = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "NHS",
-        layer: mapHospitalLayers.get("NHS Sector"),
-      },
-      {
-        label: "Independent",
-        layer: mapHospitalLayers.get("Independent Sector"),
-      },
-    ],
-  };
-  overlaysTreeMain.children[5] = nationalTrusts;
-  refreshMapMainControl();
-
-  const mapHospitalLayers1 = await processDataHospitalSite();
-
-  const nationalTrusts1 = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "NHS",
-        layer: mapHospitalLayers1.get("NHS Sector"),
-      },
-      {
-        label: "Independent",
-        layer: mapHospitalLayers1.get("Independent Sector"),
-      },
-    ],
-  };
-
-  overlaysTreeBubble.children[4] = nationalTrusts1;
-  refreshMapControlBubble();
-}
-
 function overlayWards(mapObj) {
   return {
     label: "Ward Boundaries",
@@ -1521,31 +1482,46 @@ function overlayLSOA(mapObj) {
   };
 }
 
-async function processDataHospitalSite() {
+function processDataHospitalSite(d) {
+  if (isNaN(+d.Latitude)) {
+    console.log(d.OrganisationCode, d.Latitude);
+  }
+
+  return {
+    latitude: +d.Latitude,
+    // longitude: +d.Longitude,
+    markerPosition: [+d.Latitude, +d.Longitude],
+    sector: d.Sector, // nhs or independent
+    organisationCode: d.OrganisationCode,
+    organisationName: d.OrganisationName,
+    parentODSCode: d.ParentODSCode,
+    parentName: d.ParentName,
+  };
+}
+
+async function mapMarkersNationalTrust() {
   const data = await promHospitalDetails; // details of national hospital sites
   const mapHospitalLayers = new Map();
   data.forEach((d) => {
-    if (isNaN(+d.Latitude)) {
-      console.log(d.OrganisationCode, d.Latitude);
-    } else {
-      const marker = new L.marker([+d.Latitude, +d.Longitude], {
+    if (!isNaN(d.latitude)) {
+      const marker = new L.marker(d.markerPosition, {
         icon: L.BeautifyIcon.icon({
           iconShape: "circle",
           icon: "h-square",
           borderColor: "transparent",
           backgroundColor: "transparent",
-          textColor: hospitalSiteColour(d.Sector), // Text color of marker icon
+          textColor: hospitalSiteColour(d.sector), // Text color of marker icon
         }),
         zIndexOffset: 1000,
         draggable: false,
       }).bindPopup(
-        `<h3>${d.OrganisationCode}</h3>
-        <p>${d.OrganisationCode}: ${d.OrganisationName}
-        <br>${d.Sector}
-        <br><p>${d.ParentODSCode}: ${d.ParentName}</p>`
+        `<h3>${d.organisationCode}</h3>
+        <p>${d.organisationCode}: ${d.organisationName}
+        <br>${d.sector}
+        <br><p>${d.parentODSCode}: ${d.parentName}</p>`
       );
 
-      const category = d.Sector; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+      const category = d.sector; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
       if (!mapHospitalLayers.has(category)) {
         // Initialize the category array if not already set.
         mapHospitalLayers.set(category, L.layerGroup());
@@ -1561,6 +1537,47 @@ async function processDataHospitalSite() {
   //   // Add to overlay control
   //   const ol = overlayPCNs(mapHospitalLayers);
   //   overlaysTreeMain.children[0] = ol;
+}
+
+async function overlayTrustsNational() {
+  const mapHospitalLayers = await mapMarkersNationalTrust();
+  // console.log(mapHospitalLayers);
+  const nationalTrusts = {
+    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "NHS",
+        layer: mapHospitalLayers.get("NHS Sector"),
+      },
+      {
+        label: "Independent",
+        layer: mapHospitalLayers.get("Independent Sector"),
+      },
+    ],
+  };
+  overlaysTreeMain.children[5] = nationalTrusts;
+  refreshMapMainControl();
+
+  const mapHospitalLayers1 = await mapMarkersNationalTrust();
+
+  const nationalTrusts1 = {
+    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "NHS",
+        layer: mapHospitalLayers1.get("NHS Sector"),
+      },
+      {
+        label: "Independent",
+        layer: mapHospitalLayers1.get("Independent Sector"),
+      },
+    ],
+  };
+
+  overlaysTreeBubble.children[4] = nationalTrusts1;
+  refreshMapControlBubble();
 }
 
 function processDataIMD(d) {
