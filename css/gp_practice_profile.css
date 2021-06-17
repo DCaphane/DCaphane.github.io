@@ -21,6 +21,13 @@
   font-family: sans-serif;
 }
 
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  /* stroke-width: 1; */
+  shape-rendering: crispEdges;
+}
+
 .trend-circle {
   fill: lightblue;
   stroke: darkorange;
