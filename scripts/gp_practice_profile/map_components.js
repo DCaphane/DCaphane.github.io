@@ -1006,38 +1006,71 @@ const pcnFormatting = function (feature, latlng) {
   // Use different marker styles depending on eg. practice groupings
   switch (feature.properties.pcn_name) {
     case "Selby Town":
+      const markerST = arrMarkerIcons[0]; // standard red map marker
+      markerST.options.text = "ST";
+      markerST.options.innerIconStyle = "padding-left:7px;padding-bottom:5px;"; // centre text in icon
+      // test.options.icon = "fas fa-bahai" // to use font awesome icon
       return L.marker(latlng, {
-        icon: arrMarkerIcons[0],
+        icon: markerST,
         riseOnHover: true,
       });
     case "Tadcaster & Selby Rural Area":
+      const markerTSRA = arrMarkerIcons[1]; // standard blue map marker
+      markerTSRA.options.text = "TSRA";
+      markerTSRA.options.innerIconStyle = "font-size:9px;";
       return L.marker(latlng, {
-        icon: arrMarkerIcons[1],
+        icon: markerTSRA,
         riseOnHover: true,
       });
     case "South Hambleton And Ryedale":
+      const markerSHaR = arrMarkerIcons[2]; // standard green map marker
+      markerSHaR.options.text = "SHaR";
+      markerSHaR.options.innerIconStyle = "font-size:9px;";
       return L.marker(latlng, {
-        icon: arrMarkerIcons[2],
+        icon: markerSHaR,
         riseOnHover: true,
       });
     case "York City Centre":
+      const markerYCC = arrMarkerIcons[3]; // standard purple map marker
+      markerYCC.options.text = "YCC";
+      markerYCC.options.innerIconStyle =
+        "font-size:11px;margin-top:3px;margin-left:-2px;";
       return L.marker(latlng, {
-        icon: arrMarkerIcons[3],
+        icon: markerYCC,
         riseOnHover: true,
       });
     case "York Medical Group":
+      const markerYMG = arrMarkerIcons[4]; // standard orange map marker
+      markerYMG.options.text = "YMG";
+      markerYMG.options.innerIconStyle =
+        "font-size:11px;margin-top:3px;margin-left:-2px;";
       return L.marker(latlng, {
-        icon: arrMarkerIcons[4],
+        icon: markerYMG,
+        riseOnHover: true,
+      });
+    case "Priory Medical Group":
+      const markerPMG = arrCircleIcons[0]; // red circle
+      markerPMG.options.text = "PMG";
+      markerPMG.options.innerIconStyle = "margin-top:3px;";
+      return L.marker(latlng, {
+        icon: markerPMG,
         riseOnHover: true,
       });
     case "York East":
+      const markerYE = arrCircleIcons[1]; // blue circle
+      markerYE.options.text = "YE";
+      markerYE.options.innerIconStyle = "margin-top:3px; margin-left:0px;";
       return L.marker(latlng, {
-        icon: arrCircleIcons[7],
+        icon: markerYE,
         riseOnHover: true,
       });
     case "West, Outer and North East York":
+      const markerWONEY = arrCircleIcons[3]; // purple
+      markerWONEY.options.text = "WONEY";
+      markerWONEY.options.innerIconStyle =
+        "margin-top:6px; margin-left:0px;font-size:8px;padding-top:1px;";
       return L.marker(latlng, {
-        icon: arrCircleDotIcons[7],
+        icon: markerWONEY,
         riseOnHover: true,
       });
     // case "NIMBUSCARE LTD":
@@ -1064,6 +1097,7 @@ const pcnFormatting = function (feature, latlng) {
     //       });
     //   }
     default:
+      console.log(feature.properties.pcn_name);
       return L.marker(latlng, {
         icon: arrDoughnutIcons[0],
         riseOnHover: true,

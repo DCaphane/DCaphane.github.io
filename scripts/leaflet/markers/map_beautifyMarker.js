@@ -14,10 +14,11 @@ const defaultOptions = {
   iconSize: [28, 28],
   iconAnchor: [14, 14], // point of the icon which will correspond to marker's location
   innerIconAnchor: [-2, 5],
-  isAlphaNumericIcon: true, // enables text, set below
-  text: "test",
+  isAlphaNumericIcon: true, // enables text, set below (disable icon)
+  text: "pcn",
   borderColor: null,
   textColor: null,
+  // innerIconStyle: "font-size:11px;margin-top:3px;margin-left:-2px;" // to format text
 };
 
 // const markerDefault = Object.create(defaultOptions);
@@ -27,21 +28,21 @@ const defaultOptions = {
 
 // Marker Shapes
 const markerDefault = {
-  iconShape: "marker",
-  icon: "circle",
+  iconShape: "marker", // outer shape
+  icon: "fas fa-bahai", // inner shape, can use font awesome
   iconAnchor: [14, 28],
-  isAlphaNumericIcon: false,
+  // isAlphaNumericIcon: false,
 };
 
 const circleDefault = {
   iconShape: "circle",
-  icon: "circle",
+  icon: "fas fa-user-md",
 };
 
 const doughnutDefault = {
   iconShape: "doughnut",
   icon: "circle",
-  isAlphaNumericIcon: false,
+  // isAlphaNumericIcon: false,
   borderWidth: 5,
 };
 
