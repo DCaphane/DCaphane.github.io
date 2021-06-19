@@ -382,7 +382,7 @@ function addPracticeToMap(zoomToExtent = false) {
             layer.feature.properties.list_size
           )}</p>`;
 
-      layer.bindPopup(popupText);
+      layer.bindPopup(popupText, { className: "popup-dark" }); // formatting applied in css, css/leaflet_popup.css
       layer.on("mouseover", function (e) {
         this.openPopup();
       });
@@ -433,7 +433,7 @@ function gpSites(zoomToExtent = false) {
         <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
         <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
 
-      layer.bindPopup(popupText);
+      layer.bindPopup(popupText, { className: "popup-dark" });
       layer.on("mouseover", function (e) {
         this.openPopup();
       });

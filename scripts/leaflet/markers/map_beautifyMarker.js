@@ -10,9 +10,9 @@
 // https://stackoverflow.com/questions/21341274/leaflet-js-api-icons-why-do-iconanchor-and-popupanchor-have-different-coordinat
 const defaultOptions = {
   backgroundColor: "hsla(360, 100%, 100%, 1)",
-  popupAnchor: [14, 0], // point from which the popup should open relative to the iconAnchor
   iconSize: [28, 28],
   iconAnchor: [14, 14], // point of the icon which will correspond to marker's location
+  popupAnchor: [0, 0], // point from which the popup should open relative to the iconAnchor
   innerIconAnchor: [-2, 5],
   isAlphaNumericIcon: true, // enables text, set below (disable icon)
   text: "pcn",
@@ -31,12 +31,14 @@ const markerDefault = {
   iconShape: "marker", // outer shape
   icon: "fas fa-bahai", // inner shape, can use font awesome
   iconAnchor: [14, 28],
+  popupAnchor: [7, -30], // point from which the popup should open relative to the iconAnchor
   // isAlphaNumericIcon: false,
 };
 
 const circleDefault = {
   iconShape: "circle",
   icon: "fas fa-user-md",
+  popupAnchor: [7, -16],
 };
 
 const doughnutDefault = {
