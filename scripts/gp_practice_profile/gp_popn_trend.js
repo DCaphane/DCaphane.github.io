@@ -68,25 +68,51 @@ Line and marker transitions
     .range([margin.left + 4, width - margin.right - 8]); // marker size, r = 6 + line size
 
   function yAxis(g, y, title) {
-    g.attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y))
-      .call((g) => g.select(".domain").remove())
-      .call((g) =>
-        g
-          .selectAll(".title")
-          .data([title])
-          .join("text")
-          .attr("class", "title")
-          .attr("transform", "rotate(-90)")
-          .attr("y", -margin.left)
-          .attr("x", 0 - chtHeightShort / 2)
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .style("font-weight", "bold")
-          .attr("fill", "currentColor")
-          .text(title)
-      );
+    const axis = g
+      .attr("transform", `translate(${margin.left},0)`)
+      // tick sizes here the width of the chart (used as minor gridlines)
+      .call(d3.axisLeft(y).tickSize(-(width - margin.left - margin.right)));
+
+    // this removes the outside (square) border
+    // https://github.com/d3/d3-axis/issues/48
+    axis.call((g) => g.select(".domain").remove());
+
+    // Inline formatting moved to css, .grid line
+    // yAxis
+    //   .selectAll("line")
+    //   .style("stroke", "lightgrey")
+    //   .style("opacity", "0.7")
+    //   .style("shape-rendering", "crispEdges");
+
+    axis.call((g) =>
+      g
+        .selectAll(".title")
+        .data([title])
+        .join("text")
+        .attr("class", "title")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left)
+        .attr("x", 0 - chtHeightShort / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .attr("fill", "currentColor")
+        .text(title)
+    );
   }
+
+  // function yGridlines(g, y) {
+  //   const yGrid = g.attr("transform", `translate(${margin.left},0)`)
+  //     .call(d3.axisLeft(y).tickSize(-(width - margin.left - margin.right)).tickFormat(""))
+
+  //   yGrid.select("path")
+  //     .style("stroke","none")
+
+  //     yGrid.selectAll("line")
+  //     .style("stroke", "#eee")
+  //   .style("shape-rendering", "crispEdges")
+  //   .style("opacity", "0.8")
+  // }
 
   const y = d3
     .scaleLinear()
@@ -146,40 +172,9 @@ Line and marker transitions
     .attr("height", height - margin.bottom)
     .attr("width", width - margin.left - margin.right);
 
-  const mainGx = svgTrend.append("g"),
-    mainGy = svgTrend.append("g");
-
-  /*
-  svgTrend
-    .append("g")
-    .attr("class", "x axis")
-    .attr("id", "axis--x")
-    .attr("transform", `translate(0, ${chtHeightShort})`)
-    .attr("x", chtWidthWide / 2)
-    .attr("y", 30)
-    .call(xAxis)
-    .append("text")
-    .attr("x", chtWidthWide / 2)
-    .attr("y", 30)
-    .style("text-anchor", "end")
-    .style("font-weight", "bold")
-    .text("Period");
-
-  svgTrend
-    .append("g")
-    .attr("class", "y axis")
-    .attr("id", "axis--y")
-    .call(yAxis)
-    // text label for the y axis
-    .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 10 - margin.left)
-    .attr("x", 0 - chtHeightShort / 2)
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .style("font-weight", "bold")
-    .text("Population");
-*/
+  const gridY = svgTrend.append("g"),
+    mainGx = svgTrend.append("g"),
+    mainGy = svgTrend.append("g").attr("class", "grid");
 
   /*
 The order trendPath and trendMarkers determines which appears on top
@@ -364,6 +359,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
 
   function updateChart(focusX, focusY) {
     mainGx.call(xAxis, focusX, height);
+    // gridY.call(yGridlines, focusY);
     mainGy.call(yAxis, focusY, "Population");
     trendPath.attr("d", plotLine(focusX, focusY));
     trendMarkers
@@ -434,7 +430,6 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
     // Add x and Y axes to main chart
     mainGx.call(xAxis, x, height);
     mainGy.call(yAxis, y);
-
     // Use this to set the inital brush position. ie. latest 2 years
     defaultSelection = [
       x(d3.utcYear.offset(d3.max(newData.keys()), -2)), // latest period - 2 years
