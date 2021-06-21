@@ -23,7 +23,7 @@ let trendChart, barChart, demographicChart, bubbleTest;
 const practiceLookup = new Map();
 const newTooltip = createTooltip();
 
-// Try storing user Selections in an object
+// Store user elections
 const userSelections = {
   selectedPractice: "All Practices",
   selectedPracticeName() {
@@ -63,10 +63,6 @@ const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
 const formatPercent1dp = d3.format(".1%"), // for x-axis to reduce overlap - still testing
   formatPercent = d3.format(".0%"); // rounded percent
 
-// const formatNumber = function (num) {
-//     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-// };
-
 function practiceDetailsDropDown() {
   let urls = [
     "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000",
@@ -88,8 +84,7 @@ function practiceDetailsDropDown() {
 }
 
 let dataPopulationGP,
-  // dataPopulationGPLsoa,
-  data_popnGPLsoa,
+  dataPopulationGPLsoa,
   arrayGPLsoaDates,
   uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
@@ -110,7 +105,7 @@ const importPopnData = (async function displayContent() {
       // }
       // dataPopulationGPLsoa = values[1].value;
 
-      data_popnGPLsoa = d3.rollup(
+      dataPopulationGPLsoa = d3.rollup(
         values[1].value,
         (v) => d3.sum(v, (d) => d.population),
         (d) => d.period,
@@ -130,7 +125,7 @@ const importPopnData = (async function displayContent() {
 
       // GP LSOA Population is Quarterly so not a 1:1 match with trend data
       // Will use closest value
-      arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
+      arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
     }
   );
   // .then((values) => {

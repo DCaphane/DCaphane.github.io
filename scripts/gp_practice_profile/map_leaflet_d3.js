@@ -151,13 +151,13 @@ function imdDomainD3(id = "selD3Leaf") {
         userSelections.selectedPractice !== undefined &&
         userSelections.selectedPractice !== "All Practices"
           ? d3.max(
-              data_popnGPLsoa
+              dataPopulationGPLsoa
                 .get(userSelections.nearestDate())
                 .get(userSelections.selectedPractice)
                 .values()
             )
           : d3.max(
-              data_popnGPLsoa
+              dataPopulationGPLsoa
                 .get(userSelections.nearestDate())
                 .get("All")
                 .values()
@@ -209,11 +209,11 @@ function imdDomainD3(id = "selD3Leaf") {
       let value =
         userSelections.selectedPractice !== undefined &&
         userSelections.selectedPractice !== "All Practices"
-          ? data_popnGPLsoa
+          ? dataPopulationGPLsoa
               .get(userSelections.nearestDate())
               .get(userSelections.selectedPractice)
               .get(lsoa.lsoa)
-          : data_popnGPLsoa
+          : dataPopulationGPLsoa
               .get(userSelections.nearestDate())
               .get("All")
               .get(lsoa.lsoa);
@@ -347,11 +347,11 @@ function imdDomainD3(id = "selD3Leaf") {
         let value =
           userSelections.selectedPractice !== undefined &&
           userSelections.selectedPractice !== "All Practices"
-            ? data_popnGPLsoa
+            ? dataPopulationGPLsoa
                 .get(userSelections.nearestDate())
                 .get(userSelections.selectedPractice)
                 .get(lsoaCode)
-            : data_popnGPLsoa
+            : dataPopulationGPLsoa
                 .get(userSelections.nearestDate())
                 .get("All")
                 .get(lsoaCode);
