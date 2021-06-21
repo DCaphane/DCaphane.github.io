@@ -20,7 +20,26 @@ For restyling dropdowns, improved functionality:
   https://codepen.io/rpsthecoder/embed/yJvRPE/?height=421&theme-id=12825&default-tab=result&embed-version=2
 */
 
-function updateDropdowns() {
+const practiceLookup = new Map();
+
+let urls = [
+  "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000",
+  // "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03M&RelStatus=active&Limit=1000"
+];
+
+const gpDetails = d3.json(urls[0]).then((data) => {
+  const organisations = data.Organisations;
+
+  organisations.forEach((d) => {
+    const orgID = d.OrgId;
+    const orgName = d.Name;
+
+    practiceLookup.set(orgID, orgName);
+  });
+});
+
+Promise.all([gpDetails, promDataGPPopn]).then(() => {
+  // requires unique list of practices (uniquePractices)
   const dropDowns = document.getElementsByClassName("dropdown practice"); // select all elements with these classes
 
   for (let i = 0; i < dropDowns.length; i++) {
@@ -108,7 +127,7 @@ function updateDropdowns() {
       userSelections.selectedPracticeCompare
     );
   });
-}
+});
 
 // Function to create a given element eg. option and in this case, the map key, k (practice code)
 function createElem(elemType, text) {

@@ -233,13 +233,15 @@ function refreshGeoChart() {
   overlayTrustsNational();
 }
 
-importPopnData.then(() => {
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
   initD3Charts();
 });
 
-Promise.allSettled([importPopnData, importGeoData]).then((values) => {
-  initGeoCharts();
-  bubbleTest = imdDomainD3();
-  // Dependent on Population data...
-  refreshGeoChart();
-});
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa, importGeoData]).then(
+  (values) => {
+    initGeoCharts();
+    bubbleTest = imdDomainD3();
+    // Dependent on Population data...
+    refreshGeoChart();
+  }
+);
