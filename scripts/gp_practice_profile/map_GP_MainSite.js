@@ -19,35 +19,6 @@ mapMain.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
 mapMain.map.createPane("ccgBoundaryPane");
 mapMain.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
-function highlightFeature(selPractice, map, zoomToExtent = false) {
-  if (typeof highlightPractice !== "undefined") {
-    map.map.removeLayer(highlightPractice);
-  }
-
-  highlightPractice = L.geoJSON(geoDataPCN, {
-    pointToLayer: function (feature, latlng) {
-      if (feature.properties.practice_code === selPractice) {
-        return (markerLayer = L.marker(latlng, {
-          icon: arrHighlightIcons[5],
-          zIndexOffset: -5,
-        }));
-      }
-    },
-  });
-
-  if (selPractice === "All Practices" || selPractice === undefined) {
-    defaultHomeVoY.call(mapMain);
-  } else {
-    map.map.addLayer(highlightPractice);
-
-    if (zoomToExtent) {
-      // map.map.fitBounds(highlightPractice.getBounds());
-      const practiceLocation = highlightPractice.getBounds().getCenter();
-      map.map.setView(practiceLocation, 10);
-    }
-  }
-}
-
 const baseTreeMain = (function () {
   const defaultBasemap = L.tileLayer
     .provider("Stadia.OSMBright") // .Mapnik
@@ -93,28 +64,29 @@ Leaflet:
     new Date().getFullYear()
   );
   // Load and display vector tile layer on the map.
-  const osBaseLayerLight = L.tileLayer(
-    serviceUrl + "/Light_3857/{z}/{x}/{y}.png?key=" + apiKey,
-    { maxZoom: 20, attribution: copyrightStatement }
-  );
-
-  const osBaseLayerRoad = L.tileLayer(
-    serviceUrl + "/Road_3857/{z}/{x}/{y}.png?key=" + apiKey,
-    { maxZoom: 20, attribution: copyrightStatement }
-  );
-
-  const osBaseLayerOutdoor = L.tileLayer(
-    serviceUrl + "/Outdoor_3857/{z}/{x}/{y}.png?key=" + apiKey,
-    { maxZoom: 20, attribution: copyrightStatement }
-  );
-
-  // Doesn't exist for 3857 projection
-  // const osBaseLayerLeisure = L.tileLayer(
-  //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { maxZoom: 20, attribution: copyrightStatement }
-  //   );
+  const osBaselayers = {
+    light: L.tileLayer(
+      serviceUrl + "/Light_3857/{z}/{x}/{y}.png?key=" + apiKey,
+      { maxZoom: 20, attribution: copyrightStatement }
+    ),
+    road: L.tileLayer(serviceUrl + "/Road_3857/{z}/{x}/{y}.png?key=" + apiKey, {
+      maxZoom: 20,
+      attribution: copyrightStatement,
+    }),
+    outdoor: L.tileLayer(
+      serviceUrl + "/Outdoor_3857/{z}/{x}/{y}.png?key=" + apiKey,
+      { maxZoom: 20, attribution: copyrightStatement }
+    ),
+    //   // Doesn't exist for 3857 projection
+    // leisure: L.tileLayer(
+    //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { maxZoom: 20, attribution: copyrightStatement }
+    //   ),
+  };
 
   /*
   // Explore Ordnance Survey Overlay without mapBoxGL and how to format
+  https://labs.os.uk/public/os-data-hub-examples/os-vector-tile-api/vts-example-add-overlay
+
   // https://api.os.uk/maps/vector/v1/vts/boundaries/resources/styles?key=npRUEEMn3OTN7lx7RPJednU5SOiRSt35
   const osOverlayBoundary = L.mapboxGL({
     attribution:
@@ -138,7 +110,7 @@ Leaflet:
     ],
   };
 
-  overlaysTreeMain.children[6] = osOverlay;
+  overlaysTreeMain.children[5] = osOverlay;
 */
 
   // http://leaflet-extras.github.io/leaflet-providers/preview/
@@ -195,16 +167,23 @@ Leaflet:
       {
         label: "Ordance Survey <i class='fas fa-layer-group'></i>",
         children: [
-          { label: "Light", layer: osBaseLayerLight },
-          { label: "Road", layer: osBaseLayerRoad },
-          { label: "Outdoor", layer: osBaseLayerOutdoor },
-          // { label: "Leisure", layer: osBaseLayerLeisure },
+          { label: "Light", layer: osBaselayers.light },
+          { label: "Road", layer: osBaselayers.road },
+          { label: "Outdoor", layer: osBaselayers.outdoor },
+          // { label: "Leisure", layer: osBaseLayers.leisure },
         ],
       },
       { label: "None", layer: emptyBackground },
     ],
   };
 })();
+
+// Global to enable subsequent change to overlay
+const overlaysTreeMain = {
+  label: "Overlays",
+  selectAllCheckbox: true,
+  children: [],
+};
 
 overlaysTreeMain.children[1] = overlayTrusts();
 

@@ -311,13 +311,6 @@ function defaultHomeVoY() {
   map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
 }
 
-// Make global to enable subsequent change to overlay
-const overlaysTreeMain = {
-  label: "Overlays",
-  selectAllCheckbox: true,
-  children: [],
-};
-
 const layersMapGpMain = new Map();
 
 function addPracticeToMap(zoomToExtent = false) {
@@ -327,7 +320,9 @@ function addPracticeToMap(zoomToExtent = false) {
 
   const practiceMain = L.geoJson(geoDataPCN, {
     // https://leafletjs.com/reference-1.7.1.html#geojson
-    pointToLayer: pcnFormatting,
+    pointToLayer: function (feature, latlng) {
+      return pcnFormatting(feature, latlng, { addBounce: true });
+    },
     onEachFeature: function (feature, layer) {
       const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
           <p>${layer.feature.properties.practice_code}: ${
@@ -346,10 +341,14 @@ function addPracticeToMap(zoomToExtent = false) {
         this.closePopup();
       });
       layer.on("click", function (e) {
-        // update the Practice in userSelections
-        userSelections.selectedPractice = feature.properties.practice_code;
-        // update other charts
-        refreshChartsPostPracticeChange(userSelections.selectedPractice);
+        console.log(e.sourceTarget.feature.properties.practice_code);
+        const selectedPractice = feature.properties.practice_code;
+        if (userSelections.selectedPractice !== selectedPractice) {
+          // update the Practice in userSelections
+          userSelections.selectedPractice = selectedPractice;
+          // update other charts
+          refreshChartsPostPracticeChange(selectedPractice);
+        }
       });
 
       const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
@@ -369,6 +368,52 @@ function addPracticeToMap(zoomToExtent = false) {
   if (zoomToExtent) {
     map.fitBounds(practiceMain.getBounds());
   }
+}
+
+/*
+Define options of bouncing for all markers
+https://github.com/hosuaby/Leaflet.SmoothMarkerBouncing#options-of-bouncing
+
+When pcnFormatting is called, if bounce parameter is set to true,
+  toggleBouncing is applied to the marker.
+  This will stop/ start the bouncing when the marker is clicked
+
+The function updateBouncingMarkers is applied when a practice change is made
+Either via the practice selection drop down or on marker click
+*/
+L.Marker.setBouncingOptions({
+  bounceHeight: 15, // height of the bouncing
+  contractHeight: 12,
+  bounceSpeed: 52, // bouncing speed coefficient
+  contractSpeed: 52,
+  // shadowAngle: null,
+  elastic: true,
+  exclusive: true,
+});
+
+function updateBouncingMarkers() {
+  // https://github.com/hosuaby/Leaflet.SmoothMarkerBouncing
+  /*
+  // stop all bouncing
+  This would apply to all maps with bouncing.
+  If only wanted to apply to specific map (eg. mapMain)
+    step 1: test userSelections.selectedPractice !== "All Practices"
+    step 2: loop through markers (like below, no need to check practice) and set to .stopBouncing()
+  */
+  L.Marker.stopAllBouncingMarkers();
+
+  // array of layers in the mapMain
+  const arr = Array.from(layersMapGpMain.values());
+  arr.forEach(function (test) {
+    let obj = test._layers;
+    Object.values(obj).forEach(function (val) {
+      const gpPractice = val.feature.properties.practice_code;
+      const marker = val._bouncingMotion.marker;
+      if (gpPractice === userSelections.selectedPractice) {
+        marker.bounce(); // starts/stops bouncing of the marker
+      }
+    });
+  });
 }
 
 const layersMapGPSites = new Map();
@@ -788,7 +833,10 @@ function refreshChartsPostPracticeChange(practice) {
   document.getElementById("selPractice").value = `${
     userSelections.selectedPractice
   }: ${userSelections.selectedPracticeName()}`;
+
+  updateBouncingMarkers();
   highlightFeature(practice, mapMain, true);
+
   trendChart.chartTrendDraw();
   demographicChart.updateChtDemog(
     practice,
@@ -806,109 +854,119 @@ function refreshChartsPostPracticeChange(practice) {
   updateSidebarText("pcnSpecific", practice);
 }
 
+function highlightFeature(selPractice, map, zoomToExtent = false) {
+  if (typeof highlightPractice !== "undefined") {
+    map.map.removeLayer(highlightPractice);
+  }
+
+  highlightPractice = L.geoJSON(geoDataPCN, {
+    pointToLayer: function (feature, latlng) {
+      if (feature.properties.practice_code === selPractice) {
+        return (markerLayer = L.marker(latlng, {
+          icon: arrHighlightIcons[5],
+          zIndexOffset: -5,
+        }));
+      }
+    },
+  });
+
+  if (selPractice === "All Practices" || selPractice === undefined) {
+    defaultHomeVoY.call(mapMain);
+  } else {
+    map.map.addLayer(highlightPractice);
+
+    if (zoomToExtent) {
+      // map.map.fitBounds(highlightPractice.getBounds());
+      const practiceLocation = highlightPractice.getBounds().getCenter();
+      map.map.setView(practiceLocation, 10);
+    }
+  }
+}
+
 // Formatting
 
-const pcnFormatting = function (feature, latlng) {
+const pcnFormatting = function (feature, latlng, { addBounce = false } = {}) {
+  let markerPCN;
+
   // Use different marker styles depending on eg. practice groupings
   switch (feature.properties.pcn_name) {
     case "Selby Town":
-      const markerST = arrMarkerIcons[0]; // standard red map marker
-      markerST.options.text = "ST";
-      markerST.options.innerIconStyle = "padding-left:7px;padding-bottom:5px;"; // centre text in icon
-      // test.options.icon = "fas fa-bahai" // to use font awesome icon
-      return L.marker(latlng, {
-        icon: markerST,
-        riseOnHover: true,
-      });
+      markerPCN = arrMarkerIcons[0]; // standard red map marker
+      markerPCN.options.text = "ST";
+      markerPCN.options.innerIconStyle = "padding-left:7px;padding-bottom:5px;"; // centre text in icon
+      // markerPCN.options.icon = "fas fa-bahai" // to use font awesome icon
+      break;
+
     case "Tadcaster & Selby Rural Area":
-      const markerTSRA = arrMarkerIcons[1]; // standard blue map marker
-      markerTSRA.options.text = "TSRA";
-      markerTSRA.options.innerIconStyle = "font-size:9px;";
-      return L.marker(latlng, {
-        icon: markerTSRA,
-        riseOnHover: true,
-      });
+      markerPCN = arrMarkerIcons[1]; // standard blue map marker
+      markerPCN.options.text = "TSRA";
+      markerPCN.options.innerIconStyle = "font-size:9px;";
+      break;
     case "South Hambleton And Ryedale":
-      const markerSHaR = arrMarkerIcons[2]; // standard green map marker
-      markerSHaR.options.text = "SHaR";
-      markerSHaR.options.innerIconStyle = "font-size:9px;";
-      return L.marker(latlng, {
-        icon: markerSHaR,
-        riseOnHover: true,
-      });
+      markerPCN = arrMarkerIcons[2]; // standard green map marker
+      markerPCN.options.text = "SHaR";
+      markerPCN.options.innerIconStyle = "font-size:9px;";
+      break;
     case "York City Centre":
-      const markerYCC = arrMarkerIcons[3]; // standard purple map marker
-      markerYCC.options.text = "YCC";
-      markerYCC.options.innerIconStyle =
+      markerPCN = arrMarkerIcons[3]; // standard purple map marker
+      markerPCN.options.text = "YCC";
+      markerPCN.options.innerIconStyle =
         "font-size:11px;margin-top:3px;margin-left:-2px;";
-      return L.marker(latlng, {
-        icon: markerYCC,
-        riseOnHover: true,
-      });
+      break;
     case "York Medical Group":
-      const markerYMG = arrMarkerIcons[4]; // standard orange map marker
-      markerYMG.options.text = "YMG";
-      markerYMG.options.innerIconStyle =
+      markerPCN = arrMarkerIcons[4]; // standard orange map marker
+      markerPCN.options.text = "YMG";
+      markerPCN.options.innerIconStyle =
         "font-size:11px;margin-top:3px;margin-left:-2px;";
-      return L.marker(latlng, {
-        icon: markerYMG,
-        riseOnHover: true,
-      });
+      break;
     case "Priory Medical Group":
-      const markerPMG = arrCircleIcons[0]; // red circle
-      markerPMG.options.text = "PMG";
-      markerPMG.options.innerIconStyle = "margin-top:3px;";
-      return L.marker(latlng, {
-        icon: markerPMG,
-        riseOnHover: true,
-      });
+      markerPCN = arrCircleIcons[0]; // red circle
+      markerPCN.options.text = "PMG";
+      markerPCN.options.innerIconStyle = "margin-top:3px;";
+      break;
     case "York East":
-      const markerYE = arrCircleIcons[1]; // blue circle
-      markerYE.options.text = "YE";
-      markerYE.options.innerIconStyle = "margin-top:3px; margin-left:0px;";
-      return L.marker(latlng, {
-        icon: markerYE,
-        riseOnHover: true,
-      });
+      markerPCN = arrCircleIcons[1]; // blue circle
+      markerPCN.options.text = "YE";
+      markerPCN.options.innerIconStyle = "margin-top:3px; margin-left:0px;";
+      break;
     case "West, Outer and North East York":
-      const markerWONEY = arrCircleIcons[3]; // purple
-      markerWONEY.options.text = "WONEY";
-      markerWONEY.options.innerIconStyle =
+      markerPCN = arrCircleIcons[3]; // purple
+      markerPCN.options.text = "WONEY";
+      markerPCN.options.innerIconStyle =
         "margin-top:6px; margin-left:0px;font-size:8px;padding-top:1px;";
-      return L.marker(latlng, {
-        icon: markerWONEY,
-        riseOnHover: true,
-      });
+      break;
     // case "NIMBUSCARE LTD":
     //   switch (feature.properties.sub_group) {
     //     case "1":
-    //       return L.marker(latlng, {
-    //         icon: arrCircleIcons[7],
-    //         riseOnHover: true,
-    //       });
+    //       markerPCN = arrCircleIcons[7];
+    //       break;
     //     case "2":
-    //       return L.marker(latlng, {
-    //         icon: arrCircleDotIcons[7],
-    //         riseOnHover: true,
-    //       });
+    //       markerPCN = arrCircleDotIcons[7];
+    //       break;
     //     case "3":
-    //       return L.marker(latlng, {
-    //         icon: arrRectangleIcons[7],
-    //         riseOnHover: true,
-    //       });
+    //       markerPCN = arrRectangleIcons[7];
+    //       break;
     //     default:
-    //       return L.marker(latlng, {
-    //         icon: arrDoughnutIcons[7],
-    //         riseOnHover: true,
-    //       });
+    //       markerPCN = arrDoughnutIcons[7];
+    //       break;
     //   }
+
     default:
-      console.log(feature.properties.pcn_name);
-      return L.marker(latlng, {
-        icon: arrDoughnutIcons[0],
-        riseOnHover: true,
-      });
+      console.log(`Missing PCN Marker: ${feature.properties.pcn_name}`);
+      markerPCN = arrDoughnutIcons[0];
   }
+
+  const finalMarker = L.marker(latlng, {
+    icon: markerPCN,
+    riseOnHover: true,
+  });
+
+  if (addBounce) {
+    finalMarker.on("click", function () {
+      this.toggleBouncing();
+    });
+  }
+  return finalMarker;
 };
 
 function overlayPCNs(mapObj) {
@@ -1165,7 +1223,7 @@ async function overlayTrustsNational() {
       },
     ],
   };
-  overlaysTreeMain.children[5] = nationalTrusts;
+  overlaysTreeMain.children[4] = nationalTrusts;
   refreshMapMainControl();
 
   const mapHospitalLayers1 = await mapMarkersNationalTrust();
