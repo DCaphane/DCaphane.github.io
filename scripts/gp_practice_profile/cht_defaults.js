@@ -20,10 +20,9 @@ const selPracticeDropDown = document.getElementById("selPractice"),
 // Load the initial data and then variations on this for subsequent filtering
 let trendChart, barChart, demographicChart, bubbleTest;
 
-const practiceLookup = new Map();
 const newTooltip = createTooltip();
 
-// Try storing user Selections in an object
+// Store user selections
 const userSelections = {
   selectedPractice: "All Practices",
   selectedPracticeName() {
@@ -38,11 +37,11 @@ const userSelections = {
       : "";
   },
   selectedDate: null,
-  nearestDate(arr = arrayGPLsoaDates) {
-    // arr will typically be arrayGPLsoaDates here
+  nearestDate() {
     // Align the selected period to the nearest quarterly period
+    // arrayGPLsoaDates is result of promise promDataGPPopnLsoa
     return (
-      arr.reduce(
+      arrayGPLsoaDates.reduce(
         (p, n) =>
           Math.abs(p) > Math.abs(n - this.selectedDate)
             ? n - this.selectedDate
@@ -63,79 +62,35 @@ const parseDate = d3.timeParse("%b-%y"), // import format: mmm-yy
 const formatPercent1dp = d3.format(".1%"), // for x-axis to reduce overlap - still testing
   formatPercent = d3.format(".0%"); // rounded percent
 
-// const formatNumber = function (num) {
-//     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-// };
+let dataPopulationGP, dataPopulationGPLsoa, arrayGPLsoaDates, uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
-function practiceDetailsDropDown() {
-  let urls = [
-    "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000",
-    // "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03M&RelStatus=active&Limit=1000"
-  ];
-
-  d3.json(urls[0])
+const promDataGPPopn = d3
+    .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
     .then((data) => {
-      const organisations = data.Organisations;
+      dataPopulationGP = data;
 
-      organisations.forEach((d) => {
-        const orgID = d["OrgId"];
-        const orgName = d["Name"];
-
-        practiceLookup.set(orgID, orgName);
+      userSelections.selectedDate = d3.max(data, function (d) {
+        return d.Period;
       });
-    })
-    .then(() => updateDropdowns());
-}
 
-let dataPopulationGP,
-  // dataPopulationGPLsoa,
-  data_popnGPLsoa,
-  arrayGPLsoaDates,
-  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
-
-const promDataGPPopn = d3.csv(
-    "Data/GP_Practice_Populations_slim.csv",
-    processDataGPPopulation
-  ),
-  promDataGPPopnLsoa = d3.csv(
-    "Data/population_gp_lsoa.csv",
-    processDataPopulationGPLsoa
-  );
-
-const importPopnData = (async function displayContent() {
-  await Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(
-    (values) => {
-      // if (values[0].status === "fulfilled") {
-      dataPopulationGP = values[0].value;
-      // }
-      // dataPopulationGPLsoa = values[1].value;
-
-      data_popnGPLsoa = d3.rollup(
-        values[1].value,
+      // List of GP Practice codes (sorted A-Z) for use in drop down ------------------------
+      uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
+    }),
+  promDataGPPopnLsoa = d3
+    .csv("Data/population_gp_lsoa.csv", processDataPopulationGPLsoa)
+    .then((data) => {
+      dataPopulationGPLsoa = d3.rollup(
+        data,
         (v) => d3.sum(v, (d) => d.population),
         (d) => d.period,
         (d) => d.practice,
         (d) => d.lsoa
       );
 
-      userSelections.selectedDate = d3.max(dataPopulationGP, function (d) {
-        return d.Period;
-      });
-
-      // List of practices (sorted A-Z) for use in drop down ------------------------
-      uniquePractices = [
-        ...new Set(dataPopulationGP.map((item) => item.Practice)),
-      ].sort();
-      practiceDetailsDropDown(); // requires unique list of practices created from setDefaults
-
       // GP LSOA Population is Quarterly so not a 1:1 match with trend data
       // Will use closest value
-      arrayGPLsoaDates = [...data_popnGPLsoa.keys()]; // use Array.from or spread syntax
-    }
-  );
-  // .then((values) => {
-  // })
-})();
+      arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
+    });
 
 function processDataGPPopulation(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate

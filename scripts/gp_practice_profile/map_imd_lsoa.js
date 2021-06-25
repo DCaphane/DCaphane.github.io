@@ -402,23 +402,3 @@ let imdDomainDesc = "IMD Rank",
     recolourIMDLayer(imdDomainShort);
   });
 })();
-
-// This works but re-written entire object so no value?
-/*
-const imdDecileProperties = Object.create(defaultIMDProperties);
-imdDecileProperties.datasetDesc = "imdDecile"
-imdDecileProperties.scale = function(v) {
-  const max = d3.max(v);
-  return d3
-    .scaleOrdinal(this.colourScheme)
-    .domain(d3.range(1, max + 1))
-    .range(this.colourScheme[max]);
-}
-imdDecileProperties.legendColour = function(maxValue) {
-  return d3.scaleOrdinal(
-    d3.range(1, maxValue + 1),
-    this.colourScheme[maxValue]
-  );
-}
-imdDecileProperties.colourScheme = d3.schemeSpectral
-*/

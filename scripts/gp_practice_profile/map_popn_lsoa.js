@@ -1,3 +1,11 @@
+const mapPopn = {
+  map: mapInitialise.mapInit("mapPopnLSOA"),
+  scaleBar: mapInitialise.scaleBar("bottomleft"),
+  sidebar(sidebarName) {
+    return mapInitialise.sidebarLeft(this.map, sidebarName);
+  },
+};
+
 mapPopn.scaleBar.addTo(mapPopn.map);
 
 const sidebarPopn = mapPopn.sidebar("sidebar3");
@@ -13,24 +21,119 @@ mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
 
 const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
+// Make global to enable subsequent change to overlay
+const overlaysTreePopn = {
+  label: "Overlays",
+  selectAllCheckbox: true,
+  children: [],
+};
+
+const baseTreePopn = (function () {
+  const defaultBasemap = L.tileLayer
+    .provider("Stamen.TonerHybrid")
+    .addTo(mapPopn.map);
+
+  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+  const emptyBackground = (function emptyTile() {
+    return L.tileLayer("", {
+      zoom: 0,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    });
+  })();
+
+  // http://leaflet-extras.github.io/leaflet-providers/preview/
+  return {
+    label: "Base Layers <i class='fas fa-globe'></i>",
+    children: [
+      {
+        label: "Colour <i class='fas fa-layer-group'></i>;",
+        children: [
+          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
+          {
+            label: "OSM HOT",
+            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
+          },
+          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
+          {
+            label: "Water Colour",
+            layer: L.tileLayer.provider("Stamen.Watercolor"),
+          },
+          { label: "Bright", layer: L.tileLayer.provider("Stadia.OSMBright") },
+          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
+        ],
+      },
+      {
+        label: "Black & White <i class='fas fa-layer-group'></i>",
+        children: [
+          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+          {
+            label: "High Contrast",
+            layer: L.tileLayer.provider("Stamen.Toner"),
+          },
+          {
+            label: "Grey",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+          },
+          { label: "ST Hybrid", layer: defaultBasemap },
+          {
+            label: "Dark",
+            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+          },
+          {
+            label: "Jawg Matrix",
+            layer: L.tileLayer.provider("Jawg.Matrix", {
+              // // Requires Access Token
+              accessToken:
+                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
+            }),
+          },
+        ],
+      },
+      { label: "None", layer: emptyBackground },
+    ],
+  };
+})();
+
+overlaysTreePopn.children[0] = overlayTrusts(); // Add selected hospitals to overlay
+
+const mapControlPopn = L.control.layers.tree(baseTreePopn, overlaysTreePopn, {
+  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+  collapsed: true, // Whether or not control options are displayed
+  sortLayers: true,
+  // namedToggle: true,
+  collapseAll: "Collapse all",
+  expandAll: "Expand all",
+  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+  closedSymbol:
+    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+  openedSymbol:
+    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+});
+
+mapControlPopn.addTo(mapPopn.map).collapseTree().collapseTree(true);
+
 function recolourLSOA() {
   const maxValue =
     userSelections.selectedPractice !== undefined &&
     userSelections.selectedPractice !== "All Practices"
       ? d3.max(
-          data_popnGPLsoa
+          dataPopulationGPLsoa
             .get(userSelections.nearestDate())
             .get(userSelections.selectedPractice)
             .values()
         )
       : d3.max(
-          data_popnGPLsoa.get(userSelections.nearestDate()).get("All").values()
+          dataPopulationGPLsoa
+            .get(userSelections.nearestDate())
+            .get("All")
+            .values()
         );
   /*
   const rawPopn =
     userSelections.selectedPractice !== undefined && userSelections.selectedPractice !== "All Practices"
-      ? [...data_popnGPLsoa.get(userSelections.nearestDate()).get(userSelections.selectedPractice).values()]
-      : [...data_popnGPLsoa.get(userSelections.nearestDate()).get("All").values()];
+      ? [...dataPopulationGPLsoa.get(userSelections.nearestDate()).get(userSelections.selectedPractice).values()]
+      : [...dataPopulationGPLsoa.get(userSelections.nearestDate()).get("All").values()];
 
   const maxValue = d3.max(rawPopn);
   const colour = d3.scaleSequentialQuantile()
@@ -52,11 +155,11 @@ function recolourLSOA() {
     let value =
       userSelections.selectedPractice !== undefined &&
       userSelections.selectedPractice !== "All Practices"
-        ? data_popnGPLsoa
+        ? dataPopulationGPLsoa
             .get(userSelections.nearestDate())
             .get(userSelections.selectedPractice)
             .get(lsoaCode)
-        : data_popnGPLsoa
+        : dataPopulationGPLsoa
             .get(userSelections.nearestDate())
             .get("All")
             .get(lsoaCode);
@@ -109,6 +212,18 @@ function initD3Charts() {
   demographicChart.updateChtDemog();
 }
 
+function initGeoCharts() {
+  // from map_GP_MainSite.js
+  addWardGroupsToMap.call(mapMain);
+  addPracticeToMap.call(mapMain);
+
+  // // from map_popn_lsoa.js
+  gpSites();
+
+  // refresh Overlay Options - ensures everything is loaded
+  refreshMapOverlayControls();
+}
+
 function refreshGeoChart() {
   lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
   recolourLSOA();
@@ -118,13 +233,15 @@ function refreshGeoChart() {
   overlayTrustsNational();
 }
 
-importPopnData.then(() => {
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
   initD3Charts();
 });
 
-Promise.allSettled([importPopnData, importGeoData]).then((values) => {
-  initGeoCharts();
-  bubbleTest = imdDomainD3();
-  // Dependent on Population data...
-  refreshGeoChart();
-});
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa, importGeoData]).then(
+  (values) => {
+    initGeoCharts();
+    bubbleTest = imdDomainD3();
+    // Dependent on Population data...
+    refreshGeoChart();
+  }
+);

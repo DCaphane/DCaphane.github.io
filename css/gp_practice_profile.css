@@ -113,18 +113,13 @@
 
 /* for the d3 bubble chart */
 .bubble {
-  fill-opacity: 0.8;
-  stroke: #fff;
+  stroke: #000;
   stroke-width: 0.5px;
-  /* fill: red; */
   cursor: pointer;
 }
 
 .bubble.hover {
-  fill-opacity: 1;
-  stroke: #000;
-  stroke-width: 0.6px;
-  /* fill: red; */
+  stroke-width: 1px;
 }
 
 .bubble-legend circle {
@@ -135,5 +130,5 @@
 .bubble-legend text {
   fill: #777;
   font: 10px sans-serif;
-  text-anchor: middle;
+  text-anchor: end;
 }
