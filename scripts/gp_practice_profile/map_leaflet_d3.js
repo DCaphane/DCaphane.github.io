@@ -288,6 +288,7 @@ function imdDomainD3(id = "selD3Leaf") {
         const sel = d3.select(this);
         sel.classed("hover", true);
         sel.raise();
+        sel.style("fill-opacity", 1);
         const pos = this.getBoundingClientRect();
         const str = `LSOA: <strong>${
           d.lsoa
@@ -332,6 +333,7 @@ function imdDomainD3(id = "selD3Leaf") {
         const sel = d3.select(this);
         sel.classed("hover", false);
         sel.lower();
+        sel.style("fill-opacity", 0.7);
         newTooltip.mouseout(tooltipD3Lsoa);
       })
       .attr("class", "bubble")
@@ -357,7 +359,7 @@ function imdDomainD3(id = "selD3Leaf") {
                 .get(lsoaCode);
 
         if (value > minPopulationLSOA) {
-          return 0.8;
+          return 0.7;
         } else {
           return 0.1;
         }
@@ -407,14 +409,15 @@ function imdDomainD3(id = "selD3Leaf") {
           exit // EXIT old elements not present in new data.
         ) => exit.call((exit) => exit.remove())
       )
-
       .attr("transform", "translate(50,50)") // this is bubbleLegend svg width / 2, and move to bottom
       .attr("y", function (d) {
         return -2 * radius(d);
       })
-      .attr("dx", "3em")
+      .attr("dx", "5em")
       .attr("dy", "1em")
-      .text(d3.format(".1s"));
+      .text(function (d) {
+        return d3.format(",")(Math.round(d / 100) * 100);
+      });
   }
 
   function refreshBubbles() {
