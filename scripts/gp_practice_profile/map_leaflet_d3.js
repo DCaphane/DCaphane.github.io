@@ -416,7 +416,11 @@ function imdDomainD3(id = "selD3Leaf") {
       .attr("dx", "5em")
       .attr("dy", "1em")
       .text(function (d) {
-        return d3.format(",")(Math.round(d / 100) * 100);
+        if (d > 99) {
+          return d3.format(",")(Math.round(d / 100) * 100);
+        } else {
+          return d3.format(",")(Math.round(d / 10) * 10);
+        }
       });
   }
 
