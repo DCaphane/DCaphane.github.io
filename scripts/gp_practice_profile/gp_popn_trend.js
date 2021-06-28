@@ -528,7 +528,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
           userSelections.selectedPracticeCompare
         );
         recolourLSOA();
-        bubbleTest.updateD3BubbleLsoa();
+        circlePopnIMDChart.updateD3BubbleLsoa();
       })
       .on("mouseover", function (event, d) {
         const sel = d3.select(this);

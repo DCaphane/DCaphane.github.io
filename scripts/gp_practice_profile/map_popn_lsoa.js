@@ -240,7 +240,7 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
 Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa, importGeoData]).then(
   (values) => {
     initGeoCharts();
-    bubbleTest = imdDomainD3();
+    circlePopnIMDChart = imdDomainD3();
     // Dependent on Population data...
     refreshGeoChart();
   }
