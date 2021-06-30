@@ -7,9 +7,6 @@ https://stackoverflow.com/q/14665482
 
 https://observablehq.com/@d3/brush-snapping-transitions
 
--- To Do
-Add a bit to the x domain so the last month is completely visible
-Add a bit to the y domain so the circles are visible (not below 0)
 */
 
 function initTrendChart(dataInit, id) {

@@ -58,25 +58,20 @@ function yorkTrust() {
     .bindPopup("York Hospital"); // Text to display in pop up
 }
 
-function homeButton() {
-  const map = this.map;
-  return L.easyButton(
-    "fa-home",
-    function (btn) {
-      // map.setView(trustSitesLoc.yorkTrust, 9);
-      map.setView(
-        layersMapBoundaries.get("voyCCGMain").getBounds().getCenter(),
-        9
-      );
-    },
-    "Zoom To Home"
-  ).addTo(map);
-}
-
-function defaultHomeVoY() {
-  const map = this.map;
-  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
-}
+// function homeButton() {
+//   const map = this.map;
+//   return L.easyButton(
+//     "fas fa-home",
+//     function (btn) {
+//       // map.setView(trustSitesLoc.yorkTrust, 9);
+//       map.setView(
+//         layersMapBoundaries.get("voyCCGMain").getBounds().getCenter(),
+//         9
+//       );
+//     },
+//     "Zoom To Home"
+//   ).addTo(map);
+// }
 
 const layersMapGpMain = new Map();
 

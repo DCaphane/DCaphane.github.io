@@ -1,16 +1,14 @@
-const mapMain = {
-  map: mapInitialise.mapInit("mapMain"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapMain = mapInitialise("mapMain");
+mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+// mapMain.home = {lat: 54.018213, lng: -10.0} // can change the home button position
+mapMain.homeButton(); // mapMain.homeButton({ latLng: trustSitesLoc.yorkTrust, zoom: 12 });
 
-mapMain.scaleBar.addTo(mapMain.map);
-
-const sidebarPCN = mapMain.sidebar("sidebar");
-
-homeButton.call(mapMain);
+const sidebarMapMain = mapMain.sideBar(); // default is left, can use mapMain.sideBar({side: "right"});
+sidebarMapMain.addPanel(sidebarContent.panelOverview);
+sidebarMapMain.addPanel(sidebarContent.panelSpecific);
+sidebarMapMain.addPanel(sidebarContent.panelMail);
+sidebarMapMain.addPanel(sidebarContent.panelDummy);
+sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
 // Panes to control zIndex of geoJson layers
 mapMain.map.createPane("wardBoundaryPane");

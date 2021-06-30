@@ -148,14 +148,14 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     ></script>
 
     <!-- Add full screen option -->
-    <script
-      defer
-      src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
-    ></script>
     <link
       href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
       rel="stylesheet"
     />
+    <script
+      defer
+      src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
+    ></script>
 
     <!-- Home Button -->
     <link
@@ -194,15 +194,19 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     <!-- <link rel="stylesheet" type="text/css" href="css/components/tooltip.css" /> -->
     <script defer src="scripts/components/tooltip.js"></script>
 
-<!-- To convert to modules  -->
-<script defer src="scripts/gp_practice_profile/chart_formatting.js"></script>
-<script defer src="scripts/gp_practice_profile/map_formatting.js"></script>
-<script defer src="scripts/gp_practice_profile/functions.js"></script>
+    <!-- To convert to modules  -->
+    <script
+      defer
+      src="scripts/gp_practice_profile/chart_formatting.js"
+    ></script>
+    <script defer src="scripts/gp_practice_profile/map_formatting.js"></script>
+    <script defer src="scripts/gp_practice_profile/functions.js"></script>
+    <script defer src="scripts/gp_practice_profile/sidebar_content.js"></script>
 
     <script defer src="scripts/gp_practice_profile/index.js"></script>
     <script
       defer
-      src="scripts/gp_practice_profile/component_practice_dropdown.js"
+      src="scripts/gp_practice_profile/gp_practice_dropdown.js"
     ></script>
 
     <script defer src="scripts/gp_practice_profile/map_components.js"></script>
@@ -221,11 +225,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     <script defer src="scripts/gp_practice_profile/map_imd_lsoa.js"></script>
     <script defer src="scripts/gp_practice_profile/map_leaflet_d3.js"></script>
     <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
-
-    <script
-      defer
-      src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
-    ></script>
 
     <style></style>
   </head>
@@ -286,7 +285,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapMain" class="map"></div>
-                  <div id="sidebar" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer id="selectedMarker" class="cta">
                   Select a marker for details
@@ -298,7 +296,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapSites" class="map"></div>
-                  <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer id="selectedSite" class="cta">Associated Sites</footer>
               </div>
@@ -363,7 +360,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapPopnLSOA" class="map"></div>
-                  <div id="sidebar3" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapPopn"></footer>
               </div>
@@ -380,7 +376,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapIMDLSOA" class="map"></div>
-                  <div id="sidebar4" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapIMD"></footer>
               </div>
@@ -391,7 +386,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapIMDD3" class="map"></div>
-                  <div id="sidebar5" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapD3Leaf"></footer>
               </div>

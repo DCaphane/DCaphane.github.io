@@ -5,7 +5,11 @@ const selPracticeDropDown = document.getElementById("selPractice"),
   selPracticeCompareDropDown = document.getElementById("selPracticeCompare");
 
 // Load the initial data and then variations on this for subsequent filtering
-let trendChart, barChart, demographicChart, circlePopnIMDChart, highlightedPractice;
+let trendChart,
+  barChart,
+  demographicChart,
+  circlePopnIMDChart,
+  highlightedPractice;
 
 const newTooltip = createTooltip();
 const genID = generateUniqueID(); // genID.uid
@@ -266,5 +270,5 @@ function refreshChartsPostPracticeChange(practice) {
   barChart.fnRedrawBarChart();
   // updateTextPractice();
   // updateTextPCN();
-  updateSidebarText("pcnSpecific", practice);
+  sidebarContent.updateSidebarText("pcnSpecific", practice);
 }

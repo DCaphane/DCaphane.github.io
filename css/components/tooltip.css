@@ -1,0 +1,17 @@
+.tooltip {
+    position: absolute;
+    opacity: 0;
+    /* offset: [10, -20]; */
+    width: 100px;
+    height: 50px;
+    padding: 2px;
+    background: rgba(0,0,0,.8);
+    border: 2px solid black;
+    border-width: 2px;
+    border-radius: 5px;
+    pointer-events: none;
+    text-align: center;
+    font: 12px sans-serif;
+    color: white; /* font colour */
+    z-index: 100000; /* bring tooltip to front, needed for D3 tooltip on Leaflet */
+}

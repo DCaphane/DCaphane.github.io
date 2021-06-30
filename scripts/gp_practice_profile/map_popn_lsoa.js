@@ -1,16 +1,9 @@
-const mapPopn = {
-  map: mapInitialise.mapInit("mapPopnLSOA"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapPopn = mapInitialise("mapPopnLSOA");
+mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapPopn.homeButton();
 
-mapPopn.scaleBar.addTo(mapPopn.map);
-
-const sidebarPopn = mapPopn.sidebar("sidebar3");
-
-homeButton.call(mapPopn);
+const sidebarPopn = mapPopn.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarPopn.addPanel(sidebarContent.panelOverview);
 
 // Panes to control zIndex of geoJson layers
 mapPopn.map.createPane("lsoaBoundaryPane");

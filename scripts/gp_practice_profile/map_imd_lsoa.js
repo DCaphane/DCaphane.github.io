@@ -9,19 +9,13 @@
 Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/853811/IoD2019_FAQ_v4.pdf
 */
 
-const mapIMD = {
-  map: mapInitialise.mapInit("mapIMDLSOA"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapIMD = mapInitialise("mapIMDLSOA");
+mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapIMD.homeButton();
 
-mapIMD.scaleBar.addTo(mapIMD.map);
-
-const sidebarIMD = mapIMD.sidebar("sidebar4");
-
-homeButton.call(mapIMD);
+const sidebarIMD = mapIMD.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarIMD.addPanel(sidebarContent.panelOverview);
+sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
 
 // Panes to control zIndex of geoJson layers
 mapIMD.map.createPane("lsoaBoundaryPane");

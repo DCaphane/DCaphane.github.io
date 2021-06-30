@@ -1,16 +1,9 @@
-const mapSites = {
-  map: mapInitialise.mapInit("mapSites"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapSites = mapInitialise("mapSites");
+mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapSites.homeButton();
 
-mapSites.scaleBar.addTo(mapSites.map);
-
-const sidebarSites = mapSites.sidebar("sidebar2");
-
-homeButton.call(mapSites);
+const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarSites.addPanel(sidebarContent.panelOverview);
 
 // Panes to control zIndex of geoJson layers
 mapSites.map.createPane("wardBoundaryPane");

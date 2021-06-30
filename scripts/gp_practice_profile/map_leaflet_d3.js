@@ -17,19 +17,11 @@ Filter D3 Circles - what function do this:
 
 */
 
-const mapD3Bubble = {
-  map: mapInitialise.mapInit("mapIMDD3"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapD3Bubble = mapInitialise("mapIMDD3");
+mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapD3Bubble.homeButton();
 
-mapD3Bubble.scaleBar.addTo(mapD3Bubble.map);
-
-const sidebarD3 = mapD3Bubble.sidebar("sidebar5");
-
-homeButton.call(mapD3Bubble);
+// const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 
 // Panes to control zIndex of geoJson layers
 mapD3Bubble.map.createPane("lsoaBoundaryPane");
