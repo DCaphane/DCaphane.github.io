@@ -101,7 +101,7 @@ let data = dataFlattened.map((d) => {
                        <div style="margin-left:${titleMarginLeft}px;
                                     margin-top:3px;
                                     font-size:14px;
-                               "><span class="fas fa-envelope"></span>${d.eMail}</div>
+                               "><span class="fa-solid fa-envelope"></span>${d.eMail}</div>
 
                        <div style="margin-left:${contentMarginLeft}px;
                                    margin-top:15px;
@@ -110,7 +110,7 @@ let data = dataFlattened.map((d) => {
                                    bottom:5px;
                                   ">
                             <div>${d.area}</div>
-                            <div style="margin-top:5px"><span class="fas fa-phone"></span>${d.telephone}</div>
+                            <div style="margin-top:5px"><span class="fa-solid fa-phone"></span>${d.telephone}</div>
                        </div>
                     </div>`,
     connectorLineColor: {

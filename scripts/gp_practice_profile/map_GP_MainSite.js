@@ -10,13 +10,6 @@ sidebarMapMain.addPanel(sidebarContent.panelMail);
 sidebarMapMain.addPanel(sidebarContent.panelDummy);
 sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
-// Panes to control zIndex of geoJson layers
-mapMain.map.createPane("wardBoundaryPane");
-mapMain.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
-
-mapMain.map.createPane("ccgBoundaryPane");
-mapMain.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
-
 const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
 
 const baseTreeMain = (function () {
@@ -114,10 +107,10 @@ Leaflet:
 
   // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
-    label: "Base Layers <i class='fas fa-globe'></i>",
+    label: "Base Layers <i class='fa-solid fa-globe'></i>",
     children: [
       {
-        label: "Colour <i class='fas fa-layer-group'></i>;",
+        label: "Colour <i class='fa-solid fa-layer-group'></i>",
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
@@ -134,7 +127,7 @@ Leaflet:
         ],
       },
       {
-        label: "Black & White <i class='fas fa-layer-group'></i>",
+        label: "Black & White <i class='fa-solid fa-layer-group'></i>",
         children: [
           // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           {
@@ -164,7 +157,7 @@ Leaflet:
         ],
       },
       {
-        label: "Ordance Survey <i class='fas fa-layer-group'></i>",
+        label: "Ordance Survey <i class='fa-solid fa-layer-group'></i>",
         children: [
           { label: "Light", layer: osBaselayers.light },
           { label: "Road", layer: osBaselayers.road },
@@ -195,9 +188,9 @@ const mapControlMain = L.control.layers.tree(baseTreeMain, overlaysTreeMain, {
   expandAll: "Expand all",
   // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
   closedSymbol:
-    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+    "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
   openedSymbol:
-    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+    "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
 });
 
 mapControlMain.addTo(mapMain.map);
@@ -228,7 +221,7 @@ Comment out as a bit excessive for this example
 // getFeatures(bounds); // move this to end, after promises and in intial set up
 
 // const overlayOSShapes = {
-//   label: "OS Feature Demo <i class='fas fa-hospital-symbol'></i>",
+//   label: "OS Feature Demo <i class='fa-solid fa-square-h'></i>",
 //   selectAllCheckbox: true,
 //   children: [
 //     {

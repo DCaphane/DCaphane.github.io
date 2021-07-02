@@ -12,8 +12,104 @@ https://github.com/nickpeihl/leaflet-sidebar-v2
 
 // Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
-const zIndexWard = 375,
-  zIndexCCG = 374;
+
+function mapInitialise(mapID) {
+  // for initialising maps
+
+  // add the home button here, need to pass option to determine home position...
+
+  const thisMap = L.map(mapID, {
+    preferCanvas: true,
+    // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
+    center: trustSitesLoc.yorkTrust, // centre on York Hospital
+    zoom: 11,
+    minZoom: 6, // how far out eg. 0 = whole world
+    maxZoom: 17, // how far in, eg. to the detail (max = 18)
+    // https://leafletjs.com/reference-1.3.4.html#latlngbounds
+    maxBounds: [
+      [50.0, 1.6232], //south west
+      [59.79, -10.239], //north east
+    ],
+    // layers: background, // default basemap that will appear first
+    fullscreenControl: {
+      // https://github.com/Leaflet/Leaflet.fullscreen
+      pseudoFullscreen: true, // if true, fullscreen to page width and height
+    },
+  });
+
+  // Possible values are 'topleft', 'topright', 'bottomleft' or 'bottomright'
+  function scaleBar({ position = "bottomleft" } = {}) {
+    return L.control
+      .scale({
+        // https://leafletjs.com/reference-1.7.1.html#control-scale-option
+        position: position,
+        metric: true,
+        imperial: true,
+      })
+      .addTo(thisMap);
+  }
+
+  function sideBar({ side = "left" } = {}) {
+    const divMapID = document.getElementById(mapID); // used to store div where map will be created
+    // create a div that will contain the sidebar
+    const div = document.createElement("div");
+    // give the div an id (used to identify container) and class
+    const divSidebarID = genID.uid(`sidebar${side}`).id;
+    div.setAttribute("id", divSidebarID);
+    div.setAttribute("class", "leaflet-sidebar collapsed");
+    divMapID.insertAdjacentElement("afterend", div);
+
+    return new L.control.sidebar({
+      autopan: false, // whether to maintain the centered map point when opening the sidebar
+      closeButton: true, // whether to add a close button to the panes
+      container: divSidebarID, // the DOM container or #ID of a predefined sidebar container that should be used
+      position: side, // left or right
+    }).addTo(thisMap);
+  }
+
+  /*
+    The default figures here are the VoY CCG boundary
+    layersMapBoundaries.get("voyCCGMain").getBounds().getCenter()
+    latLngPoint can be an array [54.018213, -0.9849195] or object {lat: 54.018213, lng: -0.9849195}
+    */
+  let home = { lat: 54.018213, lng: -0.9849195 };
+
+  function zoomTo({ latLng = home, zoom = 9 } = {}) {
+    thisMap.flyTo(latLng, zoom);
+  }
+
+  function homeButton() {
+    return L.easyButton("fa-solid fa-house", zoomTo, "Zoom To Home").addTo(
+      thisMap
+    );
+  }
+
+  // Panes to control zIndex of geoJson layers
+  thisMap.createPane("ccgBoundaryPane");
+  thisMap.getPane("ccgBoundaryPane").style.zIndex = 374;
+
+  thisMap.createPane("wardBoundaryPane");
+  thisMap.getPane("wardBoundaryPane").style.zIndex = 375;
+
+  thisMap.createPane("lsoaBoundaryPane");
+  thisMap.getPane("lsoaBoundaryPane").style.zIndex = 376;
+
+  return {
+    map: thisMap,
+    scaleBar: scaleBar,
+    sideBar: sideBar,
+    home: home,
+    homeButton: homeButton,
+    zoomTo: zoomTo,
+  };
+}
+
+// consider incorporating this into mapinit
+// options around fitBounds, setView
+function defaultHomeVoY() {
+  const map = this.map;
+  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
+}
 
 // Example using a handful of selected Trust locations
 const trustSitesLoc = {
@@ -61,7 +157,7 @@ function yorkTrust() {
 // function homeButton() {
 //   const map = this.map;
 //   return L.easyButton(
-//     "fas fa-home",
+//     "fa-solid fa-house",
 //     function (btn) {
 //       // map.setView(trustSitesLoc.yorkTrust, 9);
 //       map.setView(
@@ -685,7 +781,7 @@ function overlayPCNs(mapObj) {
 
 function overlayTrusts() {
   return {
-    label: "Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    label: "Hospital Sites <i class='fa-solid fa-circle-h'></i>",
     selectAllCheckbox: true,
     children: [
       {
@@ -808,7 +904,7 @@ async function overlayTrustsNational() {
   const mapHospitalLayers = await mapMarkersNationalTrust();
   // console.log(mapHospitalLayers);
   const nationalTrusts = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    label: "National Hospital Sites <i class='fa-solid fa-square-h'></i>",
     selectAllCheckbox: true,
     children: [
       {
@@ -827,7 +923,7 @@ async function overlayTrustsNational() {
   const mapHospitalLayers1 = await mapMarkersNationalTrust();
 
   const nationalTrusts1 = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    label: "National Hospital Sites <i class='fa-solid fa-square-h'></i>",
     selectAllCheckbox: true,
     children: [
       {

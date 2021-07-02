@@ -21,7 +21,7 @@ let sidebarContent = (function sidebarDefaults() {
   /* add an overview panel */
   const panelOverview = {
     id: "pcnOverview", // UID, used to access the panel
-    tab: '<span class="fas fa-bars"></span>', // content can be passed as HTML string,
+    tab: '<span class="fa-solid fa-bars"></span>', // content can be passed as HTML string,
     pane: defaultText,
     title: "Overview", // an optional pane header
     position: "top", // optional vertical alignment, defaults to 'top'
@@ -30,7 +30,7 @@ let sidebarContent = (function sidebarDefaults() {
 
   const panelSpecific = {
     id: "pcnSpecific", // UID, used to access the panel
-    tab: '<span class="fas fa-info-circle"></span>', // content can be passed as HTML string,
+    tab: '<span class="fa-solid fa-info"></span>', // content can be passed as HTML string,
     pane: "<br><p>Select a PCN for further details</p>",
     title: "PCN Specific", // an optional pane header
     position: "top", // optional vertical alignment, defaults to 'top'
@@ -40,7 +40,7 @@ let sidebarContent = (function sidebarDefaults() {
   /* add a dummy messages panel */
   const panelMail = {
     id: "mail",
-    tab: '<span class="fas fa-envelope"></span>',
+    tab: '<span class="fa-solid fa-envelope"></span>',
     pane: "<br><h1>Send a message..., add a button here?<p/>",
     title: "Messages",
     position: "top",
@@ -50,7 +50,7 @@ let sidebarContent = (function sidebarDefaults() {
   /* add a dummy messages panel */
   const panelDummy = {
     id: "dummy",
-    tab: '<span class="fas fa-user"></span>',
+    tab: '<span class="fa-solid fa-user"></span>',
     pane: "<br><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>",
     title: "Testing",
     position: "top",
@@ -61,7 +61,7 @@ let sidebarContent = (function sidebarDefaults() {
   // sidebarContent.resetSidebarText is set at run time
   const panelSettings = {
     id: "settings",
-    tab: '<span class="fas fa-cog"></span>',
+    tab: '<span class="fa-solid fa-gear"></span>',
     pane: `<br><p><button onclick="sidebarMapMain.enablePanel(\'dummy\')">enable dummy panel</button>
     <button onclick="sidebarMapMain.disablePanel(\'dummy\')">disable dummy panel</button></p>
     <br><h1><button onclick="sidebarContent.resetSidebarText()">Reset Text</button>`,
@@ -72,7 +72,7 @@ let sidebarContent = (function sidebarDefaults() {
 
   const panelIMDSpecific = {
     id: "pcnSpecific", // UID, used to access the panel
-    tab: '<span class="fas fa-info-circle"></span>', // content can be passed as HTML string,
+    tab: '<span class="fa-solid fa-info"></span>', // content can be passed as HTML string,
     pane: "<br><p>For further details around IMD, see <a href='https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019' target='_blank' rel='noopener noreferrer'>link</a></a></p>",
     title: "IMD Details", // an optional pane header
     position: "top", // optional vertical alignment, defaults to 'top'
