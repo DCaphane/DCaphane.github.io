@@ -26,6 +26,6 @@
 
 @media (max-width: 770px) {
   .leaflet-sidebar {
-      display: none;
+    display: none;
   }
 }

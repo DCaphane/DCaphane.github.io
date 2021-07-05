@@ -20,8 +20,8 @@
     -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
-      integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap-reboot.min.css"
+      integrity="sha512-wV3xzHEw4kJUF4G0fyXSefKmUVhwwbOdZinJvOxmysxAXSZBl17porgPOcQBDBQTEwgGevxXGWAAQ/UPaSd0nw=="
       crossorigin="anonymous"
     />
 
@@ -31,9 +31,13 @@
       rel="stylesheet"
     />
 
-    <!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
-    <script defer src="https://d3js.org/d3.v6.min.js"></script>
-    <!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
+    <script
+      defer
+      src="https://kit.fontawesome.com/0e64dfdf0b.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script defer src="https://d3js.org/d3.v7.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
@@ -68,8 +72,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css"
     />
     <link rel="stylesheet" href="css/components/awesomplete.css" />
-    <!-- causes problems if try to defer awesomplete... -->
     <script
+      defer
       src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.js"
       integrity="sha512-t3zV/oAkSZUrvb/7p1q1+uh/i56JinQ+bmiulnHhbHZc7dq09CxJ1BByyi7A4+lF76+CcJtSVFtb7na7Oe7Cgg=="
       crossorigin="anonymous"
@@ -82,7 +86,7 @@
       integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
       crossorigin=""
     />
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <!-- Leaflet.js after the css -->
     <script
       defer
       src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
@@ -90,31 +94,19 @@
       crossorigin=""
     ></script>
 
-    <!-- Leaflet Providers
-https://github.com/leaflet-extras/leaflet-providers
-http://leaflet-extras.github.io/leaflet-providers/preview/
--->
-    <script defer src="scripts/leaflet/leaflet-providers.js"></script>
-    <!-- Mapbox GL for OS Vector Layer-->
-    <!-- <link
-      href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css"
-      rel="stylesheet"
-    /> -->
-    <!-- <link
-      rel="stylesheet"
-      href="https://labs.os.uk/public/os-api-branding/v0.2.0/os-api-branding.css"
-    />
-    <script
-      defer
-      src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"
-    ></script>
-    <script
-      defer
-      src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"
-    ></script> -->
-    <!-- Tree layer control
-    https://github.com/jjimenezshaw/Leaflet.Control.Layers.Tree/
+    <!--
+    Leaflet Providers
+    An extension to Leaflet that contains configurations for various tile providers.
+    https://github.com/leaflet-extras/leaflet-providers
+    http://leaflet-extras.github.io/leaflet-providers/preview/
     -->
+    <script defer src="scripts/leaflet/leaflet-providers.js"></script>
+
+    <!--
+      Leaflet.Control.Layers.Tree
+      https://github.com/jjimenezshaw/Leaflet.Control.Layers.Tree
+      Enable a tree structure for the layers layout
+     -->
     <link
       rel="stylesheet"
       type="text/css"
@@ -122,10 +114,10 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     />
     <script defer src="scripts/leaflet/L.Control.Layers.Tree.js"></script>
 
-    <script
-      src="https://kit.fontawesome.com/0e64dfdf0b.js"
-      crossorigin="anonymous"
-    ></script>
+    <!--
+      BeautifyMarker
+      https://github.com/masajid390/BeautifyMarker
+     -->
     <link
       rel="stylesheet"
       type="text/css"
@@ -146,10 +138,11 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
       crossorigin="anonymous"
     ></script>
 
-    <!-- Add full screen option -->
+    <!-- Full screen toggle button -->
     <link
-      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
       rel="stylesheet"
+      type="text/css"
+      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
     />
     <script
       defer
@@ -179,18 +172,16 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
     />
-    <link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
+    <link rel="stylesheet" type="text/css" href="css/leaflet_sidebar.css" />
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
     ></script>
 
-    <link rel="stylesheet" type="text/css" href="css/leaflet_popup.css" />
-
-    <!--script defer src="scripts/map_default_markers.js"></script -->
     <script defer src="scripts/leaflet/markers/map_beautifyMarker.js"></script>
 
     <!-- <link rel="stylesheet" type="text/css" href="css/components/tooltip.css" /> -->
+    <link rel="stylesheet" type="text/css" href="css/leaflet_tooltip.css" />
     <script defer src="scripts/components/tooltip.js"></script>
 
     <!-- To convert to modules  -->

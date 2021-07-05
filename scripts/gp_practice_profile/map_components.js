@@ -191,7 +191,7 @@ function addPracticeToMap(zoomToExtent = false) {
             layer.feature.properties.list_size
           )}</p>`;
 
-      layer.bindPopup(popupText, { className: "popup-dark" }); // formatting applied in css, css/leaflet_popup.css
+      layer.bindPopup(popupText, { className: "popup-dark" }); // formatting applied in css, css/leaflet_tooltip.css
       layer.on("mouseover", function (e) {
         this.openPopup();
       });
