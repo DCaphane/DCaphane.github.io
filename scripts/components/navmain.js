@@ -2,61 +2,8 @@
 // https://plnkr.co/edit/LJbzzvqdwGaf2iojgymr?p=preview
 
 (function createNavBarMain() {
-  // Object consisting of main headers and a subsequent array of nav link and subsequent links
-  const dataNavMain = {
-    Home: ["index.html", {}],
-    Navigation: [
-      "#",
-      {
-        "dc Demos": [
-          "#",
-          {
-            ECDS: ["ecds.html", {}],
-            Referrals: ["referrals.html", {}],
-          },
-        ],
-        "Map Demos": [
-          "#",
-          {
-            PCNs: ["primary_care_networks.html", {}],
-            "GP Profiles": ["gp_practice_profile.html", {}],
-          },
-        ],
-        "D3 Learning": [
-          "#",
-          {
-            "Nav 3a": ["d3_learning_colours.html", {}],
-            "Nav 3b": ["d3_learning_axis.html", {}],
-            "Nav 3c": ["d3_learning_canvas.html", {}],
-            "Nav 3d": ["#", {}],
-          },
-        ],
-        "Nav 4": [
-          "#",
-          {
-            "Nav 4a": ["#", {}],
-            "Nav 4b": ["#", {}],
-            "Nav 4c": ["#", {}],
-          },
-        ],
-        "Nav 5": ["#", {}],
-      },
-    ],
-    FAQ: ["#", {}],
-    Blog: [
-      "#",
-      {
-        "Blog 1": [
-          "#",
-          {
-            "Blog 1a": ["#", {}],
-            "Blog 1b": ["#", {}],
-          },
-        ],
-      },
-    ],
-    "About Us": ["about_us.html", { "Sub Contact": ["#", {}] }],
-  };
+  // Object consisting of main headers and page links
+  const siteStructure = createSiteStructure();
 
   // To keep track of recursion depth
   let counter = 0,
@@ -64,7 +11,7 @@
     trackKey = 0,
     headingPosition = 0;
 
-  const arrDataKeys = Object.keys(dataNavMain), // An array of the top level headings only
+  const arrDataKeys = Object.keys(siteStructure), // An array of the top level headings only
     dataKeysCount = arrDataKeys.length;
   // lastItemText = arrDataKeys[arrDataKeys.length - 1];
 
@@ -99,7 +46,7 @@
   input.setAttribute("id", "responsive-button");
   container.append(input);
 
-  createTree(container, dataNavMain);
+  createTree(container, siteStructure);
   navMain.append(container);
 
   // The below is used to highlight the active page
@@ -116,15 +63,16 @@
   }
 
   function createTreeDom(obj, depth) {
-    // console.log({
-    //   key: trackKey, // navbar text
-    //   headingPosition: headingPosition, // This is the main heading order ie 1st, 2nd...
-    //   depth: depth, // 0 is a main heading, 1 is sub heading. 2 is sub heading of 1 etc
-    //   // itemNumber: itemNumber, // a counter of each item
-    // });
-
+    /*
+    console.log({
+      key: trackKey, // navbar text
+      headingPosition: headingPosition, // This is the main (or parent) heading order ie 1st, 2nd...
+      depth: depth, // 0 is a main heading, 1 is sub heading. 2 is sub heading of 1 etc
+      // itemNumber: itemNumber, // a counter of each item
+    });
+  */
     // if there are no children, then the call returns undefined and the <ul> won't be created
-    if (!Object.keys(obj).length) return;
+    if (obj === undefined || !Object.keys(obj).length) return;
 
     const ul = document.createElement("ul");
     if (counter === 0) {
@@ -187,3 +135,76 @@
     return ul;
   }
 })();
+
+function createSiteStructure() {
+  /*
+Used to generate a nested object outlining the site structure
+Each object contains a name (key) and reference to its location
+Subheadings are created by appending an additional object to the array
+
+This structure is subsequently iterated over (using recursion so can be any depth) to generate the main and sub heading menus
+*/
+
+  // The is the main header
+  const navMainTitles = {
+    Home: ["index.html"],
+    Navigation: ["#"],
+    FAQ: ["#"],
+    Blog: ["#"],
+    "About Us": ["about_us.html"],
+  };
+
+  // Sub headings under 'Navigation'
+  const subHeadingNavigation = {
+    "dc Demos": ["#"],
+    "Map Demos": ["#"],
+    "D3 Learning": ["#"],
+    "Nav 4": ["#"],
+    "Nav 5": ["#"],
+  };
+
+  const subHeadingDCDemo = {
+    ECDS: ["ecds.html"],
+    Referrals: ["referrals.html"],
+  };
+
+  const subHeadingMapDemo = {
+    PCNs: ["primary_care_networks.html"],
+    "GP Profiles": ["gp_practice_profile.html"],
+  };
+
+  const subHeadingD3Learning = {
+    "Nav 3a": ["d3_learning_colours.html"],
+    "Nav 3b": ["d3_learning_axis.html"],
+    "Nav 3c": ["d3_learning_canvas.html"],
+    "Nav 3d": ["#"],
+  };
+
+  const subHeadingNav4 = {
+    "Nav 4a": ["#"],
+    "Nav 4b": ["#"],
+    "Nav 4c": ["#"],
+  };
+
+  // Navigation
+  // Add the subheadings to the appropriate section
+  subHeadingNavigation["dc Demos"][1] = subHeadingDCDemo;
+  subHeadingNavigation["Map Demos"][1] = subHeadingMapDemo;
+  subHeadingNavigation["D3 Learning"][1] = subHeadingD3Learning;
+  subHeadingNavigation["Nav 4"][1] = subHeadingNav4;
+  // Update the section in the main heading
+  navMainTitles.Navigation[1] = subHeadingNavigation;
+
+  // Sub headings under 'Blog'
+  subHeadingBlog = {
+    "Blog 1a": ["#"],
+    "Blog 1b": ["#"],
+  };
+  navMainTitles.Blog[1] = subHeadingBlog;
+
+  // Sub headings under 'About Us'
+  const subHeadingAboutUs = { "Sub Contact": ["#"] };
+  navMainTitles["About Us"][1] = subHeadingAboutUs;
+
+  return navMainTitles;
+}
