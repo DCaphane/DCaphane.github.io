@@ -103,7 +103,7 @@ function legendWrapper(placementID, legendID) {
         .attr("height", height - marginTop - marginBottom)
         .attr("preserveAspectRatio", "none")
         .attr(
-          "xlink:href",
+          "href",
           ramp(
             color.copy().domain(d3.quantize(d3.interpolate(0, 1), n))
           ).toDataURL()
@@ -130,7 +130,7 @@ function legendWrapper(placementID, legendID) {
         .attr("width", width - marginLeft - marginRight) // having to add magic number to align width, not sure why?
         .attr("height", height - marginTop - marginBottom + 25)
         .attr("preserveAspectRatio", "none")
-        .attr("xlink:href", ramp(color.interpolator()).toDataURL());
+        .attr("href", ramp(color.interpolator()).toDataURL());
 
       // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
       if (!x.ticks) {

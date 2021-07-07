@@ -552,7 +552,7 @@ function Chart() {
         .attr("y", 0)
         .attr("height", (d) => d.imageWidth)
         .attr("width", (d) => d.imageHeight)
-        .attr("xlink:href", (d) => d.data.nodeImage.url)
+        .attr("href", (d) => d.data.nodeImage.url)
         .attr("viewbox", (d) => `0 0 ${d.imageWidth * 2} ${d.imageHeight}`)
         .attr("preserveAspectRatio", "xMidYMin slice");
 
@@ -690,7 +690,7 @@ function Chart() {
         })
         .attr("width", (d) => d.data.nodeIcon.size)
         .attr("height", (d) => d.data.nodeIcon.size)
-        .attr("xlink:href", (d) => d.data.nodeIcon.icon)
+        .attr("href", (d) => d.data.nodeIcon.icon)
         .attr("x", (d) => -d.width / 2 + 5)
         .attr("y", (d) => d.height / 2 - d.data.nodeIcon.size - 5);
 
