@@ -1,23 +1,9 @@
-const mapPopn = {
-  map: mapInitialise.mapInit("mapPopnLSOA"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapPopn = mapInitialise("mapPopnLSOA");
+mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapPopn.homeButton();
 
-mapPopn.scaleBar.addTo(mapPopn.map);
-
-const sidebarPopn = mapPopn.sidebar("sidebar3");
-
-homeButton.call(mapPopn);
-
-// Panes to control zIndex of geoJson layers
-mapPopn.map.createPane("lsoaBoundaryPane");
-mapPopn.map.getPane("lsoaBoundaryPane").style.zIndex = zIndexWard;
-
-mapPopn.map.createPane("ccgBoundaryPane");
-mapPopn.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
+const sidebarPopn = mapPopn.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarPopn.addPanel(sidebarContent.panelOverview);
 
 const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
@@ -44,10 +30,10 @@ const baseTreePopn = (function () {
 
   // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
-    label: "Base Layers <i class='fas fa-globe'></i>",
+    label: "Base Layers <i class='fa-solid fa-globe'></i>",
     children: [
       {
-        label: "Colour <i class='fas fa-layer-group'></i>;",
+        label: "Colour <i class='fa-solid fa-layer-group'></i>",
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
@@ -64,7 +50,7 @@ const baseTreePopn = (function () {
         ],
       },
       {
-        label: "Black & White <i class='fas fa-layer-group'></i>",
+        label: "Black & White <i class='fa-solid fa-layer-group'></i>",
         children: [
           // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           {
@@ -106,9 +92,9 @@ const mapControlPopn = L.control.layers.tree(baseTreePopn, overlaysTreePopn, {
   expandAll: "Expand all",
   // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
   closedSymbol:
-    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+    "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
   openedSymbol:
-    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+    "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
 });
 
 mapControlPopn.addTo(mapPopn.map).collapseTree().collapseTree(true);
@@ -240,7 +226,7 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
 Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa, importGeoData]).then(
   (values) => {
     initGeoCharts();
-    bubbleTest = imdDomainD3();
+    circlePopnIMDChart = imdDomainD3();
     // Dependent on Population data...
     refreshGeoChart();
   }

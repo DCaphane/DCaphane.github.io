@@ -1,23 +1,9 @@
-const mapSites = {
-  map: mapInitialise.mapInit("mapSites"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapSites = mapInitialise("mapSites");
+mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapSites.homeButton();
 
-mapSites.scaleBar.addTo(mapSites.map);
-
-const sidebarSites = mapSites.sidebar("sidebar2");
-
-homeButton.call(mapSites);
-
-// Panes to control zIndex of geoJson layers
-mapSites.map.createPane("wardBoundaryPane");
-mapSites.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
-
-mapSites.map.createPane("ccgBoundaryPane");
-mapSites.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
+const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarSites.addPanel(sidebarContent.panelOverview);
 
 // Make global to enable subsequent change to overlay
 const overlaysTreeSites = {
@@ -42,10 +28,10 @@ const baseTreeSites = (function () {
 
   // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
-    label: "Base Layers <i class='fas fa-globe'></i>",
+    label: "Base Layers <i class='fa-solid fa-globe'></i>",
     children: [
       {
-        label: "Colour <i class='fas fa-layer-group'></i>;",
+        label: "Colour <i class='fa-solid fa-layer-group'></i>",
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
@@ -62,7 +48,7 @@ const baseTreeSites = (function () {
         ],
       },
       {
-        label: "Black & White <i class='fas fa-layer-group'></i>",
+        label: "Black & White <i class='fa-solid fa-layer-group'></i>",
         children: [
           // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           {
@@ -107,9 +93,9 @@ const mapControlSites = L.control.layers.tree(
     expandAll: "Expand all",
     // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
     closedSymbol:
-      "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+      "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
     openedSymbol:
-      "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+      "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
   }
 );
 

@@ -29,7 +29,7 @@ const defaultOptions = {
 // Marker Shapes
 const markerDefault = {
   iconShape: "marker", // outer shape
-  icon: "fas fa-bahai", // inner shape, can use font awesome
+  icon: "fa-solid fa-bahai", // inner shape, can use font awesome
   iconAnchor: [14, 28],
   popupAnchor: [7, -30], // point from which the popup should open relative to the iconAnchor
   // isAlphaNumericIcon: false,
@@ -37,7 +37,7 @@ const markerDefault = {
 
 const circleDefault = {
   iconShape: "circle",
-  icon: "fas fa-user-md",
+  icon: "fa-solid fa-user-md",
   popupAnchor: [7, -16],
 };
 

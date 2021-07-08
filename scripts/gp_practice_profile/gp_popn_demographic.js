@@ -206,8 +206,8 @@ function initChartDemog(dataInit, id) {
     .tooltip(footer)
     .style("height", "60px")
     .style("width", "220px");
-  // Population over age ...
 
+  // Population over age ...
   const chtHeightMini = chtHeightShort / 2;
   const svgOverAge = d3
     .select(footer)
@@ -316,7 +316,7 @@ ${chtHeightMini + 20}`
     // });
 
     // find the maximum data value on either side
-    // since this will be shared by both of the x-axes
+    // Use this to provide a symmetrical x-axes
 
     let popn1MaxMale = 0,
       popn1MaxFemale = 0,

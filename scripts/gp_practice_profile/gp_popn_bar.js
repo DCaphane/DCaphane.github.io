@@ -195,50 +195,6 @@ Popn: ${formatNumber(d.population)}
         return x(d.practice);
       });
 
-    // svg
-    //   .selectAll("rect")
-    //   .append("title")
-    //   .text(function (d) {
-    //     return `${d[0]}\n${practiceLookup.get(d[0])}\n${formatNumber(d[1])}`;
-    //   });
-
-    // svg
-    //   .selectAll(".val-label")
-    //   .data(newData)
-    //   .enter()
-    //   .append("text")
-    //   .classed("val-label", true)
-
-    // .attr("x", function (d, i) {
-    //   return x(d[0]) + x.bandwidth() / 2;
-    // })
-    // .attr("y", chtHeightStd)
-
-    // .transition("label")
-    // .delay(function (d, i) {
-    //   return i * 50; // gives it a smoother effect
-    // })
-    // .duration(1000)
-
-    // .attr("y", function (d, i) {
-    //   return y(d[1]) - 4;
-    // })
-    // .attr("text-anchor", "middle")
-    // .text(function (d) {
-    //   return d[1];
-    // });
-
-    // const xAxis = (g) =>
-    // g
-    //   .attr("transform", `translate(0,${chtHeightStd})`)
-    //   .call(d3.axisBottom(x).tickSizeOuter(0));
-
-    //   const gx = svg.append("g").call(xAxis);
-    //   svg
-    //     .append("g")
-    //     .attr("class", "axis bottom")
-    //     .attr("transform", translation(0, chtHeightStd));
-
     svg
       .selectAll(".bar-label")
       .data(newData.keys(), function (d) {

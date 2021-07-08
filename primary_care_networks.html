@@ -48,12 +48,11 @@
 
     <!-- Page Structure (Layout) -->
     <script>
-      const elemActive = "Home";
-      elemActive.split(" ").join("-"); // remove any spaces and replace with hyphens
+      const pageName = "PCNs"; // This is the 'key' name in the function createSiteStructure (see navmain.js)
+      const elemActive = `nav ${pageName}`.split(" ").join("-");
     </script>
     <script defer src="scripts\components\navmain.js"></script>
     <script defer src="scripts\components\navside.js"></script>
-    <script defer src="scripts\components\navside_interactive.js"></script>
     <script defer src="scripts\components\toTop.js"></script>
 
     <!-- leaflet -->

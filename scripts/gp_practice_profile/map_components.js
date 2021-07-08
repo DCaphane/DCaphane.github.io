@@ -1,4 +1,3 @@
-let practiceName, practicePopulation, selectedPCN, highlightPractice; // used to allow removal of layer
 /*
 Reusable map components:
 	https://stackoverflow.com/questions/53594814/leaflet-multiple-maps-on-same-page
@@ -13,242 +12,106 @@ https://github.com/nickpeihl/leaflet-sidebar-v2
 
 // Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
-const zIndexWard = 375;
-const zIndexCCG = 374;
 
-const mapInitialise = (function defaultMapSetUp() {
+function mapInitialise(mapID) {
   // for initialising maps
-  function mapInit(mapName) {
-    return L.map(mapName, {
-      preferCanvas: true,
-      // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
-      center: trustSitesLoc.yorkTrust, // centre on York Hospital
-      zoom: 11,
-      minZoom: 6, // how far out eg. 0 = whole world
-      maxZoom: 17, // how far in, eg. to the detail (max = 18)
-      // https://leafletjs.com/reference-1.3.4.html#latlngbounds
-      maxBounds: [
-        [50.0, 1.6232], //south west
-        [59.79, -10.239], //north east
-      ],
-      // layers: background, // default basemap that will appear first
-      fullscreenControl: {
-        // https://github.com/Leaflet/Leaflet.fullscreen
-        pseudoFullscreen: true, // if true, fullscreen to page width and height
-      },
-    });
+
+  // add the home button here, need to pass option to determine home position...
+
+  const thisMap = L.map(mapID, {
+    preferCanvas: true,
+    // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
+    center: trustSitesLoc.yorkTrust, // centre on York Hospital
+    zoom: 11,
+    minZoom: 6, // how far out eg. 0 = whole world
+    maxZoom: 17, // how far in, eg. to the detail (max = 18)
+    // https://leafletjs.com/reference-1.3.4.html#latlngbounds
+    maxBounds: [
+      [50.0, 1.6232], //south west
+      [59.79, -10.239], //north east
+    ],
+    // layers: background, // default basemap that will appear first
+    fullscreenControl: {
+      // https://github.com/Leaflet/Leaflet.fullscreen
+      pseudoFullscreen: true, // if true, fullscreen to page width and height
+    },
+  });
+
+  // Possible values are 'topleft', 'topright', 'bottomleft' or 'bottomright'
+  function scaleBar({ position = "bottomleft" } = {}) {
+    return L.control
+      .scale({
+        // https://leafletjs.com/reference-1.7.1.html#control-scale-option
+        position: position,
+        metric: true,
+        imperial: true,
+      })
+      .addTo(thisMap);
   }
 
-  function scaleBar(position) {
-    return L.control.scale({
-      // https://leafletjs.com/reference-1.4.0.html#control-scale-option
-      position: position,
-      metric: true,
-      imperial: true,
-    });
-  }
+  function sideBar({ side = "left" } = {}) {
+    const divMapID = document.getElementById(mapID); // used to store div where map will be created
+    // create a div that will contain the sidebar
+    const div = document.createElement("div");
+    // give the div an id (used to identify container) and class
+    const divSidebarID = genID.uid(`sidebar${side}`).id;
+    div.setAttribute("id", divSidebarID);
+    div.setAttribute("class", "leaflet-sidebar collapsed");
+    divMapID.insertAdjacentElement("afterend", div);
 
-  function sidebarLeft(map, test) {
     return new L.control.sidebar({
       autopan: false, // whether to maintain the centered map point when opening the sidebar
       closeButton: true, // whether to add a close button to the panes
-      container: test, // the DOM container or #ID of a predefined sidebar container that should be used
-      position: "left", // left or right
-    }).addTo(map);
+      container: divSidebarID, // the DOM container or #ID of a predefined sidebar container that should be used
+      position: side, // left or right
+    }).addTo(thisMap);
   }
 
+  /*
+    The default figures here are the VoY CCG boundary
+    layersMapBoundaries.get("voyCCGMain").getBounds().getCenter()
+    latLngPoint can be an array [54.018213, -0.9849195] or object {lat: 54.018213, lng: -0.9849195}
+    */
+  let home = { lat: 54.018213, lng: -0.9849195 };
+
+  function zoomTo({ latLng = home, zoom = 9 } = {}) {
+    thisMap.flyTo(latLng, zoom);
+  }
+
+  function homeButton() {
+    return L.easyButton("fa-solid fa-house", zoomTo, "Zoom To Home").addTo(
+      thisMap
+    );
+  }
+
+  // Panes to control zIndex of geoJson layers
+  thisMap.createPane("ccgBoundaryPane");
+  thisMap.getPane("ccgBoundaryPane").style.zIndex = 374;
+
+  thisMap.createPane("wardBoundaryPane");
+  thisMap.getPane("wardBoundaryPane").style.zIndex = 375;
+
+  thisMap.createPane("lsoaBoundaryPane");
+  thisMap.getPane("lsoaBoundaryPane").style.zIndex = 376;
+
   return {
-    mapInit: mapInit,
+    map: thisMap,
     scaleBar: scaleBar,
-    sidebarLeft: sidebarLeft,
-  };
-})();
-
-// Export geojson data layers as: EPSG: 4326 - WGS 84
-let // geo coded data
-  geoDataPCN,
-  geoDataPCNSites,
-  geoDataCYCWards,
-  geoDataCCGBoundary,
-  geoDataLsoaBoundaries,
-  geoDateLsoaPopnCentroid,
-  dataIMD; // not geo data but only used in map chart
-// Organisation Data
-// hospitalDetails; -- handled in map object
-
-// Promises to import the geo data
-const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
-  promGeoDataPCNSites = d3.json(
-    "Data/geo/pcn/primary_care_network_sites.geojson"
-  ),
-  promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.geojson"),
-  promGeoDataCCGBoundary = d3.json(
-    "Data/geo/ccg_boundary_03Q_simple20.geojson"
-  ),
-  promGeoDataLsoaBoundaries = d3.json(
-    "Data/geo/lsoa_gp_selected_simple20cp6.geojson"
-  ),
-  promGeoDateLsoaPopnCentroid = d3.json(
-    "Data/geo/lsoa_population_centroid_03q.geojson"
-  ),
-  promHospitalDetails = d3.dsv(
-    "�", // \u00AC
-    "Data/geo/Hospital.csv",
-    processDataHospitalSite
-  ),
-  promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD);
-// promGPPracticeDetails = d3.json(
-//   "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000"
-// );
-
-// Upload Data
-const importGeoData = (async function displayContent() {
-  await Promise.allSettled([
-    promGeoDataPCN,
-    promGeoDataPCNSites,
-    promGeoDataCYCWards,
-    promGeoDataCCGBoundary,
-    promGeoDataLsoaBoundaries,
-    promGeoDateLsoaPopnCentroid,
-    promDataIMD,
-    // promHospitalDetails,
-    // promGPPracticeDetails,
-  ])
-    .then((values) => {
-      // if (values[0].status === "fulfilled") {
-      geoDataPCN = values[0].value;
-      // }
-      geoDataPCNSites = values[1].value;
-      geoDataCYCWards = values[2].value;
-      geoDataCCGBoundary = values[3].value;
-      geoDataLsoaBoundaries = values[4].value;
-      geoDateLsoaPopnCentroid = values[5].value;
-      dataIMD = values[6].value;
-      // promHospitalDetails is 7
-      // gpDetails = values[8].value;
-    })
-    .then(() => {
-      // Assumption here that everything in other scripts is declared before this step...
-      // console.log(geoDateLsoaPopnCentroid)
-    });
-})();
-
-// Functions to refresh the map overlay buttons
-
-function refreshMapOverlayControls() {
-  refreshMapMainControl();
-  refreshMapControlSites();
-  refreshMapControlPopn();
-  refreshMapControlIMD();
-  refreshMapControlBubble();
-}
-
-function refreshMapMainControl() {
-  mapControlMain
-    .setOverlayTree(overlaysTreeMain)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlSites() {
-  mapControlSites
-    .setOverlayTree(overlaysTreeSites)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlPopn() {
-  mapControlPopn
-    .setOverlayTree(overlaysTreePopn)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlIMD() {
-  mapControlIMD
-    .setOverlayTree(overlaysTreeIMD)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlBubble() {
-  mapControlBubble
-    .setOverlayTree(overlaysTreeBubble)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-// Formatting Styles
-const styleCCG = {
-  color: "#00ff78",
-  weight: 2,
-  opacity: 0.6,
-};
-
-function styleLsoa(feature) {
-  return {
-    fillColor: "#ff0000", // background
-    fillOpacity: 0, // transparent
-    weight: 0.9, // border
-    color: "red", // border
-    opacity: 1,
-    dashArray: "3",
+    sideBar: sideBar,
+    home: home,
+    homeButton: homeButton,
+    zoomTo: zoomTo,
   };
 }
 
-function styleWard(feature) {
-  return {
-    fillColor: getColourWard(feature.properties.pcn_ward_group),
-    weight: 2,
-    opacity: 1,
-    color: "red",
-    dashArray: "3",
-    fillOpacity: 0.7,
-  };
+// consider incorporating this into mapinit
+// options around fitBounds, setView
+function defaultHomeVoY() {
+  const map = this.map;
+  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
 }
 
-// for colouring ward groupings (choropleth)
-function getColourWard(d) {
-  return d > 7
-    ? "#800026"
-    : d > 6
-    ? "#BD0026"
-    : d > 5
-    ? "#E31A1C"
-    : d > 4
-    ? "#FC4E2A"
-    : d > 3
-    ? "#FD8D3C"
-    : d > 2
-    ? "#FEB24C"
-    : d > 1
-    ? "#FED976"
-    : "#FFEDA0";
-}
-
-// Used to style polygons
-const wardsStyle = {
-  fillColor: "transparent", // fill colour
-  // fillOpacity: 0.5,
-  color: "#0078ff", // border colour
-  opacity: 1,
-  weight: 2,
-};
-
-// Used to style labels
-const wardsStyleLabels = {
-  fillColor: "transparent", // fill colour
-  // fillOpacity: 0.5,
-  color: "#transparent", // border colour
-  opacity: 0,
-  weight: 0,
-};
-
+// Example using a handful of selected Trust locations
 const trustSitesLoc = {
   yorkTrust: [53.96895, -1.08427],
   scarboroughTrust: [54.28216, -0.43619],
@@ -291,25 +154,20 @@ function yorkTrust() {
     .bindPopup("York Hospital"); // Text to display in pop up
 }
 
-function homeButton() {
-  const map = this.map;
-  return L.easyButton(
-    "fa-home",
-    function (btn) {
-      // map.setView(trustSitesLoc.yorkTrust, 9);
-      map.setView(
-        layersMapBoundaries.get("voyCCGMain").getBounds().getCenter(),
-        9
-      );
-    },
-    "Zoom To Home"
-  ).addTo(map);
-}
-
-function defaultHomeVoY() {
-  const map = this.map;
-  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
-}
+// function homeButton() {
+//   const map = this.map;
+//   return L.easyButton(
+//     "fa-solid fa-house",
+//     function (btn) {
+//       // map.setView(trustSitesLoc.yorkTrust, 9);
+//       map.setView(
+//         layersMapBoundaries.get("voyCCGMain").getBounds().getCenter(),
+//         9
+//       );
+//     },
+//     "Zoom To Home"
+//   ).addTo(map);
+// }
 
 const layersMapGpMain = new Map();
 
@@ -333,7 +191,7 @@ function addPracticeToMap(zoomToExtent = false) {
             layer.feature.properties.list_size
           )}</p>`;
 
-      layer.bindPopup(popupText, { className: "popup-dark" }); // formatting applied in css, css/leaflet_popup.css
+      layer.bindPopup(popupText, { className: "popup-dark" }); // formatting applied in css, css/leaflet_tooltip.css
       layer.on("mouseover", function (e) {
         this.openPopup();
       });
@@ -341,7 +199,7 @@ function addPracticeToMap(zoomToExtent = false) {
         this.closePopup();
       });
       layer.on("click", function (e) {
-        console.log(e.sourceTarget.feature.properties.practice_code);
+        // console.log(e.sourceTarget.feature.properties.practice_code);
         const selectedPractice = feature.properties.practice_code;
         if (userSelections.selectedPractice !== selectedPractice) {
           // update the Practice in userSelections
@@ -827,39 +685,12 @@ function filterFunctionLsoa(zoomToExtent = false) {
   }
 }
 
-function refreshChartsPostPracticeChange(practice) {
-  console.log(practice);
-  // change the selection box dropdown to reflect clicked practice
-  document.getElementById("selPractice").value = `${
-    userSelections.selectedPractice
-  }: ${userSelections.selectedPracticeName()}`;
-
-  updateBouncingMarkers();
-  highlightFeature(practice, mapMain, true);
-
-  trendChart.chartTrendDraw();
-  demographicChart.updateChtDemog(
-    practice,
-    userSelections.selectedPracticeCompare
-  );
-
-  filterGPPracticeSites.call(mapSites, true);
-
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
-  bubbleTest.updateD3BubbleLsoa();
-  barChart.fnRedrawBarChart();
-  // updateTextPractice();
-  // updateTextPCN();
-  updateSidebarText("pcnSpecific", practice);
-}
-
 function highlightFeature(selPractice, map, zoomToExtent = false) {
-  if (typeof highlightPractice !== "undefined") {
-    map.map.removeLayer(highlightPractice);
+  if (typeof highlightedPractice !== "undefined") {
+    map.map.removeLayer(highlightedPractice);
   }
 
-  highlightPractice = L.geoJSON(geoDataPCN, {
+  highlightedPractice = L.geoJSON(geoDataPCN, {
     pointToLayer: function (feature, latlng) {
       if (feature.properties.practice_code === selPractice) {
         return (markerLayer = L.marker(latlng, {
@@ -873,101 +704,15 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
   if (selPractice === "All Practices" || selPractice === undefined) {
     defaultHomeVoY.call(mapMain);
   } else {
-    map.map.addLayer(highlightPractice);
+    map.map.addLayer(highlightedPractice);
 
     if (zoomToExtent) {
-      // map.map.fitBounds(highlightPractice.getBounds());
-      const practiceLocation = highlightPractice.getBounds().getCenter();
+      // map.map.fitBounds(highlightedPractice.getBounds());
+      const practiceLocation = highlightedPractice.getBounds().getCenter();
       map.map.setView(practiceLocation, 10);
     }
   }
 }
-
-// Formatting
-
-const pcnFormatting = function (feature, latlng, { addBounce = false } = {}) {
-  let markerPCN;
-
-  // Use different marker styles depending on eg. practice groupings
-  switch (feature.properties.pcn_name) {
-    case "Selby Town":
-      markerPCN = arrMarkerIcons[0]; // standard red map marker
-      markerPCN.options.text = "ST";
-      markerPCN.options.innerIconStyle = "padding-left:7px;padding-bottom:5px;"; // centre text in icon
-      // markerPCN.options.icon = "fas fa-bahai" // to use font awesome icon
-      break;
-
-    case "Tadcaster & Selby Rural Area":
-      markerPCN = arrMarkerIcons[1]; // standard blue map marker
-      markerPCN.options.text = "TSRA";
-      markerPCN.options.innerIconStyle = "font-size:9px;";
-      break;
-    case "South Hambleton And Ryedale":
-      markerPCN = arrMarkerIcons[2]; // standard green map marker
-      markerPCN.options.text = "SHaR";
-      markerPCN.options.innerIconStyle = "font-size:9px;";
-      break;
-    case "York City Centre":
-      markerPCN = arrMarkerIcons[3]; // standard purple map marker
-      markerPCN.options.text = "YCC";
-      markerPCN.options.innerIconStyle =
-        "font-size:11px;margin-top:3px;margin-left:-2px;";
-      break;
-    case "York Medical Group":
-      markerPCN = arrMarkerIcons[4]; // standard orange map marker
-      markerPCN.options.text = "YMG";
-      markerPCN.options.innerIconStyle =
-        "font-size:11px;margin-top:3px;margin-left:-2px;";
-      break;
-    case "Priory Medical Group":
-      markerPCN = arrCircleIcons[0]; // red circle
-      markerPCN.options.text = "PMG";
-      markerPCN.options.innerIconStyle = "margin-top:3px;";
-      break;
-    case "York East":
-      markerPCN = arrCircleIcons[1]; // blue circle
-      markerPCN.options.text = "YE";
-      markerPCN.options.innerIconStyle = "margin-top:3px; margin-left:0px;";
-      break;
-    case "West, Outer and North East York":
-      markerPCN = arrCircleIcons[3]; // purple
-      markerPCN.options.text = "WONEY";
-      markerPCN.options.innerIconStyle =
-        "margin-top:6px; margin-left:0px;font-size:8px;padding-top:1px;";
-      break;
-    // case "NIMBUSCARE LTD":
-    //   switch (feature.properties.sub_group) {
-    //     case "1":
-    //       markerPCN = arrCircleIcons[7];
-    //       break;
-    //     case "2":
-    //       markerPCN = arrCircleDotIcons[7];
-    //       break;
-    //     case "3":
-    //       markerPCN = arrRectangleIcons[7];
-    //       break;
-    //     default:
-    //       markerPCN = arrDoughnutIcons[7];
-    //       break;
-    //   }
-
-    default:
-      console.log(`Missing PCN Marker: ${feature.properties.pcn_name}`);
-      markerPCN = arrDoughnutIcons[0];
-  }
-
-  const finalMarker = L.marker(latlng, {
-    icon: markerPCN,
-    riseOnHover: true,
-  });
-
-  if (addBounce) {
-    finalMarker.on("click", function () {
-      this.toggleBouncing();
-    });
-  }
-  return finalMarker;
-};
 
 function overlayPCNs(mapObj) {
   return {
@@ -1036,7 +781,7 @@ function overlayPCNs(mapObj) {
 
 function overlayTrusts() {
   return {
-    label: "Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    label: "Hospital Sites <i class='fa-solid fa-circle-h'></i>",
     selectAllCheckbox: true,
     children: [
       {
@@ -1155,62 +900,11 @@ function overlayLSOA(mapObj) {
   };
 }
 
-function processDataHospitalSite(d) {
-  if (isNaN(+d.Latitude)) {
-    console.log(d.OrganisationCode, d.Latitude);
-  }
-
-  return {
-    latitude: +d.Latitude,
-    // longitude: +d.Longitude,
-    markerPosition: [+d.Latitude, +d.Longitude],
-    sector: d.Sector, // nhs or independent
-    organisationCode: d.OrganisationCode,
-    organisationName: d.OrganisationName,
-    parentODSCode: d.ParentODSCode,
-    parentName: d.ParentName,
-  };
-}
-
-async function mapMarkersNationalTrust() {
-  const data = await promHospitalDetails; // details of national hospital sites
-  const mapHospitalLayers = new Map();
-  data.forEach((d) => {
-    if (!isNaN(d.latitude)) {
-      const marker = new L.marker(d.markerPosition, {
-        icon: L.BeautifyIcon.icon({
-          iconShape: "circle",
-          icon: "h-square",
-          popupAnchor: [0, -10],
-          borderColor: "transparent",
-          backgroundColor: "transparent",
-          textColor: hospitalSiteColour(d.sector), // Text color of marker icon
-        }),
-        zIndexOffset: 1000,
-        draggable: false,
-      }).bindPopup(
-        `<h3>${d.organisationCode}: ${d.organisationName}</h3>
-        <p>${d.parentODSCode}: ${d.parentName}
-        <br>${d.sector}</p>`
-      );
-
-      const category = d.sector;
-      if (!mapHospitalLayers.has(category)) {
-        // Initialize the category array if not already set.
-        mapHospitalLayers.set(category, L.layerGroup());
-      }
-      mapHospitalLayers.get(category).addLayer(marker);
-    }
-  });
-
-  return mapHospitalLayers;
-}
-
 async function overlayTrustsNational() {
   const mapHospitalLayers = await mapMarkersNationalTrust();
   // console.log(mapHospitalLayers);
   const nationalTrusts = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    label: "National Hospital Sites <i class='fa-solid fa-square-h'></i>",
     selectAllCheckbox: true,
     children: [
       {
@@ -1229,7 +923,7 @@ async function overlayTrustsNational() {
   const mapHospitalLayers1 = await mapMarkersNationalTrust();
 
   const nationalTrusts1 = {
-    label: "National Hospital Sites <i class='fas fa-hospital-symbol'></i>",
+    label: "National Hospital Sites <i class='fa-solid fa-square-h'></i>",
     selectAllCheckbox: true,
     children: [
       {
@@ -1245,41 +939,4 @@ async function overlayTrustsNational() {
 
   overlaysTreeBubble.children[4] = nationalTrusts1;
   refreshMapControlBubble();
-}
-
-function processDataIMD(d) {
-  return {
-    lsoa: d.LSOA_code_2011,
-    imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
-    imdDecile: +d.Index_of_Multiple_Deprivation_IMD_Decile,
-    incomeRank: +d.Income_Rank,
-    employmentRank: +d.Employment_Rank,
-    educationRank: +d.Education_Skills_and_Training_Rank,
-    healthRank: +d.Health_Deprivation_and_Disability_Rank,
-    crimeRank: +d.Crime_Rank,
-    housingRank: +d.Barriers_to_Housing_and_Services_Rank,
-    livingEnvironRank: +d.Living_Environment_Rank,
-    incomeChildRank: +d.Income_Deprivation_Affecting_Children_Index_Rank,
-    incomeOlderRank: +d.Income_Deprivation_Affecting_Older_People_Rank,
-    childRank: +d.Children_and_Young_People_Subdomain_Rank,
-    adultSkillsRank: +d.Adult_Skills_Subdomain_Rank,
-    geogRank: +d.Geographical_Barriers_Subdomain_Rank,
-    barriersRank: +d.Wider_Barriers_Subdomain_Rank,
-    indoorsRank: +d.Indoors_Subdomain_Rank,
-    outdoorsRank: +d.Outdoors_Subdomain_Rank,
-    totalPopn: +d.Total_population_mid_2015,
-    dependentChildren: +d.Dependent_Children_aged_0_15_mid_2015,
-    popnMiddle: +d.Population_aged_16_59_mid_2015,
-    popnOlder: +d.Older_population_aged_60_and_over_mid_2015,
-    popnWorking: +d.Working_age_population_18_59_64,
-  };
-}
-
-function hospitalSiteColour(sector) {
-  switch (sector) {
-    case "NHS Sector":
-      return "rgba(255, 0, 0)";
-    case "Independent Sector":
-      return "rgba(0,0,255)";
-  }
 }

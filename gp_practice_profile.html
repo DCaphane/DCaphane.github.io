@@ -20,8 +20,8 @@
     -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
-      integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap-reboot.min.css"
+      integrity="sha512-wV3xzHEw4kJUF4G0fyXSefKmUVhwwbOdZinJvOxmysxAXSZBl17porgPOcQBDBQTEwgGevxXGWAAQ/UPaSd0nw=="
       crossorigin="anonymous"
     />
 
@@ -31,9 +31,13 @@
       rel="stylesheet"
     />
 
-    <!-- D3 latest release available here: src="https://d3js.org/d3.v5.min.js" -->
-    <script defer src="https://d3js.org/d3.v6.min.js"></script>
-    <!-- src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js" -->
+    <script
+      defer
+      src="https://kit.fontawesome.com/0e64dfdf0b.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script defer src="https://d3js.org/d3.v7.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
@@ -54,13 +58,12 @@
 
     <!-- Page Structure (Layout) -->
     <script>
-      let elemActive = "Home"; // remove any spaces and replace with hyphens
-      // elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
+      const pageName = "GP Profiles"; // This is the 'key' name in the function createSiteStructure (see navmain.js)
+      const elemActive = `nav ${pageName}`.split(" ").join("-");
     </script>
     <!-- requires font awesome -->
     <script defer src="scripts/components/navmain.js"></script>
     <script defer src="scripts/components/navside.js"></script>
-    <script defer src="scripts/components/navside_interactive.js"></script>
     <script defer src="scripts/components/toTop.js"></script>
 
     <!-- Awesomplete (https://leaverou.github.io/awesomplete/) -->
@@ -69,8 +72,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css"
     />
     <link rel="stylesheet" href="css/components/awesomplete.css" />
-    <!-- causes problems if try to defer awesomplete... -->
     <script
+      defer
       src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.js"
       integrity="sha512-t3zV/oAkSZUrvb/7p1q1+uh/i56JinQ+bmiulnHhbHZc7dq09CxJ1BByyi7A4+lF76+CcJtSVFtb7na7Oe7Cgg=="
       crossorigin="anonymous"
@@ -83,7 +86,7 @@
       integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
       crossorigin=""
     />
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <!-- Leaflet.js after the css -->
     <script
       defer
       src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
@@ -91,31 +94,19 @@
       crossorigin=""
     ></script>
 
-    <!-- Leaflet Providers
-https://github.com/leaflet-extras/leaflet-providers
-http://leaflet-extras.github.io/leaflet-providers/preview/
--->
-    <script defer src="scripts/leaflet/leaflet-providers.js"></script>
-    <!-- Mapbox GL for OS Vector Layer-->
-    <!-- <link
-      href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css"
-      rel="stylesheet"
-    /> -->
-    <!-- <link
-      rel="stylesheet"
-      href="https://labs.os.uk/public/os-api-branding/v0.2.0/os-api-branding.css"
-    />
-    <script
-      defer
-      src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"
-    ></script>
-    <script
-      defer
-      src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"
-    ></script> -->
-    <!-- Tree layer control
-    https://github.com/jjimenezshaw/Leaflet.Control.Layers.Tree/
+    <!--
+    Leaflet Providers
+    An extension to Leaflet that contains configurations for various tile providers.
+    https://github.com/leaflet-extras/leaflet-providers
+    http://leaflet-extras.github.io/leaflet-providers/preview/
     -->
+    <script defer src="scripts/leaflet/leaflet-providers.js"></script>
+
+    <!--
+      Leaflet.Control.Layers.Tree
+      https://github.com/jjimenezshaw/Leaflet.Control.Layers.Tree
+      Enable a tree structure for the layers layout
+     -->
     <link
       rel="stylesheet"
       type="text/css"
@@ -123,10 +114,10 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     />
     <script defer src="scripts/leaflet/L.Control.Layers.Tree.js"></script>
 
-    <script
-      src="https://kit.fontawesome.com/0e64dfdf0b.js"
-      crossorigin="anonymous"
-    ></script>
+    <!--
+      BeautifyMarker
+      https://github.com/masajid390/BeautifyMarker
+     -->
     <link
       rel="stylesheet"
       type="text/css"
@@ -147,15 +138,16 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
       crossorigin="anonymous"
     ></script>
 
-    <!-- Add full screen option -->
+    <!-- Full screen toggle button -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+    />
     <script
       defer
       src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"
     ></script>
-    <link
-      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
-      rel="stylesheet"
-    />
 
     <!-- Home Button -->
     <link
@@ -180,23 +172,31 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/css/leaflet-sidebar.min.css"
     />
-    <link rel="stylesheet" type="text/css" href="css/leaflet_legend.css" />
+    <link rel="stylesheet" type="text/css" href="css/leaflet_sidebar.css" />
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.1.1/js/leaflet-sidebar.min.js"
     ></script>
 
-    <link rel="stylesheet" type="text/css" href="css/leaflet_popup.css" />
-
-    <!--script defer src="scripts/map_default_markers.js"></script -->
     <script defer src="scripts/leaflet/markers/map_beautifyMarker.js"></script>
 
     <!-- <link rel="stylesheet" type="text/css" href="css/components/tooltip.css" /> -->
+    <link rel="stylesheet" type="text/css" href="css/leaflet_tooltip.css" />
     <script defer src="scripts/components/tooltip.js"></script>
-    <script defer src="scripts/gp_practice_profile/cht_defaults.js"></script>
+
+    <!-- To convert to modules  -->
     <script
       defer
-      src="scripts/gp_practice_profile/component_practice_dropdown.js"
+      src="scripts/gp_practice_profile/chart_formatting.js"
+    ></script>
+    <script defer src="scripts/gp_practice_profile/map_formatting.js"></script>
+    <script defer src="scripts/gp_practice_profile/functions.js"></script>
+    <script defer src="scripts/gp_practice_profile/sidebar_content.js"></script>
+
+    <script defer src="scripts/gp_practice_profile/index.js"></script>
+    <script
+      defer
+      src="scripts/gp_practice_profile/gp_practice_dropdown.js"
     ></script>
 
     <script defer src="scripts/gp_practice_profile/map_components.js"></script>
@@ -215,11 +215,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
     <script defer src="scripts/gp_practice_profile/map_imd_lsoa.js"></script>
     <script defer src="scripts/gp_practice_profile/map_leaflet_d3.js"></script>
     <script defer src="scripts/gp_practice_profile/map_popn_lsoa.js"></script>
-
-    <script
-      defer
-      src="scripts/gp_practice_profile/leaflet_sidebar_demog.js"
-    ></script>
 
     <style></style>
   </head>
@@ -251,7 +246,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
             </p>
             <div class="awesearch">
               <label for="selPractice">Choose a GP Practice:</label>
-              <i class="fas fa-search"></i>
+              <i class="fa-solid fa-magnifying-glass"></i>
               <input
                 type="search"
                 autocomplete="off"
@@ -264,7 +259,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
               />
               <!-- https://github.com/LeaVerou/awesomplete/issues/17117 -->
               <button id="btn-selPractice" class="dropdown-btn" type="button">
-                <i class="fas fa-caret-down"></i>
+                <i class="fa-solid fa-caret-down"></i>
               </button>
               <datalist id="practice-list" class="dropdown practice">
               </datalist>
@@ -280,7 +275,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapMain" class="map"></div>
-                  <div id="sidebar" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer id="selectedMarker" class="cta">
                   Select a marker for details
@@ -292,7 +286,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapSites" class="map"></div>
-                  <div id="sidebar2" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer id="selectedSite" class="cta">Associated Sites</footer>
               </div>
@@ -319,7 +312,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <h3>Population Pyramid</h3>
                 <div class="awesearch">
                   <label for="selPractice">Compare to:</label>
-                  <i class="fas fa-search"></i>
+                  <i class="fa-solid fa-magnifying-glass"></i>
                   <input
                     type="search"
                     autocomplete="off"
@@ -335,7 +328,7 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                     class="dropdown-btn"
                     type="button"
                   >
-                    <i class="fas fa-caret-down"></i>
+                    <i class="fa-solid fa-caret-down"></i>
                   </button>
                   <datalist id="practice-list2" class="dropdown practice">
                     <option value="None"></option>
@@ -357,7 +350,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapPopnLSOA" class="map"></div>
-                  <div id="sidebar3" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapPopn"></footer>
               </div>
@@ -374,7 +366,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapIMDLSOA" class="map"></div>
-                  <div id="sidebar4" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapIMD"></footer>
               </div>
@@ -385,7 +376,6 @@ http://leaflet-extras.github.io/leaflet-providers/preview/
                 <div>
                   <!--  just a wrapper to control map height/ width-->
                   <div id="mapIMDD3" class="map"></div>
-                  <div id="sidebar5" class="leaflet-sidebar collapsed"></div>
                 </div>
                 <footer class="cta" id="footerMapD3Leaf"></footer>
               </div>

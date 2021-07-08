@@ -1,23 +1,16 @@
-const mapMain = {
-  map: mapInitialise.mapInit("mapMain"),
-  scaleBar: mapInitialise.scaleBar("bottomleft"),
-  sidebar(sidebarName) {
-    return mapInitialise.sidebarLeft(this.map, sidebarName);
-  },
-};
+const mapMain = mapInitialise("mapMain");
+mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+// mapMain.home = {lat: 54.018213, lng: -10.0} // can change the home button position
+mapMain.homeButton(); // mapMain.homeButton({ latLng: trustSitesLoc.yorkTrust, zoom: 12 });
 
-mapMain.scaleBar.addTo(mapMain.map);
+const sidebarMapMain = mapMain.sideBar(); // default is left, can use mapMain.sideBar({side: "right"});
+sidebarMapMain.addPanel(sidebarContent.panelOverview);
+sidebarMapMain.addPanel(sidebarContent.panelSpecific);
+sidebarMapMain.addPanel(sidebarContent.panelMail);
+sidebarMapMain.addPanel(sidebarContent.panelDummy);
+sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
-const sidebarPCN = mapMain.sidebar("sidebar");
-
-homeButton.call(mapMain);
-
-// Panes to control zIndex of geoJson layers
-mapMain.map.createPane("wardBoundaryPane");
-mapMain.map.getPane("wardBoundaryPane").style.zIndex = zIndexWard;
-
-mapMain.map.createPane("ccgBoundaryPane");
-mapMain.map.getPane("ccgBoundaryPane").style.zIndex = zIndexCCG;
+const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
 
 const baseTreeMain = (function () {
   const defaultBasemap = L.tileLayer
@@ -55,8 +48,7 @@ Leaflet:
   OS_VTS_3857_Light.json
   */
 
-  const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35",
-    serviceUrl = "https://api.os.uk/maps/raster/v1/zxy";
+  const serviceUrl = "https://api.os.uk/maps/raster/v1/zxy";
   let copyrightStatement =
     "Contains OS data &copy; Crown copyright and database rights YYYY"; // '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>'
   copyrightStatement = copyrightStatement.replace(
@@ -115,10 +107,10 @@ Leaflet:
 
   // http://leaflet-extras.github.io/leaflet-providers/preview/
   return {
-    label: "Base Layers <i class='fas fa-globe'></i>",
+    label: "Base Layers <i class='fa-solid fa-globe'></i>",
     children: [
       {
-        label: "Colour <i class='fas fa-layer-group'></i>;",
+        label: "Colour <i class='fa-solid fa-layer-group'></i>",
         children: [
           { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
           {
@@ -135,7 +127,7 @@ Leaflet:
         ],
       },
       {
-        label: "Black & White <i class='fas fa-layer-group'></i>",
+        label: "Black & White <i class='fa-solid fa-layer-group'></i>",
         children: [
           // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
           {
@@ -165,7 +157,7 @@ Leaflet:
         ],
       },
       {
-        label: "Ordance Survey <i class='fas fa-layer-group'></i>",
+        label: "Ordance Survey <i class='fa-solid fa-layer-group'></i>",
         children: [
           { label: "Light", layer: osBaselayers.light },
           { label: "Road", layer: osBaselayers.road },
@@ -196,9 +188,198 @@ const mapControlMain = L.control.layers.tree(baseTreeMain, overlaysTreeMain, {
   expandAll: "Expand all",
   // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
   closedSymbol:
-    "<i class='far fa-plus-square'></i> <i class='far fa-folder'></i>", // Symbol displayed on a closed node
+    "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
   openedSymbol:
-    "<i class='far fa-minus-square'></i> <i class='far fa-folder-open'></i>", // Symbol displayed on an opened node
+    "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
 });
 
 mapControlMain.addTo(mapMain.map);
+
+/*
+OS Features API
+https://labs.os.uk/public/os-data-hub-examples/os-features-api/wfs-example-bbox
+
+The below is a working example of using the OS Features API to add a hospital and hospice 'shapes' layer
+The overlay only adds what is visible in the bounding box (refreshes if map moves)
+
+The initial call to getFeatures(bounds) should be moved to the init set up function
+
+Comment out as a bit excessive for this example
+
+*/
+
+// const wfsServiceUrl = "https://api.os.uk/features/v1/wfs",
+//   tileServiceUrl = "https://api.os.uk/maps/raster/v1/zxy";
+
+// // Add layer group to make it easier to add or remove layers from the map.
+// const osShapeHospital = new L.layerGroup(), //.addTo(mapMain.map);
+//   osShapeHospice = new L.layerGroup();
+
+// // Get the visible map bounds (BBOX).
+// let bounds = mapMain.map.getBounds();
+
+// getFeatures(bounds); // move this to end, after promises and in intial set up
+
+// const overlayOSShapes = {
+//   label: "OS Feature Demo <i class='fa-solid fa-square-h'></i>",
+//   selectAllCheckbox: true,
+//   children: [
+//     {
+//       label: "Hospital",
+//       layer: osShapeHospital,
+//     },
+//     {
+//       label: "Hospice",
+//       layer: osShapeHospice,
+//     },
+//   ],
+// };
+// overlaysTreeMain.children[6] = overlayOSShapes;
+
+// // Add event which will be triggered when the map has finished moving (pan + zoom).
+// // Implements a simple strategy to only request data when the map viewport invalidates
+// // certain bounds.
+// mapMain.map.on("moveend", function () {
+//   let bounds1 = new L.latLngBounds(
+//       bounds.getSouthWest(),
+//       bounds.getNorthEast()
+//     ),
+//     bounds2 = mapMain.map.getBounds();
+
+//   if (JSON.stringify(bounds) !== JSON.stringify(bounds1.extend(bounds2))) {
+//     bounds = bounds2;
+//     getFeatures(bounds);
+//   }
+// });
+
+// // Get features from the WFS.
+
+// async function getFeatures(bounds) {
+//   // Convert the bounds to a formatted string.
+//   const sw = `${bounds.getSouthWest().lat},${bounds.getSouthWest().lng}`,
+//     ne = `${bounds.getNorthEast().lat},${bounds.getNorthEast().lng}`;
+
+//   const coords = `${sw} ${ne}`;
+
+//   /*
+//   Create an OGC XML filter parameter value which will select the
+//   features (site function) intersecting the BBOX coordinates.
+
+//   Useful Features:
+//   Hospital
+//   Hospice
+//   Medical Care Accommodation (dataset not great but includes nursing homes, not in York though?)
+
+//     // to explore all, remove filter
+//    const xml = `<ogc:Filter>
+//   <ogc:BBOX>
+//   <ogc:PropertyName>SHAPE</ogc:PropertyName>
+//   <gml:Box srsName="urn:ogc:def:crs:EPSG::4326">
+//   <gml:coordinates>${coords}</gml:coordinates>
+//   </gml:Box>
+//   </ogc:BBOX>
+//   </ogc:Filter>`;
+//   */
+
+//   const xmlHospital = `<ogc:Filter>
+//   <ogc:And>
+//   <ogc:BBOX>
+//   <ogc:PropertyName>SHAPE</ogc:PropertyName>
+//   <gml:Box srsName="urn:ogc:def:crs:EPSG::4326">
+//   <gml:coordinates>'${coords}'</gml:coordinates>
+//   </gml:Box>
+//   </ogc:BBOX>
+//   <ogc:PropertyIsEqualTo>
+//   <ogc:PropertyName>SiteFunction</ogc:PropertyName>
+//   <ogc:Literal>Hospital</ogc:Literal>
+//   </ogc:PropertyIsEqualTo>
+//   </ogc:And>
+//   </ogc:Filter>`;
+
+//   const xmlHospice = `<ogc:Filter>
+//   <ogc:And>
+//   <ogc:BBOX>
+//   <ogc:PropertyName>SHAPE</ogc:PropertyName>
+//   <gml:Box srsName="urn:ogc:def:crs:EPSG::4326">
+//   <gml:coordinates>'${coords}'</gml:coordinates>
+//   </gml:Box>
+//   </ogc:BBOX>
+//   <ogc:PropertyIsEqualTo>
+//   <ogc:PropertyName>SiteFunction</ogc:PropertyName>
+//   <ogc:Literal>Hospice</ogc:Literal>
+//   </ogc:PropertyIsEqualTo>
+//   </ogc:And>
+//   </ogc:Filter>`;
+
+//   // Define (WFS) parameters object.
+//   const wfsParamsHospital = {
+//     key: apiKey,
+//     service: "WFS",
+//     request: "GetFeature",
+//     version: "2.0.0",
+//     typeNames: "Sites_FunctionalSite",
+//     outputFormat: "GEOJSON",
+//     srsName: "urn:ogc:def:crs:EPSG::4326",
+//     filter: xmlHospital,
+//   };
+
+//   const wfsParamsHospice = {
+//     key: apiKey,
+//     service: "WFS",
+//     request: "GetFeature",
+//     version: "2.0.0",
+//     typeNames: "Sites_FunctionalSite",
+//     outputFormat: "GEOJSON",
+//     srsName: "urn:ogc:def:crs:EPSG::4326",
+//     filter: xmlHospice,
+//   };
+
+//   // Use fetch() method to request GeoJSON data from the OS Features API.
+//   // If successful, remove everything from the layer group; then add a new GeoJSON
+
+//   await Promise.allSettled([
+//     d3.json(getUrl(wfsParamsHospital)),
+//     d3.json(getUrl(wfsParamsHospice)),
+//   ]).then((values) => {
+//     osShapeHospital.clearLayers();
+//     osShapeHospice.clearLayers();
+
+//     const geoJsonHospital = new L.geoJson(values[0].value, {
+//       onEachFeature: function (feature, layer) {
+//         layer.bindPopup(feature.properties.DistinctiveName1);
+//       },
+//       style: {
+//         color: "#f00",
+//         weight: 1,
+//         fillOpacity: 0.8,
+//       },
+//     });
+
+//     osShapeHospital.addLayer(geoJsonHospital);
+
+//     const geoJsonHospice = new L.geoJson(values[1].value, {
+//       onEachFeature: function (feature, layer) {
+//         layer.bindPopup(feature.properties.DistinctiveName1);
+//       },
+//       style: {
+//         color: "#00f",
+//         weight: 1,
+//         fillOpacity: 0.8,
+//       },
+//     });
+
+//     osShapeHospice.addLayer(geoJsonHospice);
+//   });
+// }
+
+// /*
+//  * Return URL with encoded parameters.
+//  * @param {object} params - The parameters object to be encoded.
+//  */
+// function getUrl(params) {
+//   const encodedParameters = Object.keys(params)
+//     .map((paramName) => paramName + "=" + encodeURI(params[paramName]))
+//     .join("&");
+
+//   return wfsServiceUrl + "?" + encodedParameters;
+// }

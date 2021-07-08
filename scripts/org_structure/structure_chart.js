@@ -101,7 +101,7 @@ let data = dataFlattened.map((d) => {
                        <div style="margin-left:${titleMarginLeft}px;
                                     margin-top:3px;
                                     font-size:14px;
-                               "><span class="fas fa-envelope"></span>${d.eMail}</div>
+                               "><span class="fa-solid fa-envelope"></span>${d.eMail}</div>
 
                        <div style="margin-left:${contentMarginLeft}px;
                                    margin-top:15px;
@@ -110,7 +110,7 @@ let data = dataFlattened.map((d) => {
                                    bottom:5px;
                                   ">
                             <div>${d.area}</div>
-                            <div style="margin-top:5px"><span class="fas fa-phone"></span>${d.telephone}</div>
+                            <div style="margin-top:5px"><span class="fa-solid fa-phone"></span>${d.telephone}</div>
                        </div>
                     </div>`,
     connectorLineColor: {
@@ -552,7 +552,7 @@ function Chart() {
         .attr("y", 0)
         .attr("height", (d) => d.imageWidth)
         .attr("width", (d) => d.imageHeight)
-        .attr("xlink:href", (d) => d.data.nodeImage.url)
+        .attr("href", (d) => d.data.nodeImage.url)
         .attr("viewbox", (d) => `0 0 ${d.imageWidth * 2} ${d.imageHeight}`)
         .attr("preserveAspectRatio", "xMidYMin slice");
 
@@ -690,7 +690,7 @@ function Chart() {
         })
         .attr("width", (d) => d.data.nodeIcon.size)
         .attr("height", (d) => d.data.nodeIcon.size)
-        .attr("xlink:href", (d) => d.data.nodeIcon.icon)
+        .attr("href", (d) => d.data.nodeIcon.icon)
         .attr("x", (d) => -d.width / 2 + 5)
         .attr("y", (d) => d.height / 2 - d.data.nodeIcon.size - 5);
 

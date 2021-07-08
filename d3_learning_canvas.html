@@ -64,8 +64,8 @@
 
     <!-- Page Structure (Layout) -->
     <script>
-      const elemActive = "Home";
-      elemActive.split(" ").join("-"); // remove any spaces and replace with hyphens
+      const pageName = "Nav 3c"; // This is the 'key' name in the function createSiteStructure (see navmain.js)
+      const elemActive = `nav ${pageName}`.split(" ").join("-");
     </script>
     <!-- requires font awesome -->
     <script defer src="scripts\components\navmain.js"></script>
@@ -95,8 +95,8 @@
           <section id="sec-00" class="section anchor">
             <h2>Introduction</h2>
             <p>
-              Leraning about D3 (v6) and Canvas Ut consequat commodo qui veniam id
-              pariatur do consequat ullamco in do pariatur cupidatat anim.
+              Leraning about D3 (v6) and Canvas Ut consequat commodo qui veniam
+              id pariatur do consequat ullamco in do pariatur cupidatat anim.
               Dolore et occaecat cillum ipsum proident laborum incididunt
               consequat sit laboris ipsum. Id magna reprehenderit sit aute
               laborum ullamco occaecat aute id proident minim.
@@ -109,7 +109,7 @@
             <div id="id03" class="tiles">
               <div class="tile wide content">
                 <h3>Colour Ramp 1</h3>
-                <input type="text" id="text-input" value="200">
+                <input type="text" id="text-input" value="200" />
                 <div id="container_02"></div>
                 <footer class="cta" id="colourSelector"></footer>
               </div>
@@ -131,7 +131,6 @@
                 <div id="container_05"></div>
                 <footer class="cta">...</footer>
               </div>
-
             </div>
           </section>
 
