@@ -47,6 +47,11 @@ https://sundari-webdesign.com/the-perfect-horizontal-dropdown-responsive-css-men
   border-bottom: 3px solid var(--colourSecondary_Light);
 }
 
+.nav-main .sub-active {
+  background: var(--colourSecondary_Dark);
+  border-bottom: 3px solid var(--colourSecondary_Light);
+}
+
 .nav-main ul {
   background-color: var(--colourSecondary_Light);
   display: flex;
@@ -126,7 +131,7 @@ li:focus-within a {
     flex: 1 0 content;
     text-align: left;
 	}
-	
+
 	.nav-main .last-item {
 		padding-right: 20px;
 	}

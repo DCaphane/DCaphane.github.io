@@ -50,9 +50,25 @@
   navMain.append(container);
 
   // The below is used to highlight the active page
-  // elemActive is declared in the calling page
+  // elemActive is declared in the calling page. It is the key in the object site structure below
   let elem = document.getElementById(elemActive);
-  elem.classList.add("active");
+
+  // creates an array of self and parent headings in the menu bar
+  const parentHeadings = getParentHeadings(elem);
+  // console.log(parentHeadings);
+
+  for (heading of parentHeadings) {
+    if (heading === elem) {
+      heading.classList.add("active");
+    } else {
+      /*
+      the sub-active class can be used like breadcrumbs to show the current page location
+      ie. Navigation > Map Demos > GP Profiles
+      The first two would be classed sub-active and the last active
+      */
+      heading.classList.add("sub-active");
+    }
+  }
 
   container.addEventListener("click", function () {
     this.classList.toggle("active");
@@ -91,11 +107,12 @@
       trackKey = key;
       itemNumber++;
       const li = document.createElement("li");
+      // Give each item an id that will be the key (spaces removed) prefixed with 'nav-'
+      li.setAttribute("id", `nav ${key}`.split(" ").join("-")); // remove any spaces and replace with a hyphen
 
       // add an id to the main headings only - this can then be selected to highlight as class active
       if (depth === 0) {
         headingPosition++;
-        li.setAttribute("id", key.split(" ").join("-")); // remove any spaces and replace with a hyphen
 
         if (headingPosition === dataKeysCount) {
           // Used to identify the last main item which will have a class applied to align right
@@ -139,8 +156,9 @@
 function createSiteStructure() {
   /*
 Used to generate a nested object outlining the site structure
-Each object contains a name (key) and reference to its location
-Subheadings are created by appending an additional object to the array
+The object key is the name of the page, it's value is an array with a reference to its location
+Demo uses an empty link, ["#"] for sub-headings that aren't a page
+Subheadings are created by appending an additional object to the array using the same format
 
 This structure is subsequently iterated over (using recursion so can be any depth) to generate the main and sub heading menus
 */
@@ -159,8 +177,7 @@ This structure is subsequently iterated over (using recursion so can be any dept
     "dc Demos": ["#"],
     "Map Demos": ["#"],
     "D3 Learning": ["#"],
-    "Nav 4": ["#"],
-    "Nav 5": ["#"],
+    "Testing": ["#"],
   };
 
   const subHeadingDCDemo = {
@@ -174,16 +191,15 @@ This structure is subsequently iterated over (using recursion so can be any dept
   };
 
   const subHeadingD3Learning = {
-    "Nav 3a": ["d3_learning_colours.html"],
-    "Nav 3b": ["d3_learning_axis.html"],
-    "Nav 3c": ["d3_learning_canvas.html"],
-    "Nav 3d": ["#"],
+    Colours: ["d3_learning_colours.html"],
+    // Axes: ["d3_learning_axis.html"],
+    Canvas: ["d3_learning_canvas.html"],
+    "Focus Chart": ["d3_learning_focus.html"],
   };
 
-  const subHeadingNav4 = {
-    "Nav 4a": ["#"],
-    "Nav 4b": ["#"],
-    "Nav 4c": ["#"],
+  const subHeadingTesting = {
+    "GP api": ["gp_select_demo.html"],
+    "Geo Projection": ["geo_projections.html"],
   };
 
   // Navigation
@@ -191,7 +207,7 @@ This structure is subsequently iterated over (using recursion so can be any dept
   subHeadingNavigation["dc Demos"][1] = subHeadingDCDemo;
   subHeadingNavigation["Map Demos"][1] = subHeadingMapDemo;
   subHeadingNavigation["D3 Learning"][1] = subHeadingD3Learning;
-  subHeadingNavigation["Nav 4"][1] = subHeadingNav4;
+  subHeadingNavigation["Testing"][1] = subHeadingTesting;
   // Update the section in the main heading
   navMainTitles.Navigation[1] = subHeadingNavigation;
 
@@ -207,4 +223,29 @@ This structure is subsequently iterated over (using recursion so can be any dept
   navMainTitles["About Us"][1] = subHeadingAboutUs;
 
   return navMainTitles;
+}
+
+function getParentHeadings(elem) {
+  /*
+const elem = document.getElementById('nav-Referrals');
+const parents = getParentHeadings(elem);
+*/
+
+  // Set up a parent array
+  const parents = [];
+
+  // Push each parent element to the array
+  for (; elem && elem !== document; elem = elem.parentNode) {
+    if (elem.id.substring(0, 4) === "nav-") {
+      parents.push(elem);
+    }
+
+    // Not interested in headings above this
+    if (elem.parentNode.id === "nav-main") {
+      break;
+    }
+  }
+
+  // Return our parent array
+  return parents;
 }

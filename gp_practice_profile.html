@@ -58,8 +58,8 @@
 
     <!-- Page Structure (Layout) -->
     <script>
-      let elemActive = "Home"; // remove any spaces and replace with hyphens
-      // elemActive.split(' ').join('-'); // this doesn't seem to work - just ensure spaces are replaced with hyphens in the above
+      const pageName = "GP Profiles"; // This is the 'key' name in the function createSiteStructure (see navmain.js)
+      const elemActive = `nav ${pageName}`.split(" ").join("-");
     </script>
     <!-- requires font awesome -->
     <script defer src="scripts/components/navmain.js"></script>
