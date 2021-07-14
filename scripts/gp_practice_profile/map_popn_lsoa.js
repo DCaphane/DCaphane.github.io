@@ -216,7 +216,7 @@ function refreshGeoChart() {
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
   ccgBoundary(true);
-  overlayTrustsNational();
+  mapMarkersNationalTrust();
 }
 
 Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {

@@ -16,8 +16,6 @@ const minPopulationLSOA = 20;
 function mapInitialise(mapID) {
   // for initialising maps
 
-  // add the home button here, need to pass option to determine home position...
-
   const thisMap = L.map(mapID, {
     preferCanvas: true,
     // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
@@ -94,6 +92,19 @@ function mapInitialise(mapID) {
   thisMap.createPane("lsoaBoundaryPane");
   thisMap.getPane("lsoaBoundaryPane").style.zIndex = 376;
 
+
+
+
+
+
+
+
+
+
+
+
+
+  
   return {
     map: thisMap,
     scaleBar: scaleBar,
@@ -900,43 +911,79 @@ function overlayLSOA(mapObj) {
   };
 }
 
-async function overlayTrustsNational() {
-  const mapHospitalLayers = await mapMarkersNationalTrust();
-  // console.log(mapHospitalLayers);
-  const nationalTrusts = {
-    label: "National Hospital Sites <i class='fa-solid fa-square-h'></i>",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "NHS",
-        layer: mapHospitalLayers.get("NHS Sector"),
-      },
-      {
-        label: "Independent",
-        layer: mapHospitalLayers.get("Independent Sector"),
-      },
-    ],
-  };
+
+async function mapMarkersNationalTrust() {
+  // Styling: https://gis.stackexchange.com/a/360454
+  const nhsTrustSites = L.conditionalMarkers([]),
+    nonNhsTrustSites = L.conditionalMarkers([]);
+
+  let i = 0,
+    j = 0; // counter for number of providers in each category
+  const data = await promHospitalDetails;
+
+  data.forEach((d) => {
+    if (!isNaN(d.latitude)) {
+      const category = d.sector;
+      const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
+      <p>${d.parentODSCode}: ${d.parentName}
+      <br>${d.sector}</p>`;
+
+      if (category === "NHS Sector") {
+        const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+        marker.addTo(nhsTrustSites);
+        i++;
+      } else {
+        // Independent Sector
+        const marker = trustMarker(
+          d.markerPosition,
+          "independent",
+          "H",
+          popupText
+        );
+        marker.addTo(nonNhsTrustSites);
+        j++;
+      }
+    }
+  });
+
+  // This option controls how many markers can be displayed
+  nhsTrustSites.options.maxMarkers = i;
+  nonNhsTrustSites.options.maxMarkers = j;
+
+  // Overlay structure for Trust Sites
+  const nationalTrusts = overlayNationalTrusts(nhsTrustSites, nonNhsTrustSites);
+
+  // Add overlay to mapMain
   overlaysTreeMain.children[4] = nationalTrusts;
   refreshMapMainControl();
 
-  const mapHospitalLayers1 = await mapMarkersNationalTrust();
+  function trustMarker(position, className, text = "H", popupText) {
+    return L.marker(position, {
+      icon: L.divIcon({
+        className: `trust-marker ${className}`,
+        html: text,
+        iconSize: L.point(20, 20),
+        popupAnchor: [0, -10],
+      }),
+    }).bindPopup(popupText);
+  }
 
-  const nationalTrusts1 = {
-    label: "National Hospital Sites <i class='fa-solid fa-square-h'></i>",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "NHS",
-        layer: mapHospitalLayers1.get("NHS Sector"),
-      },
-      {
-        label: "Independent",
-        layer: mapHospitalLayers1.get("Independent Sector"),
-      },
-    ],
-  };
-
-  overlaysTreeBubble.children[4] = nationalTrusts1;
-  refreshMapControlBubble();
+  function overlayNationalTrusts(nhs, independent) {
+    return {
+      label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label:
+            "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
+          layer: nhs,
+        },
+        {
+          label:
+            "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
+          layer: independent,
+        },
+      ],
+    };
+  }
 }

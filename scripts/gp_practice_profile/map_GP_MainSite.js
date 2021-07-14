@@ -10,9 +10,9 @@ sidebarMapMain.addPanel(sidebarContent.panelMail);
 sidebarMapMain.addPanel(sidebarContent.panelDummy);
 sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
-const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
 
 const baseTreeMain = (function () {
+  const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
   const defaultBasemap = L.tileLayer
     .provider("Stadia.OSMBright") // .Mapnik
     .addTo(mapMain.map);

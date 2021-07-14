@@ -126,6 +126,11 @@ const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
     "Data/geo/lsoa_population_centroid_03q.geojson"
   ),
   promHospitalDetails = d3.dsv(
+    /*
+  details of national hospital sites
+  https://www.nhs.uk/about-us/nhs-website-datasets/
+  https://media.nhswebsite.nhs.uk/data/foi/Hospital.pdf
+  */
     "�", // \u00AC
     "Data/geo/Hospital.csv",
     processDataHospitalSite
@@ -166,40 +171,6 @@ const importGeoData = (async function displayContent() {
       // console.log(geoDateLsoaPopnCentroid)
     });
 })();
-
-async function mapMarkersNationalTrust() {
-  const data = await promHospitalDetails; // details of national hospital sites
-  const mapHospitalLayers = new Map();
-  data.forEach((d) => {
-    if (!isNaN(d.latitude)) {
-      const marker = new L.marker(d.markerPosition, {
-        icon: L.BeautifyIcon.icon({
-          iconShape: "circle",
-          icon: "h-square",
-          popupAnchor: [0, -10],
-          borderColor: "transparent",
-          backgroundColor: "transparent",
-          textColor: hospitalSiteColour(d.sector), // Text color of marker icon
-        }),
-        zIndexOffset: 1000,
-        draggable: false,
-      }).bindPopup(
-        `<h3>${d.organisationCode}: ${d.organisationName}</h3>
-        <p>${d.parentODSCode}: ${d.parentName}
-        <br>${d.sector}</p>`
-      );
-
-      const category = d.sector;
-      if (!mapHospitalLayers.has(category)) {
-        // Initialize the category array if not already set.
-        mapHospitalLayers.set(category, L.layerGroup());
-      }
-      mapHospitalLayers.get(category).addLayer(marker);
-    }
-  });
-
-  return mapHospitalLayers;
-}
 
 function processDataHospitalSite(d) {
   if (isNaN(+d.Latitude)) {

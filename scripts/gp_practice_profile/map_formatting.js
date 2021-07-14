@@ -64,14 +64,6 @@ const wardsStyleLabels = {
   weight: 0,
 };
 
-function hospitalSiteColour(sector) {
-  switch (sector) {
-    case "NHS Sector":
-      return "rgba(255, 0, 0)";
-    case "Independent Sector":
-      return "rgba(0,0,255)";
-  }
-}
 
 function pcnFormatting(feature, latlng, { addBounce = false } = {}) {
   let markerPCN;
