@@ -41,7 +41,7 @@ mapPopn.homeButton();
 const sidebarPopn = mapPopn.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 sidebarPopn.addPanel(sidebarContent.panelOverview);
 
-const baseTreePopn = mapPopn.baselayers("Dark"); // set the default baselayer. Default is Bright
+const baseTreePopn = mapPopn.baselayers("OS Light"); // set the default baselayer. Default is Bright
 const overlaysTreePopn = mapPopn.overlays; // Make global to enable subsequent change to overlay
 const mapControlPopn = mapPopn.layerControl(baseTreePopn, overlaysTreePopn);
 
@@ -77,7 +77,6 @@ const mapControlIMD = mapIMD.layerControl(baseTreeIMD, overlaysTreeIMD);
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
 overlaysTreeIMD.children[0] = overlayTrusts();
-
 
 /*
 Population and IMD by LSOA (D3 Circle Map)

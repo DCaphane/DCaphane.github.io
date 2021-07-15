@@ -249,10 +249,10 @@ function mapInitialise(mapID) {
         {
           label: "Ordance Survey <i class='fa-solid fa-layer-group'></i>",
           children: [
-            { label: "Light", layer: osBaselayers.light },
-            { label: "Road", layer: osBaselayers.road },
-            { label: "Outdoor", layer: osBaselayers.outdoor },
-            // { label: "Leisure", layer: osBaseLayers.leisure },
+            { label: "OS Light", layer: osBaselayers.light },
+            { label: "OS Road", layer: osBaselayers.road },
+            { label: "OS Outdoor", layer: osBaselayers.outdoor },
+            // { label: "OS Leisure", layer: osBaseLayers.leisure },
           ],
         },
         { label: "None", layer: emptyBackground },

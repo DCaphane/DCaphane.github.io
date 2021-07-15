@@ -13,3 +13,5 @@ xx_delete
 
 # except the default image
 !img/org_structure/default.jpg
+
+.vscode/settings.json
