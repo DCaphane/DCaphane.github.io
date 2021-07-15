@@ -1,24 +1,3 @@
-/*
-  The data only imports lsoas in VoY CCG boundary
-  The extent of the national data is 1 (most deprived area) to 32,844 (least deprived area)
-  Since this is only a subset, the values will not always extend from 1 to 32,844
-
-  For the imd charts, the domain should be 1 to 32,844 (hard coded) - this keeps it consistent, esp. if extend the data
-  For the population charts, the domain represents the extent
-
-Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/853811/IoD2019_FAQ_v4.pdf
-*/
-
-const mapIMD = mapInitialise("mapIMDLSOA");
-mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
-mapIMD.homeButton();
-
-const sidebarIMD = mapIMD.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
-sidebarIMD.addPanel(sidebarContent.panelOverview);
-sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
-
-const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
-
 function recolourIMDLayer(defaultIMD = "imdRank") {
   // const maxValue = d3.max(v, function (d) {
   //   return d[defaultIMD];
@@ -26,7 +5,7 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
 
   /*
       rawValues are the values in the appropriate field
-      These are ignored for the IMD indicators as these are hardcoded based on the number of LSOAs: 1 to 32,844
+      These are ignored for the IMD indicators since they are hardcoded based on the number of LSOAs: 1 to 32,844
       However, for the population figures, these are used
       */
   const rawValues = dataIMD.map(function (d) {
@@ -88,98 +67,6 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
     });
   }
 }
-
-// Make global to enable subsequent change to overlay
-const overlaysTreeIMD = {
-  label: "Overlays",
-  selectAllCheckbox: true,
-  children: [],
-};
-
-const baseTreeIMD = (function () {
-  const defaultBasemap = L.tileLayer
-    .provider("Stadia.AlidadeSmooth")
-    .addTo(mapIMD.map);
-
-  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-  const emptyBackground = (function emptyTile() {
-    return L.tileLayer("", {
-      zoom: 0,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    });
-  })();
-
-  // http://leaflet-extras.github.io/leaflet-providers/preview/
-  return {
-    label: "Base Layers <i class='fa-solid fa-globe'></i>",
-    children: [
-      {
-        label: "Colour <i class='fa-solid fa-layer-group'></i>",
-        children: [
-          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
-          {
-            label: "OSM HOT",
-            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
-          },
-          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
-          {
-            label: "Water Colour",
-            layer: L.tileLayer.provider("Stamen.Watercolor"),
-          },
-          { label: "Bright", layer: L.tileLayer.provider("Stadia.OSMBright") },
-          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
-        ],
-      },
-      {
-        label: "Black & White <i class='fa-solid fa-layer-group'></i>",
-        children: [
-          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
-          {
-            label: "High Contrast",
-            layer: L.tileLayer.provider("Stamen.Toner"),
-          },
-          { label: "Grey", layer: defaultBasemap },
-          {
-            label: "ST Hybrid",
-            layer: L.tileLayer.provider("Stamen.TonerHybrid"),
-          },
-          {
-            label: "Dark",
-            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
-          },
-          {
-            label: "Jawg Matrix",
-            layer: L.tileLayer.provider("Jawg.Matrix", {
-              // // Requires Access Token
-              accessToken:
-                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
-            }),
-          },
-        ],
-      },
-      { label: "None", layer: emptyBackground },
-    ],
-  };
-})();
-
-overlaysTreeIMD.children[0] = overlayTrusts();
-
-const mapControlIMD = L.control.layers.tree(baseTreeIMD, overlaysTreeIMD, {
-  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
-  collapsed: true, // Whether or not control options are displayed
-  sortLayers: true,
-  // namedToggle: true,
-  collapseAll: "Collapse all",
-  expandAll: "Expand all",
-  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
-  closedSymbol:
-    "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
-  openedSymbol:
-    "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
-});
-
-mapControlIMD.addTo(mapIMD.map);
 
 const mapIMDDomain = new Map();
 

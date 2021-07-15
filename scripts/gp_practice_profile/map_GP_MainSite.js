@@ -1,4 +1,7 @@
-const mapMain = mapInitialise("mapMain");
+// Set up the maps
+
+// GP Main Site Map
+const mapMain = mapInitialise("mapMain"); // mapMain is the div id to place the map
 mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 // mapMain.home = {lat: 54.018213, lng: -10.0} // can change the home button position
 mapMain.homeButton(); // mapMain.homeButton({ latLng: trustSitesLoc.yorkTrust, zoom: 12 });
@@ -10,190 +13,98 @@ sidebarMapMain.addPanel(sidebarContent.panelMail);
 sidebarMapMain.addPanel(sidebarContent.panelDummy);
 sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
-
-const baseTreeMain = (function () {
-  const apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
-  const defaultBasemap = L.tileLayer
-    .provider("Stadia.OSMBright") // .Mapnik
-    .addTo(mapMain.map);
-
-  // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-  const emptyBackground = (function emptyTile() {
-    return L.tileLayer("", {
-      zoom: 0,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    });
-  })();
-
-  /*
-Ordnance Survey demo
-Need to import mapbox-gl
-Through OS Vector Tile API you can connect to different layers for different use cases, including a detailed basemap and several data overlays.
-https://osdatahub.os.uk/docs/vts/technicalSpecification
-
-Can also use for data overlays
-https://api.os.uk/maps/vector/v1/vts/{layer-name} eg. boundaries, greenspace
-
-See also for stylesheets:
-https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets
-https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/
-
-Leaflet:
-  https://osdatahub.os.uk/projects/OSMapsWebDemo
-  OS_VTS_3857_No_Labels.json
-  OS_VTS_3857_Open_Outdoor.json
-  OS_VTS_3857_Greyscale.json
-  OS_VTS_3857_Dark.json
-  OS_VTS_3857_Light.json
-  */
-
-  const serviceUrl = "https://api.os.uk/maps/raster/v1/zxy";
-  let copyrightStatement =
-    "Contains OS data &copy; Crown copyright and database rights YYYY"; // '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>'
-  copyrightStatement = copyrightStatement.replace(
-    "YYYY",
-    new Date().getFullYear()
-  );
-  // Load and display vector tile layer on the map.
-  const osBaselayers = {
-    light: L.tileLayer(
-      serviceUrl + "/Light_3857/{z}/{x}/{y}.png?key=" + apiKey,
-      { maxZoom: 20, attribution: copyrightStatement }
-    ),
-    road: L.tileLayer(serviceUrl + "/Road_3857/{z}/{x}/{y}.png?key=" + apiKey, {
-      maxZoom: 20,
-      attribution: copyrightStatement,
-    }),
-    outdoor: L.tileLayer(
-      serviceUrl + "/Outdoor_3857/{z}/{x}/{y}.png?key=" + apiKey,
-      { maxZoom: 20, attribution: copyrightStatement }
-    ),
-    //   // Doesn't exist for 3857 projection
-    // leisure: L.tileLayer(
-    //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { maxZoom: 20, attribution: copyrightStatement }
-    //   ),
-  };
-
-  /*
-  // Explore Ordnance Survey Overlay without mapBoxGL and how to format
-  https://labs.os.uk/public/os-data-hub-examples/os-vector-tile-api/vts-example-add-overlay
-
-  // https://api.os.uk/maps/vector/v1/vts/boundaries/resources/styles?key=npRUEEMn3OTN7lx7RPJednU5SOiRSt35
-  const osOverlayBoundary = L.mapboxGL({
-    attribution:
-      '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>',
-    style: `${serviceUrl}/boundaries/resources/styles?key=${apiKey}`,
-    transformRequest: (url) => {
-      return {
-        url: (url += "&srs=3857"),
-      };
-    },
-  });
-
-  const osOverlay = {
-    label: "OS Test <i class='material-icons md-12'>category</i>",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Boundary",
-        layer: osOverlayBoundary,
-      },
-    ],
-  };
-
-  overlaysTreeMain.children[5] = osOverlay;
-*/
-
-  // http://leaflet-extras.github.io/leaflet-providers/preview/
-  return {
-    label: "Base Layers <i class='fa-solid fa-globe'></i>",
-    children: [
-      {
-        label: "Colour <i class='fa-solid fa-layer-group'></i>",
-        children: [
-          { label: "OSM", layer: L.tileLayer.provider("OpenStreetMap.Mapnik") },
-          {
-            label: "OSM HOT",
-            layer: L.tileLayer.provider("OpenStreetMap.HOT"),
-          },
-          // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
-          {
-            label: "Water Colour",
-            layer: L.tileLayer.provider("Stamen.Watercolor"),
-          },
-          { label: "Bright", layer: defaultBasemap },
-          { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
-        ],
-      },
-      {
-        label: "Black & White <i class='fa-solid fa-layer-group'></i>",
-        children: [
-          // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
-          {
-            label: "High Contrast",
-            layer: L.tileLayer.provider("Stamen.Toner"),
-          },
-          {
-            label: "Grey",
-            layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
-          },
-          {
-            label: "ST Hybrid",
-            layer: L.tileLayer.provider("Stamen.TonerHybrid"),
-          },
-          {
-            label: "Dark",
-            layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
-          },
-          {
-            label: "Jawg Matrix",
-            layer: L.tileLayer.provider("Jawg.Matrix", {
-              // // Requires Access Token
-              accessToken:
-                "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
-            }),
-          },
-        ],
-      },
-      {
-        label: "Ordance Survey <i class='fa-solid fa-layer-group'></i>",
-        children: [
-          { label: "Light", layer: osBaselayers.light },
-          { label: "Road", layer: osBaselayers.road },
-          { label: "Outdoor", layer: osBaselayers.outdoor },
-          // { label: "Leisure", layer: osBaseLayers.leisure },
-        ],
-      },
-      { label: "None", layer: emptyBackground },
-    ],
-  };
-})();
-
-// Global to enable subsequent change to overlay
-const overlaysTreeMain = {
-  label: "Overlays",
-  selectAllCheckbox: true,
-  children: [],
-};
+const baseTreeMain = mapMain.baselayers("Bright"); // set the default baselayer. Default is Bright
+const overlaysTreeMain = mapMain.overlays; // global to enable updates
+const mapControlMain = mapMain.layerControl(baseTreeMain, overlaysTreeMain);
 
 overlaysTreeMain.children[1] = overlayTrusts();
 
-const mapControlMain = L.control.layers.tree(baseTreeMain, overlaysTreeMain, {
-  // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
-  collapsed: true, // Whether or not control options are displayed
-  sortLayers: true,
-  // namedToggle: true,
-  collapseAll: "Collapse all",
-  expandAll: "Expand all",
-  // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
-  closedSymbol:
-    "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
-  openedSymbol:
-    "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
-});
+// GP Associated Sites Map
+const mapSites = mapInitialise("mapSites");
+mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapSites.homeButton();
 
-mapControlMain.addTo(mapMain.map);
+const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarSites.addPanel(sidebarContent.panelOverview);
+
+const baseTreeSites = mapSites.baselayers("Dark"); // set the default baselayer. Default is Bright
+const overlaysTreeSites = mapSites.overlays; // global to enable updates
+const mapControlSites = mapSites.layerControl(baseTreeSites, overlaysTreeSites);
+
+overlaysTreeSites.children[0] = overlayTrusts();
+
+// Population Map by lsoa
+const mapPopn = mapInitialise("mapPopnLSOA");
+mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapPopn.homeButton();
+
+const sidebarPopn = mapPopn.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarPopn.addPanel(sidebarContent.panelOverview);
+
+const baseTreePopn = mapPopn.baselayers("Dark"); // set the default baselayer. Default is Bright
+const overlaysTreePopn = mapPopn.overlays; // Make global to enable subsequent change to overlay
+const mapControlPopn = mapPopn.layerControl(baseTreePopn, overlaysTreePopn);
+
+overlaysTreePopn.children[0] = overlayTrusts(); // Add selected hospitals to overlay
+
+const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
+
+/*
+IMD Map by LSOA
+
+  The data only imports lsoas in VoY CCG boundary
+  The extent of the national data is 1 (most deprived area) to 32,844 (least deprived area)
+  Since this is only a subset, the values will not always extend from 1 to 32,844
+
+  For the imd charts, the domain should be 1 to 32,844 (hard coded) - this keeps it consistent, esp. if extend the data
+  For the population charts, the domain represents the extent
+
+Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/853811/IoD2019_FAQ_v4.pdf
+*/
+
+const mapIMD = mapInitialise("mapIMDLSOA");
+mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapIMD.homeButton();
+
+const sidebarIMD = mapIMD.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarIMD.addPanel(sidebarContent.panelOverview);
+sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
+
+const baseTreeIMD = mapIMD.baselayers("Grey"); // set the default baselayer. Default is Bright
+const overlaysTreeIMD = mapIMD.overlays; // global to enable updates
+const mapControlIMD = mapIMD.layerControl(baseTreeIMD, overlaysTreeIMD);
+
+const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
+
+overlaysTreeIMD.children[0] = overlayTrusts();
+
+
+/*
+Population and IMD by LSOA (D3 Circle Map)
+https://bost.ocks.org/mike/bubble-map/
+
+https://labs.os.uk/public/os-data-hub-tutorials/web-development/d3-overlay
+
+Drawing points of interest using this demo:
+  https://chewett.co.uk/blog/1030/overlaying-geo-data-leaflet-version-1-3-d3-js-version-4/
+
+*/
+
+const mapD3Bubble = mapInitialise("mapIMDD3");
+mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapD3Bubble.homeButton();
+
+const baseTreeD3Bubble = mapD3Bubble.baselayers("Grey"); // set the default baselayer. Default is Bright
+const overlaysTreeBubble = mapD3Bubble.overlays; // global to enable updates
+const mapControlBubble = mapD3Bubble.layerControl(
+  baseTreeD3Bubble,
+  overlaysTreeBubble
+);
+const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
+
+overlaysTreeBubble.children[3] = overlayTrusts();
+
+// const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 
 /*
 OS Features API

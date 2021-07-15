@@ -29,3 +29,16 @@
     display: none;
   }
 }
+
+/* layers tree control - space between rows and distance from checkbox */
+.leaflet-layerstree-header-label {
+  line-height: 10px;
+  margin-bottom: 5px;
+}
+.leaflet-layerstree-header {
+  line-height: 10px;
+  margin-bottom: 5px;
+}
+.leaflet-control-layers-selector {
+  margin-right: 2px;
+}

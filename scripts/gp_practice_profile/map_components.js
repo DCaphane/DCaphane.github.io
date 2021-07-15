@@ -92,19 +92,233 @@ function mapInitialise(mapID) {
   thisMap.createPane("lsoaBoundaryPane");
   thisMap.getPane("lsoaBoundaryPane").style.zIndex = 376;
 
+  function baselayers(defaultBL = "Bright") {
+    // const defaultBasemap =
+    //   .addTo(mapMain.map);
 
+    // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+    const emptyBackground = (function emptyTile() {
+      return L.tileLayer("", {
+        zoom: 0,
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      });
+    })();
 
+    /*
+  Ordnance Survey demo
+  Need to import mapbox-gl
+  Through OS Vector Tile API you can connect to different layers for different use cases, including a detailed basemap and several data overlays.
+  https://osdatahub.os.uk/docs/vts/technicalSpecification
 
+  Can also use for data overlays
+  https://api.os.uk/maps/vector/v1/vts/{layer-name} eg. boundaries, greenspace
 
+  See also for stylesheets:
+  https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets
+  https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/
 
+  Leaflet:
+    https://osdatahub.os.uk/projects/OSMapsWebDemo
+    OS_VTS_3857_No_Labels.json
+    OS_VTS_3857_Open_Outdoor.json
+    OS_VTS_3857_Greyscale.json
+    OS_VTS_3857_Dark.json
+    OS_VTS_3857_Light.json
+    */
 
+    const serviceUrl = "https://api.os.uk/maps/raster/v1/zxy",
+      apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
 
+    let copyrightStatement =
+      "Contains OS data &copy; Crown copyright and database rights YYYY"; // '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>'
+    copyrightStatement = copyrightStatement.replace(
+      "YYYY",
+      new Date().getFullYear()
+    );
+    // Load and display vector tile layer on the map.
+    const osBaselayers = {
+      light: L.tileLayer(
+        serviceUrl + "/Light_3857/{z}/{x}/{y}.png?key=" + apiKey,
+        { maxZoom: 20, attribution: copyrightStatement }
+      ),
+      road: L.tileLayer(
+        serviceUrl + "/Road_3857/{z}/{x}/{y}.png?key=" + apiKey,
+        {
+          maxZoom: 20,
+          attribution: copyrightStatement,
+        }
+      ),
+      outdoor: L.tileLayer(
+        serviceUrl + "/Outdoor_3857/{z}/{x}/{y}.png?key=" + apiKey,
+        { maxZoom: 20, attribution: copyrightStatement }
+      ),
+      //   // Doesn't exist for 3857 projection
+      // leisure: L.tileLayer(
+      //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { maxZoom: 20, attribution: copyrightStatement }
+      //   ),
+    };
 
+    /*
+    // Explore Ordnance Survey Overlay without mapBoxGL and how to format
+    https://labs.os.uk/public/os-data-hub-examples/os-vector-tile-api/vts-example-add-overlay
 
+    // https://api.os.uk/maps/vector/v1/vts/boundaries/resources/styles?key=npRUEEMn3OTN7lx7RPJednU5SOiRSt35
+    const osOverlayBoundary = L.mapboxGL({
+      attribution:
+        '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>',
+      style: `${serviceUrl}/boundaries/resources/styles?key=${apiKey}`,
+      transformRequest: (url) => {
+        return {
+          url: (url += "&srs=3857"),
+        };
+      },
+    });
 
+    const osOverlay = {
+      label: "OS Test <i class='material-icons md-12'>category</i>",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label: "Boundary",
+          layer: osOverlayBoundary,
+        },
+      ],
+    };
 
+    overlaysTreeMain.children[5] = osOverlay;
+  */
 
-  
+    // http://leaflet-extras.github.io/leaflet-providers/preview/
+    const baselayersTree = {
+      label: "Base Layers <i class='fa-solid fa-globe'></i>",
+      children: [
+        {
+          label: "Colour <i class='fa-solid fa-layer-group'></i>",
+          children: [
+            {
+              label: "OSM",
+              layer: L.tileLayer.provider("OpenStreetMap.Mapnik"),
+            },
+            {
+              label: "OSM HOT",
+              layer: L.tileLayer.provider("OpenStreetMap.HOT"),
+            },
+            // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
+            {
+              label: "Water Colour",
+              layer: L.tileLayer.provider("Stamen.Watercolor"),
+            },
+            {
+              label: "Bright",
+              layer: L.tileLayer.provider("Stadia.OSMBright"),
+            }, // .Mapnik
+            { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
+          ],
+        },
+        {
+          label: "Black & White <i class='fa-solid fa-layer-group'></i>",
+          children: [
+            // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+            {
+              label: "High Contrast",
+              layer: L.tileLayer.provider("Stamen.Toner"),
+            },
+            {
+              label: "Grey",
+              layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+            },
+            {
+              label: "ST Hybrid",
+              layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+            },
+            {
+              label: "Dark",
+              layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+            },
+            {
+              label: "Jawg Matrix",
+              layer: L.tileLayer.provider("Jawg.Matrix", {
+                // // Requires Access Token
+                accessToken:
+                  "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
+              }),
+            },
+          ],
+        },
+        {
+          label: "Ordance Survey <i class='fa-solid fa-layer-group'></i>",
+          children: [
+            { label: "Light", layer: osBaselayers.light },
+            { label: "Road", layer: osBaselayers.road },
+            { label: "Outdoor", layer: osBaselayers.outdoor },
+            // { label: "Leisure", layer: osBaseLayers.leisure },
+          ],
+        },
+        { label: "None", layer: emptyBackground },
+      ],
+    };
+
+    /*
+  The following loops through the baselayersTree structure looking for label name = baselayer name (passed in function)
+  If found, this will be the selected (default) baselayer for the given map
+  */
+
+    for (let key in baselayersTree.children) {
+      let found = false;
+      const obj = baselayersTree.children[key];
+      if (obj.hasOwnProperty("children")) {
+        const arr = baselayersTree.children[key].children;
+
+        for (let i = 0; i < arr.length; i++) {
+          // console.log({ label: arr[i].label, layer: arr[i].layer });
+          if (arr[i].label === defaultBL) {
+            arr[i].layer.addTo(thisMap);
+            found = true;
+            break;
+          }
+        }
+      } else {
+        // console.log({ label: obj.label, layer: obj.layer });
+        if (obj.label === defaultBL) {
+          obj.layer.addTo(thisMap);
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        break;
+      }
+    }
+
+    return baselayersTree;
+  }
+
+  // Global to enable subsequent change to overlay
+  const overlays = {
+    label: "Overlays",
+    selectAllCheckbox: true,
+    children: [],
+  };
+
+  function layerControl(bl, ol) {
+    return L.control.layers
+      .tree(bl, ol, {
+        // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
+        collapsed: true, // Whether or not control options are displayed
+        sortLayers: true,
+        // namedToggle: true,
+        collapseAll: "Collapse all",
+        expandAll: "Expand all",
+        // selectorBack: true, // Flag to indicate if the selector (+ or −) is after the text.
+        closedSymbol:
+          "<i class='fa-solid fa-square-plus'></i> <i class='fa-solid fa-folder'></i>", // Symbol displayed on a closed node
+        openedSymbol:
+          "<i class='fa-solid fa-square-minus'></i> <i class='fa-solid fa-folder-open'></i>", // Symbol displayed on an opened node
+      })
+      .addTo(thisMap);
+  }
+
   return {
     map: thisMap,
     scaleBar: scaleBar,
@@ -112,6 +326,10 @@ function mapInitialise(mapID) {
     home: home,
     homeButton: homeButton,
     zoomTo: zoomTo,
+    // LayerTreeControl
+    baselayers: baselayers,
+    overlays: overlays,
+    layerControl: layerControl,
   };
 }
 
@@ -490,7 +708,6 @@ function ccgBoundary(zoomToExtent = true) {
     ],
   };
   overlaysTreeMain.children[2] = overlayCCGs;
-  refreshMapMainControl();
 
   /* copy the layer - returns an object only so wrap  in L.geojson
     https://stackoverflow.com/questions/54385218/using-getbounds-on-geojson-feature
@@ -514,7 +731,6 @@ function ccgBoundary(zoomToExtent = true) {
     ],
   };
   overlaysTreeSites.children[1] = overlayCCGsSites;
-  refreshMapControlSites();
 
   const ccgBoundaryCopy2 = L.geoJson(ccgBoundary.toGeoJSON(), {
     style: styleCCG,
@@ -532,7 +748,6 @@ function ccgBoundary(zoomToExtent = true) {
     ],
   };
   overlaysTreePopn.children[1] = overlayCCGsPopn;
-  refreshMapControlPopn();
 
   const ccgBoundaryCopy3 = L.geoJson(ccgBoundary.toGeoJSON(), {
     style: styleCCG,
@@ -550,7 +765,6 @@ function ccgBoundary(zoomToExtent = true) {
     ],
   };
   overlaysTreeIMD.children[1] = overlayCCGsIMD;
-  refreshMapControlIMD();
 
   const ccgBoundaryCopy4 = L.geoJson(ccgBoundary.toGeoJSON(), {
     style: styleCCG,
@@ -567,7 +781,6 @@ function ccgBoundary(zoomToExtent = true) {
     ],
   };
   overlaysTreeBubble.children[1] = overlayCCGsD3;
-  refreshMapControlBubble();
 
   if (zoomToExtent) {
     mapMain.map.fitBounds(ccgBoundary.getBounds());
@@ -624,7 +837,6 @@ function lsoaBoundary(zoomToExtent = false) {
     ],
   };
   overlaysTreeBubble.children[0] = overlayLsoaD3Bubble;
-  refreshMapControlBubble();
 
   return;
 }
@@ -911,7 +1123,6 @@ function overlayLSOA(mapObj) {
   };
 }
 
-
 async function mapMarkersNationalTrust() {
   // Styling: https://gis.stackexchange.com/a/360454
   const nhsTrustSites = L.conditionalMarkers([]),
@@ -955,7 +1166,6 @@ async function mapMarkersNationalTrust() {
 
   // Add overlay to mapMain
   overlaysTreeMain.children[4] = nationalTrusts;
-  refreshMapMainControl();
 
   function trustMarker(position, className, text = "H", popupText) {
     return L.marker(position, {
