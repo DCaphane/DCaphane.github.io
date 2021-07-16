@@ -144,3 +144,26 @@
 .fa-envelope path:hover {
   color: blue;
 } */
+
+.trust-marker {
+  color: #fff;
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
+  vertical-align: top;
+  box-shadow: 2px 1px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 25px;
+  border-width: 3px;
+  border: 2px solid #fff;
+  opacity: 0.9;
+}
+
+.trust-marker.nhs {
+  background: blue; /* fill colour */
+  /* border-color: red; */
+  /* color: red; */ /*text colour */
+}
+
+.trust-marker.independent {
+  background: green;
+}

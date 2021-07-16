@@ -103,6 +103,7 @@ function initChartDemog(dataInit, id) {
 
   let xAxisLeft = d3
     .axisBottom(xScaleLeft) // xScale.copy().range([pointA, 0])
+    .tickSize(-(chtWidthWide - margin.left - margin.right))
     // Reverse the x-axis scale on the left side by reversing the range
     .tickFormat(function (d) {
       if (maxValue < 0.1) {
@@ -112,13 +113,16 @@ function initChartDemog(dataInit, id) {
       }
     });
 
-  let xAxisRight = d3.axisBottom(xScaleRight).tickFormat(function (d) {
-    if (maxValue < 0.1) {
-      return formatPercent1dp(d);
-    } else {
-      return formatPercent(d);
-    }
-  });
+  let xAxisRight = d3
+    .axisBottom(xScaleRight)
+    .tickSize(-(chtWidthWide - margin.left - margin.right))
+    .tickFormat(function (d) {
+      if (maxValue < 0.1) {
+        return formatPercent1dp(d);
+      } else {
+        return formatPercent(d);
+      }
+    });
 
   const yScale = d3
     .scaleBand()
@@ -191,12 +195,12 @@ function initChartDemog(dataInit, id) {
 
   svgDemog
     .append("g")
-    .attr("class", "axis x left")
+    .attr("class", "axis x left grid")
     .attr("transform", translation(0, chtHeightShort));
 
   svgDemog
     .append("g")
-    .attr("class", "axis x right")
+    .attr("class", "axis x right grid")
     .attr("transform", translation(pointB, chtHeightShort));
 
   // Add row chart to highlight eg. over 65s
@@ -373,6 +377,9 @@ ${chtHeightMini + 20}`
       .attr("dy", ".35em") // shifts text left (+) or right
       .attr("transform", "rotate(-90)")
       .style("text-anchor", "end");
+
+    // remove outside border
+    svgDemog.selectAll("g.axis.x").select(".domain").remove();
 
     const arrP1 = Array.from(dataP1, ([key, value]) => ({
       ageBand: key,

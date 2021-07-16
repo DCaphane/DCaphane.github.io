@@ -64,14 +64,6 @@ const wardsStyleLabels = {
   weight: 0,
 };
 
-function hospitalSiteColour(sector) {
-  switch (sector) {
-    case "NHS Sector":
-      return "rgba(255, 0, 0)";
-    case "Independent Sector":
-      return "rgba(0,0,255)";
-  }
-}
 
 function pcnFormatting(feature, latlng, { addBounce = false } = {}) {
   let markerPCN;
@@ -155,53 +147,4 @@ function pcnFormatting(feature, latlng, { addBounce = false } = {}) {
     });
   }
   return finalMarker;
-}
-
-function refreshMapOverlayControls() {
-  // Functions to refresh the map overlay buttons
-  refreshMapMainControl();
-  refreshMapControlSites();
-  refreshMapControlPopn();
-  refreshMapControlIMD();
-  refreshMapControlBubble();
-}
-
-function refreshMapMainControl() {
-  mapControlMain
-    .setOverlayTree(overlaysTreeMain)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlSites() {
-  mapControlSites
-    .setOverlayTree(overlaysTreeSites)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlPopn() {
-  mapControlPopn
-    .setOverlayTree(overlaysTreePopn)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlIMD() {
-  mapControlIMD
-    .setOverlayTree(overlaysTreeIMD)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
-
-function refreshMapControlBubble() {
-  mapControlBubble
-    .setOverlayTree(overlaysTreeBubble)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
 }

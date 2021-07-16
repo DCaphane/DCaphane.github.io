@@ -58,11 +58,11 @@ ${chtHeightStd + 60}`
 
   let y = d3.scaleLinear().nice().range([chtHeightStd, margin.top]);
 
-  var yAxisBar = d3.axisLeft().scale(y);
+  const yAxisBar = d3.axisLeft().scale(y).tickSize(-(chtWidthWide - margin.left - margin.right));
 
   svg
     .append("g")
-    .attr("class", "y axis")
+    .attr("class", "y axis grid")
     .attr("id", "axis--yBar")
     .attr("transform", `translate(${margin.left},0)`)
     .call(yAxisBar)
@@ -75,6 +75,7 @@ ${chtHeightStd + 60}`
     .style("text-anchor", "middle")
     .style("font-weight", "bold")
     .text("Population");
+
 
   function fnRedrawBarChart() {
     const newData = d.get(userSelections.selectedDate);
@@ -229,6 +230,9 @@ Popn: ${formatNumber(d.population)}
       .text(function (d) {
         return d;
       });
+
+      // remove outside border
+  svg.select("g").select(".domain").remove();
   }
 
   function barChartOrder(data) {
