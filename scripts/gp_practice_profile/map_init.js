@@ -105,6 +105,24 @@ overlaysTreeBubble.children[3] = overlayTrusts();
 
 // const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 
+
+// Functions to create the charts runs last - after all the data is available
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
+  initD3Charts();
+
+  Promise.allSettled([importGeoData]).then(() => {
+    // The following require the above population data and the geoData
+    initGeoCharts();
+    circlePopnIMDChart = imdDomainD3();
+    refreshGeoChart();
+
+    Promise.allSettled([promHospitalDetails, promGeoDataCYCWards]).then(() => {
+      // refreshes the overlaysTree to ensure everything is included and collapsed
+      refreshMapOverlayControls();
+    });
+  });
+});
+
 /*
 OS Features API
 https://labs.os.uk/public/os-data-hub-examples/os-features-api/wfs-example-bbox

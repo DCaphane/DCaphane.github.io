@@ -96,15 +96,6 @@ function mapInitialise(mapID) {
     // const defaultBasemap =
     //   .addTo(mapMain.map);
 
-    // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
-    const emptyBackground = (function emptyTile() {
-      return L.tileLayer("", {
-        zoom: 0,
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      });
-    })();
-
     /*
   Ordnance Survey demo
   Need to import mapbox-gl
@@ -247,7 +238,7 @@ function mapInitialise(mapID) {
           ],
         },
         {
-          label: "Ordance Survey <i class='fa-solid fa-layer-group'></i>",
+          label: "Ordnance Survey <i class='fa-solid fa-layer-group'></i>",
           children: [
             { label: "OS Light", layer: osBaselayers.light },
             { label: "OS Road", layer: osBaselayers.road },
@@ -255,7 +246,15 @@ function mapInitialise(mapID) {
             // { label: "OS Leisure", layer: osBaseLayers.leisure },
           ],
         },
-        { label: "None", layer: emptyBackground },
+        {
+          label: "None",
+          // https://stackoverflow.com/questions/28094649/add-option-for-blank-tilelayer-in-leaflet-layergroup
+          layer: L.tileLayer("", {
+            zoom: 0,
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }),
+        },
       ],
     };
 
@@ -301,9 +300,9 @@ function mapInitialise(mapID) {
     children: [],
   };
 
-  function layerControl(bl, ol) {
+  function layerControl(bl) {
     return L.control.layers
-      .tree(bl, ol, {
+      .tree(bl, overlays, {
         // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
         collapsed: true, // Whether or not control options are displayed
         sortLayers: true,
@@ -1196,4 +1195,53 @@ async function mapMarkersNationalTrust() {
       ],
     };
   }
+}
+
+function refreshMapOverlayControls() {
+  // Functions to refresh the map overlay buttons
+  refreshMapMainControl();
+  refreshMapControlSites();
+  refreshMapControlPopn();
+  refreshMapControlIMD();
+  refreshMapControlBubble();
+}
+
+function refreshMapMainControl() {
+  mapControlMain
+    .setOverlayTree(overlaysTreeMain)
+    .collapseTree() // collapse the baselayers tree
+    // .expandSelected() // expand selected option in the baselayer
+    .collapseTree(true);
+}
+
+function refreshMapControlSites() {
+  mapControlSites
+    .setOverlayTree(overlaysTreeSites)
+    .collapseTree() // collapse the baselayers tree
+    // .expandSelected() // expand selected option in the baselayer
+    .collapseTree(true);
+}
+
+function refreshMapControlPopn() {
+  mapControlPopn
+    .setOverlayTree(overlaysTreePopn)
+    .collapseTree() // collapse the baselayers tree
+    // .expandSelected() // expand selected option in the baselayer
+    .collapseTree(true);
+}
+
+function refreshMapControlIMD() {
+  mapControlIMD
+    .setOverlayTree(overlaysTreeIMD)
+    .collapseTree() // collapse the baselayers tree
+    // .expandSelected() // expand selected option in the baselayer
+    .collapseTree(true);
+}
+
+function refreshMapControlBubble() {
+  mapControlBubble
+    .setOverlayTree(overlaysTreeBubble)
+    .collapseTree() // collapse the baselayers tree
+    // .expandSelected() // expand selected option in the baselayer
+    .collapseTree(true);
 }

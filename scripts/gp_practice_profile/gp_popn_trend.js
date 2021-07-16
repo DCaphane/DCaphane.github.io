@@ -195,7 +195,6 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
   });
 
   // Define the div for the tooltip
-
   const tooltipTrend = newTooltip.tooltip(div);
   tooltipTrend.style("height", "40px");
 
@@ -520,12 +519,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
         sel.raise();
         sel.classed("highlight", true);
         updateMiniMarker();
-        demographicChart.updateChtDemog(
-          userSelections.selectedPractice,
-          userSelections.selectedPracticeCompare
-        );
-        recolourLSOA();
-        circlePopnIMDChart.updateD3BubbleLsoa();
+        refreshChartsPostDateChange();
       })
       .on("mouseover", function (event, d) {
         const sel = d3.select(this);

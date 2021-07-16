@@ -1,9 +1,5 @@
 "use strict";
 
-// Add a 'select', drop down box
-const selPracticeDropDown = document.getElementById("selPractice"),
-  selPracticeCompareDropDown = document.getElementById("selPracticeCompare");
-
 // Load the initial data and then variations on this for subsequent filtering
 let trendChart,
   barChart,
@@ -75,28 +71,6 @@ const promDataGPPopn = d3
       // Will use closest value
       arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
     });
-
-function processDataGPPopulation(d, index, columnKeys) {
-  // Loop through the raw data to format columns as appropriate
-  return {
-    Practice: d.Practice_Mapped.substring(0, 6),
-    Locality: d.Locality,
-    Age_Band: d.Age_Band,
-    Period: +parseDate(d.Period),
-    Male_Pop: +d.Male,
-    Female_Pop: +d.Female,
-    Total_Pop: +d.Total,
-  };
-}
-
-function processDataPopulationGPLsoa(d) {
-  return {
-    period: +parseDate2(d.period),
-    practice: d.practice_code,
-    lsoa: d.lsoa,
-    population: +d.population,
-  };
-}
 
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 let // geo coded data
@@ -172,21 +146,111 @@ const importGeoData = (async function displayContent() {
     });
 })();
 
+function initD3Charts() {
+  trendChart = initTrendChart(dataPopulationGP, "cht_PopTrend");
+  trendChart.chartTrendDraw();
+
+  barChart = initPopnBarChart(dataPopulationGP, "cht_PopBar");
+  barChart.fnRedrawBarChart();
+
+  demographicChart = initChartDemog(dataPopulationGP, "cht_PopDemo");
+  demographicChart.updateChtDemog();
+}
+
+function initGeoCharts() {
+  // from map_GP_MainSite.js
+  addWardGroupsToMap.call(mapMain);
+  addPracticeToMap.call(mapMain);
+
+  // // from map_popn_lsoa.js
+  gpSites();
+}
+
+function refreshGeoChart() {
+  lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
+  recolourLSOA();
+  recolourIMDLayer(imdDomainShort);
+  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
+  ccgBoundary(true);
+  mapMarkersNationalTrust();
+}
+
+function refreshChartsPostPracticeChange(practice) {
+  console.log(practice);
+  // change the selection box dropdown to reflect clicked practice
+  document.getElementById("selPractice").value = `${
+    userSelections.selectedPractice
+  }: ${userSelections.selectedPracticeName()}`;
+
+  updateBouncingMarkers();
+  highlightFeature(practice, mapMain, true);
+
+  trendChart.chartTrendDraw();
+  demographicChart.updateChtDemog(
+    practice,
+    userSelections.selectedPracticeCompare
+  );
+
+  filterGPPracticeSites.call(mapSites, true);
+
+  recolourLSOA();
+  recolourIMDLayer(imdDomainShort);
+  circlePopnIMDChart.updateD3BubbleLsoa();
+  barChart.fnRedrawBarChart();
+  // updateTextPractice();
+  // updateTextPCN();
+  sidebarContent.updateSidebarText("pcnSpecific", practice);
+}
+
+function refreshChartsPostDateChange() {
+  demographicChart.updateChtDemog(
+    userSelections.selectedPractice,
+    userSelections.selectedPracticeCompare
+  );
+  recolourLSOA();
+  circlePopnIMDChart.updateD3BubbleLsoa();
+  barChart.fnRedrawBarChart();
+}
+
+/* Functions to process the data on load */
+
+function processDataGPPopulation(d, index, columnKeys) {
+  // Loop through the raw data to format columns as appropriate
+  return {
+    Practice: d.Practice_Mapped.substring(0, 6),
+    Locality: d.Locality,
+    Age_Band: d.Age_Band,
+    Period: +parseDate(d.Period),
+    Male_Pop: +d.Male,
+    Female_Pop: +d.Female,
+    Total_Pop: +d.Total,
+  };
+}
+
+function processDataPopulationGPLsoa(d) {
+  return {
+    period: +parseDate2(d.period),
+    practice: d.practice_code,
+    lsoa: d.lsoa,
+    population: +d.population,
+  };
+}
+
 function processDataHospitalSite(d) {
-  if (isNaN(+d.Latitude)) {
+  if (!isNaN(+d.Latitude)) {
+    return {
+      latitude: +d.Latitude,
+      // longitude: +d.Longitude,
+      markerPosition: [+d.Latitude, +d.Longitude],
+      sector: d.Sector, // nhs or independent
+      organisationCode: d.OrganisationCode,
+      organisationName: d.OrganisationName,
+      parentODSCode: d.ParentODSCode,
+      parentName: d.ParentName,
+    };
+  } else {
     console.log(d.OrganisationCode, d.Latitude);
   }
-
-  return {
-    latitude: +d.Latitude,
-    // longitude: +d.Longitude,
-    markerPosition: [+d.Latitude, +d.Longitude],
-    sector: d.Sector, // nhs or independent
-    organisationCode: d.OrganisationCode,
-    organisationName: d.OrganisationName,
-    parentODSCode: d.ParentODSCode,
-    parentName: d.ParentName,
-  };
 }
 
 function processDataIMD(d) {
@@ -215,31 +279,4 @@ function processDataIMD(d) {
     popnOlder: +d.Older_population_aged_60_and_over_mid_2015,
     popnWorking: +d.Working_age_population_18_59_64,
   };
-}
-
-function refreshChartsPostPracticeChange(practice) {
-  console.log(practice);
-  // change the selection box dropdown to reflect clicked practice
-  document.getElementById("selPractice").value = `${
-    userSelections.selectedPractice
-  }: ${userSelections.selectedPracticeName()}`;
-
-  updateBouncingMarkers();
-  highlightFeature(practice, mapMain, true);
-
-  trendChart.chartTrendDraw();
-  demographicChart.updateChtDemog(
-    practice,
-    userSelections.selectedPracticeCompare
-  );
-
-  filterGPPracticeSites.call(mapSites, true);
-
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
-  circlePopnIMDChart.updateD3BubbleLsoa();
-  barChart.fnRedrawBarChart();
-  // updateTextPractice();
-  // updateTextPCN();
-  sidebarContent.updateSidebarText("pcnSpecific", practice);
 }
