@@ -31,14 +31,6 @@
       rel="stylesheet"
     />
 
-    <script
-      defer
-      src="https://kit.fontawesome.com/0e64dfdf0b.js"
-      crossorigin="anonymous"
-    ></script>
-
-    <script defer src="https://d3js.org/d3.v7.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
 
@@ -61,6 +53,12 @@
       const pageName = "GP Profiles"; // This is the 'key' name in the function createSiteStructure (see navmain.js)
       const elemActive = `nav ${pageName}`.split(" ").join("-");
     </script>
+
+    <script
+      defer
+      src="https://kit.fontawesome.com/0e64dfdf0b.js"
+      crossorigin="anonymous"
+    ></script>
     <!-- requires font awesome -->
     <script defer src="scripts/components/navmain.js"></script>
     <script defer src="scripts/components/navside.js"></script>
@@ -186,7 +184,12 @@
     <link rel="stylesheet" type="text/css" href="css/leaflet_tooltip.css" />
     <script defer src="scripts/components/tooltip.js"></script>
 
-    <!-- To convert to modules  -->
+    <script defer src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!--
+      Considering converting to modules
+      If use module approach, consider whether to apply this to D3 too.
+    -->
     <script
       defer
       src="scripts/gp_practice_profile/chart_formatting.js"

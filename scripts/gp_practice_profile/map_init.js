@@ -27,7 +27,7 @@ mapSites.homeButton();
 const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 sidebarSites.addPanel(sidebarContent.panelOverview);
 
-const baseTreeSites = mapSites.baselayers("Dark"); // set the default baselayer. Default is Bright
+const baseTreeSites = mapSites.baselayers("Grey"); // set the default baselayer. Default is Bright
 const overlaysTreeSites = mapSites.overlays; // global to enable updates
 const mapControlSites = mapSites.layerControl(baseTreeSites, overlaysTreeSites);
 
@@ -41,7 +41,7 @@ mapPopn.homeButton();
 const sidebarPopn = mapPopn.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 sidebarPopn.addPanel(sidebarContent.panelOverview);
 
-const baseTreePopn = mapPopn.baselayers("OS Light"); // set the default baselayer. Default is Bright
+const baseTreePopn = mapPopn.baselayers("Dark"); // set the default baselayer. Default is Bright
 const overlaysTreePopn = mapPopn.overlays; // Make global to enable subsequent change to overlay
 const mapControlPopn = mapPopn.layerControl(baseTreePopn, overlaysTreePopn);
 
@@ -70,7 +70,7 @@ const sidebarIMD = mapIMD.sideBar(); // default is left, can use mapMain.sidebar
 sidebarIMD.addPanel(sidebarContent.panelOverview);
 sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
 
-const baseTreeIMD = mapIMD.baselayers("Grey"); // set the default baselayer. Default is Bright
+const baseTreeIMD = mapIMD.baselayers("Jawg Matrix"); // set the default baselayer. Default is Bright
 const overlaysTreeIMD = mapIMD.overlays; // global to enable updates
 const mapControlIMD = mapIMD.layerControl(baseTreeIMD, overlaysTreeIMD);
 
@@ -93,7 +93,7 @@ const mapD3Bubble = mapInitialise("mapIMDD3");
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();
 
-const baseTreeD3Bubble = mapD3Bubble.baselayers("Grey"); // set the default baselayer. Default is Bright
+const baseTreeD3Bubble = mapD3Bubble.baselayers("High Contrast"); // set the default baselayer. Default is Bright
 const overlaysTreeBubble = mapD3Bubble.overlays; // global to enable updates
 const mapControlBubble = mapD3Bubble.layerControl(
   baseTreeD3Bubble,
@@ -104,7 +104,6 @@ const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 overlaysTreeBubble.children[3] = overlayTrusts();
 
 // const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
-
 
 // Functions to create the charts runs last - after all the data is available
 Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {

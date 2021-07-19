@@ -92,7 +92,7 @@ function mapInitialise(mapID) {
   thisMap.createPane("lsoaBoundaryPane");
   thisMap.getPane("lsoaBoundaryPane").style.zIndex = 376;
 
-  function baselayers(defaultBL = "Bright") {
+  function baselayers(defaultBL = "None") {
     // const defaultBasemap =
     //   .addTo(mapMain.map);
 
@@ -264,6 +264,7 @@ function mapInitialise(mapID) {
   */
 
     for (let key in baselayersTree.children) {
+      let layer;
       let found = false;
       const obj = baselayersTree.children[key];
       if (obj.hasOwnProperty("children")) {
@@ -272,7 +273,7 @@ function mapInitialise(mapID) {
         for (let i = 0; i < arr.length; i++) {
           // console.log({ label: arr[i].label, layer: arr[i].layer });
           if (arr[i].label === defaultBL) {
-            arr[i].layer.addTo(thisMap);
+            layer = arr[i].layer; //.addTo(thisMap);
             found = true;
             break;
           }
@@ -280,12 +281,17 @@ function mapInitialise(mapID) {
       } else {
         // console.log({ label: obj.label, layer: obj.layer });
         if (obj.label === defaultBL) {
-          obj.layer.addTo(thisMap);
+          layer = obj.layer; // .addTo(thisMap);
           found = true;
           break;
         }
       }
       if (found) {
+        layer
+          .on("tileloadstart", function (event) {
+            event.tile.setAttribute("loading", "lazy");
+          })
+          .addTo(thisMap);
         break;
       }
     }

@@ -176,14 +176,14 @@ function refreshGeoChart() {
 }
 
 function refreshChartsPostPracticeChange(practice) {
-  console.log(practice);
+  console.log({ selectedPractice: practice });
   // change the selection box dropdown to reflect clicked practice
   document.getElementById("selPractice").value = `${
     userSelections.selectedPractice
   }: ${userSelections.selectedPracticeName()}`;
 
   updateBouncingMarkers();
-  highlightFeature(practice, mapMain, true);
+  highlightFeature(practice, mapMain, false);
 
   trendChart.chartTrendDraw();
   demographicChart.updateChtDemog(
@@ -239,7 +239,7 @@ function processDataPopulationGPLsoa(d) {
 function processDataHospitalSite(d) {
   if (!isNaN(+d.Latitude)) {
     return {
-      latitude: +d.Latitude,
+      // latitude: +d.Latitude,
       // longitude: +d.Longitude,
       markerPosition: [+d.Latitude, +d.Longitude],
       sector: d.Sector, // nhs or independent
@@ -249,7 +249,7 @@ function processDataHospitalSite(d) {
       parentName: d.ParentName,
     };
   } else {
-    console.log(d.OrganisationCode, d.Latitude);
+    console.log({ orgCode: d.OrganisationCode, invalidLatitude: d.Latitude });
   }
 }
 
