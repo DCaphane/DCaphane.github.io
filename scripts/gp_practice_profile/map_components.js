@@ -788,11 +788,18 @@ function ccgBoundary(zoomToExtent = true) {
   overlaysTreeBubble.children[1] = overlayCCGsD3;
 
   if (zoomToExtent) {
-    mapMain.map.fitBounds(ccgBoundary.getBounds());
-    mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
-    mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
-    mapIMD.map.fitBounds(ccgBoundaryCopy3.getBounds());
-    mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
+    const arrMaps = [mapMain, mapSites, mapPopn, mapIMD, mapD3Bubble];
+
+    arrMaps.forEach(function (arrMap, index, myArray) {
+      // console.log(arrMap.map);
+      arrMap.map.fitBounds(ccgBoundary.getBounds());
+    });
+
+    // mapMain.map.fitBounds(ccgBoundary.getBounds());
+    // mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
+    // mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
+    // mapIMD.map.fitBounds(ccgBoundaryCopy3.getBounds());
+    // mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
   }
 }
 
@@ -1138,27 +1145,25 @@ async function mapMarkersNationalTrust() {
   const data = await promHospitalDetails;
 
   data.forEach((d) => {
-    if (!isNaN(d.latitude)) {
-      const category = d.sector;
-      const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
+    const category = d.sector;
+    const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
       <p>${d.parentODSCode}: ${d.parentName}
       <br>${d.sector}</p>`;
 
-      if (category === "NHS Sector") {
-        const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
-        marker.addTo(nhsTrustSites);
-        i++;
-      } else {
-        // Independent Sector
-        const marker = trustMarker(
-          d.markerPosition,
-          "independent",
-          "H",
-          popupText
-        );
-        marker.addTo(nonNhsTrustSites);
-        j++;
-      }
+    if (category === "NHS Sector") {
+      const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+      marker.addTo(nhsTrustSites);
+      i++;
+    } else {
+      // Independent Sector
+      const marker = trustMarker(
+        d.markerPosition,
+        "independent",
+        "H",
+        popupText
+      );
+      marker.addTo(nonNhsTrustSites);
+      j++;
     }
   });
 
@@ -1204,50 +1209,62 @@ async function mapMarkersNationalTrust() {
 }
 
 function refreshMapOverlayControls() {
-  // Functions to refresh the map overlay buttons
-  refreshMapMainControl();
-  refreshMapControlSites();
-  refreshMapControlPopn();
-  refreshMapControlIMD();
-  refreshMapControlBubble();
+  /*
+  to refresh the map overlay buttons
+  this needs to be done anytime something is changed that affects the overlay
+  */
+
+  for (const [key, value] of mapOverlays) {
+    key
+      .setOverlayTree(value)
+      .collapseTree() // collapse the baselayers tree
+      // .expandSelected() // expand selected option in the baselayer
+      .collapseTree(true);
+  }
+
+  // refreshMapMainControl();
+  // refreshMapControlSites();
+  // refreshMapControlPopn();
+  // refreshMapControlIMD();
+  // refreshMapControlBubble();
 }
 
-function refreshMapMainControl() {
-  mapControlMain
-    .setOverlayTree(overlaysTreeMain)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
+// function refreshMapMainControl() {
+//   mapControlMain
+//     .setOverlayTree(overlaysTreeMain)
+//     .collapseTree() // collapse the baselayers tree
+//     // .expandSelected() // expand selected option in the baselayer
+//     .collapseTree(true);
+// }
 
-function refreshMapControlSites() {
-  mapControlSites
-    .setOverlayTree(overlaysTreeSites)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
+// function refreshMapControlSites() {
+//   mapControlSites
+//     .setOverlayTree(overlaysTreeSites)
+//     .collapseTree() // collapse the baselayers tree
+//     // .expandSelected() // expand selected option in the baselayer
+//     .collapseTree(true);
+// }
 
-function refreshMapControlPopn() {
-  mapControlPopn
-    .setOverlayTree(overlaysTreePopn)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
+// function refreshMapControlPopn() {
+//   mapControlPopn
+//     .setOverlayTree(overlaysTreePopn)
+//     .collapseTree() // collapse the baselayers tree
+//     // .expandSelected() // expand selected option in the baselayer
+//     .collapseTree(true);
+// }
 
-function refreshMapControlIMD() {
-  mapControlIMD
-    .setOverlayTree(overlaysTreeIMD)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
+// function refreshMapControlIMD() {
+//   mapControlIMD
+//     .setOverlayTree(overlaysTreeIMD)
+//     .collapseTree() // collapse the baselayers tree
+//     // .expandSelected() // expand selected option in the baselayer
+//     .collapseTree(true);
+// }
 
-function refreshMapControlBubble() {
-  mapControlBubble
-    .setOverlayTree(overlaysTreeBubble)
-    .collapseTree() // collapse the baselayers tree
-    // .expandSelected() // expand selected option in the baselayer
-    .collapseTree(true);
-}
+// function refreshMapControlBubble() {
+//   mapControlBubble
+//     .setOverlayTree(overlaysTreeBubble)
+//     .collapseTree() // collapse the baselayers tree
+//     // .expandSelected() // expand selected option in the baselayer
+//     .collapseTree(true);
+// }

@@ -1,5 +1,8 @@
 // Set up the maps
 
+// Used to keep track of the map overlay for subsequent refresh
+const mapOverlays = new Map();
+
 // GP Main Site Map
 const mapMain = mapInitialise("mapMain"); // mapMain is the div id to place the map
 mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
@@ -16,6 +19,7 @@ sidebarMapMain.addPanel(sidebarContent.panelSettings);
 const baseTreeMain = mapMain.baselayers("Bright"); // set the default baselayer. Default is Bright
 const overlaysTreeMain = mapMain.overlays; // global to enable updates
 const mapControlMain = mapMain.layerControl(baseTreeMain, overlaysTreeMain);
+mapOverlays.set(mapControlMain, overlaysTreeMain);
 
 overlaysTreeMain.children[1] = overlayTrusts();
 
@@ -30,6 +34,7 @@ sidebarSites.addPanel(sidebarContent.panelOverview);
 const baseTreeSites = mapSites.baselayers("Grey"); // set the default baselayer. Default is Bright
 const overlaysTreeSites = mapSites.overlays; // global to enable updates
 const mapControlSites = mapSites.layerControl(baseTreeSites, overlaysTreeSites);
+mapOverlays.set(mapControlSites, overlaysTreeSites);
 
 overlaysTreeSites.children[0] = overlayTrusts();
 
@@ -44,6 +49,7 @@ sidebarPopn.addPanel(sidebarContent.panelOverview);
 const baseTreePopn = mapPopn.baselayers("Dark"); // set the default baselayer. Default is Bright
 const overlaysTreePopn = mapPopn.overlays; // Make global to enable subsequent change to overlay
 const mapControlPopn = mapPopn.layerControl(baseTreePopn, overlaysTreePopn);
+mapOverlays.set(mapControlPopn, overlaysTreePopn);
 
 overlaysTreePopn.children[0] = overlayTrusts(); // Add selected hospitals to overlay
 
@@ -73,6 +79,7 @@ sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
 const baseTreeIMD = mapIMD.baselayers("Jawg Matrix"); // set the default baselayer. Default is Bright
 const overlaysTreeIMD = mapIMD.overlays; // global to enable updates
 const mapControlIMD = mapIMD.layerControl(baseTreeIMD, overlaysTreeIMD);
+mapOverlays.set(mapControlIMD, overlaysTreeIMD);
 
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
@@ -99,6 +106,8 @@ const mapControlBubble = mapD3Bubble.layerControl(
   baseTreeD3Bubble,
   overlaysTreeBubble
 );
+mapOverlays.set(mapControlBubble, overlaysTreeBubble);
+
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
 overlaysTreeBubble.children[3] = overlayTrusts();
