@@ -21,8 +21,8 @@ function mapInitialise(mapID) {
     // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
     center: trustSitesLoc.yorkTrust, // centre on York Hospital
     zoom: 11,
-    minZoom: 6, // how far out eg. 0 = whole world
-    maxZoom: 17, // how far in, eg. to the detail (max = 18)
+    minZoom: 5, // how far out eg. 0 = whole world
+    maxZoom: 20, // how far in, eg. to the detail (max varies by baselayer between 18 and 20)
     // https://leafletjs.com/reference-1.3.4.html#latlngbounds
     maxBounds: [
       [50.0, 1.6232], //south west
@@ -131,22 +131,23 @@ function mapInitialise(mapID) {
     const osBaselayers = {
       light: L.tileLayer(
         serviceUrl + "/Light_3857/{z}/{x}/{y}.png?key=" + apiKey,
-        { maxZoom: 20, attribution: copyrightStatement }
+        { minZoom: 7, maxZoom: 20, attribution: copyrightStatement }
       ),
       road: L.tileLayer(
         serviceUrl + "/Road_3857/{z}/{x}/{y}.png?key=" + apiKey,
         {
+          minZoom: 7,
           maxZoom: 20,
           attribution: copyrightStatement,
         }
       ),
       outdoor: L.tileLayer(
         serviceUrl + "/Outdoor_3857/{z}/{x}/{y}.png?key=" + apiKey,
-        { maxZoom: 20, attribution: copyrightStatement }
+        { minZoom: 7, maxZoom: 20, attribution: copyrightStatement }
       ),
       //   // Doesn't exist for 3857 projection
       // leisure: L.tileLayer(
-      //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { maxZoom: 20, attribution: copyrightStatement }
+      //   serviceUrl + '/Leisure_3857/{z}/{x}/{y}.png?key=' + apiKey, { minZoom: 7, maxZoom: 20, attribution: copyrightStatement }
       //   ),
     };
 
@@ -189,43 +190,61 @@ function mapInitialise(mapID) {
           children: [
             {
               label: "OSM",
-              layer: L.tileLayer.provider("OpenStreetMap.Mapnik"),
+              layer: L.tileLayer.provider("OpenStreetMap.Mapnik", {
+                maxZoom: 19,
+              }),
             },
             {
               label: "OSM HOT",
-              layer: L.tileLayer.provider("OpenStreetMap.HOT"),
+              layer: L.tileLayer.provider("OpenStreetMap.HOT", { maxZoom: 19 }),
             },
-            // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager") },
+            // { label: "CartoDB", layer: L.tileLayer.provider("CartoDB.Voyager", {maxZoom:19}) },
             {
               label: "Water Colour",
-              layer: L.tileLayer.provider("Stamen.Watercolor"),
+              layer: L.tileLayer.provider("Stamen.Watercolor", {
+                minZoom: 1,
+                maxZoom: 16,
+              }),
             },
             {
               label: "Bright",
-              layer: L.tileLayer.provider("Stadia.OSMBright"),
+              layer: L.tileLayer.provider("Stadia.OSMBright", { maxZoom: 20 }),
             }, // .Mapnik
-            { label: "Topo", layer: L.tileLayer.provider("OpenTopoMap") },
+            {
+              label: "Topo",
+              layer: L.tileLayer.provider("OpenTopoMap", { maxZoom: 17 }),
+            },
           ],
         },
         {
           label: "Black & White <i class='fa-solid fa-layer-group'></i>",
           children: [
-            // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron") },
+            // { label: "Grey", layer: L.tileLayer.provider("CartoDB.Positron", {maxZomm: 19}) },
             {
               label: "High Contrast",
-              layer: L.tileLayer.provider("Stamen.Toner"),
+              layer: L.tileLayer.provider("Stamen.Toner", {
+                minZoom: 0,
+                maxZoom: 20,
+              }),
             },
             {
               label: "Grey",
-              layer: L.tileLayer.provider("Stadia.AlidadeSmooth"),
+              layer: L.tileLayer.provider("Stadia.AlidadeSmooth", {
+                maxZoom: 20,
+              }),
             },
             {
               label: "ST Hybrid",
-              layer: L.tileLayer.provider("Stamen.TonerHybrid"),
+              layer: L.tileLayer.provider("Stamen.TonerHybrid", {
+                minZoom: 0,
+                maxZoom: 20,
+              }),
             },
             {
               label: "Dark",
-              layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+              layer: L.tileLayer.provider("Stadia.AlidadeSmoothDark", {
+                maxZoom: 20,
+              }),
             },
             {
               label: "Jawg Matrix",
@@ -233,6 +252,8 @@ function mapInitialise(mapID) {
                 // // Requires Access Token
                 accessToken:
                   "phg9A3fiyZq61yt7fQS9dQzzvgxFM5yJz46sJQgHJkUdbdUb8rOoXviuaSnyoYQJ", //  biDemo
+                minZoom: 0,
+                maxZoom: 22,
               }),
             },
           ],
@@ -911,12 +932,21 @@ function filterFunctionLsoa(zoomToExtent = false) {
   };
   overlaysTreePopn.children[2] = overlayLSOA;
 
-  refreshMapControlPopn();
+  // refreshMapControlPopn();
+  refreshMapOverlayControls();
 
   if (zoomToExtent) {
     map.fitBounds(lsoaLayer.getBounds());
-    mapIMD.map.fitBounds(lsoaLayer.getBounds());
-    mapD3Bubble.map.fitBounds(lsoaLayer.getBounds());
+
+    const arrMaps = [mapIMD, mapD3Bubble];
+
+    arrMaps.forEach(function (arrMap, index, myArray) {
+      // console.log(arrMap.map);
+      arrMap.map.fitBounds(lsoaLayer.getBounds());
+    });
+
+    // mapIMD.map.fitBounds(lsoaLayer.getBounds());
+    // mapD3Bubble.map.fitBounds(lsoaLayer.getBounds());
   }
 }
 
