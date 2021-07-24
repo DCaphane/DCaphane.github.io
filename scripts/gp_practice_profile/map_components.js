@@ -428,8 +428,6 @@ const layersMapGpMain = new Map();
 
 function addPracticeToMap(zoomToExtent = false) {
   const map = this.map;
-  // let categories = {},
-  //   category;
 
   const practiceMain = L.geoJson(geoDataPCN, {
     // https://leafletjs.com/reference-1.7.1.html#geojson
@@ -437,16 +435,17 @@ function addPracticeToMap(zoomToExtent = false) {
       return pcnFormatting(feature, latlng, { addBounce: true });
     },
     onEachFeature: function (feature, layer) {
-      const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-          <p>${layer.feature.properties.practice_code}: ${
-        layer.feature.properties.practice_name
-      }
-          <br>Clinical Director: ${layer.feature.properties.clinical_director}
-          <br>Population: ${formatNumber(
-            layer.feature.properties.list_size
-          )}</p>`;
+      // const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+      //     <p>${layer.feature.properties.practice_code}: ${
+      //   layer.feature.properties.practice_name
+      // }
+      //     <br>Clinical Director: ${layer.feature.properties.clinical_director}
+      //     <br>Population: ${formatNumber(
+      //       layer.feature.properties.list_size
+      //     )}</p>`;
 
-      layer.bindPopup(popupText, { className: "popup-dark" }); // formatting applied in css, css/leaflet_tooltip.css
+      // popup text applied here: mapMainPopupText.updatePopUpText()
+      layer.bindPopup("", { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
       layer.on("mouseover", function (e) {
         this.openPopup();
       });
@@ -471,6 +470,9 @@ function addPracticeToMap(zoomToExtent = false) {
       }
       layersMapGpMain.get(category).addLayer(layer);
     },
+    filter: function (d) {
+      if (d.properties.type === "main") return true;
+    },
   });
   L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
 
@@ -481,6 +483,34 @@ function addPracticeToMap(zoomToExtent = false) {
   if (zoomToExtent) {
     map.fitBounds(practiceMain.getBounds());
   }
+
+  function updatePopUpText() {
+    practiceMain.eachLayer(function (layer) {
+      const period = userSelections.selectedDate,
+        practiceCode = layer.feature.properties.orgCode,
+        // clinicalDirector = layer.feature.properties.clinical_director,
+        pcnName = layer.feature.properties.pcn_name,
+        population = dataPopulationGPSummary.get(period).get(practiceCode);
+
+      let practiceName;
+      if (practiceLookup.has(practiceCode)) {
+        practiceName = titleCase(practiceLookup.get(practiceCode));
+      } else {
+        practiceName = "";
+      }
+
+      const popupText = `<h3>${pcnName}</h3>
+        <p>${practiceCode}: ${practiceName}
+        <br>Population: ${formatNumber(population)}</p>`;
+      // <br>Clinical Director: ${clinicalDirector}
+
+      layer.setPopupContent(popupText);
+    });
+  }
+
+  return {
+    updatePopUpText: updatePopUpText,
+  };
 }
 
 /*

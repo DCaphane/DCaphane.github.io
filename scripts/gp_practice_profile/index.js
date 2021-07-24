@@ -41,12 +41,23 @@ const userSelections = {
 };
 
 /* Data Import */
-let dataPopulationGP, dataPopulationGPLsoa, arrayGPLsoaDates, uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
+let dataPopulationGP,
+  dataPopulationGPSummary,
+  dataPopulationGPLsoa,
+  arrayGPLsoaDates,
+  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
 const promDataGPPopn = d3
     .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
     .then((data) => {
       dataPopulationGP = data;
+
+      dataPopulationGPSummary = d3.rollup(
+        dataPopulationGP,
+        (v) => d3.sum(v, (d) => d.Total_Pop),
+        (d) => +d.Period,
+        (d) => d.Practice
+      );
 
       // default the selected date to the latest available
       userSelections.selectedDate = d3.max(data, function (d) {
@@ -74,6 +85,7 @@ const promDataGPPopn = d3
 
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 let // geo coded data
+  geoDataGP,
   geoDataPCN,
   geoDataPCNSites,
   geoDataCYCWards,
@@ -85,7 +97,11 @@ let // geo coded data
 // hospitalDetails; -- handled in map object
 
 // Promises to import the geo data
-const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
+
+const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson")
+
+
+const promGeoDataPCN = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"), //d3.json("Data/geo/pcn/primary_care_networks.geojson"),
   promGeoDataPCNSites = d3.json(
     "Data/geo/pcn/primary_care_network_sites.geojson"
   ),
@@ -160,9 +176,7 @@ function initD3Charts() {
 function initGeoCharts() {
   // from map_GP_MainSite.js
   addWardGroupsToMap.call(mapMain);
-  addPracticeToMap.call(mapMain);
-
-  // // from map_popn_lsoa.js
+  mapMainPopupText = addPracticeToMap.call(mapMain);
   gpSites();
 }
 
@@ -203,6 +217,7 @@ function refreshChartsPostPracticeChange(practice) {
 }
 
 function refreshChartsPostDateChange() {
+  mapMainPopupText.updatePopUpText()
   demographicChart.updateChtDemog(
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare

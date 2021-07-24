@@ -22,6 +22,7 @@ const mapControlMain = mapMain.layerControl(baseTreeMain, overlaysTreeMain);
 mapOverlays.set(mapControlMain, overlaysTreeMain);
 
 overlaysTreeMain.children[1] = overlayTrusts();
+let mapMainPopupText; // mapMainPopupText.updatePopUpText()
 
 // GP Associated Sites Map
 const mapSites = mapInitialise("mapSites");
@@ -123,6 +124,10 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
     initGeoCharts();
     circlePopnIMDChart = imdDomainD3();
     refreshGeoChart();
+
+    gpDetails.then(() => {
+      mapMainPopupText.updatePopUpText(); // Main practice site popup text. Requires practiceLookup
+    });
 
     Promise.allSettled([promHospitalDetails, promGeoDataCYCWards]).then(() => {
       // refreshes the overlaysTree to ensure everything is included and collapsed

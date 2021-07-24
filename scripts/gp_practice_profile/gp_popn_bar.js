@@ -27,6 +27,7 @@ function initPopnBarChart(dataInit, id) {
     fnRedrawBarChart();
   });
 
+  // this is same as dataPopulationGPSummary
   const d = d3.rollup(
     dataInit,
     (v) => d3.sum(v, (d) => d.Total_Pop),
