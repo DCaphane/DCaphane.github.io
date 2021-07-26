@@ -13,10 +13,27 @@ https://github.com/nickpeihl/leaflet-sidebar-v2
 // Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
 
-function mapInitialise(mapID) {
-  // for initialising maps
+function mapInitialise({
+  mapDivID, // divID where map will be placed
+  userOverlayCCGBoundary = {}, // = { inc: false, display: false, zoomExtent: true },
+  userOverlayWardBoundary = {},
+} = {}) {
+  // Default options
+  // for showing the CCG(03Q) boundary
+  const overlayCCGBoundary = Object.assign(
+    { inc: true, display: false, zoomExtent: true },
+    userOverlayCCGBoundary
+  );
 
-  const thisMap = L.map(mapID, {
+  // for showing the CCG(03Q) boundary
+  const overlayWardBoundary = Object.assign(
+    { inc: false, display: false, zoomExtent: false },
+    userOverlayWardBoundary
+  );
+
+  // for initialising maps
+  console.log(overlayCCGBoundary);
+  const thisMap = L.map(mapDivID, {
     preferCanvas: true,
     // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
     center: trustSitesLoc.yorkTrust, // centre on York Hospital
@@ -48,7 +65,7 @@ function mapInitialise(mapID) {
   }
 
   function sideBar({ side = "left" } = {}) {
-    const divMapID = document.getElementById(mapID); // used to store div where map will be created
+    const divMapID = document.getElementById(mapDivID); // used to store div where map will be created
     // create a div that will contain the sidebar
     const div = document.createElement("div");
     // give the div an id (used to identify container) and class
@@ -345,6 +362,75 @@ function mapInitialise(mapID) {
       .addTo(thisMap);
   }
 
+  // Do you want to include the CCG Boundary layer (option to display is later)
+  if (overlayCCGBoundary.inc || overlayCCGBoundary.zoomExtent) {
+    Promise.allSettled([promGeoVoYBoundary]).then((ccgBoundaries) => {
+      const ccgBoundary = L.geoJSON(ccgBoundaries[0].value, {
+        style: styleCCG,
+        pane: "ccgBoundaryPane",
+      });
+
+      // layersMapBoundaries.set("voyCCGMain", ccgBoundary);
+      if (overlayCCGBoundary.display) {
+        ccgBoundary.addTo(thisMap);
+      }
+
+      if (overlayCCGBoundary.inc || overlayCCGBoundary.display) {
+        const ccgBoundaryOverlay = {
+          label: "CCG Boundaries",
+          selectAllCheckbox: true,
+          children: [
+            {
+              label: "Vale of York",
+              layer: ccgBoundary,
+            },
+          ],
+        };
+        overlays.children[7] = ccgBoundaryOverlay; // switch to last item in array at run time, -1
+      }
+
+      // zoom option here
+      if (overlayCCGBoundary.zoomExtent) {
+        thisMap.fitBounds(ccgBoundary.getBounds());
+      }
+    });
+  }
+
+  // Do you want to include the Ward Boundary layer (option to display is later)
+  if (overlayWardBoundary.inc || overlayWardBoundary.zoomExtent) {
+    Promise.allSettled([promGeoDataCYCWards]).then((wardBoundaries) => {
+      const layersMapWards = new Map();
+
+      const geoDataCYCWards = L.geoJSON(wardBoundaries[0].value, {
+        style: styleWard,
+        pane: "wardBoundaryPane",
+        onEachFeature: function (feature, layer) {
+          const category = +feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+
+          if (!layersMapWards.has(category)) {
+            layersMapWards.set(category, L.layerGroup());
+          }
+          layersMapWards.get(category).addLayer(layer);
+        },
+      });
+
+      // layersMapBoundaries.set("voyCCGMain", ccgBoundary);
+      if (overlayWardBoundary.display) {
+        L.layerGroup(Array.from(layersMapWards.values())).addTo(thisMap);
+      }
+
+      if (overlayWardBoundary.inc || overlayWardBoundary.display) {
+        const ol = overlayWards(layersMapWards);
+        overlaysTreeMain.children[8] = ol;
+      }
+
+      // zoom option here
+      if (overlayWardBoundary.zoomExtent) {
+        thisMap.fitBounds(geoDataCYCWards.getBounds());
+      }
+    });
+  }
+
   return {
     map: thisMap,
     scaleBar: scaleBar,
@@ -424,26 +510,16 @@ function yorkTrust() {
 //   ).addTo(map);
 // }
 
-const layersMapGpMain = new Map();
-
 function addPracticeToMap(zoomToExtent = false) {
   const map = this.map;
+  const layersMapGpMain = new Map();
 
-  const practiceMain = L.geoJson(geoDataPCN, {
+  const practiceMain = L.geoJson(geoDataGP, {
     // https://leafletjs.com/reference-1.7.1.html#geojson
     pointToLayer: function (feature, latlng) {
       return pcnFormatting(feature, latlng, { addBounce: true });
     },
     onEachFeature: function (feature, layer) {
-      // const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-      //     <p>${layer.feature.properties.practice_code}: ${
-      //   layer.feature.properties.practice_name
-      // }
-      //     <br>Clinical Director: ${layer.feature.properties.clinical_director}
-      //     <br>Population: ${formatNumber(
-      //       layer.feature.properties.list_size
-      //     )}</p>`;
-
       // popup text applied here: mapMainPopupText.updatePopUpText()
       layer.bindPopup("", { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
       layer.on("mouseover", function (e) {
@@ -454,7 +530,7 @@ function addPracticeToMap(zoomToExtent = false) {
       });
       layer.on("click", function (e) {
         // console.log(e.sourceTarget.feature.properties.practice_code);
-        const selectedPractice = feature.properties.practice_code;
+        const selectedPractice = feature.properties.orgCode;
         if (userSelections.selectedPractice !== selectedPractice) {
           // update the Practice in userSelections
           userSelections.selectedPractice = selectedPractice;
@@ -509,6 +585,7 @@ function addPracticeToMap(zoomToExtent = false) {
   }
 
   return {
+    layersMapGpMain: layersMapGpMain,
     updatePopUpText: updatePopUpText,
   };
 }
@@ -546,11 +623,11 @@ function updateBouncingMarkers() {
   L.Marker.stopAllBouncingMarkers();
 
   // array of layers in the mapMain
-  const arr = Array.from(layersMapGpMain.values());
+  const arr = Array.from(mapMainGPMarkers.layersMapGpMain.values());
   arr.forEach(function (test) {
     let obj = test._layers;
     Object.values(obj).forEach(function (val) {
-      const gpPractice = val.feature.properties.practice_code;
+      const gpPractice = val.feature.properties.orgCode;
       const marker = val._bouncingMotion.marker;
       if (gpPractice === userSelections.selectedPractice) {
         marker.bounce(); // starts/stops bouncing of the marker
@@ -566,13 +643,13 @@ const mapWithSites = new Map(); // set of maps that include site codes
 function gpSites(zoomToExtent = false) {
   // This add the GP Sites layer in its entirety
   // const map = this.map;
-  const sitesLayer = L.geoJson(geoDataPCNSites, {
+  const sitesLayer = L.geoJson(geoDataGP, {
     pointToLayer: pcnFormatting,
     onEachFeature: function (feature, layer) {
       const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
       const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-        <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
-        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+        <p>${layer.feature.properties.orgCode}: ${layer.feature.properties.orgName}
+        <br>Parent Org:${layer.feature.properties.parent}</p>`;
 
       layer.bindPopup(popupText, { className: "popup-dark" });
       layer.on("mouseover", function (e) {
@@ -583,7 +660,7 @@ function gpSites(zoomToExtent = false) {
       });
       layer.on("click", function (e) {
         mapSites.map.setView(e.latlng, 11);
-        console.log(layer.feature.properties.organisation_code);
+        console.log(layer.feature.properties.orgCode);
       });
 
       // Initialize the category array if not already set.
@@ -594,13 +671,13 @@ function gpSites(zoomToExtent = false) {
     },
   });
 
-  const popnLayer = L.geoJson(geoDataPCNSites, {
+  const popnLayer = L.geoJson(geoDataGP, {
     pointToLayer: pcnFormatting,
     onEachFeature: function (feature, layer) {
       const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
       const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-        <p>${layer.feature.properties.organisation_code}: ${layer.feature.properties.organisation_name}
-        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+        <p>${layer.feature.properties.orgCode}: ${layer.feature.properties.orgName}
+        <br>Parent Org:${layer.feature.properties.parent}</p>`;
 
       layer.bindPopup(popupText);
       layer.on("mouseover", function (e) {
@@ -612,7 +689,7 @@ function gpSites(zoomToExtent = false) {
       layer.on("click", function (e) {
         // update other charts
         mapPopn.map.setView(e.latlng, 11);
-        console.log(layer.feature.properties.organisation_code);
+        console.log(layer.feature.properties.orgCode);
       });
 
       // Initialize the category array if not already set.
@@ -653,16 +730,17 @@ function filterGPPracticeSites(zoomToExtent = false) {
       key.removeLayer(value);
     }
 
-    const gpSites = L.geoJson(geoDataPCNSites, {
+    const gpSites = L.geoJson(geoDataGP, {
       // https://leafletjs.com/reference-1.7.1.html#geojson
       pointToLayer: pcnFormatting,
       onEachFeature: function (feature, layer) {
         const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-        <p>${layer.feature.properties.organisation_code}:
-        ${layer.feature.properties.organisation_name}
-        <br>Parent Org:${layer.feature.properties.parent_organisation_code}</p>`;
+        <p>${layer.feature.properties.orgCode}:
+        ${layer.feature.properties.orgName}
+        <br>Parent Org:${layer.feature.properties.parent}</p>`;
 
-        layer.bindPopup(popupText);
+        layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+
         layer.on("mouseover", function (e) {
           this.openPopup();
         });
@@ -674,7 +752,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
       },
       filter: function (d) {
         // match site codes based on 6 char GP practice code
-        const strPractice = d.properties.organisation_code;
+        const strPractice = d.properties.orgCode;
 
         if (
           userSelections.selectedPractice !== undefined &&
@@ -715,143 +793,6 @@ function filterGPPracticeSites(zoomToExtent = false) {
       map.fitBounds(gpSites.getBounds().pad(0.1));
     }
   });
-}
-
-const layersMapWards = new Map();
-
-function addWardGroupsToMap(zoomToExtent = false) {
-  const map = this.map;
-
-  const wardBoundaries = L.geoJson(geoDataCYCWards, {
-    style: styleWard,
-    pane: "wardBoundaryPane",
-    onEachFeature: function (feature, layer) {
-      const category = +feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-
-      if (!layersMapWards.has(category)) {
-        layersMapWards.set(category, L.layerGroup());
-      }
-      layersMapWards.get(category).addLayer(layer);
-    },
-  });
-
-  const ol = overlayWards(layersMapWards);
-  overlaysTreeMain.children[3] = ol;
-
-  if (zoomToExtent) {
-    map.fitBounds(wardBoundaries.getBounds());
-  }
-}
-
-const layersMapBoundaries = new Map();
-
-function ccgBoundary(zoomToExtent = true) {
-  const ccgBoundary = L.geoJSON(geoDataCCGBoundary, {
-    style: styleCCG,
-    pane: "ccgBoundaryPane",
-  });
-
-  layersMapBoundaries.set("voyCCGMain", ccgBoundary);
-  ccgBoundary.addTo(mapMain.map);
-  const overlayCCGs = {
-    label: "CCG Boundaries",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Vale of York",
-        layer: ccgBoundary, //layersMapBoundaries.get("voyCCGMain"),
-      },
-    ],
-  };
-  overlaysTreeMain.children[2] = overlayCCGs;
-
-  /* copy the layer - returns an object only so wrap  in L.geojson
-    https://stackoverflow.com/questions/54385218/using-getbounds-on-geojson-feature
-    https://github.com/Leaflet/Leaflet/issues/6484
-    */
-
-  const ccgBoundaryCopy1 = L.geoJson(ccgBoundary.toGeoJSON(), {
-    style: styleCCG,
-    pane: "ccgBoundaryPane",
-  });
-
-  ccgBoundaryCopy1.addTo(mapSites.map);
-  const overlayCCGsSites = {
-    label: "CCG Boundaries",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Vale of York",
-        layer: ccgBoundaryCopy1,
-      },
-    ],
-  };
-  overlaysTreeSites.children[1] = overlayCCGsSites;
-
-  const ccgBoundaryCopy2 = L.geoJson(ccgBoundary.toGeoJSON(), {
-    style: styleCCG,
-    pane: "ccgBoundaryPane",
-  });
-
-  const overlayCCGsPopn = {
-    label: "CCG Boundaries",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Vale of York",
-        layer: ccgBoundaryCopy2,
-      },
-    ],
-  };
-  overlaysTreePopn.children[1] = overlayCCGsPopn;
-
-  const ccgBoundaryCopy3 = L.geoJson(ccgBoundary.toGeoJSON(), {
-    style: styleCCG,
-    pane: "ccgBoundaryPane",
-  });
-
-  const overlayCCGsIMD = {
-    label: "CCG Boundaries",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Vale of York",
-        layer: ccgBoundaryCopy3,
-      },
-    ],
-  };
-  overlaysTreeIMD.children[1] = overlayCCGsIMD;
-
-  const ccgBoundaryCopy4 = L.geoJson(ccgBoundary.toGeoJSON(), {
-    style: styleCCG,
-    pane: "ccgBoundaryPane",
-  });
-  const overlayCCGsD3 = {
-    label: "CCG Boundaries",
-    selectAllCheckbox: true,
-    children: [
-      {
-        label: "Vale of York",
-        layer: ccgBoundaryCopy4,
-      },
-    ],
-  };
-  overlaysTreeBubble.children[1] = overlayCCGsD3;
-
-  if (zoomToExtent) {
-    const arrMaps = [mapMain, mapSites, mapPopn, mapIMD, mapD3Bubble];
-
-    arrMaps.forEach(function (arrMap, index, myArray) {
-      // console.log(arrMap.map);
-      arrMap.map.fitBounds(ccgBoundary.getBounds());
-    });
-
-    // mapMain.map.fitBounds(ccgBoundary.getBounds());
-    // mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
-    // mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
-    // mapIMD.map.fitBounds(ccgBoundaryCopy3.getBounds());
-    // mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
-  }
 }
 
 const layersMapLSOA = new Map();
@@ -985,9 +926,9 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     map.map.removeLayer(highlightedPractice);
   }
 
-  highlightedPractice = L.geoJSON(geoDataPCN, {
+  highlightedPractice = L.geoJSON(geoDataGP, {
     pointToLayer: function (feature, latlng) {
-      if (feature.properties.practice_code === selPractice) {
+      if (feature.properties.orgCode === selPractice) {
         return (markerLayer = L.marker(latlng, {
           icon: arrHighlightIcons[5],
           zIndexOffset: -5,
@@ -1327,4 +1268,142 @@ function refreshMapOverlayControls() {
 //     .collapseTree() // collapse the baselayers tree
 //     // .expandSelected() // expand selected option in the baselayer
 //     .collapseTree(true);
+// }
+
+// const layersMapBoundaries = new Map();
+
+// function ccgBoundary(zoomToExtent = true) {
+//   const ccgBoundary = L.geoJSON(geoDataCCGBoundary, {
+//     style: styleCCG,
+//     pane: "ccgBoundaryPane",
+//   });
+
+//   layersMapBoundaries.set("voyCCGMain", ccgBoundary);
+//   ccgBoundary.addTo(mapMain.map);
+//   const overlayCCGs = {
+//     label: "CCG Boundaries",
+//     selectAllCheckbox: true,
+//     children: [
+//       {
+//         label: "Vale of York",
+//         layer: ccgBoundary, //layersMapBoundaries.get("voyCCGMain"),
+//       },
+//     ],
+//   };
+//   overlaysTreeMain.children[2] = overlayCCGs;
+
+//   /* copy the layer - returns an object only so wrap  in L.geojson
+//     https://stackoverflow.com/questions/54385218/using-getbounds-on-geojson-feature
+//     https://github.com/Leaflet/Leaflet/issues/6484
+//     */
+
+//   const ccgBoundaryCopy1 = L.geoJson(ccgBoundary.toGeoJSON(), {
+//     style: styleCCG,
+//     pane: "ccgBoundaryPane",
+//   });
+
+//   ccgBoundaryCopy1.addTo(mapSites.map);
+//   const overlayCCGsSites = {
+//     label: "CCG Boundaries",
+//     selectAllCheckbox: true,
+//     children: [
+//       {
+//         label: "Vale of York",
+//         layer: ccgBoundaryCopy1,
+//       },
+//     ],
+//   };
+//   overlaysTreeSites.children[1] = overlayCCGsSites;
+
+//   const ccgBoundaryCopy2 = L.geoJson(ccgBoundary.toGeoJSON(), {
+//     style: styleCCG,
+//     pane: "ccgBoundaryPane",
+//   });
+
+//   const overlayCCGsPopn = {
+//     label: "CCG Boundaries",
+//     selectAllCheckbox: true,
+//     children: [
+//       {
+//         label: "Vale of York",
+//         layer: ccgBoundaryCopy2,
+//       },
+//     ],
+//   };
+//   overlaysTreePopn.children[1] = overlayCCGsPopn;
+
+//   const ccgBoundaryCopy3 = L.geoJson(ccgBoundary.toGeoJSON(), {
+//     style: styleCCG,
+//     pane: "ccgBoundaryPane",
+//   });
+
+//   const overlayCCGsIMD = {
+//     label: "CCG Boundaries",
+//     selectAllCheckbox: true,
+//     children: [
+//       {
+//         label: "Vale of York",
+//         layer: ccgBoundaryCopy3,
+//       },
+//     ],
+//   };
+//   overlaysTreeIMD.children[1] = overlayCCGsIMD;
+
+//   const ccgBoundaryCopy4 = L.geoJson(ccgBoundary.toGeoJSON(), {
+//     style: styleCCG,
+//     pane: "ccgBoundaryPane",
+//   });
+//   const overlayCCGsD3 = {
+//     label: "CCG Boundaries",
+//     selectAllCheckbox: true,
+//     children: [
+//       {
+//         label: "Vale of York",
+//         layer: ccgBoundaryCopy4,
+//       },
+//     ],
+//   };
+//   overlaysTreeBubble.children[1] = overlayCCGsD3;
+
+//   if (zoomToExtent) {
+//     const arrMaps = [mapMain, mapSites, mapPopn, mapIMD, mapD3Bubble];
+
+//     arrMaps.forEach(function (arrMap, index, myArray) {
+//       // console.log(arrMap.map);
+//       arrMap.map.fitBounds(ccgBoundary.getBounds());
+//     });
+
+//     // mapMain.map.fitBounds(ccgBoundary.getBounds());
+//     // mapSites.map.fitBounds(ccgBoundaryCopy1.getBounds());
+//     // mapPopn.map.fitBounds(ccgBoundaryCopy2.getBounds());
+//     // mapIMD.map.fitBounds(ccgBoundaryCopy3.getBounds());
+//     // mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
+//   }
+// }
+
+
+// const layersMapWards = new Map();
+
+// function addWardGroupsToMap(zoomToExtent = false) {
+//   const map = this.map;
+
+//   const wardBoundaries = L.geoJson(geoDataCYCWards, {
+//     style: styleWard,
+//     pane: "wardBoundaryPane",
+//     onEachFeature: function (feature, layer) {
+//       const category = +feature.properties.pcn_ward_group; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+
+//       if (!layersMapWards.has(category)) {
+//         layersMapWards.set(category, L.layerGroup());
+//       }
+//       layersMapWards.get(category).addLayer(layer);
+//     },
+//   });
+
+//   const ol = overlayWards(layersMapWards);
+//   overlaysTreeMain.children[3] = ol;
+
+//   if (zoomToExtent) {
+//     map.fitBounds(wardBoundaries.getBounds());
+//   }
 // }

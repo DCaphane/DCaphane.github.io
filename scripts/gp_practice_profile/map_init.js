@@ -4,7 +4,11 @@
 const mapOverlays = new Map();
 
 // GP Main Site Map
-const mapMain = mapInitialise("mapMain"); // mapMain is the div id to place the map
+const mapMain = mapInitialise({
+  mapDivID: "mapMain", // mapMain is the div id to place the map
+  userOverlayCCGBoundary: { display: true },
+  userOverlayWardBoundary: { inc: true, display: true },
+});
 mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 // mapMain.home = {lat: 54.018213, lng: -10.0} // can change the home button position
 mapMain.homeButton(); // mapMain.homeButton({ latLng: trustSitesLoc.yorkTrust, zoom: 12 });
@@ -22,10 +26,13 @@ const mapControlMain = mapMain.layerControl(baseTreeMain, overlaysTreeMain);
 mapOverlays.set(mapControlMain, overlaysTreeMain);
 
 overlaysTreeMain.children[1] = overlayTrusts();
-let mapMainPopupText; // mapMainPopupText.updatePopUpText()
+let mapMainGPMarkers; // mapMainPopupText.updatePopUpText()
 
 // GP Associated Sites Map
-const mapSites = mapInitialise("mapSites");
+const mapSites = mapInitialise({
+  mapDivID: "mapSites",
+  userOverlayCCGBoundary: { display: true },
+});
 mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapSites.homeButton();
 
@@ -40,7 +47,7 @@ mapOverlays.set(mapControlSites, overlaysTreeSites);
 overlaysTreeSites.children[0] = overlayTrusts();
 
 // Population Map by lsoa
-const mapPopn = mapInitialise("mapPopnLSOA");
+const mapPopn = mapInitialise({ mapDivID: "mapPopnLSOA" });
 mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapPopn.homeButton();
 
@@ -69,7 +76,7 @@ IMD Map by LSOA
 Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/853811/IoD2019_FAQ_v4.pdf
 */
 
-const mapIMD = mapInitialise("mapIMDLSOA");
+const mapIMD = mapInitialise({ mapDivID: "mapIMDLSOA" });
 mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapIMD.homeButton();
 
@@ -97,7 +104,7 @@ Drawing points of interest using this demo:
 
 */
 
-const mapD3Bubble = mapInitialise("mapIMDD3");
+const mapD3Bubble = mapInitialise({ mapDivID: "mapIMDD3" });
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();
 
@@ -126,7 +133,7 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
     refreshGeoChart();
 
     gpDetails.then(() => {
-      mapMainPopupText.updatePopUpText(); // Main practice site popup text. Requires practiceLookup
+      mapMainGPMarkers.updatePopUpText(); // Main practice site popup text. Requires practiceLookup
     });
 
     Promise.allSettled([promHospitalDetails, promGeoDataCYCWards]).then(() => {

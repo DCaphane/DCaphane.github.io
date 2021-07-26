@@ -86,10 +86,9 @@ const promDataGPPopn = d3
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 let // geo coded data
   geoDataGP,
-  geoDataPCN,
-  geoDataPCNSites,
+  // geoDataPCNSites, // this can be dropped
   geoDataCYCWards,
-  geoDataCCGBoundary,
+  // geoDataCCGBoundary,
   geoDataLsoaBoundaries,
   geoDateLsoaPopnCentroid,
   dataIMD; // not geo data but only used in map chart
@@ -98,17 +97,14 @@ let // geo coded data
 
 // Promises to import the geo data
 
-const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson")
-
+const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson");
 
 const promGeoDataPCN = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"), //d3.json("Data/geo/pcn/primary_care_networks.geojson"),
-  promGeoDataPCNSites = d3.json(
-    "Data/geo/pcn/primary_care_network_sites.geojson"
-  ),
+  // promGeoDataPCNSites = d3.json(
+  //   "Data/geo/pcn/primary_care_network_sites.geojson"
+  // ),
   promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.geojson"),
-  promGeoDataCCGBoundary = d3.json(
-    "Data/geo/ccg_boundary_03Q_simple20.geojson"
-  ),
+  promGeoVoYBoundary = d3.json("Data/geo/ccg_boundary_03Q_simple20.geojson"),
   promGeoDataLsoaBoundaries = d3.json(
     "Data/geo/lsoa_gp_selected_simple20cp6.geojson"
   ),
@@ -134,9 +130,6 @@ const promGeoDataPCN = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"), //d3.js
 const importGeoData = (async function displayContent() {
   await Promise.allSettled([
     promGeoDataPCN,
-    promGeoDataPCNSites,
-    promGeoDataCYCWards,
-    promGeoDataCCGBoundary,
     promGeoDataLsoaBoundaries,
     promGeoDateLsoaPopnCentroid,
     promDataIMD,
@@ -145,16 +138,13 @@ const importGeoData = (async function displayContent() {
   ])
     .then((values) => {
       // if (values[0].status === "fulfilled") {
-      geoDataPCN = values[0].value;
+      geoDataGP = values[0].value;
       // }
-      geoDataPCNSites = values[1].value;
-      geoDataCYCWards = values[2].value;
-      geoDataCCGBoundary = values[3].value;
-      geoDataLsoaBoundaries = values[4].value;
-      geoDateLsoaPopnCentroid = values[5].value;
-      dataIMD = values[6].value;
-      // promHospitalDetails is 7
-      // gpDetails = values[8].value;
+      geoDataLsoaBoundaries = values[1].value;
+      geoDateLsoaPopnCentroid = values[2].value;
+      dataIMD = values[3].value;
+      // promHospitalDetails is 5
+      // gpDetails = values[6].value;
     })
     .then(() => {
       // Assumption here that everything in other scripts is declared before this step...
@@ -175,8 +165,8 @@ function initD3Charts() {
 
 function initGeoCharts() {
   // from map_GP_MainSite.js
-  addWardGroupsToMap.call(mapMain);
-  mapMainPopupText = addPracticeToMap.call(mapMain);
+  // addWardGroupsToMap.call(mapMain);
+  mapMainGPMarkers = addPracticeToMap.call(mapMain);
   gpSites();
 }
 
@@ -185,7 +175,7 @@ function refreshGeoChart() {
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  ccgBoundary(true);
+  // ccgBoundary(true);
   mapMarkersNationalTrust();
 }
 
@@ -217,7 +207,7 @@ function refreshChartsPostPracticeChange(practice) {
 }
 
 function refreshChartsPostDateChange() {
-  mapMainPopupText.updatePopUpText()
+  mapMainGPMarkers.updatePopUpText();
   demographicChart.updateChtDemog(
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare
