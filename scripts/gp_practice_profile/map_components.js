@@ -17,6 +17,7 @@ function mapInitialise({
   mapDivID, // divID where map will be placed
   userOverlayCCGBoundary = {}, // = { inc: false, display: false, zoomExtent: true },
   userOverlayWardBoundary = {},
+  userOverlayNationalTrusts = false,
 } = {}) {
   // Default options
   // for showing the CCG(03Q) boundary
@@ -421,7 +422,7 @@ function mapInitialise({
 
       if (overlayWardBoundary.inc || overlayWardBoundary.display) {
         const ol = overlayWards(layersMapWards);
-        overlaysTreeMain.children[8] = ol;
+        overlays.children[8] = ol;
       }
 
       // zoom option here
@@ -430,6 +431,89 @@ function mapInitialise({
       }
     });
   }
+
+
+  if (userOverlayNationalTrusts) {
+    promHospitalDetails.then((data) => {
+  // Styling: https://gis.stackexchange.com/a/360454
+  const nhsTrustSites = L.conditionalMarkers([]),
+    nonNhsTrustSites = L.conditionalMarkers([]);
+
+    let i = 0,
+    j = 0; // counter for number of providers in each category
+
+    data.forEach((d) => {
+      const category = d.sector;
+      const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
+        <p>${d.parentODSCode}: ${d.parentName}
+        <br>${d.sector}</p>`;
+
+      if (category === "NHS Sector") {
+        const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+        marker.addTo(nhsTrustSites);
+        i++;
+      } else {
+        // Independent Sector
+        const marker = trustMarker(
+          d.markerPosition,
+          "independent",
+          "H",
+          popupText
+        );
+        marker.addTo(nonNhsTrustSites);
+        j++;
+      }
+    });
+
+    // This option controls how many markers can be displayed
+    nhsTrustSites.options.maxMarkers = i;
+    nonNhsTrustSites.options.maxMarkers = j;
+
+    // Overlay structure for Trust Sites
+    const nationalTrusts = overlayNationalTrusts(nhsTrustSites, nonNhsTrustSites);
+
+    // Add overlay to mapMain
+    overlays.children[9] = nationalTrusts;
+
+    function trustMarker(position, className, text = "H", popupText) {
+      return L.marker(position, {
+        icon: L.divIcon({
+          className: `trust-marker ${className}`,
+          html: text,
+          iconSize: L.point(20, 20),
+          popupAnchor: [0, -10],
+        }),
+      }).bindPopup(popupText);
+    }
+
+    function overlayNationalTrusts(nhs, independent) {
+      return {
+        label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
+        selectAllCheckbox: true,
+        children: [
+          {
+            label:
+              "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
+            layer: nhs,
+          },
+          {
+            label:
+              "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
+            layer: independent,
+          },
+        ],
+      };
+    }
+
+
+    })
+  }
+
+
+
+
+
+
 
   return {
     map: thisMap,
@@ -713,7 +797,6 @@ function gpSites(zoomToExtent = false) {
   overlaysTreePopn.children[4] = ol1;
 
   mapWithSites.set(mapSites.map, gpSitesMap); // keep track of which maps include GP Sites
-  // mapWithSites.set(mapPopn.map, popnSitesMap); // do not try to use across multiple maps - need to replicate
   if (zoomToExtent) {
     mapSites.map.fitBounds(gpSitesMap.getBounds());
     // mapPopn.map.fitBounds(popnSitesMap.getBounds());
@@ -1380,7 +1463,6 @@ function refreshMapOverlayControls() {
 //     // mapD3Bubble.map.fitBounds(ccgBoundaryCopy4.getBounds());
 //   }
 // }
-
 
 // const layersMapWards = new Map();
 

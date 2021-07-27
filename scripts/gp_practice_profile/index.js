@@ -165,7 +165,6 @@ function initD3Charts() {
 
 function initGeoCharts() {
   // from map_GP_MainSite.js
-  // addWardGroupsToMap.call(mapMain);
   mapMainGPMarkers = addPracticeToMap.call(mapMain);
   gpSites();
 }
@@ -175,8 +174,7 @@ function refreshGeoChart() {
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  // ccgBoundary(true);
-  mapMarkersNationalTrust();
+
 }
 
 function refreshChartsPostPracticeChange(practice) {

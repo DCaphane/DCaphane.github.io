@@ -7,7 +7,8 @@ const mapOverlays = new Map();
 const mapMain = mapInitialise({
   mapDivID: "mapMain", // mapMain is the div id to place the map
   userOverlayCCGBoundary: { display: true },
-  userOverlayWardBoundary: { inc: true, display: true },
+  userOverlayWardBoundary: { inc: true },
+  userOverlayNationalTrusts: true,
 });
 mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 // mapMain.home = {lat: 54.018213, lng: -10.0} // can change the home button position
