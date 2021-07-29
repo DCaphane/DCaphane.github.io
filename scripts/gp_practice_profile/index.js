@@ -84,25 +84,11 @@ const promDataGPPopn = d3
     });
 
 // Export geojson data layers as: EPSG: 4326 - WGS 84
-let // geo coded data
-  geoDataGP,
-  // geoDataPCNSites, // this can be dropped
-  geoDataCYCWards,
-  // geoDataCCGBoundary,
-  geoDataLsoaBoundaries,
-  geoDateLsoaPopnCentroid,
-  dataIMD; // not geo data but only used in map chart
-// Organisation Data
-// hospitalDetails; -- handled in map object
+let geoDataLsoaBoundaries, geoDateLsoaPopnCentroid, dataIMD; // not geo data but only used in map chart
 
 // Promises to import the geo data
 
-const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson");
-
-const promGeoDataPCN = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"), //d3.json("Data/geo/pcn/primary_care_networks.geojson"),
-  // promGeoDataPCNSites = d3.json(
-  //   "Data/geo/pcn/primary_care_network_sites.geojson"
-  // ),
+const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
   promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.geojson"),
   promGeoVoYBoundary = d3.json("Data/geo/ccg_boundary_03Q_simple20.geojson"),
   promGeoDataLsoaBoundaries = d3.json(
@@ -129,22 +115,16 @@ const promGeoDataPCN = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"), //d3.js
 // Upload Data
 const importGeoData = (async function displayContent() {
   await Promise.allSettled([
-    promGeoDataPCN,
     promGeoDataLsoaBoundaries,
     promGeoDateLsoaPopnCentroid,
     promDataIMD,
-    // promHospitalDetails,
-    // promGPPracticeDetails,
   ])
     .then((values) => {
       // if (values[0].status === "fulfilled") {
-      geoDataGP = values[0].value;
+      geoDataLsoaBoundaries = values[0].value;
       // }
-      geoDataLsoaBoundaries = values[1].value;
-      geoDateLsoaPopnCentroid = values[2].value;
-      dataIMD = values[3].value;
-      // promHospitalDetails is 5
-      // gpDetails = values[6].value;
+      geoDateLsoaPopnCentroid = values[1].value;
+      dataIMD = values[2].value;
     })
     .then(() => {
       // Assumption here that everything in other scripts is declared before this step...
@@ -163,18 +143,11 @@ function initD3Charts() {
   demographicChart.updateChtDemog();
 }
 
-function initGeoCharts() {
-  // from map_GP_MainSite.js
-  mapMainGPMarkers = addPracticeToMap.call(mapMain);
-  gpSites();
-}
-
 function refreshGeoChart() {
   lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
   L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-
 }
 
 function refreshChartsPostPracticeChange(practice) {
@@ -193,7 +166,7 @@ function refreshChartsPostPracticeChange(practice) {
     userSelections.selectedPracticeCompare
   );
 
-  filterGPPracticeSites.call(mapSites, true);
+  filterGPPracticeSites();
 
   recolourLSOA();
   recolourIMDLayer(imdDomainShort);
@@ -205,7 +178,9 @@ function refreshChartsPostPracticeChange(practice) {
 }
 
 function refreshChartsPostDateChange() {
-  mapMainGPMarkers.updatePopUpText();
+  for (const value of mapsWithGPMain.values()) {
+    updatePopUpText(value[0]);
+  }
   demographicChart.updateChtDemog(
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare

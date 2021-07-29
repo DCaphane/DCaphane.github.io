@@ -13,13 +13,36 @@ https://github.com/nickpeihl/leaflet-sidebar-v2
 // Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
 
+// Keep track of which maps contain
+const mapsWithGPMain = new Map();
+const mapsWithGPSites = new Map(); // set of maps that include site codes
+/*
+Can use like the following:
+updatePopUpText(mapsWithGPMain.get(mapMain.map)[0])
+*/
+
 function mapInitialise({
   mapDivID, // divID where map will be placed
+  userOverlayGPMain = {},
+  userOverlayGPSites = {},
   userOverlayCCGBoundary = {}, // = { inc: false, display: false, zoomExtent: true },
   userOverlayWardBoundary = {},
   userOverlayNationalTrusts = false,
 } = {}) {
   // Default options
+
+  // for showing the GP Practice Main Site only
+  const overlayGPMain = Object.assign(
+    { inc: false, display: false, zoomExtent: false },
+    userOverlayGPMain
+  );
+
+  // for showing the GP Practice Branch and Main Sites
+  const overlayGPSites = Object.assign(
+    { inc: false, display: false, zoomExtent: false },
+    userOverlayGPSites
+  );
+
   // for showing the CCG(03Q) boundary
   const overlayCCGBoundary = Object.assign(
     { inc: true, display: false, zoomExtent: true },
@@ -33,7 +56,6 @@ function mapInitialise({
   );
 
   // for initialising maps
-  console.log(overlayCCGBoundary);
   const thisMap = L.map(mapDivID, {
     preferCanvas: true,
     // https://www.openstreetmap.org/#map=9/53.9684/-1.0827
@@ -363,7 +385,134 @@ function mapInitialise({
       .addTo(thisMap);
   }
 
-  // Do you want to include the CCG Boundary layer (option to display is later)
+  // Option to include the main GP Practice Site
+  if (overlayGPMain.inc || overlayGPMain.zoomExtent) {
+    Promise.allSettled([promGeoDataGP]).then((data) => {
+      const layersMapGpMain = new Map();
+      const practiceMain = L.geoJSON(data[0].value, {
+        pointToLayer: function (feature, latlng) {
+          return pcnFormatting(feature, latlng, { addBounce: true });
+        },
+        onEachFeature: function (feature, layer) {
+          layer.bindPopup("", { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+          layer.on("mouseover", function (e) {
+            this.openPopup();
+          });
+          layer.on("mouseout", function (e) {
+            this.closePopup();
+          });
+          layer.on("click", function (e) {
+            // console.log(e.sourceTarget.feature.properties.practice_code);
+            const selectedPractice = feature.properties.orgCode;
+            if (userSelections.selectedPractice !== selectedPractice) {
+              // update the Practice in userSelections
+              userSelections.selectedPractice = selectedPractice;
+              // update other charts
+              refreshChartsPostPracticeChange(selectedPractice);
+            }
+          });
+
+          const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+          // Initialize the category array if not already set.
+          if (!layersMapGpMain.has(category)) {
+            layersMapGpMain.set(category, L.layerGroup());
+          }
+          layersMapGpMain.get(category).addLayer(layer);
+        },
+        filter: function (d) {
+          if (d.properties.type === "main") return true;
+        },
+      });
+
+      // layersMapBoundaries.set("voyCCGMain", ccgBoundary);
+      if (overlayGPMain.display) {
+        L.layerGroup(Array.from(layersMapGpMain.values())).addTo(thisMap);
+      }
+
+      if (overlayGPMain.inc || overlayGPMain.display) {
+        const ol = overlayPCNs(layersMapGpMain); // function to align sites by pcn to overlay tree
+        overlays.children[1] = ol; // switch to last item in array at run time, -1
+      }
+
+      // zoom option here
+      if (overlayGPMain.zoomExtent) {
+        thisMap.fitBounds(practiceMain.getBounds());
+      }
+
+      if (overlayGPMain.inc) {
+        mapsWithGPMain.set(thisMap, [practiceMain, layersMapGpMain]);
+      }
+    });
+  }
+
+  // Option to include the GP Practice branch and main Sites
+  if (overlayGPSites.inc || overlayGPSites.zoomExtent) {
+    Promise.allSettled([promGeoDataGP, gpDetails]).then((data) => {
+      const layersMapGpSites = new Map();
+      const gpSites = L.geoJSON(data[0].value, {
+        pointToLayer: function (feature, latlng) {
+          return pcnFormatting(feature, latlng);
+        },
+        onEachFeature: function (feature, layer) {
+          const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+          let orgName = layer.feature.properties.orgName;
+          if (orgName === null) {
+            if (practiceLookup.has(layer.feature.properties.orgCode)) {
+              orgName = titleCase(
+                practiceLookup.get(layer.feature.properties.orgCode)
+              );
+            } else {
+              orgName = "";
+            }
+          }
+
+          const popupText = `<h3>${category}</h3>
+        <p>${layer.feature.properties.orgCode}: ${orgName}
+        <br>Parent Org:${layer.feature.properties.parent}</p>`;
+
+          layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+          layer.on("mouseover", function (e) {
+            this.openPopup();
+          });
+          layer.on("mouseout", function (e) {
+            this.closePopup();
+          });
+          layer.on("click", function (e) {
+            thisMap.setView(e.latlng, 11);
+            console.log({ selectedSite: layer.feature.properties.orgCode });
+          });
+
+          // Initialize the category array if not already set.
+          if (!layersMapGpSites.has(category)) {
+            layersMapGpSites.set(category, L.layerGroup());
+          }
+          layersMapGpSites.get(category).addLayer(layer);
+        },
+      });
+
+      // Initialize the category array if not already set.
+      const gpSitesLayer = L.layerGroup(Array.from(layersMapGpSites.values()));
+      if (overlayGPSites.display) {
+        gpSitesLayer.addTo(thisMap);
+      }
+
+      if (overlayGPSites.inc || overlayGPSites.display) {
+        const ol = overlayPCNs(layersMapGpSites); // function to align sites by pcn to overlay tree
+        overlays.children[12] = ol; // switch to last item in array at run time, -1
+      }
+
+      // zoom option here
+      if (overlayGPSites.zoomExtent) {
+        thisMap.fitBounds(gpSites.getBounds());
+      }
+
+      if (overlayGPSites.inc) {
+        mapsWithGPSites.set(thisMap, [gpSitesLayer]); // add as an array to subsequently inc a filtered layer
+      }
+    });
+  }
+
+  // Option to include the CCG Boundary layer (option to display is later)
   if (overlayCCGBoundary.inc || overlayCCGBoundary.zoomExtent) {
     Promise.allSettled([promGeoVoYBoundary]).then((ccgBoundaries) => {
       const ccgBoundary = L.geoJSON(ccgBoundaries[0].value, {
@@ -432,88 +581,82 @@ function mapInitialise({
     });
   }
 
-
   if (userOverlayNationalTrusts) {
     promHospitalDetails.then((data) => {
-  // Styling: https://gis.stackexchange.com/a/360454
-  const nhsTrustSites = L.conditionalMarkers([]),
-    nonNhsTrustSites = L.conditionalMarkers([]);
+      // Styling: https://gis.stackexchange.com/a/360454
+      const nhsTrustSites = L.conditionalMarkers([]),
+        nonNhsTrustSites = L.conditionalMarkers([]);
 
-    let i = 0,
-    j = 0; // counter for number of providers in each category
+      let i = 0,
+        j = 0; // counter for number of providers in each category
 
-    data.forEach((d) => {
-      const category = d.sector;
-      const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
+      data.forEach((d) => {
+        const category = d.sector;
+        const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
         <p>${d.parentODSCode}: ${d.parentName}
         <br>${d.sector}</p>`;
 
-      if (category === "NHS Sector") {
-        const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
-        marker.addTo(nhsTrustSites);
-        i++;
-      } else {
-        // Independent Sector
-        const marker = trustMarker(
-          d.markerPosition,
-          "independent",
-          "H",
-          popupText
-        );
-        marker.addTo(nonNhsTrustSites);
-        j++;
+        if (category === "NHS Sector") {
+          const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+          marker.addTo(nhsTrustSites);
+          i++;
+        } else {
+          // Independent Sector
+          const marker = trustMarker(
+            d.markerPosition,
+            "independent",
+            "H",
+            popupText
+          );
+          marker.addTo(nonNhsTrustSites);
+          j++;
+        }
+      });
+
+      // This option controls how many markers can be displayed
+      nhsTrustSites.options.maxMarkers = i;
+      nonNhsTrustSites.options.maxMarkers = j;
+
+      // Overlay structure for Trust Sites
+      const nationalTrusts = overlayNationalTrusts(
+        nhsTrustSites,
+        nonNhsTrustSites
+      );
+
+      // Add overlay to mapMain
+      overlays.children[9] = nationalTrusts;
+
+      function trustMarker(position, className, text = "H", popupText) {
+        return L.marker(position, {
+          icon: L.divIcon({
+            className: `trust-marker ${className}`,
+            html: text,
+            iconSize: L.point(20, 20),
+            popupAnchor: [0, -10],
+          }),
+        }).bindPopup(popupText);
+      }
+
+      function overlayNationalTrusts(nhs, independent) {
+        return {
+          label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
+          selectAllCheckbox: true,
+          children: [
+            {
+              label:
+                "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
+              layer: nhs,
+            },
+            {
+              label:
+                "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
+              layer: independent,
+            },
+          ],
+        };
       }
     });
-
-    // This option controls how many markers can be displayed
-    nhsTrustSites.options.maxMarkers = i;
-    nonNhsTrustSites.options.maxMarkers = j;
-
-    // Overlay structure for Trust Sites
-    const nationalTrusts = overlayNationalTrusts(nhsTrustSites, nonNhsTrustSites);
-
-    // Add overlay to mapMain
-    overlays.children[9] = nationalTrusts;
-
-    function trustMarker(position, className, text = "H", popupText) {
-      return L.marker(position, {
-        icon: L.divIcon({
-          className: `trust-marker ${className}`,
-          html: text,
-          iconSize: L.point(20, 20),
-          popupAnchor: [0, -10],
-        }),
-      }).bindPopup(popupText);
-    }
-
-    function overlayNationalTrusts(nhs, independent) {
-      return {
-        label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
-        selectAllCheckbox: true,
-        children: [
-          {
-            label:
-              "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
-            layer: nhs,
-          },
-          {
-            label:
-              "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
-            layer: independent,
-          },
-        ],
-      };
-    }
-
-
-    })
   }
-
-
-
-
-
-
 
   return {
     map: thisMap,
@@ -527,6 +670,31 @@ function mapInitialise({
     overlays: overlays,
     layerControl: layerControl,
   };
+}
+
+// Popup text for the gp markers. This updates with the change in date to give the relevant population figure
+function updatePopUpText(sourceLayer) {
+  sourceLayer.eachLayer(function (layer) {
+    const period = userSelections.selectedDate,
+      practiceCode = layer.feature.properties.orgCode,
+      // clinicalDirector = layer.feature.properties.clinical_director,
+      pcnName = layer.feature.properties.pcn_name,
+      population = dataPopulationGPSummary.get(period).get(practiceCode);
+
+    let practiceName;
+    if (practiceLookup.has(practiceCode)) {
+      practiceName = titleCase(practiceLookup.get(practiceCode));
+    } else {
+      practiceName = "";
+    }
+
+    const popupText = `<h3>${pcnName}</h3>
+      <p>${practiceCode}: ${practiceName}
+      <br>Population: ${formatNumber(population)}</p>`;
+    // <br>Clinical Director: ${clinicalDirector}
+
+    layer.setPopupContent(popupText);
+  });
 }
 
 // consider incorporating this into mapinit
@@ -594,86 +762,6 @@ function yorkTrust() {
 //   ).addTo(map);
 // }
 
-function addPracticeToMap(zoomToExtent = false) {
-  const map = this.map;
-  const layersMapGpMain = new Map();
-
-  const practiceMain = L.geoJson(geoDataGP, {
-    // https://leafletjs.com/reference-1.7.1.html#geojson
-    pointToLayer: function (feature, latlng) {
-      return pcnFormatting(feature, latlng, { addBounce: true });
-    },
-    onEachFeature: function (feature, layer) {
-      // popup text applied here: mapMainPopupText.updatePopUpText()
-      layer.bindPopup("", { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
-      layer.on("click", function (e) {
-        // console.log(e.sourceTarget.feature.properties.practice_code);
-        const selectedPractice = feature.properties.orgCode;
-        if (userSelections.selectedPractice !== selectedPractice) {
-          // update the Practice in userSelections
-          userSelections.selectedPractice = selectedPractice;
-          // update other charts
-          refreshChartsPostPracticeChange(selectedPractice);
-        }
-      });
-
-      const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
-      // Initialize the category array if not already set.
-      if (!layersMapGpMain.has(category)) {
-        layersMapGpMain.set(category, L.layerGroup());
-      }
-      layersMapGpMain.get(category).addLayer(layer);
-    },
-    filter: function (d) {
-      if (d.properties.type === "main") return true;
-    },
-  });
-  L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
-
-  // Add to overlay control
-  const ol = overlayPCNs(layersMapGpMain); // function to align sites by pcn to overlay tree
-  overlaysTreeMain.children[0] = ol;
-
-  if (zoomToExtent) {
-    map.fitBounds(practiceMain.getBounds());
-  }
-
-  function updatePopUpText() {
-    practiceMain.eachLayer(function (layer) {
-      const period = userSelections.selectedDate,
-        practiceCode = layer.feature.properties.orgCode,
-        // clinicalDirector = layer.feature.properties.clinical_director,
-        pcnName = layer.feature.properties.pcn_name,
-        population = dataPopulationGPSummary.get(period).get(practiceCode);
-
-      let practiceName;
-      if (practiceLookup.has(practiceCode)) {
-        practiceName = titleCase(practiceLookup.get(practiceCode));
-      } else {
-        practiceName = "";
-      }
-
-      const popupText = `<h3>${pcnName}</h3>
-        <p>${practiceCode}: ${practiceName}
-        <br>Population: ${formatNumber(population)}</p>`;
-      // <br>Clinical Director: ${clinicalDirector}
-
-      layer.setPopupContent(popupText);
-    });
-  }
-
-  return {
-    layersMapGpMain: layersMapGpMain,
-    updatePopUpText: updatePopUpText,
-  };
-}
-
 /*
 Define options of bouncing for all markers
 https://github.com/hosuaby/Leaflet.SmoothMarkerBouncing#options-of-bouncing
@@ -707,174 +795,118 @@ function updateBouncingMarkers() {
   L.Marker.stopAllBouncingMarkers();
 
   // array of layers in the mapMain
-  const arr = Array.from(mapMainGPMarkers.layersMapGpMain.values());
-  arr.forEach(function (test) {
-    let obj = test._layers;
-    Object.values(obj).forEach(function (val) {
-      const gpPractice = val.feature.properties.orgCode;
-      const marker = val._bouncingMotion.marker;
-      if (gpPractice === userSelections.selectedPractice) {
-        marker.bounce(); // starts/stops bouncing of the marker
-      }
+  // mapsWithGPMain.forEach(function (value, key) {
+  for (const value of mapsWithGPMain.values()) {
+    const arr = Array.from(value[1].values());
+    arr.forEach(function (test) {
+      let obj = test._layers;
+      Object.values(obj).forEach(function (val) {
+        const gpPractice = val.feature.properties.orgCode;
+        const marker = val._bouncingMotion.marker;
+        if (gpPractice === userSelections.selectedPractice) {
+          marker.bounce(); // starts/stops bouncing of the marker
+        }
+      });
     });
-  });
-}
-
-const layersMapGPSites = new Map();
-const layersMapPopn = new Map();
-const mapWithSites = new Map(); // set of maps that include site codes
-
-function gpSites(zoomToExtent = false) {
-  // This add the GP Sites layer in its entirety
-  // const map = this.map;
-  const sitesLayer = L.geoJson(geoDataGP, {
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
-      const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-        <p>${layer.feature.properties.orgCode}: ${layer.feature.properties.orgName}
-        <br>Parent Org:${layer.feature.properties.parent}</p>`;
-
-      layer.bindPopup(popupText, { className: "popup-dark" });
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
-      layer.on("click", function (e) {
-        mapSites.map.setView(e.latlng, 11);
-        console.log(layer.feature.properties.orgCode);
-      });
-
-      // Initialize the category array if not already set.
-      if (!layersMapGPSites.has(category)) {
-        layersMapGPSites.set(category, L.layerGroup());
-      }
-      layersMapGPSites.get(category).addLayer(layer);
-    },
-  });
-
-  const popnLayer = L.geoJson(geoDataGP, {
-    pointToLayer: pcnFormatting,
-    onEachFeature: function (feature, layer) {
-      const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
-      const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
-        <p>${layer.feature.properties.orgCode}: ${layer.feature.properties.orgName}
-        <br>Parent Org:${layer.feature.properties.parent}</p>`;
-
-      layer.bindPopup(popupText);
-      layer.on("mouseover", function (e) {
-        this.openPopup();
-      });
-      layer.on("mouseout", function (e) {
-        this.closePopup();
-      });
-      layer.on("click", function (e) {
-        // update other charts
-        mapPopn.map.setView(e.latlng, 11);
-        console.log(layer.feature.properties.orgCode);
-      });
-
-      // Initialize the category array if not already set.
-      if (!layersMapPopn.has(category)) {
-        layersMapPopn.set(category, L.layerGroup());
-      }
-      layersMapPopn.get(category).addLayer(layer);
-    },
-  });
-
-  const gpSitesMap = L.layerGroup(Array.from(layersMapGPSites.values()));
-  gpSitesMap.addTo(mapSites.map);
-
-  const popnSitesMap = L.layerGroup(Array.from(layersMapPopn.values()));
-  popnSitesMap.addTo(mapPopn.map);
-
-  const ol = overlayPCNs(layersMapGPSites);
-  overlaysTreeSites.children[2] = ol;
-
-  const ol1 = overlayPCNs(layersMapPopn);
-  overlaysTreePopn.children[4] = ol1;
-
-  mapWithSites.set(mapSites.map, gpSitesMap); // keep track of which maps include GP Sites
-  if (zoomToExtent) {
-    mapSites.map.fitBounds(gpSitesMap.getBounds());
-    // mapPopn.map.fitBounds(popnSitesMap.getBounds());
   }
 }
 
 function filterGPPracticeSites(zoomToExtent = false) {
   /* This will deselect the 'entire' GP Sites layer
-  and return the filtered layer based on the selected practice
+  and return an additional filtered layer based on the selected practice
   */
-  const map = this.map;
-  mapWithSites.forEach(function (value, key) {
-    if (key.hasLayer(value)) {
-      key.removeLayer(value);
-    }
 
-    const gpSites = L.geoJson(geoDataGP, {
-      // https://leafletjs.com/reference-1.7.1.html#geojson
-      pointToLayer: pcnFormatting,
-      onEachFeature: function (feature, layer) {
-        const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+  Promise.allSettled([promGeoDataGP]).then((data) => {
+    mapsWithGPSites.forEach(function (value, key) {
+      // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
+
+      if (key.hasLayer(value[0])) {
+        // the original sites layer
+        key.removeLayer(value[0]);
+      }
+
+      // the filtered sites layer
+      if (value.length === 2) {
+        if (key.hasLayer(value[1])) {
+          key.removeLayer(value[1]);
+        }
+        value.pop(); // not necessary as will be overwritten?
+      }
+
+      if (
+        userSelections.selectedPractice !== undefined &&
+        userSelections.selectedPractice !== "All Practices"
+      ) {
+        const layersMapGpSites = new Map(); // will be the filtered layer
+
+        const gpSites = L.geoJson(data[0].value, {
+          // https://leafletjs.com/reference-1.7.1.html#geojson
+          pointToLayer: function (feature, latlng) {
+            return pcnFormatting(feature, latlng);
+          },
+          onEachFeature: function (feature, layer) {
+            const category = feature.properties.pcn_name;
+            const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
         <p>${layer.feature.properties.orgCode}:
         ${layer.feature.properties.orgName}
         <br>Parent Org:${layer.feature.properties.parent}</p>`;
 
-        layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+            layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
 
-        layer.on("mouseover", function (e) {
-          this.openPopup();
-        });
-        layer.on("mouseout", function (e) {
-          this.closePopup();
-        });
-        // layer.on("click", function (e) {
-        // });
-      },
-      filter: function (d) {
-        // match site codes based on 6 char GP practice code
-        const strPractice = d.properties.orgCode;
+            layer.on("mouseover", function (e) {
+              this.openPopup();
+            });
+            layer.on("mouseout", function (e) {
+              this.closePopup();
+            });
+            // layer.on("click", function (e) {
+            // });
+            // Initialize the category array if not already set.
+            if (!layersMapGpSites.has(category)) {
+              layersMapGpSites.set(category, L.layerGroup());
+            }
+            layersMapGpSites.get(category).addLayer(layer);
+          },
+          filter: function (d) {
+            // match site codes based on 6 char GP practice code
+            const strPractice = d.properties.orgCode;
 
-        if (
-          userSelections.selectedPractice !== undefined &&
-          userSelections.selectedPractice !== "All Practices"
-        ) {
-          return strPractice.substring(0, 6) ===
-            userSelections.selectedPractice.substring(0, 6)
-            ? true
-            : false;
-        } else {
-          return true; // return all practice sites if none selected
-        }
-      },
+            return strPractice.substring(0, 6) ===
+              userSelections.selectedPractice.substring(0, 6)
+              ? true
+              : false;
+          },
+        });
+
+        // key is the map we are working with
+        gpSites.addTo(key);
+
+        value.push(gpSites); // append the filtered layer
+        mapsWithGPSites.set(key, value);
+
+        // const overlayFilteredSites = {
+        //   label: `${userSelections.selectedPractice} Sites`,
+        //   layer: gpSites,
+        //   selectAllCheckbox: false,
+        //   // children: [
+        //   //   {
+        //   //     label: "test Desc",
+        //   //     layer: gpSites,
+        //   //   },
+        //   // ],
+        // };
+        // key.overlays.children[12] = overlayFilteredSites;
+
+        // if (zoomToExtent) {
+        key.fitBounds(gpSites.getBounds().pad(0.1));
+        // }
+      } else {
+        // reset to show all sites
+        key.addLayer(value[0]);
+        key.fitBounds(value[0].getBounds().pad(0.1));
+      }
     });
-
-    gpSites.addTo(map);
-    mapWithSites.set(map, gpSites); // keep track of which maps include GP Sites
-
-    const overlayFilteredSites = {
-      label: `${userSelections.selectedPractice} Sites`,
-      layer: gpSites,
-      selectAllCheckbox: false,
-      // children: [
-      //   {
-      //     label: "test Desc",
-      //     layer: gpSites,
-      //   },
-      // ],
-    };
-    overlaysTreeSites.children[3] = overlayFilteredSites;
-
-    mapControlSites
-      .setOverlayTree(overlaysTreeSites)
-      .collapseTree() // collapse the baselayers tree
-      .collapseTree(true);
-
-    if (zoomToExtent) {
-      map.fitBounds(gpSites.getBounds().pad(0.1));
-    }
+    refreshMapOverlayControls();
   });
 }
 
@@ -1009,28 +1041,30 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     map.map.removeLayer(highlightedPractice);
   }
 
-  highlightedPractice = L.geoJSON(geoDataGP, {
-    pointToLayer: function (feature, latlng) {
-      if (feature.properties.orgCode === selPractice) {
-        return (markerLayer = L.marker(latlng, {
-          icon: arrHighlightIcons[5],
-          zIndexOffset: -5,
-        }));
+  Promise.allSettled([promGeoDataGP]).then((data) => {
+    highlightedPractice = L.geoJSON(data[0].value, {
+      pointToLayer: function (feature, latlng) {
+        if (feature.properties.orgCode === selPractice) {
+          return (markerLayer = L.marker(latlng, {
+            icon: arrHighlightIcons[5],
+            zIndexOffset: -5,
+          }));
+        }
+      },
+    });
+
+    if (selPractice === "All Practices" || selPractice === undefined) {
+      defaultHomeVoY.call(mapMain);
+    } else {
+      map.map.addLayer(highlightedPractice);
+
+      if (zoomToExtent) {
+        // map.map.fitBounds(highlightedPractice.getBounds());
+        const practiceLocation = highlightedPractice.getBounds().getCenter();
+        map.map.setView(practiceLocation, 10);
       }
-    },
-  });
-
-  if (selPractice === "All Practices" || selPractice === undefined) {
-    defaultHomeVoY.call(mapMain);
-  } else {
-    map.map.addLayer(highlightedPractice);
-
-    if (zoomToExtent) {
-      // map.map.fitBounds(highlightedPractice.getBounds());
-      const practiceLocation = highlightedPractice.getBounds().getCenter();
-      map.map.setView(practiceLocation, 10);
     }
-  }
+  });
 }
 
 function overlayPCNs(mapObj) {
@@ -1487,5 +1521,167 @@ function refreshMapOverlayControls() {
 
 //   if (zoomToExtent) {
 //     map.fitBounds(wardBoundaries.getBounds());
+//   }
+// }
+
+// function addPracticeToMap(zoomToExtent = false) {
+//   const map = this.map;
+//   const layersMapGpMain = new Map();
+
+//   const practiceMain = L.geoJson(geoDataGP, {
+//     // https://leafletjs.com/reference-1.7.1.html#geojson
+//     pointToLayer: function (feature, latlng) {
+//       return pcnFormatting(feature, latlng, { addBounce: true });
+//     },
+//     onEachFeature: function (feature, layer) {
+//       // popup text applied here: mapMainPopupText.updatePopUpText()
+//       layer.bindPopup("", { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+//       layer.on("mouseover", function (e) {
+//         this.openPopup();
+//       });
+//       layer.on("mouseout", function (e) {
+//         this.closePopup();
+//       });
+//       layer.on("click", function (e) {
+//         // console.log(e.sourceTarget.feature.properties.practice_code);
+//         const selectedPractice = feature.properties.orgCode;
+//         if (userSelections.selectedPractice !== selectedPractice) {
+//           // update the Practice in userSelections
+//           userSelections.selectedPractice = selectedPractice;
+//           // update other charts
+//           refreshChartsPostPracticeChange(selectedPractice);
+//         }
+//       });
+
+//       const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. phc_no, practice_group etc
+//       // Initialize the category array if not already set.
+//       if (!layersMapGpMain.has(category)) {
+//         layersMapGpMain.set(category, L.layerGroup());
+//       }
+//       layersMapGpMain.get(category).addLayer(layer);
+//     },
+//     filter: function (d) {
+//       if (d.properties.type === "main") return true;
+//     },
+//   });
+//   L.layerGroup(Array.from(layersMapGpMain.values())).addTo(map);
+
+//   // Add to overlay control
+//   const ol = overlayPCNs(layersMapGpMain); // function to align sites by pcn to overlay tree
+//   overlaysTreeMain.children[0] = ol;
+
+//   if (zoomToExtent) {
+//     map.fitBounds(practiceMain.getBounds());
+//   }
+
+//   function updatePopUpText() {
+//     practiceMain.eachLayer(function (layer) {
+//       const period = userSelections.selectedDate,
+//         practiceCode = layer.feature.properties.orgCode,
+//         // clinicalDirector = layer.feature.properties.clinical_director,
+//         pcnName = layer.feature.properties.pcn_name,
+//         population = dataPopulationGPSummary.get(period).get(practiceCode);
+
+//       let practiceName;
+//       if (practiceLookup.has(practiceCode)) {
+//         practiceName = titleCase(practiceLookup.get(practiceCode));
+//       } else {
+//         practiceName = "";
+//       }
+
+//       const popupText = `<h3>${pcnName}</h3>
+//         <p>${practiceCode}: ${practiceName}
+//         <br>Population: ${formatNumber(population)}</p>`;
+//       // <br>Clinical Director: ${clinicalDirector}
+
+//       layer.setPopupContent(popupText);
+//     });
+//   }
+
+//   return {
+//     layersMapGpMain: layersMapGpMain,
+//     updatePopUpText: updatePopUpText,
+//   };
+// }
+
+// const layersMapGPSites = new Map();
+// const layersMapPopn = new Map();
+
+// function gpSites(zoomToExtent = false) {
+//   // This add the GP Sites layer in its entirety
+//   // const map = this.map;
+//   const sitesLayer = L.geoJson(geoDataGP, {
+//     pointToLayer: pcnFormatting,
+//     onEachFeature: function (feature, layer) {
+//       const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+//       const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+//         <p>${layer.feature.properties.orgCode}: ${layer.feature.properties.orgName}
+//         <br>Parent Org:${layer.feature.properties.parent}</p>`;
+
+//       layer.bindPopup(popupText, { className: "popup-dark" });
+//       layer.on("mouseover", function (e) {
+//         this.openPopup();
+//       });
+//       layer.on("mouseout", function (e) {
+//         this.closePopup();
+//       });
+//       layer.on("click", function (e) {
+//         mapSites.map.setView(e.latlng, 11);
+//         console.log(layer.feature.properties.orgCode);
+//       });
+
+//       // Initialize the category array if not already set.
+//       if (!layersMapGPSites.has(category)) {
+//         layersMapGPSites.set(category, L.layerGroup());
+//       }
+//       layersMapGPSites.get(category).addLayer(layer);
+//     },
+//   });
+
+//   const popnLayer = L.geoJson(geoDataGP, {
+//     pointToLayer: pcnFormatting,
+//     onEachFeature: function (feature, layer) {
+//       const category = feature.properties.pcn_name; // category variable, used to store the distinct feature eg. pcn
+//       const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+//         <p>${layer.feature.properties.orgCode}: ${layer.feature.properties.orgName}
+//         <br>Parent Org:${layer.feature.properties.parent}</p>`;
+
+//       layer.bindPopup(popupText);
+//       layer.on("mouseover", function (e) {
+//         this.openPopup();
+//       });
+//       layer.on("mouseout", function (e) {
+//         this.closePopup();
+//       });
+//       layer.on("click", function (e) {
+//         // update other charts
+//         mapPopn.map.setView(e.latlng, 11);
+//         console.log(layer.feature.properties.orgCode);
+//       });
+
+//       // Initialize the category array if not already set.
+//       if (!layersMapPopn.has(category)) {
+//         layersMapPopn.set(category, L.layerGroup());
+//       }
+//       layersMapPopn.get(category).addLayer(layer);
+//     },
+//   });
+
+//   const gpSitesMap = L.layerGroup(Array.from(layersMapGPSites.values()));
+//   gpSitesMap.addTo(mapSites.map);
+
+//   const popnSitesMap = L.layerGroup(Array.from(layersMapPopn.values()));
+//   popnSitesMap.addTo(mapPopn.map);
+
+//   const ol = overlayPCNs(layersMapGPSites);
+//   overlaysTreeSites.children[2] = ol;
+
+//   const ol1 = overlayPCNs(layersMapPopn);
+//   overlaysTreePopn.children[4] = ol1;
+
+//   mapsWithGPSites.set(mapSites.map, gpSitesMap); // keep track of which maps include GP Sites
+//   if (zoomToExtent) {
+//     mapSites.map.fitBounds(gpSitesMap.getBounds());
+//     // mapPopn.map.fitBounds(popnSitesMap.getBounds());
 //   }
 // }

@@ -6,6 +6,7 @@ const mapOverlays = new Map();
 // GP Main Site Map
 const mapMain = mapInitialise({
   mapDivID: "mapMain", // mapMain is the div id to place the map
+  userOverlayGPMain: { inc: true, display: true },
   userOverlayCCGBoundary: { display: true },
   userOverlayWardBoundary: { inc: true },
   userOverlayNationalTrusts: true,
@@ -27,11 +28,11 @@ const mapControlMain = mapMain.layerControl(baseTreeMain, overlaysTreeMain);
 mapOverlays.set(mapControlMain, overlaysTreeMain);
 
 overlaysTreeMain.children[1] = overlayTrusts();
-let mapMainGPMarkers; // mapMainPopupText.updatePopUpText()
 
 // GP Associated Sites Map
 const mapSites = mapInitialise({
   mapDivID: "mapSites",
+  userOverlayGPSites: { inc: true, display: true },
   userOverlayCCGBoundary: { display: true },
 });
 mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
@@ -48,7 +49,10 @@ mapOverlays.set(mapControlSites, overlaysTreeSites);
 overlaysTreeSites.children[0] = overlayTrusts();
 
 // Population Map by lsoa
-const mapPopn = mapInitialise({ mapDivID: "mapPopnLSOA" });
+const mapPopn = mapInitialise({
+  mapDivID: "mapPopnLSOA",
+  userOverlayGPSites: { inc: true, display: true },
+});
 mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapPopn.homeButton();
 
@@ -105,7 +109,10 @@ Drawing points of interest using this demo:
 
 */
 
-const mapD3Bubble = mapInitialise({ mapDivID: "mapIMDD3" });
+const mapD3Bubble = mapInitialise({
+  mapDivID: "mapIMDD3",
+  // userOverlayGPMain: { inc: true, display: false },
+});
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();
 
@@ -129,12 +136,15 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
 
   Promise.allSettled([importGeoData]).then(() => {
     // The following require the above population data and the geoData
-    initGeoCharts();
     circlePopnIMDChart = imdDomainD3();
     refreshGeoChart();
 
-    gpDetails.then(() => {
-      mapMainGPMarkers.updatePopUpText(); // Main practice site popup text. Requires practiceLookup
+    Promise.allSettled([promGeoDataGP, gpDetails]).then(() => {
+      // Main practice site popup text. Requires practiceLookup
+      // updatePopUpText(mapsWithGPMain.get(mapMain.map)[0]) // can be used to update an individual map
+      for (const value of mapsWithGPMain.values()) {
+        updatePopUpText(value[0]);
+      }
     });
 
     Promise.allSettled([promHospitalDetails, promGeoDataCYCWards]).then(() => {
