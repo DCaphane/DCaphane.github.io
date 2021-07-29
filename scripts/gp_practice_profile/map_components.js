@@ -13,6 +13,9 @@ https://github.com/nickpeihl/leaflet-sidebar-v2
 // Populations smaller than this to be ignored
 const minPopulationLSOA = 20;
 
+// Keep track of maps
+// Stores the map reference and the home location
+const mapOfMaps = new Map();
 // Keep track of which maps contain
 const mapsWithGPMain = new Map();
 const mapsWithGPSites = new Map(); // set of maps that include site codes
@@ -111,6 +114,7 @@ function mapInitialise({
     latLngPoint can be an array [54.018213, -0.9849195] or object {lat: 54.018213, lng: -0.9849195}
     */
   let home = { lat: 54.018213, lng: -0.9849195 };
+  mapOfMaps.set(thisMap, home);
 
   function zoomTo({ latLng = home, zoom = 9 } = {}) {
     thisMap.flyTo(latLng, zoom);
@@ -133,9 +137,6 @@ function mapInitialise({
   thisMap.getPane("lsoaBoundaryPane").style.zIndex = 376;
 
   function baselayers(defaultBL = "None") {
-    // const defaultBasemap =
-    //   .addTo(mapMain.map);
-
     /*
   Ordnance Survey demo
   Need to import mapbox-gl
@@ -367,9 +368,9 @@ function mapInitialise({
     children: [],
   };
 
-  function layerControl(bl) {
+  function layerControl(baselayers) {
     return L.control.layers
-      .tree(bl, overlays, {
+      .tree(baselayers, overlays, {
         // https://leafletjs.com/reference-1.7.1.html#map-methods-for-layers-and-controls
         collapsed: true, // Whether or not control options are displayed
         sortLayers: true,
@@ -699,9 +700,12 @@ function updatePopUpText(sourceLayer) {
 
 // consider incorporating this into mapinit
 // options around fitBounds, setView
-function defaultHomeVoY() {
-  const map = this.map;
-  map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
+function defaultHome({ zoomInt = 9 } = {}) {
+  mapOfMaps.forEach(function (value, key) {
+    key.flyTo(value, (zoom = zoomInt));
+  });
+  // const map = this.map;
+  // map.fitBounds(layersMapBoundaries.get("voyCCGMain").getBounds());
 }
 
 // Example using a handful of selected Trust locations
@@ -816,7 +820,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
   and return an additional filtered layer based on the selected practice
   */
 
-  Promise.allSettled([promGeoDataGP]).then((data) => {
+  Promise.allSettled([promGeoDataGP, gpDetails]).then((data) => {
     mapsWithGPSites.forEach(function (value, key) {
       // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
 
@@ -846,9 +850,21 @@ function filterGPPracticeSites(zoomToExtent = false) {
           },
           onEachFeature: function (feature, layer) {
             const category = feature.properties.pcn_name;
-            const popupText = `<h3>${layer.feature.properties.pcn_name}</h3>
+
+            let orgName = layer.feature.properties.orgName;
+            if (orgName === null) {
+              if (practiceLookup.has(layer.feature.properties.orgCode)) {
+                orgName = titleCase(
+                  practiceLookup.get(layer.feature.properties.orgCode)
+                );
+              } else {
+                orgName = "";
+              }
+            }
+
+            const popupText = `<h3>${category}</h3>
         <p>${layer.feature.properties.orgCode}:
-        ${layer.feature.properties.orgName}
+        ${orgName}
         <br>Parent Org:${layer.feature.properties.parent}</p>`;
 
             layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
@@ -884,26 +900,13 @@ function filterGPPracticeSites(zoomToExtent = false) {
         value.push(gpSites); // append the filtered layer
         mapsWithGPSites.set(key, value);
 
-        // const overlayFilteredSites = {
-        //   label: `${userSelections.selectedPractice} Sites`,
-        //   layer: gpSites,
-        //   selectAllCheckbox: false,
-        //   // children: [
-        //   //   {
-        //   //     label: "test Desc",
-        //   //     layer: gpSites,
-        //   //   },
-        //   // ],
-        // };
-        // key.overlays.children[12] = overlayFilteredSites;
-
         // if (zoomToExtent) {
         key.fitBounds(gpSites.getBounds().pad(0.1));
         // }
       } else {
         // reset to show all sites
         key.addLayer(value[0]);
-        key.fitBounds(value[0].getBounds().pad(0.1));
+        key.flyTo(mapOfMaps.get(key), 9);
       }
     });
     refreshMapOverlayControls();
@@ -1054,7 +1057,7 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     });
 
     if (selPractice === "All Practices" || selPractice === undefined) {
-      defaultHomeVoY.call(mapMain);
+      defaultHome();
     } else {
       map.map.addLayer(highlightedPractice);
 
