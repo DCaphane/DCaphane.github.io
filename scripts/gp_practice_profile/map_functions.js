@@ -1,4 +1,4 @@
-function recolourLSOA() {
+function recolourPopnLSOA() {
   /*
     For updating the LSOA colours in mapPopulation
     */
@@ -28,7 +28,7 @@ function recolourLSOA() {
       .domain(rawPopn)
     .interpolator(d3.interpolateBlues)
   */
-  filterFunctionLsoa.call(mapPopn, true);
+
   // refreshMapPopnLegend(maxValue);
   popnLegend.legend({
     color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
@@ -37,7 +37,7 @@ function recolourLSOA() {
     marginLeft: 50,
   });
 
-  layersMapLSOA.get("voyCCGPopn").eachLayer(function (layer) {
+  mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
     const lsoaCode = layer.feature.properties.lsoa;
 
     let value =
@@ -66,6 +66,10 @@ function recolourLSOA() {
         opacity: 1,
         // dashArray: "3",
       });
+      // layer.on("click", function (e) {
+      //   // update other charts
+      //   console.log({ lsoa: selectedLsoa });
+      // });
     } else {
       layer.setStyle({
         // no (transparent) background
@@ -125,7 +129,7 @@ function imdDomainD3(id = "selD3Leaf") {
     } else {
       imdDomainShortD3 = "Population";
     }
-    console.log(imdDomainDescD3);
+    console.log({ imdDomain: imdDomainDescD3 });
     updateBubbleColour(imdDomainShortD3);
   });
 
@@ -522,11 +526,11 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
     marginLeft: 50,
   });
 
-  for (let key of layersMapIMD.keys()) {
-    layersMapIMD.get(key).eachLayer(function (layer) {
+  if (mapsWithLSOAFiltered.has(mapIMD.map)) {
+    mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
       const lsoaCode = layer.feature.properties.lsoa;
 
-      if (mapSelectedLSOA.has(lsoaCode)) {
+      if (mapsFilteredLSOA.has(lsoaCode)) {
         // the filter lsoaFunction populates a map object of lsoas (with relevant population)
         let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
         if (obj !== undefined) {
@@ -564,6 +568,7 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
     });
   }
 }
+// }
 
 const mapIMDDomain = new Map();
 
@@ -769,7 +774,7 @@ let imdDomainDesc = "IMD Rank",
   d3.select(select).on("change", function () {
     imdDomainDesc = d3.select("#selImdDomain option:checked").text();
     imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
-    console.log(imdDomainShort);
+    console.log({ imdDomainShort: imdDomainShort });
     recolourIMDLayer(imdDomainShort);
   });
 })();

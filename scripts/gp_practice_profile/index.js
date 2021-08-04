@@ -48,40 +48,41 @@ let dataPopulationGP,
   uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
 const promDataGPPopn = d3
-    .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
-    .then((data) => {
-      dataPopulationGP = data;
+  .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
+  .then((data) => {
+    dataPopulationGP = data;
 
-      dataPopulationGPSummary = d3.rollup(
-        dataPopulationGP,
-        (v) => d3.sum(v, (d) => d.Total_Pop),
-        (d) => +d.Period,
-        (d) => d.Practice
-      );
+    dataPopulationGPSummary = d3.rollup(
+      dataPopulationGP,
+      (v) => d3.sum(v, (d) => d.Total_Pop),
+      (d) => +d.Period,
+      (d) => d.Practice
+    );
 
-      // default the selected date to the latest available
-      userSelections.selectedDate = d3.max(data, function (d) {
-        return d.Period;
-      });
-
-      // List of GP Practice codes (sorted A-Z) for use in drop down ------------------------
-      uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
-    }),
-  promDataGPPopnLsoa = d3
-    .csv("Data/population_gp_lsoa.csv", processDataPopulationGPLsoa)
-    .then((data) => {
-      dataPopulationGPLsoa = d3.rollup(
-        data,
-        (v) => d3.sum(v, (d) => d.population),
-        (d) => d.period,
-        (d) => d.practice,
-        (d) => d.lsoa
-      );
-
-      // GP LSOA Population is Quarterly so not a 1:1 match with trend data
-      // Will use closest value
-      arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
+    // default the selected date to the latest available
+    userSelections.selectedDate = d3.max(data, function (d) {
+      return d.Period;
     });
+
+    // List of GP Practice codes (sorted A-Z) for use in drop down ------------------------
+    uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
+  });
+
+const promDataGPPopnLsoa = d3
+  .csv("Data/population_gp_lsoa.csv", processDataPopulationGPLsoa)
+  .then((data) => {
+    dataPopulationGPLsoa = d3.rollup(
+      data,
+      (v) => d3.sum(v, (d) => d.population),
+      (d) => d.period,
+      (d) => d.practice,
+      (d) => d.lsoa
+    );
+
+    // GP LSOA Population is Quarterly so not a 1:1 match with trend data
+    // Will use closest value
+    arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
+  });
 
 // Export geojson data layers as: EPSG: 4326 - WGS 84
 let geoDataLsoaBoundaries, geoDateLsoaPopnCentroid, dataIMD; // not geo data but only used in map chart
@@ -144,10 +145,11 @@ function initD3Charts() {
 }
 
 function refreshGeoChart() {
-  lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
-  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
+  const filteredLSOA = filterFunctionLsoa(true);
+  filteredLSOA.then(() => {
+    recolourPopnLSOA();
+    // recolourIMDLayer(imdDomainShort);
+  });
 }
 
 function refreshChartsPostPracticeChange(practice) {
@@ -168,8 +170,7 @@ function refreshChartsPostPracticeChange(practice) {
 
   filterGPPracticeSites();
 
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
+  refreshGeoChart();
   circlePopnIMDChart.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
   // updateTextPractice();
@@ -185,7 +186,11 @@ function refreshChartsPostDateChange() {
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare
   );
-  recolourLSOA();
+  const filteredLSOA = filterFunctionLsoa(true);
+  filteredLSOA.then(() => {
+    recolourPopnLSOA();
+    // recolourIMDLayer(imdDomainShort);
+  });
   circlePopnIMDChart.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
 }
@@ -231,7 +236,14 @@ function processDataHospitalSite(d) {
   }
 }
 
+const mapLSOAbyIMD = new Map(); // LSOAs by the main IMD decile
+
 function processDataIMD(d) {
+  mapLSOAbyIMD.set(
+    d.LSOA_code_2011,
+    +d.Index_of_Multiple_Deprivation_IMD_Decile
+  );
+
   return {
     lsoa: d.LSOA_code_2011,
     imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
