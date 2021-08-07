@@ -402,12 +402,10 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
     } else {
       newData = dataLevel_02.get(userSelections.selectedPractice);
     }
-
     dataArr = Array.from(newData, ([key, value]) => ({
       period: key,
       population: value,
     }));
-
     x.domain(d3.extent(newData.keys()));
     svgMini.append("g").call(xAxis, x, miniMapHeight);
 
@@ -447,6 +445,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
 
     // svgTrend.select("#axis--y").transition(t).call(yAxis).selectAll("text");
 
+
     svgTrend
       .selectAll(".trend-line")
       .datum(dataArr)
@@ -464,6 +463,7 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
       .attr("class", "trend-line")
       // .transition(t)
       .attr("d", plotLine(x, y.copy().range([height - margin.bottom, 4])));
+
 
     // https://observablehq.com/@d3/selection-join
     // Circle Markers
@@ -518,8 +518,10 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
         const sel = d3.select(this);
         sel.raise();
         sel.classed("highlight", true);
+
         updateMiniMarker();
         refreshChartsPostDateChange();
+
       })
       .on("mouseover", function (event, d) {
         const sel = d3.select(this);
@@ -629,17 +631,17 @@ To have the markers on top, draw the path (line) first and then 'paint' the circ
         yMini.range([miniMapHeight - margin.bottom, 4]);
         return yMini(d.population);
       });
+      updateMiniMarker();
 
-    updateMiniMarker();
 
-    // moveBrush(defaultSelection)
-    if (initialiseBool) {
-      gb.call(brush.move, defaultSelection); // fullRangeSelection
-      initialiseBool = false;
-    } else {
-      gb.call(brush.move, brushRange);
+      // moveBrush(defaultSelection)
+      if (initialiseBool) {
+        gb.call(brush.move, defaultSelection); // fullRangeSelection
+        initialiseBool = false;
+      } else {
+        gb.call(brush.move, brushRange);
+      }
     }
-  }
 
   return {
     chartTrendDraw: chartTrendDraw,

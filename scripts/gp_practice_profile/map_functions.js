@@ -778,3 +778,210 @@ let imdDomainDesc = "IMD Rank",
     recolourIMDLayer(imdDomainShort);
   });
 })();
+
+async function filterFunctionLsoa(zoomToExtent = false) {
+  /*
+  Consider moving this into the init function if not splitting by eg. IMD
+  */
+  await Promise.allSettled([
+    promGeoDataLsoaBoundaries,
+    promDataGPPopnLsoa,
+    promDataIMD,
+  ])
+    .then((lsoaBoundaries) => {
+      mapsFilteredLSOA.clear();
+
+      mapsWithLSOAFiltered.forEach(function (value, key) {
+        // Remove the original layer
+        if (value !== null) {
+          if (key.hasLayer(value[0])) {
+            key.removeLayer(value[0]);
+          }
+        }
+
+        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+          style: styleLsoaTestOnly,
+          pane: "lsoaBoundaryPane2",
+          onEachFeature: function (feature, layer) {
+            const lsoa = feature.properties.lsoa;
+
+            layer.on("click", function (e) {
+              // update other charts
+              selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
+              console.log({ lsoa: selectedLsoa });
+            });
+          },
+          filter: function (d) {
+            // console.log(d.properties.lsoa)
+            const lsoaCode = d.properties.lsoa;
+
+            let population =
+              userSelections.selectedPractice !== undefined &&
+              userSelections.selectedPractice !== "All Practices"
+                ? dataPopulationGPLsoa
+                    .get(userSelections.nearestDate())
+                    .get(userSelections.selectedPractice)
+                    .get(lsoaCode)
+                : dataPopulationGPLsoa
+                    .get(userSelections.nearestDate())
+                    .get("All")
+                    .get(lsoaCode);
+
+            if (population > minPopulationLSOA) {
+              mapsFilteredLSOA.set(lsoaCode, population);
+              return true;
+            }
+          },
+        });
+
+        geoDataLsoaBoundaries.addTo(key);
+
+        const ol = {
+          label: "LSOA by Population",
+          layer: geoDataLsoaBoundaries,
+          // selectAllCheckbox: true,
+          // children: [{ layer: geoDataLsoaBoundaries }]
+        };
+        mapsWithLSOAFiltered.set(key, [geoDataLsoaBoundaries, ol]); // filtered lsoa map, popn over eg. 20
+
+        // if (incLayer) {
+        // L.layerGroup(Array.from(layersMapByIMD.values())).addTo(key);
+        // }
+
+        if (zoomToExtent) {
+          key.fitBounds(geoDataLsoaBoundaries.getBounds());
+        }
+      });
+    })
+    .then(() => {
+      refreshFilteredLSOAOverlays();
+    });
+}
+
+async function filterFunctionLsoaByIMD(zoomToExtent = false) {
+  /*
+  This procedures works but is potentially slow since removing all layers rather than one overarching one
+  */
+  await Promise.allSettled([
+    promGeoDataLsoaBoundaries,
+    promDataGPPopnLsoa,
+    promDataIMD,
+  ])
+    .then((lsoaBoundaries) => {
+      mapsFilteredLSOA.clear();
+
+      mapsWithLSOAFiltered.forEach(function (value, key) {
+        const incLayer = key.hasLayer(value);
+        // Remove the original layer
+        if (value !== null) {
+          if (key.hasLayer(value[0])) {
+            key.removeLayer(value[0]);
+          } else {
+            value[2]();
+          }
+        }
+
+        const layersMapByIMD = new Map();
+
+        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+          style: styleLsoaTestOnly,
+          pane: "lsoaBoundaryPane2",
+          onEachFeature: function (feature, layer) {
+            const lsoa = feature.properties.lsoa;
+
+            let imdDecile;
+            if (mapLSOAbyIMD.has(lsoa)) {
+              imdDecile = mapLSOAbyIMD.get(lsoa); // IMD Decile
+            } else {
+              imdDecile = "exc"; // undefined
+            }
+
+            // Initialize the category array if not already set.
+            if (!layersMapByIMD.has(imdDecile)) {
+              layersMapByIMD.set(imdDecile, L.layerGroup());
+            }
+            layersMapByIMD.get(imdDecile).addLayer(layer);
+
+            layer.on("click", function (e) {
+              // update other charts
+              selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
+              console.log({ lsoa: selectedLsoa });
+            });
+          },
+          filter: function (d) {
+            // console.log(d.properties.lsoa)
+            const lsoaCode = d.properties.lsoa;
+
+            let population =
+              userSelections.selectedPractice !== undefined &&
+              userSelections.selectedPractice !== "All Practices"
+                ? dataPopulationGPLsoa
+                    .get(userSelections.nearestDate())
+                    .get(userSelections.selectedPractice)
+                    .get(lsoaCode)
+                : dataPopulationGPLsoa
+                    .get(userSelections.nearestDate())
+                    .get("All")
+                    .get(lsoaCode);
+
+            if (population > minPopulationLSOA) {
+              mapsFilteredLSOA.set(lsoaCode, population);
+              return true;
+            }
+          },
+        });
+
+        const test = L.layerGroup(Array.from(layersMapByIMD.values())).addTo(
+          key
+        );
+
+        // const testID = L.stamp(test)
+
+        function removeFeature() {
+          layersMapByIMD.forEach(function (value) {
+            key.removeLayer(value);
+          });
+        }
+
+        const ol = overlayLSOA(layersMapByIMD, "LSOA Population");
+        mapsWithLSOAFiltered.set(key, [
+          geoDataLsoaBoundaries,
+          ol,
+          removeFeature,
+        ]); // filtered lsoa map, popn over eg. 20
+
+        // if (incLayer) {
+        // L.layerGroup(Array.from(layersMapByIMD.values())).addTo(key);
+        // }
+
+        if (zoomToExtent) {
+          key.fitBounds(geoDataLsoaBoundaries.getBounds());
+        }
+      });
+    })
+    .then(() => {
+      refreshFilteredLSOAOverlays();
+    });
+}
+
+function refreshFilteredLSOAOverlays() {
+  // Once the lsoa has been refreshed, update the overlay?
+  // This is an array of the maps that use the filtered LSOA
+
+  for (let mapLSOA of mapStore) {
+    if (mapsWithLSOAFiltered.has(mapLSOA.map)) {
+      mapLSOA.updateOverlay(
+        "filteredLSOA",
+        mapsWithLSOAFiltered.get(mapLSOA.map)[1]
+      );
+    } else {
+      // console.log({lsoaFilteredMap: 'update lsoa map array'})
+    }
+  }
+
+  // mapIMD.updateOverlay("filteredLSOA", mapsWithLSOAFiltered.get(mapIMD.map)[1]);
+  // mapD3Bubble.updateOverlay("filteredLSOA", mapsWithLSOAFiltered.get(mapD3Bubble.map)[1]);
+  // mapPopn.updateOverlay("filteredLSOA", mapsWithLSOAFiltered.get(mapPopn.map)[1]);
+
+  refreshMapOverlayControls();
+}

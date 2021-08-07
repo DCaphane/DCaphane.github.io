@@ -160,9 +160,11 @@ function refreshChartsPostPracticeChange(practice) {
   }: ${userSelections.selectedPracticeName()}`;
 
   updateBouncingMarkers();
+
   highlightFeature(practice, mapMain, false);
 
   trendChart.chartTrendDraw();
+
   demographicChart.updateChtDemog(
     practice,
     userSelections.selectedPracticeCompare
@@ -171,10 +173,14 @@ function refreshChartsPostPracticeChange(practice) {
   filterGPPracticeSites();
 
   refreshGeoChart();
+
   circlePopnIMDChart.updateD3BubbleLsoa();
+
   barChart.fnRedrawBarChart();
+
   // updateTextPractice();
   // updateTextPCN();
+
   sidebarContent.updateSidebarText("pcnSpecific", practice);
 }
 
@@ -186,7 +192,7 @@ function refreshChartsPostDateChange() {
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare
   );
-  const filteredLSOA = filterFunctionLsoa(true);
+  const filteredLSOA = filterFunctionLsoa(true); // zoom to filtered lsoa
   filteredLSOA.then(() => {
     recolourPopnLSOA();
     // recolourIMDLayer(imdDomainShort);
