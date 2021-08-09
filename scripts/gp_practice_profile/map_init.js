@@ -106,6 +106,7 @@ const mapD3Bubble = mapInitialise({
   userOverlayLsoaBoundary: { inc: true },
   userOverlayFilteredLsoa: { inc: true, display: false },
   // userOverlayGPMain: { inc: true, display: false },
+  userOverlayGPSites: { inc: true, display: false },
 });
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();
@@ -123,7 +124,7 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
   Promise.allSettled([importGeoData]).then(() => {
     // The following require the above population data and the geoData
     circlePopnIMDChart = imdDomainD3();
-    refreshGeoChart();
+    filterFunctionLsoa(true);
 
     Promise.allSettled([promGeoDataGP, gpDetails]).then(() => {
       // Main practice site popup text. Requires practiceLookup

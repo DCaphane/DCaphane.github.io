@@ -2,32 +2,7 @@ function recolourPopnLSOA() {
   /*
     For updating the LSOA colours in mapPopulation
     */
-  const maxValue =
-    userSelections.selectedPractice !== undefined &&
-    userSelections.selectedPractice !== "All Practices"
-      ? d3.max(
-          dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get(userSelections.selectedPractice)
-            .values()
-        )
-      : d3.max(
-          dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get("All")
-            .values()
-        );
-  /*
-    const rawPopn =
-      userSelections.selectedPractice !== undefined && userSelections.selectedPractice !== "All Practices"
-        ? [...dataPopulationGPLsoa.get(userSelections.nearestDate()).get(userSelections.selectedPractice).values()]
-        : [...dataPopulationGPLsoa.get(userSelections.nearestDate()).get("All").values()];
-
-    const maxValue = d3.max(rawPopn);
-    const colour = d3.scaleSequentialQuantile()
-      .domain(rawPopn)
-    .interpolator(d3.interpolateBlues)
-  */
+  const maxValue = maxPopulation();
 
   // refreshMapPopnLegend(maxValue);
   popnLegend.legend({
@@ -40,17 +15,7 @@ function recolourPopnLSOA() {
   mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
     const lsoaCode = layer.feature.properties.lsoa;
 
-    let value =
-      userSelections.selectedPractice !== undefined &&
-      userSelections.selectedPractice !== "All Practices"
-        ? dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get(userSelections.selectedPractice)
-            .get(lsoaCode)
-        : dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get("All")
-            .get(lsoaCode);
+    let value = actualPopulation(lsoaCode);
 
     if (value === undefined) {
       value = 0;
@@ -161,9 +126,8 @@ function imdDomainD3(id = "selD3Leaf") {
     this.stream.point(point.x, point.y);
   }
 
-  // is this used?
-  const transform = d3.geoTransform({ point: projectPoint }),
-    path = d3.geoPath().projection(transform);
+  // const transform = d3.geoTransform({ point: projectPoint }),
+  //   path = d3.geoPath().projection(transform);
 
   let d3BubbleEnter;
 
@@ -198,21 +162,7 @@ function imdDomainD3(id = "selD3Leaf") {
       });
     } else {
       // Style and legend for population
-      const maxValue =
-        userSelections.selectedPractice !== undefined &&
-        userSelections.selectedPractice !== "All Practices"
-          ? d3.max(
-              dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get(userSelections.selectedPractice)
-                .values()
-            )
-          : d3.max(
-              dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get("All")
-                .values()
-            );
+      const maxValue = maxPopulation();
 
       lsoaCentroidLegend.legend({
         color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
@@ -252,22 +202,10 @@ function imdDomainD3(id = "selD3Leaf") {
   // Initialise D3 Circle Map
   updateD3BubbleLsoa();
 
-  userSelections.selectedDate;
-
   function updateD3BubbleLsoa() {
     // Update the population details
     lsoaCentroidDetails.forEach((lsoa) => {
-      let value =
-        userSelections.selectedPractice !== undefined &&
-        userSelections.selectedPractice !== "All Practices"
-          ? dataPopulationGPLsoa
-              .get(userSelections.nearestDate())
-              .get(userSelections.selectedPractice)
-              .get(lsoa.lsoa)
-          : dataPopulationGPLsoa
-              .get(userSelections.nearestDate())
-              .get("All")
-              .get(lsoa.lsoa);
+      let value = actualPopulation(lsoa.lsoa);
 
       if (value === undefined) {
         value = 0;
@@ -397,17 +335,7 @@ function imdDomainD3(id = "selD3Leaf") {
       .style("fill-opacity", function (d) {
         const lsoaCode = d.lsoa;
 
-        let value =
-          userSelections.selectedPractice !== undefined &&
-          userSelections.selectedPractice !== "All Practices"
-            ? dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get(userSelections.selectedPractice)
-                .get(lsoaCode)
-            : dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get("All")
-                .get(lsoaCode);
+        let value = actualPopulation(lsoaCode);
 
         if (value > minPopulationLSOA) {
           return 0.7;
@@ -487,10 +415,8 @@ function imdDomainD3(id = "selD3Leaf") {
     };
   }
 
-  // Every time the map changes, update the SVG paths
+  // Every time the map changes (post viewreset, move or moveend) update the SVG paths
   mapD3Bubble.map.on("viewreset move moveend", refreshBubbles);
-  // mapD3Bubble.map.on("move", refreshBubbles);
-  // mapD3Bubble.map.on("moveend", refreshBubbles);
 
   return {
     updateD3BubbleLsoa: updateD3BubbleLsoa,
@@ -581,13 +507,13 @@ legendColour is used to create the colour bar (ramp)
 Some scales require the whole dataset (values) for the domain. This can be derived using eg. d3.range(m, n) which returns an array of m-n+1 values from m to n
 Other scales only require the min and max values as an array. This can be derived using d3.extent (values) or d3.min and d3.max
 */
-const noLSOAs = 32_844; // this is the number of lsoas nationally
-const arrNoLSOAs = d3.range(1, noLSOAs + 1); // returns an array [1, 2, ..., noLSOAs]
+const noLSOAs = 32_844, // this is the number of lsoas nationally
+  arrNoLSOAs = d3.range(1, noLSOAs + 1); // returns an array [1, 2, ..., noLSOAs]
 
 const defaultIMDProperties = {
   datasetDesc: "datasetFieldName", // which field in the dataset to refer to
   scale(values) {
-    // values not used here but are used in the population fields so need to pass the parameter
+    // values not used here but is subsequently used in the population fields so need to pass the parameter here
     return d3
       .scaleQuantize()
       .domain([1, noLSOAs])
@@ -815,17 +741,7 @@ async function filterFunctionLsoa(zoomToExtent = false) {
             // console.log(d.properties.lsoa)
             const lsoaCode = d.properties.lsoa;
 
-            let population =
-              userSelections.selectedPractice !== undefined &&
-              userSelections.selectedPractice !== "All Practices"
-                ? dataPopulationGPLsoa
-                    .get(userSelections.nearestDate())
-                    .get(userSelections.selectedPractice)
-                    .get(lsoaCode)
-                : dataPopulationGPLsoa
-                    .get(userSelections.nearestDate())
-                    .get("All")
-                    .get(lsoaCode);
+            let population = actualPopulation(lsoaCode);
 
             if (population > minPopulationLSOA) {
               mapsFilteredLSOA.set(lsoaCode, population);
@@ -852,6 +768,10 @@ async function filterFunctionLsoa(zoomToExtent = false) {
           key.fitBounds(geoDataLsoaBoundaries.getBounds());
         }
       });
+    })
+    .then(() => {
+      recolourPopnLSOA();
+      recolourIMDLayer(imdDomainShort);
     })
     .then(() => {
       refreshFilteredLSOAOverlays();
@@ -912,17 +832,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
             // console.log(d.properties.lsoa)
             const lsoaCode = d.properties.lsoa;
 
-            let population =
-              userSelections.selectedPractice !== undefined &&
-              userSelections.selectedPractice !== "All Practices"
-                ? dataPopulationGPLsoa
-                    .get(userSelections.nearestDate())
-                    .get(userSelections.selectedPractice)
-                    .get(lsoaCode)
-                : dataPopulationGPLsoa
-                    .get(userSelections.nearestDate())
-                    .get("All")
-                    .get(lsoaCode);
+            let population = actualPopulation(lsoaCode);
 
             if (population > minPopulationLSOA) {
               mapsFilteredLSOA.set(lsoaCode, population);
@@ -965,8 +875,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
 }
 
 function refreshFilteredLSOAOverlays() {
-  // Once the lsoa has been refreshed, update the overlay?
-  // This is an array of the maps that use the filtered LSOA
+  // mapStore is an array of the maps that use the filtered LSOA
 
   for (let mapLSOA of mapStore) {
     if (mapsWithLSOAFiltered.has(mapLSOA.map)) {
@@ -979,9 +888,36 @@ function refreshFilteredLSOAOverlays() {
     }
   }
 
-  // mapIMD.updateOverlay("filteredLSOA", mapsWithLSOAFiltered.get(mapIMD.map)[1]);
-  // mapD3Bubble.updateOverlay("filteredLSOA", mapsWithLSOAFiltered.get(mapD3Bubble.map)[1]);
-  // mapPopn.updateOverlay("filteredLSOA", mapsWithLSOAFiltered.get(mapPopn.map)[1]);
-
+  // Once the lsoa has been refreshed, update the overlay
   refreshMapOverlayControls();
+}
+
+function maxPopulation() {
+  return userSelections.selectedPractice !== undefined &&
+    userSelections.selectedPractice !== "All Practices"
+    ? d3.max(
+        dataPopulationGPLsoa
+          .get(userSelections.nearestDate())
+          .get(userSelections.selectedPractice)
+          .values()
+      )
+    : d3.max(
+        dataPopulationGPLsoa
+          .get(userSelections.nearestDate())
+          .get("All")
+          .values()
+      );
+}
+
+function actualPopulation(lsoa) {
+  return userSelections.selectedPractice !== undefined &&
+    userSelections.selectedPractice !== "All Practices"
+    ? dataPopulationGPLsoa
+        .get(userSelections.nearestDate())
+        .get(userSelections.selectedPractice)
+        .get(lsoa)
+    : dataPopulationGPLsoa
+        .get(userSelections.nearestDate())
+        .get("All")
+        .get(lsoa);
 }

@@ -119,18 +119,13 @@ const importGeoData = (async function displayContent() {
     promGeoDataLsoaBoundaries,
     promGeoDateLsoaPopnCentroid,
     promDataIMD,
-  ])
-    .then((values) => {
-      // if (values[0].status === "fulfilled") {
-      geoDataLsoaBoundaries = values[0].value;
-      // }
-      geoDateLsoaPopnCentroid = values[1].value;
-      dataIMD = values[2].value;
-    })
-    .then(() => {
-      // Assumption here that everything in other scripts is declared before this step...
-      // console.log(geoDateLsoaPopnCentroid)
-    });
+  ]).then((values) => {
+    // if (values[0].status === "fulfilled") {
+    geoDataLsoaBoundaries = values[0].value;
+    // }
+    geoDateLsoaPopnCentroid = values[1].value;
+    dataIMD = values[2].value;
+  });
 })();
 
 function initD3Charts() {
@@ -144,14 +139,6 @@ function initD3Charts() {
   demographicChart.updateChtDemog();
 }
 
-function refreshGeoChart() {
-  const filteredLSOA = filterFunctionLsoa(true);
-  filteredLSOA.then(() => {
-    recolourPopnLSOA();
-    // recolourIMDLayer(imdDomainShort);
-  });
-}
-
 function refreshChartsPostPracticeChange(practice) {
   console.log({ selectedPractice: practice });
   // change the selection box dropdown to reflect clicked practice
@@ -159,9 +146,8 @@ function refreshChartsPostPracticeChange(practice) {
     userSelections.selectedPractice
   }: ${userSelections.selectedPracticeName()}`;
 
-  updateBouncingMarkers();
-
-  highlightFeature(practice, mapMain, false);
+  filterGPPracticeSites();
+  filterFunctionLsoa(true);
 
   trendChart.chartTrendDraw();
 
@@ -170,16 +156,15 @@ function refreshChartsPostPracticeChange(practice) {
     userSelections.selectedPracticeCompare
   );
 
-  filterGPPracticeSites();
-
-  refreshGeoChart();
-
   circlePopnIMDChart.updateD3BubbleLsoa();
 
   barChart.fnRedrawBarChart();
 
   // updateTextPractice();
   // updateTextPCN();
+  updateBouncingMarkers();
+
+  highlightFeature(practice, mapMain, false);
 
   sidebarContent.updateSidebarText("pcnSpecific", practice);
 }
@@ -192,11 +177,8 @@ function refreshChartsPostDateChange() {
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare
   );
-  const filteredLSOA = filterFunctionLsoa(true); // zoom to filtered lsoa
-  filteredLSOA.then(() => {
-    recolourPopnLSOA();
-    // recolourIMDLayer(imdDomainShort);
-  });
+  filterFunctionLsoa(true); // zoom to filtered lsoa
+
   circlePopnIMDChart.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
 }
