@@ -91,7 +91,8 @@ let geoDataLsoaBoundaries, geoDateLsoaPopnCentroid, dataIMD; // not geo data but
 
 const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
   promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.geojson"),
-  promGeoVoYBoundary = d3.json("Data/geo/ccg_boundary_03Q_simple20.geojson"),
+  // promGeoVoYBoundary = d3.json("Data/geo/ccg_boundary_03Q_simple20.geojson"),
+  promGeoNationalCCGBoundaries = d3.json("Data/geo/ccg_boundary_national_202104.geojson"),
   promGeoDataLsoaBoundaries = d3.json(
     "Data/geo/lsoa_gp_selected_simple20cp6.geojson"
   ),

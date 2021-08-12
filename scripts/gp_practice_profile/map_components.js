@@ -43,7 +43,7 @@ function mapInitialise({
   const promTesting = Promise.allSettled([
     promGeoDataGP,
     gpDetails,
-    promGeoVoYBoundary,
+    promGeoNationalCCGBoundaries,
     promGeoDataCYCWards,
     promGeoDataLsoaBoundaries,
     promDataIMD,
@@ -602,14 +602,39 @@ function mapInitialise({
 
   // Option to include the CCG Boundary layer (option to display is later)
   if (overlayCCGBoundary.inc || overlayCCGBoundary.zoomExtent) {
-    Promise.allSettled([promGeoVoYBoundary]).then((ccgBoundaries) => {
-      const ccgBoundary = L.geoJSON(ccgBoundaries[0].value, {
+    Promise.allSettled([promGeoNationalCCGBoundaries]).then((ccgBoundaries) => {
+      const ccgBoundaryVoY = L.geoJSON(ccgBoundaries[0].value, {
         style: styleCCG,
         pane: "ccgBoundaryPane",
+        filter: function (d) {
+          const ccg = d.properties.ccg21nm;
+
+          return ccg === "NHS Vale of York CCG" ? true : false;
+        },
+      });
+
+      const ccgBoundaryNY = L.geoJSON(ccgBoundaries[0].value, {
+        style: styleCCG,
+        pane: "ccgBoundaryPane",
+        filter: function (d) {
+          const ccg = d.properties.ccg21nm;
+
+          return ccg === "NHS North Yorkshire CCG" ? true : false;
+        },
+      });
+
+      const ccgBoundaryER = L.geoJSON(ccgBoundaries[0].value, {
+        style: styleCCG,
+        pane: "ccgBoundaryPane",
+        filter: function (d) {
+          const ccg = d.properties.ccg21nm;
+
+          return ccg === "NHS East Riding of Yorkshire CCG" ? true : false;
+        },
       });
 
       if (overlayCCGBoundary.display) {
-        ccgBoundary.addTo(thisMap);
+        ccgBoundaryVoY.addTo(thisMap);
       }
 
       if (overlayCCGBoundary.inc || overlayCCGBoundary.display) {
@@ -619,7 +644,15 @@ function mapInitialise({
           children: [
             {
               label: "Vale of York",
-              layer: ccgBoundary,
+              layer: ccgBoundaryVoY,
+            },
+            {
+              label: "North Yorkshire",
+              layer: ccgBoundaryNY,
+            },
+            {
+              label: "East Riding",
+              layer: ccgBoundaryER,
             },
           ],
         };
@@ -629,7 +662,7 @@ function mapInitialise({
 
       // zoom option here
       if (overlayCCGBoundary.zoomExtent) {
-        thisMap.fitBounds(ccgBoundary.getBounds());
+        thisMap.fitBounds(ccgBoundaryVoY.getBounds());
       }
     });
   }
