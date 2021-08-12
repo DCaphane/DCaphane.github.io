@@ -121,10 +121,10 @@ function imdDomainD3(id = "selD3Leaf") {
     .attr("class", "bubble-legend");
 
   // Project any point to map's current state
-  function projectPoint(x, y) {
-    const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
-    this.stream.point(point.x, point.y);
-  }
+  // function projectPoint(x, y) {
+  //   const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
+  //   this.stream.point(point.x, point.y);
+  // }
 
   // const transform = d3.geoTransform({ point: projectPoint }),
   //   path = d3.geoPath().projection(transform);
@@ -214,9 +214,9 @@ function imdDomainD3(id = "selD3Leaf") {
     });
 
     const maxValue = d3.max(lsoaCentroidDetails, function (d) {
-        return d.lsoaPopulation;
-      }),
-      maxValueNice = Math.ceil(maxValue / 100) * 100; //  round to the nearest 100
+      return d.lsoaPopulation;
+    });
+    // , maxValueNice = Math.ceil(maxValue / 100) * 100; //  round to the nearest 100
 
     const radius = d3
       .scaleSqrt()
@@ -705,6 +705,152 @@ let imdDomainDesc = "IMD Rank",
   });
 })();
 
+function filterGPPracticeSites(zoomToExtent = false) {
+  /* This will deselect the 'entire' GP Sites layer
+  and return an additional filtered layer based on the selected practice
+  */
+
+  Promise.allSettled([promGeoDataGP, gpDetails]).then((data) => {
+    mapsWithGPSites.forEach(function (value, key) {
+      // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
+      let isLayerDisplayed = false;
+      if (key.hasLayer(value[0])) {
+        // the original sites layer
+        key.removeLayer(value[0]);
+        isLayerDisplayed = true;
+      }
+
+      // Does the map already show the filtered sites layer
+      if (value.length > 1) {
+        if (key.hasLayer(value[1])) {
+          key.removeLayer(value[1]);
+        }
+        // value.pop(); // not necessary as will be overwritten?
+        delete value[1]; // keeps the array length but the filtered sites layer (in index 1) becomes undefined
+      }
+
+      if (
+        userSelections.selectedPractice !== undefined &&
+        userSelections.selectedPractice !== "All Practices"
+      ) {
+        // const layersMapGpSites = new Map(); // will be the filtered layer
+
+        const gpSites = L.geoJson(data[0].value, {
+          // https://leafletjs.com/reference-1.7.1.html#geojson
+          pointToLayer: function (feature, latlng) {
+            return pcnFormatting(feature, latlng);
+          },
+          onEachFeature: function (feature, layer) {
+            const category = feature.properties.pcn_name;
+
+            let orgName = layer.feature.properties.orgName;
+            if (orgName === null) {
+              if (practiceLookup.has(layer.feature.properties.orgCode)) {
+                orgName = titleCase(
+                  practiceLookup.get(layer.feature.properties.orgCode)
+                );
+              } else {
+                orgName = "";
+              }
+            }
+
+            const popupText = `<h3>${category}</h3>
+        <p>${layer.feature.properties.orgCode}:
+        ${orgName}
+        <br>Parent Org:${layer.feature.properties.parent}</p>`;
+
+            layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+
+            layer.on("mouseover", function (e) {
+              this.openPopup();
+            });
+            layer.on("mouseout", function (e) {
+              this.closePopup();
+            });
+            // layer.on("click", function (e) {
+            // });
+            // Initialize the category array if not already set.
+            //   if (!layersMapGpSites.has(category)) {
+            //     layersMapGpSites.set(category, L.layerGroup());
+            //   }
+            //   layersMapGpSites.get(category).addLayer(layer);
+          },
+          filter: function (d) {
+            // match site codes based on 6 char GP practice code
+            const strPractice = d.properties.orgCode;
+
+            return strPractice.substring(0, 6) ===
+              userSelections.selectedPractice.substring(0, 6)
+              ? true
+              : false;
+          },
+        });
+
+        // key is the map we are working with
+        gpSites.addTo(key);
+
+        value[1] = gpSites; // append the filtered layer
+
+        // Selected GP Sites Overlay
+        const ol = {
+          label: "Selected Practice Sites",
+          layer: gpSites,
+        };
+        value[2] = ol; // append the overlay
+
+        mapsWithGPSites.set(key, value);
+
+        if (zoomToExtent) {
+          key.fitBounds(gpSites.getBounds().pad(0.1));
+        }
+      } else {
+        // reset to show all sites
+        if (isLayerDisplayed || key === mapPopn.map) {
+          key.addLayer(value[0]);
+        }
+        key.flyTo(mapOfMaps.get(key), 9);
+
+        // Remove the overlay
+        value[2] = null; // null will be used in the filter function to remove th overlay
+      }
+    });
+    // refreshFilteredGPSitesOverlays();
+  });
+}
+
+function refreshFilteredGPSitesOverlays() {
+  // mapStore is an array of the maps that use the filtered GP Sites
+  let refreshOverlay = false;
+  for (let mapGPSites of mapStore) {
+    if (mapsWithGPSites.has(mapGPSites.map)) {
+      const arr = mapsWithGPSites.get(mapGPSites.map);
+      if (arr.length > 2) {
+        if (arr[2] !== null) {
+          // if it's null then delete the overlay label
+          refreshOverlay = true;
+          mapGPSites.updateOverlay("gpSitesFiltered", arr[2]);
+        } else {
+          mapGPSites.updateOverlay(
+            "gpSitesFiltered",
+            "",
+            true // option to delete overlay
+          );
+        }
+      }
+    } else {
+      // console.log({gpSitesMap: 'update gpSites map array'})
+    }
+  }
+
+  // Once the lsoa has been refreshed, update the overlay
+  if (refreshOverlay) {
+    // refreshMapOverlayControls();
+  }
+}
+
+// Contains lsoa (key) and it's population for the selected practice (value)
+const mapsFilteredLSOA = new Map(); // selected lsoas
+
 async function filterFunctionLsoa(zoomToExtent = false) {
   /*
   Consider moving this into the init function if not splitting by eg. IMD
@@ -719,14 +865,14 @@ async function filterFunctionLsoa(zoomToExtent = false) {
 
       mapsWithLSOAFiltered.forEach(function (value, key) {
         // Remove the original layer
-        if (value !== null) {
+        if (value !== null && value !== undefined) {
           if (key.hasLayer(value[0])) {
             key.removeLayer(value[0]);
           }
         }
 
         const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
-          style: styleLsoaTestOnly,
+          style: styleLsoaOrangeOutline,
           pane: "lsoaBoundaryPane2",
           onEachFeature: function (feature, layer) {
             const lsoa = feature.properties.lsoa;
@@ -774,7 +920,15 @@ async function filterFunctionLsoa(zoomToExtent = false) {
       recolourIMDLayer(imdDomainShort);
     })
     .then(() => {
-      refreshFilteredLSOAOverlays();
+      /*
+      Previously tried running this within the above .then statement but this typically results in
+      an error when trying to remove a layer
+      */
+      const lastMap = mapStore[mapStore.length - 1];
+      lastMap.promTesting.then(() => {
+        refreshFilteredGPSitesOverlays();
+        refreshFilteredLSOAOverlays();
+      });
     });
 }
 
@@ -804,7 +958,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
         const layersMapByIMD = new Map();
 
         const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
-          style: styleLsoaTestOnly,
+          style: styleLsoaOrangeOutline,
           pane: "lsoaBoundaryPane2",
           onEachFeature: function (feature, layer) {
             const lsoa = feature.properties.lsoa;
@@ -841,11 +995,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
           },
         });
 
-        const test = L.layerGroup(Array.from(layersMapByIMD.values())).addTo(
-          key
-        );
-
-        // const testID = L.stamp(test)
+        L.layerGroup(Array.from(layersMapByIMD.values())).addTo(key);
 
         function removeFeature() {
           layersMapByIMD.forEach(function (value) {
@@ -870,26 +1020,104 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
       });
     })
     .then(() => {
+      recolourPopnLSOA();
+      recolourIMDLayer(imdDomainShort);
       refreshFilteredLSOAOverlays();
     });
 }
 
 function refreshFilteredLSOAOverlays() {
   // mapStore is an array of the maps that use the filtered LSOA
-
+  let refreshOverlay = false;
   for (let mapLSOA of mapStore) {
     if (mapsWithLSOAFiltered.has(mapLSOA.map)) {
-      mapLSOA.updateOverlay(
-        "filteredLSOA",
-        mapsWithLSOAFiltered.get(mapLSOA.map)[1]
-      );
+      const arr = mapsWithLSOAFiltered.get(mapLSOA.map);
+      if (arr.length > 1) {
+        refreshOverlay = true;
+        mapLSOA.updateOverlay("filteredLSOA", arr[1]);
+      }
     } else {
       // console.log({lsoaFilteredMap: 'update lsoa map array'})
     }
   }
 
   // Once the lsoa has been refreshed, update the overlay
-  refreshMapOverlayControls();
+  if (refreshOverlay) {
+    refreshMapOverlayControls();
+  }
+}
+
+async function mapMarkersNationalTrust() {
+  // Styling: https://gis.stackexchange.com/a/360454
+  const nhsTrustSites = L.conditionalMarkers([]),
+    nonNhsTrustSites = L.conditionalMarkers([]);
+
+  let i = 0,
+    j = 0; // counter for number of providers in each category
+  const data = await promHospitalDetails;
+
+  data.forEach((d) => {
+    const category = d.sector;
+    const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
+      <p>${d.parentODSCode}: ${d.parentName}
+      <br>${d.sector}</p>`;
+
+    if (category === "NHS Sector") {
+      const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+      marker.addTo(nhsTrustSites);
+      i++;
+    } else {
+      // Independent Sector
+      const marker = trustMarker(
+        d.markerPosition,
+        "independent",
+        "H",
+        popupText
+      );
+      marker.addTo(nonNhsTrustSites);
+      j++;
+    }
+  });
+
+  // This option controls how many markers can be displayed
+  nhsTrustSites.options.maxMarkers = i;
+  nonNhsTrustSites.options.maxMarkers = j;
+
+  // Overlay structure for Trust Sites
+  const nationalTrusts = overlayNationalTrusts(nhsTrustSites, nonNhsTrustSites);
+
+  // Add overlay to mapMain
+  overlaysTreeMain.children[4] = nationalTrusts;
+
+  function trustMarker(position, className, text = "H", popupText) {
+    return L.marker(position, {
+      icon: L.divIcon({
+        className: `trust-marker ${className}`,
+        html: text,
+        iconSize: L.point(20, 20),
+        popupAnchor: [0, -10],
+      }),
+    }).bindPopup(popupText);
+  }
+
+  function overlayNationalTrusts(nhs, independent) {
+    return {
+      label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label:
+            "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
+          layer: nhs,
+        },
+        {
+          label:
+            "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
+          layer: independent,
+        },
+      ],
+    };
+  }
 }
 
 function maxPopulation() {

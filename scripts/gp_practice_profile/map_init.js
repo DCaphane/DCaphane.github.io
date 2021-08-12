@@ -6,7 +6,7 @@ const mapStore = []; // used to store the variable that stores each map. Can be 
 // GP Main Site Map
 const mapMain = mapInitialise({
   mapDivID: "mapMain", // mapMain is the div id to place the map
-  // baselayer: "Bright", // set the default baselayer. Default is Bright
+  baselayer: "Bright", // set the default baselayer. Default is Bright
   userOverlayGPMain: { inc: true, display: true },
   userOverlayCCGBoundary: { display: true },
   userOverlayWardBoundary: { inc: true },
@@ -25,29 +25,12 @@ sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
 mapMain.updateOverlay("selectedTrusts", overlayTrusts());
 
-// GP Associated Sites Map
-/*
-const mapSites = mapInitialise({
-  mapDivID: "mapSites",
-  // baselayer: "Grey",
-  userOverlayGPSites: { inc: true, display: true },
-  userOverlayCCGBoundary: { display: true },
-});
-mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
-mapSites.homeButton();
-mapStore.push(mapSites)
-const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
-sidebarSites.addPanel(sidebarContent.panelOverview);
-
-mapSites.updateOverlay("selectedTrusts", overlayTrusts());
-*/
-
 // Population Map by lsoa
 const mapPopn = mapInitialise({
   mapDivID: "mapPopnLSOA",
-  // baselayer: "Dark",
+  baselayer: "Dark",
   userOverlayGPSites: { inc: true, display: true },
-  userOverlayLsoaBoundary: { inc: true, display: true },
+  userOverlayLsoaBoundary: { inc: true, display: false },
   userOverlayFilteredLsoa: { inc: true },
 });
 mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
@@ -75,7 +58,7 @@ Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/syst
 
 const mapIMD = mapInitialise({
   mapDivID: "mapIMDLSOA",
-  // baselayer: "Jawg Matrix",
+  baselayer: "Jawg Matrix",
   userOverlayFilteredLsoa: { inc: true },
 });
 mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
@@ -102,9 +85,9 @@ Drawing points of interest using this demo:
 
 const mapD3Bubble = mapInitialise({
   mapDivID: "mapIMDD3",
-  // baselayer: "High Contrast",
+  baselayer: "High Contrast",
   userOverlayLsoaBoundary: { inc: true },
-  userOverlayFilteredLsoa: { inc: true, display: false },
+  userOverlayFilteredLsoa: { inc: true },
   // userOverlayGPMain: { inc: true, display: false },
   userOverlayGPSites: { inc: true, display: false },
 });
@@ -125,6 +108,10 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
     // The following require the above population data and the geoData
     circlePopnIMDChart = imdDomainD3();
     filterFunctionLsoa(true);
+    //   .then(() => {
+    //   recolourPopnLSOA();
+    //   recolourIMDLayer(imdDomainShort);
+    // });
 
     Promise.allSettled([promGeoDataGP, gpDetails]).then(() => {
       // Main practice site popup text. Requires practiceLookup
@@ -145,6 +132,23 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
     });
   });
 });
+
+// GP Associated Sites Map
+/*
+const mapSites = mapInitialise({
+  mapDivID: "mapSites",
+  // baselayer: "Grey",
+  userOverlayGPSites: { inc: true, display: true },
+  userOverlayCCGBoundary: { display: true },
+});
+mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapSites.homeButton();
+mapStore.push(mapSites)
+const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarSites.addPanel(sidebarContent.panelOverview);
+
+mapSites.updateOverlay("selectedTrusts", overlayTrusts());
+*/
 
 /*
 OS Features API

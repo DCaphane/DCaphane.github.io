@@ -21,9 +21,7 @@ const mapsWithGPMain = new Map();
 const mapsWithGPSites = new Map(); // set of maps that include site codes
 
 const mapsWithLSOA = new Map(), // default LSOA boundaries
-  mapsWithLSOAFiltered = new Map(),
-  // Contains lsoa (key) and it's population for the selected practice (value)
-  mapsFilteredLSOA = new Map(); // selected lsoas
+  mapsWithLSOAFiltered = new Map();
 
 /*
 Can use like the following:
@@ -38,6 +36,7 @@ function mapInitialise({
   userOverlayCCGBoundary = {}, // = { inc: false, display: false, zoomExtent: true },
   userOverlayWardBoundary = {},
   userOverlayLsoaBoundary = {},
+  userOverlayLsoaBoundaryByIMD = {},
   userOverlayFilteredLsoa = {},
   userOverlayNationalTrusts = false,
 } = {}) {
@@ -81,6 +80,12 @@ function mapInitialise({
   const overlayLsoaBoundary = Object.assign(
     { inc: false, display: false, zoomExtent: false },
     userOverlayLsoaBoundary
+  );
+
+  // for showing the full lsoa boundary (not filtered) by IMD - think this slows things down
+  const overlayLsoaBoundaryByIMD = Object.assign(
+    { inc: false, display: false, zoomExtent: false },
+    userOverlayLsoaBoundaryByIMD
   );
 
   // for maps which use the filtered lsoa boundary
@@ -381,7 +386,6 @@ function mapInitialise({
         if (obj.label === baselayer) {
           layer = obj.layer; // .addTo(thisMap);
           found = true;
-          break;
         }
       }
       if (found) {
@@ -415,9 +419,11 @@ function mapInitialise({
   overlayMap.set("lsoaBoundaryFull", 4);
   overlayMap.set("nationalTrusts", 5);
   overlayMap.set("selectedTrusts", 6);
+  overlayMap.set("gpSitesFiltered", 7);
 
-  function updateOverlay(olName, ol) {
+  function updateOverlay(olName, ol, remove = false) {
     if (!overlayMap.has(olName)) {
+      // if the overlay (by name) does not already exist
       const arr = Array.from(overlayMap.values());
       const maxValue = Math.max(...arr);
       if (arr.length > 0) {
@@ -427,8 +433,13 @@ function mapInitialise({
       overlayMap.set(olName, overlayIndex);
       overlays.children[overlayIndex] = ol;
     } else {
-      const idx = overlayMap.get(olName);
-      overlays.children[idx] = ol;
+      if (remove) {
+        const idx = overlayMap.get(olName);
+        delete overlays.children[idx];
+      } else {
+        const idx = overlayMap.get(olName);
+        overlays.children[idx] = ol;
+      }
     }
   }
 
@@ -660,6 +671,49 @@ function mapInitialise({
   // Do you want to include the LSOA Boundary layer (option to display is later)
   // This layer will not be filtered ie. full boundary
   if (overlayLsoaBoundary.inc || overlayLsoaBoundary.zoomExtent) {
+    Promise.allSettled([promGeoDataLsoaBoundaries]).then((lsoaBoundaries) => {
+      // const layersMapByCCG = new Map();
+      // Consider option to show by CCG here...
+
+      const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+        style: styleLsoa,
+        pane: "lsoaBoundaryPane",
+        // onEachFeature: function (feature, layer) {
+        //   const lsoa = feature.properties.lsoa;
+        // },
+        // filter: function (d) {
+        //   // match site codes based on 6 char GP practice code
+        //   const strPractice = d.properties.orgCode;
+
+        //   return ccg === "03Q" ? true : false;
+        // },
+      });
+
+      if (overlayLsoaBoundary.display) {
+        // L.layerGroup(Array.from(layersMapByCCG.values())).addTo(thisMap);
+        geoDataLsoaBoundaries.addTo(thisMap);
+      }
+
+      if (overlayLsoaBoundary.inc || overlayLsoaBoundary.display) {
+        // const ol = overlayLSOAbyIMD(layersMapByCCG, "LSOA by CCG");
+        const ol = overlayLSOAbyCCG(geoDataLsoaBoundaries);
+        updateOverlay("lsoaBoundaryFull", ol);
+      }
+
+      // zoom option here
+      if (overlayLsoaBoundary.zoomExtent) {
+        thisMap.fitBounds(geoDataLsoaBoundaries.getBounds());
+      }
+
+      if (overlayLsoaBoundary.inc) {
+        mapsWithLSOA.set(thisMap, geoDataLsoaBoundaries);
+      }
+    });
+  }
+
+  // Do you want to include the LSOA Boundary layer by IMD (option to display is later) - this can be slow
+  // This layer will not be filtered ie. full boundary
+  if (overlayLsoaBoundaryByIMD.inc || overlayLsoaBoundaryByIMD.zoomExtent) {
     Promise.allSettled([promGeoDataLsoaBoundaries, promDataIMD]).then(
       (lsoaBoundaries) => {
         const layersMapByIMD = new Map();
@@ -684,21 +738,21 @@ function mapInitialise({
           },
         });
 
-        if (overlayLsoaBoundary.display) {
+        if (overlayLsoaBoundaryByIMD.display) {
           L.layerGroup(Array.from(layersMapByIMD.values())).addTo(thisMap);
         }
 
-        if (overlayLsoaBoundary.inc || overlayLsoaBoundary.display) {
-          const ol = overlayLSOA(layersMapByIMD, "LSOA by IMD");
+        if (overlayLsoaBoundaryByIMD.inc || overlayLsoaBoundaryByIMD.display) {
+          const ol = overlayLSOAbyIMD(layersMapByIMD, "LSOA by IMD");
           updateOverlay("lsoaBoundaryFull", ol);
         }
 
         // zoom option here
-        if (overlayLsoaBoundary.zoomExtent) {
+        if (overlayLsoaBoundaryByIMD.zoomExtent) {
           thisMap.fitBounds(geoDataLsoaBoundaries.getBounds());
         }
 
-        if (overlayLsoaBoundary.inc) {
+        if (overlayLsoaBoundaryByIMD.inc) {
           mapsWithLSOA.set(thisMap, geoDataLsoaBoundaries);
         }
       }
@@ -830,6 +884,20 @@ function updatePopUpText(sourceLayer) {
   });
 }
 
+function refreshMapOverlayControls() {
+  /*
+  to refresh the map overlay buttons
+  this needs to be done anytime something is changed that affects the overlay
+  Uses the last map (arbitrary) to ensure all the data has been loaded
+  */
+  const lastMap = mapStore[mapStore.length - 1];
+  lastMap.promTesting.then(() => {
+    for (const thisMap of mapStore) {
+      thisMap.refreshOverlayControl();
+    }
+  });
+}
+
 // consider incorporating this into mapinit
 // options around fitBounds, setView
 function defaultHome({ zoomInt = 9 } = {}) {
@@ -947,108 +1015,7 @@ function updateBouncingMarkers() {
   }
 }
 
-function filterGPPracticeSites(zoomToExtent = false) {
-  /* This will deselect the 'entire' GP Sites layer
-  and return an additional filtered layer based on the selected practice
-  */
-
-  Promise.allSettled([promGeoDataGP, gpDetails]).then((data) => {
-    mapsWithGPSites.forEach(function (value, key) {
-      // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
-      let isLayerDisplayed = false;
-      if (key.hasLayer(value[0])) {
-        // the original sites layer
-        key.removeLayer(value[0]);
-      }
-
-      // the filtered sites layer
-      if (value.length === 2) {
-        if (key.hasLayer(value[1])) {
-          isLayerDisplayed = true;
-          key.removeLayer(value[1]);
-        }
-        value.pop(); // not necessary as will be overwritten?
-      }
-
-      if (
-        userSelections.selectedPractice !== undefined &&
-        userSelections.selectedPractice !== "All Practices"
-      ) {
-        // const layersMapGpSites = new Map(); // will be the filtered layer
-
-        const gpSites = L.geoJson(data[0].value, {
-          // https://leafletjs.com/reference-1.7.1.html#geojson
-          pointToLayer: function (feature, latlng) {
-            return pcnFormatting(feature, latlng);
-          },
-          onEachFeature: function (feature, layer) {
-            const category = feature.properties.pcn_name;
-
-            let orgName = layer.feature.properties.orgName;
-            if (orgName === null) {
-              if (practiceLookup.has(layer.feature.properties.orgCode)) {
-                orgName = titleCase(
-                  practiceLookup.get(layer.feature.properties.orgCode)
-                );
-              } else {
-                orgName = "";
-              }
-            }
-
-            const popupText = `<h3>${category}</h3>
-        <p>${layer.feature.properties.orgCode}:
-        ${orgName}
-        <br>Parent Org:${layer.feature.properties.parent}</p>`;
-
-            layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
-
-            layer.on("mouseover", function (e) {
-              this.openPopup();
-            });
-            layer.on("mouseout", function (e) {
-              this.closePopup();
-            });
-            // layer.on("click", function (e) {
-            // });
-            // Initialize the category array if not already set.
-            //   if (!layersMapGpSites.has(category)) {
-            //     layersMapGpSites.set(category, L.layerGroup());
-            //   }
-            //   layersMapGpSites.get(category).addLayer(layer);
-          },
-          filter: function (d) {
-            // match site codes based on 6 char GP practice code
-            const strPractice = d.properties.orgCode;
-
-            return strPractice.substring(0, 6) ===
-              userSelections.selectedPractice.substring(0, 6)
-              ? true
-              : false;
-          },
-        });
-
-        // key is the map we are working with
-        // if (isLayerDisplayed) {
-          gpSites.addTo(key);
-        // }
-
-        value.push(gpSites); // append the filtered layer
-        mapsWithGPSites.set(key, value);
-
-        // if (zoomToExtent) {
-        key.fitBounds(gpSites.getBounds().pad(0.1));
-        // }
-      } else {
-        // reset to show all sites
-        key.addLayer(value[0]);
-        key.flyTo(mapOfMaps.get(key), 9);
-      }
-    });
-    refreshMapOverlayControls();
-  });
-}
-
-function styleLsoaTestOnly(feature) {
+function styleLsoaOrangeOutline() {
   return {
     fillColor: "#FFA400", // background
     fillOpacity: 0, // transparent
@@ -1157,7 +1124,7 @@ function overlayPCNs(mapObj) {
 
 function overlayTrusts() {
   return {
-    label: "Hospital Sites <i class='fa-solid fa-circle-h'></i>",
+    label: "Local Hospital Sites <i class='fa-solid fa-circle-h'></i>",
     selectAllCheckbox: true,
     children: [
       {
@@ -1227,7 +1194,20 @@ function overlayWards(mapObj) {
   };
 }
 
-function overlayLSOA(mapObj, labelDesc) {
+function overlayLSOAbyCCG(data) {
+  return {
+    label: "LSOA by CCG",
+    selectAllCheckbox: true,
+    children: [
+      {
+        label: "Vale of York",
+        layer: data,
+      },
+    ],
+  };
+}
+
+function overlayLSOAbyIMD(mapObj, labelDesc) {
   return {
     label: labelDesc,
     selectAllCheckbox: true,
@@ -1278,90 +1258,4 @@ function overlayLSOA(mapObj, labelDesc) {
       },
     ],
   };
-}
-
-async function mapMarkersNationalTrust() {
-  // Styling: https://gis.stackexchange.com/a/360454
-  const nhsTrustSites = L.conditionalMarkers([]),
-    nonNhsTrustSites = L.conditionalMarkers([]);
-
-  let i = 0,
-    j = 0; // counter for number of providers in each category
-  const data = await promHospitalDetails;
-
-  data.forEach((d) => {
-    const category = d.sector;
-    const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
-      <p>${d.parentODSCode}: ${d.parentName}
-      <br>${d.sector}</p>`;
-
-    if (category === "NHS Sector") {
-      const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
-      marker.addTo(nhsTrustSites);
-      i++;
-    } else {
-      // Independent Sector
-      const marker = trustMarker(
-        d.markerPosition,
-        "independent",
-        "H",
-        popupText
-      );
-      marker.addTo(nonNhsTrustSites);
-      j++;
-    }
-  });
-
-  // This option controls how many markers can be displayed
-  nhsTrustSites.options.maxMarkers = i;
-  nonNhsTrustSites.options.maxMarkers = j;
-
-  // Overlay structure for Trust Sites
-  const nationalTrusts = overlayNationalTrusts(nhsTrustSites, nonNhsTrustSites);
-
-  // Add overlay to mapMain
-  overlaysTreeMain.children[4] = nationalTrusts;
-
-  function trustMarker(position, className, text = "H", popupText) {
-    return L.marker(position, {
-      icon: L.divIcon({
-        className: `trust-marker ${className}`,
-        html: text,
-        iconSize: L.point(20, 20),
-        popupAnchor: [0, -10],
-      }),
-    }).bindPopup(popupText);
-  }
-
-  function overlayNationalTrusts(nhs, independent) {
-    return {
-      label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
-      selectAllCheckbox: true,
-      children: [
-        {
-          label:
-            "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
-          layer: nhs,
-        },
-        {
-          label:
-            "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
-          layer: independent,
-        },
-      ],
-    };
-  }
-}
-
-function refreshMapOverlayControls() {
-  /*
-  to refresh the map overlay buttons
-  this needs to be done anytime something is changed that affects the overlay
-  */
-
-  mapD3Bubble.promTesting.then((d) => {
-    for (const thisMap of mapStore) {
-      thisMap.refreshOverlayControl();
-    }
-  });
 }

@@ -47,7 +47,7 @@ let dataPopulationGP,
   arrayGPLsoaDates,
   uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
-const promDataGPPopn = d3
+const promDataGPPopn = d3 // consider dropping locality
   .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
   .then((data) => {
     dataPopulationGP = data;
@@ -147,7 +147,11 @@ function refreshChartsPostPracticeChange(practice) {
   }: ${userSelections.selectedPracticeName()}`;
 
   filterGPPracticeSites();
-  filterFunctionLsoa(true);
+  filterFunctionLsoa(true); // zoom to filtered lsoa
+  // .then(() => {
+  //   recolourPopnLSOA();
+  //   recolourIMDLayer(imdDomainShort);
+  // });
 
   trendChart.chartTrendDraw();
 
@@ -189,7 +193,7 @@ function processDataGPPopulation(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate
   return {
     Practice: d.Practice_Mapped.substring(0, 6),
-    Locality: d.Locality,
+    // Locality: d.Locality,
     Age_Band: d.Age_Band,
     Period: +parseDate(d.Period),
     Male_Pop: +d.Male,
