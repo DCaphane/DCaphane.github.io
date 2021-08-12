@@ -1,11 +1,21 @@
 // Set up the maps
 
+// Used to keep track of the map overlay for subsequent refresh
+const mapOverlays = new Map();
+const mapStore = []; // used to store the variable that stores each map. Can be used in subsequent loops...
 // GP Main Site Map
-const mapMain = mapInitialise("mapMain"); // mapMain is the div id to place the map
+const mapMain = mapInitialise({
+  mapDivID: "mapMain", // mapMain is the div id to place the map
+  baselayer: "Bright", // set the default baselayer. Default is Bright
+  userOverlayGPMain: { inc: true, display: true },
+  userOverlayCCGBoundary: { display: true },
+  userOverlayWardBoundary: { inc: true },
+  userOverlayNationalTrusts: true,
+});
 mapMain.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 // mapMain.home = {lat: 54.018213, lng: -10.0} // can change the home button position
 mapMain.homeButton(); // mapMain.homeButton({ latLng: trustSitesLoc.yorkTrust, zoom: 12 });
-
+mapStore.push(mapMain);
 const sidebarMapMain = mapMain.sideBar(); // default is left, can use mapMain.sideBar({side: "right"});
 sidebarMapMain.addPanel(sidebarContent.panelOverview);
 sidebarMapMain.addPanel(sidebarContent.panelSpecific);
@@ -13,39 +23,23 @@ sidebarMapMain.addPanel(sidebarContent.panelMail);
 sidebarMapMain.addPanel(sidebarContent.panelDummy);
 sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
-const baseTreeMain = mapMain.baselayers("Bright"); // set the default baselayer. Default is Bright
-const overlaysTreeMain = mapMain.overlays; // global to enable updates
-const mapControlMain = mapMain.layerControl(baseTreeMain, overlaysTreeMain);
-
-overlaysTreeMain.children[1] = overlayTrusts();
-
-// GP Associated Sites Map
-const mapSites = mapInitialise("mapSites");
-mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
-mapSites.homeButton();
-
-const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
-sidebarSites.addPanel(sidebarContent.panelOverview);
-
-const baseTreeSites = mapSites.baselayers("Dark"); // set the default baselayer. Default is Bright
-const overlaysTreeSites = mapSites.overlays; // global to enable updates
-const mapControlSites = mapSites.layerControl(baseTreeSites, overlaysTreeSites);
-
-overlaysTreeSites.children[0] = overlayTrusts();
+mapMain.updateOverlay("selectedTrusts", overlayTrusts());
 
 // Population Map by lsoa
-const mapPopn = mapInitialise("mapPopnLSOA");
+const mapPopn = mapInitialise({
+  mapDivID: "mapPopnLSOA",
+  baselayer: "Dark",
+  userOverlayGPSites: { inc: true, display: true },
+  userOverlayLsoaBoundary: { inc: true, display: false },
+  userOverlayFilteredLsoa: { inc: true },
+});
 mapPopn.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapPopn.homeButton();
-
+mapStore.push(mapPopn);
 const sidebarPopn = mapPopn.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 sidebarPopn.addPanel(sidebarContent.panelOverview);
 
-const baseTreePopn = mapPopn.baselayers("OS Light"); // set the default baselayer. Default is Bright
-const overlaysTreePopn = mapPopn.overlays; // Make global to enable subsequent change to overlay
-const mapControlPopn = mapPopn.layerControl(baseTreePopn, overlaysTreePopn);
-
-overlaysTreePopn.children[0] = overlayTrusts(); // Add selected hospitals to overlay
+mapPopn.updateOverlay("selectedTrusts", overlayTrusts());
 
 const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
 
@@ -62,21 +56,21 @@ IMD Map by LSOA
 Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/853811/IoD2019_FAQ_v4.pdf
 */
 
-const mapIMD = mapInitialise("mapIMDLSOA");
+const mapIMD = mapInitialise({
+  mapDivID: "mapIMDLSOA",
+  baselayer: "Jawg Matrix",
+  userOverlayFilteredLsoa: { inc: true },
+});
 mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapIMD.homeButton();
-
+mapStore.push(mapIMD);
 const sidebarIMD = mapIMD.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 sidebarIMD.addPanel(sidebarContent.panelOverview);
 sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
 
-const baseTreeIMD = mapIMD.baselayers("Grey"); // set the default baselayer. Default is Bright
-const overlaysTreeIMD = mapIMD.overlays; // global to enable updates
-const mapControlIMD = mapIMD.layerControl(baseTreeIMD, overlaysTreeIMD);
-
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
-overlaysTreeIMD.children[0] = overlayTrusts();
+mapIMD.updateOverlay("selectedTrusts", overlayTrusts());
 
 /*
 Population and IMD by LSOA (D3 Circle Map)
@@ -89,22 +83,22 @@ Drawing points of interest using this demo:
 
 */
 
-const mapD3Bubble = mapInitialise("mapIMDD3");
+const mapD3Bubble = mapInitialise({
+  mapDivID: "mapIMDD3",
+  baselayer: "High Contrast",
+  userOverlayLsoaBoundary: { inc: true },
+  userOverlayFilteredLsoa: { inc: true },
+  // userOverlayGPMain: { inc: true, display: false },
+  userOverlayGPSites: { inc: true, display: false },
+});
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();
-
-const baseTreeD3Bubble = mapD3Bubble.baselayers("Grey"); // set the default baselayer. Default is Bright
-const overlaysTreeBubble = mapD3Bubble.overlays; // global to enable updates
-const mapControlBubble = mapD3Bubble.layerControl(
-  baseTreeD3Bubble,
-  overlaysTreeBubble
-);
+mapStore.push(mapD3Bubble);
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
-overlaysTreeBubble.children[3] = overlayTrusts();
+mapD3Bubble.updateOverlay("selectedTrusts", overlayTrusts());
 
 // const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
-
 
 // Functions to create the charts runs last - after all the data is available
 Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
@@ -112,16 +106,49 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
 
   Promise.allSettled([importGeoData]).then(() => {
     // The following require the above population data and the geoData
-    initGeoCharts();
     circlePopnIMDChart = imdDomainD3();
-    refreshGeoChart();
+    filterFunctionLsoa(true);
+    //   .then(() => {
+    //   recolourPopnLSOA();
+    //   recolourIMDLayer(imdDomainShort);
+    // });
 
-    Promise.allSettled([promHospitalDetails, promGeoDataCYCWards]).then(() => {
+    Promise.allSettled([promGeoDataGP, gpDetails]).then(() => {
+      // Main practice site popup text. Requires practiceLookup
+      // updatePopUpText(mapsWithGPMain.get(mapMain.map)[0]) // can be used to update an individual map
+      for (const value of mapsWithGPMain.values()) {
+        updatePopUpText(value[0]);
+      }
+    });
+    // not sure if this is necessary...
+    Promise.allSettled([
+      promHospitalDetails,
+      promGeoDataCYCWards,
+      promGeoDataLsoaBoundaries,
+      promDataIMD,
+    ]).then(() => {
       // refreshes the overlaysTree to ensure everything is included and collapsed
       refreshMapOverlayControls();
     });
   });
 });
+
+// GP Associated Sites Map
+/*
+const mapSites = mapInitialise({
+  mapDivID: "mapSites",
+  // baselayer: "Grey",
+  userOverlayGPSites: { inc: true, display: true },
+  userOverlayCCGBoundary: { display: true },
+});
+mapSites.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
+mapSites.homeButton();
+mapStore.push(mapSites)
+const sidebarSites = mapSites.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
+sidebarSites.addPanel(sidebarContent.panelOverview);
+
+mapSites.updateOverlay("selectedTrusts", overlayTrusts());
+*/
 
 /*
 OS Features API

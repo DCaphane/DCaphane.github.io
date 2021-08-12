@@ -1,34 +1,9 @@
-function recolourLSOA() {
+function recolourPopnLSOA() {
   /*
     For updating the LSOA colours in mapPopulation
     */
-  const maxValue =
-    userSelections.selectedPractice !== undefined &&
-    userSelections.selectedPractice !== "All Practices"
-      ? d3.max(
-          dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get(userSelections.selectedPractice)
-            .values()
-        )
-      : d3.max(
-          dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get("All")
-            .values()
-        );
-  /*
-    const rawPopn =
-      userSelections.selectedPractice !== undefined && userSelections.selectedPractice !== "All Practices"
-        ? [...dataPopulationGPLsoa.get(userSelections.nearestDate()).get(userSelections.selectedPractice).values()]
-        : [...dataPopulationGPLsoa.get(userSelections.nearestDate()).get("All").values()];
+  const maxValue = maxPopulation();
 
-    const maxValue = d3.max(rawPopn);
-    const colour = d3.scaleSequentialQuantile()
-      .domain(rawPopn)
-    .interpolator(d3.interpolateBlues)
-  */
-  filterFunctionLsoa.call(mapPopn, true);
   // refreshMapPopnLegend(maxValue);
   popnLegend.legend({
     color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
@@ -37,20 +12,10 @@ function recolourLSOA() {
     marginLeft: 50,
   });
 
-  layersMapLSOA.get("voyCCGPopn").eachLayer(function (layer) {
+  mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
     const lsoaCode = layer.feature.properties.lsoa;
 
-    let value =
-      userSelections.selectedPractice !== undefined &&
-      userSelections.selectedPractice !== "All Practices"
-        ? dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get(userSelections.selectedPractice)
-            .get(lsoaCode)
-        : dataPopulationGPLsoa
-            .get(userSelections.nearestDate())
-            .get("All")
-            .get(lsoaCode);
+    let value = actualPopulation(lsoaCode);
 
     if (value === undefined) {
       value = 0;
@@ -66,6 +31,10 @@ function recolourLSOA() {
         opacity: 1,
         // dashArray: "3",
       });
+      // layer.on("click", function (e) {
+      //   // update other charts
+      //   console.log({ lsoa: selectedLsoa });
+      // });
     } else {
       layer.setStyle({
         // no (transparent) background
@@ -125,7 +94,7 @@ function imdDomainD3(id = "selD3Leaf") {
     } else {
       imdDomainShortD3 = "Population";
     }
-    console.log(imdDomainDescD3);
+    console.log({ imdDomain: imdDomainDescD3 });
     updateBubbleColour(imdDomainShortD3);
   });
 
@@ -152,14 +121,13 @@ function imdDomainD3(id = "selD3Leaf") {
     .attr("class", "bubble-legend");
 
   // Project any point to map's current state
-  function projectPoint(x, y) {
-    const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
-    this.stream.point(point.x, point.y);
-  }
+  // function projectPoint(x, y) {
+  //   const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
+  //   this.stream.point(point.x, point.y);
+  // }
 
-  // is this used?
-  const transform = d3.geoTransform({ point: projectPoint }),
-    path = d3.geoPath().projection(transform);
+  // const transform = d3.geoTransform({ point: projectPoint }),
+  //   path = d3.geoPath().projection(transform);
 
   let d3BubbleEnter;
 
@@ -194,21 +162,7 @@ function imdDomainD3(id = "selD3Leaf") {
       });
     } else {
       // Style and legend for population
-      const maxValue =
-        userSelections.selectedPractice !== undefined &&
-        userSelections.selectedPractice !== "All Practices"
-          ? d3.max(
-              dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get(userSelections.selectedPractice)
-                .values()
-            )
-          : d3.max(
-              dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get("All")
-                .values()
-            );
+      const maxValue = maxPopulation();
 
       lsoaCentroidLegend.legend({
         color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
@@ -248,22 +202,10 @@ function imdDomainD3(id = "selD3Leaf") {
   // Initialise D3 Circle Map
   updateD3BubbleLsoa();
 
-  userSelections.selectedDate;
-
   function updateD3BubbleLsoa() {
     // Update the population details
     lsoaCentroidDetails.forEach((lsoa) => {
-      let value =
-        userSelections.selectedPractice !== undefined &&
-        userSelections.selectedPractice !== "All Practices"
-          ? dataPopulationGPLsoa
-              .get(userSelections.nearestDate())
-              .get(userSelections.selectedPractice)
-              .get(lsoa.lsoa)
-          : dataPopulationGPLsoa
-              .get(userSelections.nearestDate())
-              .get("All")
-              .get(lsoa.lsoa);
+      let value = actualPopulation(lsoa.lsoa);
 
       if (value === undefined) {
         value = 0;
@@ -272,9 +214,9 @@ function imdDomainD3(id = "selD3Leaf") {
     });
 
     const maxValue = d3.max(lsoaCentroidDetails, function (d) {
-        return d.lsoaPopulation;
-      }),
-      maxValueNice = Math.ceil(maxValue / 100) * 100; //  round to the nearest 100
+      return d.lsoaPopulation;
+    });
+    // , maxValueNice = Math.ceil(maxValue / 100) * 100; //  round to the nearest 100
 
     const radius = d3
       .scaleSqrt()
@@ -393,17 +335,7 @@ function imdDomainD3(id = "selD3Leaf") {
       .style("fill-opacity", function (d) {
         const lsoaCode = d.lsoa;
 
-        let value =
-          userSelections.selectedPractice !== undefined &&
-          userSelections.selectedPractice !== "All Practices"
-            ? dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get(userSelections.selectedPractice)
-                .get(lsoaCode)
-            : dataPopulationGPLsoa
-                .get(userSelections.nearestDate())
-                .get("All")
-                .get(lsoaCode);
+        let value = actualPopulation(lsoaCode);
 
         if (value > minPopulationLSOA) {
           return 0.7;
@@ -483,10 +415,8 @@ function imdDomainD3(id = "selD3Leaf") {
     };
   }
 
-  // Every time the map changes, update the SVG paths
+  // Every time the map changes (post viewreset, move or moveend) update the SVG paths
   mapD3Bubble.map.on("viewreset move moveend", refreshBubbles);
-  // mapD3Bubble.map.on("move", refreshBubbles);
-  // mapD3Bubble.map.on("moveend", refreshBubbles);
 
   return {
     updateD3BubbleLsoa: updateD3BubbleLsoa,
@@ -522,11 +452,11 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
     marginLeft: 50,
   });
 
-  for (let key of layersMapIMD.keys()) {
-    layersMapIMD.get(key).eachLayer(function (layer) {
+  if (mapsWithLSOAFiltered.has(mapIMD.map)) {
+    mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
       const lsoaCode = layer.feature.properties.lsoa;
 
-      if (mapSelectedLSOA.has(lsoaCode)) {
+      if (mapsFilteredLSOA.has(lsoaCode)) {
         // the filter lsoaFunction populates a map object of lsoas (with relevant population)
         let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
         if (obj !== undefined) {
@@ -564,6 +494,7 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
     });
   }
 }
+// }
 
 const mapIMDDomain = new Map();
 
@@ -576,13 +507,13 @@ legendColour is used to create the colour bar (ramp)
 Some scales require the whole dataset (values) for the domain. This can be derived using eg. d3.range(m, n) which returns an array of m-n+1 values from m to n
 Other scales only require the min and max values as an array. This can be derived using d3.extent (values) or d3.min and d3.max
 */
-const noLSOAs = 32_844; // this is the number of lsoas nationally
-const arrNoLSOAs = d3.range(1, noLSOAs + 1); // returns an array [1, 2, ..., noLSOAs]
+const noLSOAs = 32_844, // this is the number of lsoas nationally
+  arrNoLSOAs = d3.range(1, noLSOAs + 1); // returns an array [1, 2, ..., noLSOAs]
 
 const defaultIMDProperties = {
   datasetDesc: "datasetFieldName", // which field in the dataset to refer to
   scale(values) {
-    // values not used here but are used in the population fields so need to pass the parameter
+    // values not used here but is subsequently used in the population fields so need to pass the parameter here
     return d3
       .scaleQuantize()
       .domain([1, noLSOAs])
@@ -769,7 +700,452 @@ let imdDomainDesc = "IMD Rank",
   d3.select(select).on("change", function () {
     imdDomainDesc = d3.select("#selImdDomain option:checked").text();
     imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
-    console.log(imdDomainShort);
+    console.log({ imdDomainShort: imdDomainShort });
     recolourIMDLayer(imdDomainShort);
   });
 })();
+
+function filterGPPracticeSites(zoomToExtent = false) {
+  /* This will deselect the 'entire' GP Sites layer
+  and return an additional filtered layer based on the selected practice
+  */
+
+  Promise.allSettled([promGeoDataGP, gpDetails]).then((data) => {
+    mapsWithGPSites.forEach(function (value, key) {
+      // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
+      let isLayerDisplayed = false;
+      if (key.hasLayer(value[0])) {
+        // the original sites layer
+        key.removeLayer(value[0]);
+        isLayerDisplayed = true;
+      }
+
+      // Does the map already show the filtered sites layer
+      if (value.length > 1) {
+        if (key.hasLayer(value[1])) {
+          key.removeLayer(value[1]);
+        }
+        // value.pop(); // not necessary as will be overwritten?
+        delete value[1]; // keeps the array length but the filtered sites layer (in index 1) becomes undefined
+      }
+
+      if (
+        userSelections.selectedPractice !== undefined &&
+        userSelections.selectedPractice !== "All Practices"
+      ) {
+        // const layersMapGpSites = new Map(); // will be the filtered layer
+
+        const gpSites = L.geoJson(data[0].value, {
+          // https://leafletjs.com/reference-1.7.1.html#geojson
+          pointToLayer: function (feature, latlng) {
+            return pcnFormatting(feature, latlng);
+          },
+          onEachFeature: function (feature, layer) {
+            const category = feature.properties.pcn_name;
+
+            let orgName = layer.feature.properties.orgName;
+            if (orgName === null) {
+              if (practiceLookup.has(layer.feature.properties.orgCode)) {
+                orgName = titleCase(
+                  practiceLookup.get(layer.feature.properties.orgCode)
+                );
+              } else {
+                orgName = "";
+              }
+            }
+
+            const popupText = `<h3>${category}</h3>
+        <p>${layer.feature.properties.orgCode}:
+        ${orgName}
+        <br>Parent Org:${layer.feature.properties.parent}</p>`;
+
+            layer.bindPopup(popupText, { className: "popup-dark" }); // popup formatting applied in css, css/leaflet_tooltip.css
+
+            layer.on("mouseover", function (e) {
+              this.openPopup();
+            });
+            layer.on("mouseout", function (e) {
+              this.closePopup();
+            });
+            // layer.on("click", function (e) {
+            // });
+            // Initialize the category array if not already set.
+            //   if (!layersMapGpSites.has(category)) {
+            //     layersMapGpSites.set(category, L.layerGroup());
+            //   }
+            //   layersMapGpSites.get(category).addLayer(layer);
+          },
+          filter: function (d) {
+            // match site codes based on 6 char GP practice code
+            const strPractice = d.properties.orgCode;
+
+            return strPractice.substring(0, 6) ===
+              userSelections.selectedPractice.substring(0, 6)
+              ? true
+              : false;
+          },
+        });
+
+        // key is the map we are working with
+        gpSites.addTo(key);
+
+        value[1] = gpSites; // append the filtered layer
+
+        // Selected GP Sites Overlay
+        const ol = {
+          label: "Selected Practice Sites",
+          layer: gpSites,
+        };
+        value[2] = ol; // append the overlay
+
+        mapsWithGPSites.set(key, value);
+
+        if (zoomToExtent) {
+          key.fitBounds(gpSites.getBounds().pad(0.1));
+        }
+      } else {
+        // reset to show all sites
+        if (isLayerDisplayed || key === mapPopn.map) {
+          key.addLayer(value[0]);
+        }
+        key.flyTo(mapOfMaps.get(key), 9);
+
+        // Remove the overlay
+        value[2] = null; // null will be used in the filter function to remove th overlay
+      }
+    });
+    // refreshFilteredGPSitesOverlays();
+  });
+}
+
+function refreshFilteredGPSitesOverlays() {
+  // mapStore is an array of the maps that use the filtered GP Sites
+  let refreshOverlay = false;
+  for (let mapGPSites of mapStore) {
+    if (mapsWithGPSites.has(mapGPSites.map)) {
+      const arr = mapsWithGPSites.get(mapGPSites.map);
+      if (arr.length > 2) {
+        if (arr[2] !== null) {
+          // if it's null then delete the overlay label
+          refreshOverlay = true;
+          mapGPSites.updateOverlay("gpSitesFiltered", arr[2]);
+        } else {
+          mapGPSites.updateOverlay(
+            "gpSitesFiltered",
+            "",
+            true // option to delete overlay
+          );
+        }
+      }
+    } else {
+      // console.log({gpSitesMap: 'update gpSites map array'})
+    }
+  }
+
+  // Once the lsoa has been refreshed, update the overlay
+  if (refreshOverlay) {
+    // refreshMapOverlayControls();
+  }
+}
+
+// Contains lsoa (key) and it's population for the selected practice (value)
+const mapsFilteredLSOA = new Map(); // selected lsoas
+
+async function filterFunctionLsoa(zoomToExtent = false) {
+  /*
+  Consider moving this into the init function if not splitting by eg. IMD
+  */
+  await Promise.allSettled([
+    promGeoDataLsoaBoundaries,
+    promDataGPPopnLsoa,
+    promDataIMD,
+  ])
+    .then((lsoaBoundaries) => {
+      mapsFilteredLSOA.clear();
+
+      mapsWithLSOAFiltered.forEach(function (value, key) {
+        // Remove the original layer
+        if (value !== null && value !== undefined) {
+          if (key.hasLayer(value[0])) {
+            key.removeLayer(value[0]);
+          }
+        }
+
+        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+          style: styleLsoaOrangeOutline,
+          pane: "lsoaBoundaryPane2",
+          onEachFeature: function (feature, layer) {
+            const lsoa = feature.properties.lsoa;
+
+            layer.on("click", function (e) {
+              // update other charts
+              selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
+              console.log({ lsoa: selectedLsoa });
+            });
+          },
+          filter: function (d) {
+            // console.log(d.properties.lsoa)
+            const lsoaCode = d.properties.lsoa;
+
+            let population = actualPopulation(lsoaCode);
+
+            if (population > minPopulationLSOA) {
+              mapsFilteredLSOA.set(lsoaCode, population);
+              return true;
+            }
+          },
+        });
+
+        geoDataLsoaBoundaries.addTo(key);
+
+        const ol = {
+          label: "LSOA by Population",
+          layer: geoDataLsoaBoundaries,
+          // selectAllCheckbox: true,
+          // children: [{ layer: geoDataLsoaBoundaries }]
+        };
+        mapsWithLSOAFiltered.set(key, [geoDataLsoaBoundaries, ol]); // filtered lsoa map, popn over eg. 20
+
+        // if (incLayer) {
+        // L.layerGroup(Array.from(layersMapByIMD.values())).addTo(key);
+        // }
+
+        if (zoomToExtent) {
+          key.fitBounds(geoDataLsoaBoundaries.getBounds());
+        }
+      });
+    })
+    .then(() => {
+      recolourPopnLSOA();
+      recolourIMDLayer(imdDomainShort);
+    })
+    .then(() => {
+      /*
+      Previously tried running this within the above .then statement but this typically results in
+      an error when trying to remove a layer
+      */
+      const lastMap = mapStore[mapStore.length - 1];
+      lastMap.promTesting.then(() => {
+        refreshFilteredGPSitesOverlays();
+        refreshFilteredLSOAOverlays();
+      });
+    });
+}
+
+async function filterFunctionLsoaByIMD(zoomToExtent = false) {
+  /*
+  This procedures works but is potentially slow since removing all layers rather than one overarching one
+  */
+  await Promise.allSettled([
+    promGeoDataLsoaBoundaries,
+    promDataGPPopnLsoa,
+    promDataIMD,
+  ])
+    .then((lsoaBoundaries) => {
+      mapsFilteredLSOA.clear();
+
+      mapsWithLSOAFiltered.forEach(function (value, key) {
+        const incLayer = key.hasLayer(value);
+        // Remove the original layer
+        if (value !== null) {
+          if (key.hasLayer(value[0])) {
+            key.removeLayer(value[0]);
+          } else {
+            value[2]();
+          }
+        }
+
+        const layersMapByIMD = new Map();
+
+        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+          style: styleLsoaOrangeOutline,
+          pane: "lsoaBoundaryPane2",
+          onEachFeature: function (feature, layer) {
+            const lsoa = feature.properties.lsoa;
+
+            let imdDecile;
+            if (mapLSOAbyIMD.has(lsoa)) {
+              imdDecile = mapLSOAbyIMD.get(lsoa); // IMD Decile
+            } else {
+              imdDecile = "exc"; // undefined
+            }
+
+            // Initialize the category array if not already set.
+            if (!layersMapByIMD.has(imdDecile)) {
+              layersMapByIMD.set(imdDecile, L.layerGroup());
+            }
+            layersMapByIMD.get(imdDecile).addLayer(layer);
+
+            layer.on("click", function (e) {
+              // update other charts
+              selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
+              console.log({ lsoa: selectedLsoa });
+            });
+          },
+          filter: function (d) {
+            // console.log(d.properties.lsoa)
+            const lsoaCode = d.properties.lsoa;
+
+            let population = actualPopulation(lsoaCode);
+
+            if (population > minPopulationLSOA) {
+              mapsFilteredLSOA.set(lsoaCode, population);
+              return true;
+            }
+          },
+        });
+
+        L.layerGroup(Array.from(layersMapByIMD.values())).addTo(key);
+
+        function removeFeature() {
+          layersMapByIMD.forEach(function (value) {
+            key.removeLayer(value);
+          });
+        }
+
+        const ol = overlayLSOA(layersMapByIMD, "LSOA Population");
+        mapsWithLSOAFiltered.set(key, [
+          geoDataLsoaBoundaries,
+          ol,
+          removeFeature,
+        ]); // filtered lsoa map, popn over eg. 20
+
+        // if (incLayer) {
+        // L.layerGroup(Array.from(layersMapByIMD.values())).addTo(key);
+        // }
+
+        if (zoomToExtent) {
+          key.fitBounds(geoDataLsoaBoundaries.getBounds());
+        }
+      });
+    })
+    .then(() => {
+      recolourPopnLSOA();
+      recolourIMDLayer(imdDomainShort);
+      refreshFilteredLSOAOverlays();
+    });
+}
+
+function refreshFilteredLSOAOverlays() {
+  // mapStore is an array of the maps that use the filtered LSOA
+  let refreshOverlay = false;
+  for (let mapLSOA of mapStore) {
+    if (mapsWithLSOAFiltered.has(mapLSOA.map)) {
+      const arr = mapsWithLSOAFiltered.get(mapLSOA.map);
+      if (arr.length > 1) {
+        refreshOverlay = true;
+        mapLSOA.updateOverlay("filteredLSOA", arr[1]);
+      }
+    } else {
+      // console.log({lsoaFilteredMap: 'update lsoa map array'})
+    }
+  }
+
+  // Once the lsoa has been refreshed, update the overlay
+  if (refreshOverlay) {
+    refreshMapOverlayControls();
+  }
+}
+
+async function mapMarkersNationalTrust() {
+  // Styling: https://gis.stackexchange.com/a/360454
+  const nhsTrustSites = L.conditionalMarkers([]),
+    nonNhsTrustSites = L.conditionalMarkers([]);
+
+  let i = 0,
+    j = 0; // counter for number of providers in each category
+  const data = await promHospitalDetails;
+
+  data.forEach((d) => {
+    const category = d.sector;
+    const popupText = `<h3>${d.organisationCode}: ${d.organisationName}</h3>
+      <p>${d.parentODSCode}: ${d.parentName}
+      <br>${d.sector}</p>`;
+
+    if (category === "NHS Sector") {
+      const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+      marker.addTo(nhsTrustSites);
+      i++;
+    } else {
+      // Independent Sector
+      const marker = trustMarker(
+        d.markerPosition,
+        "independent",
+        "H",
+        popupText
+      );
+      marker.addTo(nonNhsTrustSites);
+      j++;
+    }
+  });
+
+  // This option controls how many markers can be displayed
+  nhsTrustSites.options.maxMarkers = i;
+  nonNhsTrustSites.options.maxMarkers = j;
+
+  // Overlay structure for Trust Sites
+  const nationalTrusts = overlayNationalTrusts(nhsTrustSites, nonNhsTrustSites);
+
+  // Add overlay to mapMain
+  overlaysTreeMain.children[4] = nationalTrusts;
+
+  function trustMarker(position, className, text = "H", popupText) {
+    return L.marker(position, {
+      icon: L.divIcon({
+        className: `trust-marker ${className}`,
+        html: text,
+        iconSize: L.point(20, 20),
+        popupAnchor: [0, -10],
+      }),
+    }).bindPopup(popupText);
+  }
+
+  function overlayNationalTrusts(nhs, independent) {
+    return {
+      label: "National Hospital Sites <i class='fa-solid fa-circle-h'></i>",
+      selectAllCheckbox: true,
+      children: [
+        {
+          label:
+            "NHS <i class='fa-solid fa-circle-h' style='font-size:14px;color:blue;'></i>",
+          layer: nhs,
+        },
+        {
+          label:
+            "Independent <i class='fa-solid fa-circle-h' style='font-size:14px;color:green;'></i>",
+          layer: independent,
+        },
+      ],
+    };
+  }
+}
+
+function maxPopulation() {
+  return userSelections.selectedPractice !== undefined &&
+    userSelections.selectedPractice !== "All Practices"
+    ? d3.max(
+        dataPopulationGPLsoa
+          .get(userSelections.nearestDate())
+          .get(userSelections.selectedPractice)
+          .values()
+      )
+    : d3.max(
+        dataPopulationGPLsoa
+          .get(userSelections.nearestDate())
+          .get("All")
+          .values()
+      );
+}
+
+function actualPopulation(lsoa) {
+  return userSelections.selectedPractice !== undefined &&
+    userSelections.selectedPractice !== "All Practices"
+    ? dataPopulationGPLsoa
+        .get(userSelections.nearestDate())
+        .get(userSelections.selectedPractice)
+        .get(lsoa)
+    : dataPopulationGPLsoa
+        .get(userSelections.nearestDate())
+        .get("All")
+        .get(lsoa);
+}

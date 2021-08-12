@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en-gb" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
+    -->
+
+    <title>Template</title>
+
+    <meta name="author" content="David Caphane " />
+    <meta name="description" content="Template for Subsequent Pages" />
+
+    <!-- Place "favicon.ico" in the root directory -->
+    <!-- link rel="icon" href="../../favicon.ico" -->
+    <!--
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" integrity="sha256-HxaKz5E/eBbvhGMNwhWRPrAR9i/lG1JeT4mD6hCQ7s4="crossorigin="anonymous" />
+    -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap-reboot.min.css"
+      integrity="sha256-pTFzHsh1e+rz97pjNUpygMbwPzZM3iI3jPd9k4PBTko="
+      crossorigin="anonymous"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,900"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/0e64dfdf0b.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/navbar_main.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/components/navbar_side.css"
+    />
+
+    <link rel="stylesheet" type="text/css" href="css/components/toTop.css" />
+
+    <!-- Page Structure (Layout) -->
+    <script>
+      const pageName = "Home"; // This is the 'key' name in the function createSiteStructure (see navmain.js)
+      const elemActive = `nav ${pageName}`.split(" ").join("-");
+    </script>
+    <!-- requires font awesome -->
+    <script defer src="scripts\components\navmain.js"></script>
+    <script defer src="scripts\components\navside.js"></script>
+    <script defer src="scripts\components\toTop.js"></script>
+
+    <!--
+https://css-tricks.com/svg-loader-a-different-way-to-work-with-external-svg/
+https://github.com/shubhamjain/svg-loader
+
+Can be used with local svg files (img/svg/)
+
+For local files, need to remove fill="" from the svg file if want to change color property
+For testing, apply data-cache="disabled" to the svg attributes otherwise won't see changes
+ -->
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/external-svg-loader@latest/svg-loader.min.js"
+      async
+    ></script>
+
+    <style></style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <section id="hero">
+        <a href="/" class="logo"> <h1>SVG Testing</h1> </a>
+      </section>
+
+      <div class="wrapper-nav">
+        <nav id="nav-main">
+          <!-- nav bar main imported from components.js -->
+        </nav>
+      </div>
+
+      <nav id="article-left"></nav>
+
+      <article id="article-right">
+        <div class="column">
+          <section id="sec-00" class="section anchor">
+            <h2>Introduction</h2>
+            <p>
+              Demo for importing svg with ability to restyle. Based on this
+              <a href="https://github.com/shubhamjain/svg-loader">link</a>
+            </p>
+          </section>
+
+          <section id="sec-01" class="section anchor">
+            <h2>Section 01</h2>
+
+            <div id="id01" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty000">
+                  <svg
+                    data-src="https://unpkg.com/@mdi/svg@5.9.55/svg/access-point-network.svg"
+                    width="50"
+                    height="50"
+                    fill="blue"
+                  ></svg>
+                </div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty001">
+                  <svg
+                    data-src="https://unpkg.com/@mdi/svg@5.9.55/svg/account-heart.svg"
+                    width="50"
+                    height="50"
+                    fill="red"
+                  ></svg>
+                </div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile widest content">
+                <h3>Widest Tile</h3>
+                <div id="empty002">
+                  <svg
+                    data-src="/img/svg/hospital.svg"
+                    width="50"
+                    height="50"
+                    fill="green"
+                    data-cache="disabled"
+                  ></svg>
+                  <svg
+                    data-src="/img/svg/hospital.svg"
+                    width="50"
+                    height="50"
+                    fill="orange"
+                    data-cache="disabled"
+                  ></svg>
+                </div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty003"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-02" class="section anchor">
+            <h2>Section 02</h2>
+
+            <div id="id02" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty004"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty005"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty006"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty007"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-03" class="section anchor">
+            <h2>Section 03</h2>
+
+            <div id="id03" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty008"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty009"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty010"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty011"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-04" class="section anchor">
+            <h2>Section 04</h2>
+
+            <div id="id04" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty012"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty013"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty014"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty015"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+
+          <section id="sec-05" class="section anchor">
+            <h2>Section 05</h2>
+
+            <div id="id05" class="tiles">
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty016"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty017"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile wide content">
+                <h3>Wide Tile</h3>
+                <div id="empty018"></div>
+                <footer class="cta">...</footer>
+              </div>
+
+              <div class="tile content">
+                <h3>Standard Tile</h3>
+                <div id="empty019"></div>
+                <footer class="cta">...</footer>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="footer"></div>
+        <!-- Test internal footer -->
+      </article>
+
+      <footer id="footer">Default Footer Text</footer>
+    </div>
+  </body>
+</html>

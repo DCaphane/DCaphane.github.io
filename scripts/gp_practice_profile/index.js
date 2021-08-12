@@ -41,58 +41,58 @@ const userSelections = {
 };
 
 /* Data Import */
-let dataPopulationGP, dataPopulationGPLsoa, arrayGPLsoaDates, uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
+let dataPopulationGP,
+  dataPopulationGPSummary,
+  dataPopulationGPLsoa,
+  arrayGPLsoaDates,
+  uniquePractices; // sort map by key: https://stackoverflow.com/questions/31158902/is-it-possible-to-sort-a-es6-map-object
 
-const promDataGPPopn = d3
-    .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
-    .then((data) => {
-      dataPopulationGP = data;
+const promDataGPPopn = d3 // consider dropping locality
+  .csv("Data/GP_Practice_Populations_slim.csv", processDataGPPopulation)
+  .then((data) => {
+    dataPopulationGP = data;
 
-      // default the selected date to the latest available
-      userSelections.selectedDate = d3.max(data, function (d) {
-        return d.Period;
-      });
+    dataPopulationGPSummary = d3.rollup(
+      dataPopulationGP,
+      (v) => d3.sum(v, (d) => d.Total_Pop),
+      (d) => +d.Period,
+      (d) => d.Practice
+    );
 
-      // List of GP Practice codes (sorted A-Z) for use in drop down ------------------------
-      uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
-    }),
-  promDataGPPopnLsoa = d3
-    .csv("Data/population_gp_lsoa.csv", processDataPopulationGPLsoa)
-    .then((data) => {
-      dataPopulationGPLsoa = d3.rollup(
-        data,
-        (v) => d3.sum(v, (d) => d.population),
-        (d) => d.period,
-        (d) => d.practice,
-        (d) => d.lsoa
-      );
-
-      // GP LSOA Population is Quarterly so not a 1:1 match with trend data
-      // Will use closest value
-      arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
+    // default the selected date to the latest available
+    userSelections.selectedDate = d3.max(data, function (d) {
+      return d.Period;
     });
 
+    // List of GP Practice codes (sorted A-Z) for use in drop down ------------------------
+    uniquePractices = [...new Set(data.map((item) => item.Practice))].sort();
+  });
+
+const promDataGPPopnLsoa = d3
+  .csv("Data/population_gp_lsoa.csv", processDataPopulationGPLsoa)
+  .then((data) => {
+    dataPopulationGPLsoa = d3.rollup(
+      data,
+      (v) => d3.sum(v, (d) => d.population),
+      (d) => d.period,
+      (d) => d.practice,
+      (d) => d.lsoa
+    );
+
+    // GP LSOA Population is Quarterly so not a 1:1 match with trend data
+    // Will use closest value
+    arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
+  });
+
 // Export geojson data layers as: EPSG: 4326 - WGS 84
-let // geo coded data
-  geoDataPCN,
-  geoDataPCNSites,
-  geoDataCYCWards,
-  geoDataCCGBoundary,
-  geoDataLsoaBoundaries,
-  geoDateLsoaPopnCentroid,
-  dataIMD; // not geo data but only used in map chart
-// Organisation Data
-// hospitalDetails; -- handled in map object
+let geoDataLsoaBoundaries, geoDateLsoaPopnCentroid, dataIMD; // not geo data but only used in map chart
 
 // Promises to import the geo data
-const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
-  promGeoDataPCNSites = d3.json(
-    "Data/geo/pcn/primary_care_network_sites.geojson"
-  ),
+
+const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
   promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.geojson"),
-  promGeoDataCCGBoundary = d3.json(
-    "Data/geo/ccg_boundary_03Q_simple20.geojson"
-  ),
+  // promGeoVoYBoundary = d3.json("Data/geo/ccg_boundary_03Q_simple20.geojson"),
+  promGeoNationalCCGBoundaries = d3.json("Data/geo/ccg_boundary_national_202104.geojson"),
   promGeoDataLsoaBoundaries = d3.json(
     "Data/geo/lsoa_gp_selected_simple20cp6.geojson"
   ),
@@ -117,33 +117,16 @@ const promGeoDataPCN = d3.json("Data/geo/pcn/primary_care_networks.geojson"),
 // Upload Data
 const importGeoData = (async function displayContent() {
   await Promise.allSettled([
-    promGeoDataPCN,
-    promGeoDataPCNSites,
-    promGeoDataCYCWards,
-    promGeoDataCCGBoundary,
     promGeoDataLsoaBoundaries,
     promGeoDateLsoaPopnCentroid,
     promDataIMD,
-    // promHospitalDetails,
-    // promGPPracticeDetails,
-  ])
-    .then((values) => {
-      // if (values[0].status === "fulfilled") {
-      geoDataPCN = values[0].value;
-      // }
-      geoDataPCNSites = values[1].value;
-      geoDataCYCWards = values[2].value;
-      geoDataCCGBoundary = values[3].value;
-      geoDataLsoaBoundaries = values[4].value;
-      geoDateLsoaPopnCentroid = values[5].value;
-      dataIMD = values[6].value;
-      // promHospitalDetails is 7
-      // gpDetails = values[8].value;
-    })
-    .then(() => {
-      // Assumption here that everything in other scripts is declared before this step...
-      // console.log(geoDateLsoaPopnCentroid)
-    });
+  ]).then((values) => {
+    // if (values[0].status === "fulfilled") {
+    geoDataLsoaBoundaries = values[0].value;
+    // }
+    geoDateLsoaPopnCentroid = values[1].value;
+    dataIMD = values[2].value;
+  });
 })();
 
 function initD3Charts() {
@@ -157,57 +140,50 @@ function initD3Charts() {
   demographicChart.updateChtDemog();
 }
 
-function initGeoCharts() {
-  // from map_GP_MainSite.js
-  addWardGroupsToMap.call(mapMain);
-  addPracticeToMap.call(mapMain);
-
-  // // from map_popn_lsoa.js
-  gpSites();
-}
-
-function refreshGeoChart() {
-  lsoaBoundary.call(mapPopn, true); // call before recolourLSOA due to filters
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
-  L.layerGroup(Array.from(layersMapIMD.values())).addTo(mapIMD.map);
-  ccgBoundary(true);
-  mapMarkersNationalTrust();
-}
-
 function refreshChartsPostPracticeChange(practice) {
-  console.log(practice);
+  console.log({ selectedPractice: practice });
   // change the selection box dropdown to reflect clicked practice
   document.getElementById("selPractice").value = `${
     userSelections.selectedPractice
   }: ${userSelections.selectedPracticeName()}`;
 
-  updateBouncingMarkers();
-  highlightFeature(practice, mapMain, true);
+  filterGPPracticeSites();
+  filterFunctionLsoa(true); // zoom to filtered lsoa
+  // .then(() => {
+  //   recolourPopnLSOA();
+  //   recolourIMDLayer(imdDomainShort);
+  // });
 
   trendChart.chartTrendDraw();
+
   demographicChart.updateChtDemog(
     practice,
     userSelections.selectedPracticeCompare
   );
 
-  filterGPPracticeSites.call(mapSites, true);
-
-  recolourLSOA();
-  recolourIMDLayer(imdDomainShort);
   circlePopnIMDChart.updateD3BubbleLsoa();
+
   barChart.fnRedrawBarChart();
+
   // updateTextPractice();
   // updateTextPCN();
+  updateBouncingMarkers();
+
+  highlightFeature(practice, mapMain, false);
+
   sidebarContent.updateSidebarText("pcnSpecific", practice);
 }
 
 function refreshChartsPostDateChange() {
+  for (const value of mapsWithGPMain.values()) {
+    updatePopUpText(value[0]);
+  }
   demographicChart.updateChtDemog(
     userSelections.selectedPractice,
     userSelections.selectedPracticeCompare
   );
-  recolourLSOA();
+  filterFunctionLsoa(true); // zoom to filtered lsoa
+
   circlePopnIMDChart.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
 }
@@ -218,7 +194,7 @@ function processDataGPPopulation(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate
   return {
     Practice: d.Practice_Mapped.substring(0, 6),
-    Locality: d.Locality,
+    // Locality: d.Locality,
     Age_Band: d.Age_Band,
     Period: +parseDate(d.Period),
     Male_Pop: +d.Male,
@@ -239,7 +215,7 @@ function processDataPopulationGPLsoa(d) {
 function processDataHospitalSite(d) {
   if (!isNaN(+d.Latitude)) {
     return {
-      latitude: +d.Latitude,
+      // latitude: +d.Latitude,
       // longitude: +d.Longitude,
       markerPosition: [+d.Latitude, +d.Longitude],
       sector: d.Sector, // nhs or independent
@@ -249,11 +225,18 @@ function processDataHospitalSite(d) {
       parentName: d.ParentName,
     };
   } else {
-    console.log(d.OrganisationCode, d.Latitude);
+    console.log({ orgCode: d.OrganisationCode, invalidLatitude: d.Latitude });
   }
 }
 
+const mapLSOAbyIMD = new Map(); // LSOAs by the main IMD decile
+
 function processDataIMD(d) {
+  mapLSOAbyIMD.set(
+    d.LSOA_code_2011,
+    +d.Index_of_Multiple_Deprivation_IMD_Decile
+  );
+
   return {
     lsoa: d.LSOA_code_2011,
     imdRank: +d.Index_of_Multiple_Deprivation_IMD_Rank,
