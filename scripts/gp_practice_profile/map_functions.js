@@ -1,18 +1,18 @@
-function recolourPopnLSOA() {
+function recolourPopnLSOAIMD() {
   /*
-    For updating the LSOA colours in mapPopulation
+    For updating the LSOA colours by population in the IMD chart
     */
   const maxValue = maxPopulation();
 
   // refreshMapPopnLegend(maxValue);
-  popnLegend.legend({
+  imdLegend.legend({
     color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
     title: "Population",
     width: 600,
     marginLeft: 50,
   });
 
-  mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
+  mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
     const lsoaCode = layer.feature.properties.lsoa;
 
     let value = actualPopulation(lsoaCode);
@@ -25,7 +25,7 @@ function recolourPopnLSOA() {
       layer.setStyle({
         // https://github.com/d3/d3-scale-chromatic
         fillColor: d3.interpolateYlGnBu(value / maxValue), // colour(value),
-        fillOpacity: 0.9,
+        fillOpacity: 0.8,
         weight: 1, // border
         color: "white", // border
         opacity: 1,
@@ -141,11 +141,11 @@ function imdDomainD3(id = "selD3Leaf") {
       const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
 
       lsoaCentroidLegend.legend({
-        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+        color: colour, //mapIMDDomain.get(imdDomainDescD3).legendColour(rawValues),
+        title: mapIMDDomain.get(imdDomainDescD3).legendTitle,
+        leftSubTitle: mapIMDDomain.get(imdDomainDescD3).leftSubTitle,
+        rightSubTitle: mapIMDDomain.get(imdDomainDescD3).rightSubTitle,
+        tickFormat: mapIMDDomain.get(imdDomainDescD3).tickFormat,
         width: 600,
         marginLeft: 50,
       });
@@ -430,76 +430,78 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
   //   return d[defaultIMD];
   // });
 
-  /*
-      rawValues are the values in the appropriate field
-      These are ignored for the IMD indicators since they are hardcoded based on the number of LSOAs: 1 to 32,844
-      However, for the population figures, these are used
-      */
-  const rawValues = dataIMD.map(function (d) {
-    return d[defaultIMD];
-  });
-  // console.log(rawValues)
+  if (defaultIMD === "population") {
+    recolourPopnLSOAIMD();
+  } else {
+    /*
+        rawValues are the values in the appropriate field
+        These are ignored for the IMD indicators since they are hardcoded based on the number of LSOAs: 1 to 32,844
+        However, for the 'imd' population figures, these are used
+        */
+    const rawValues = dataIMD.map(function (d) {
+      return d[defaultIMD];
+    });
+    // console.log(rawValues)
 
-  const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
+    const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
 
-  imdLegend.legend({
-    color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-    title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-    leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-    rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-    tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
-    width: 600,
-    marginLeft: 50,
-  });
+    imdLegend.legend({
+      color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+      title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+      leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+      rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+      tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+      width: 600,
+      marginLeft: 50,
+    });
 
-  if (mapsWithLSOAFiltered.has(mapIMD.map)) {
-    mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
-      const lsoaCode = layer.feature.properties.lsoa;
+    if (mapsWithLSOAFiltered.has(mapIMD.map)) {
+      mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
+        const lsoaCode = layer.feature.properties.lsoa;
 
-      if (mapsFilteredLSOA.has(lsoaCode)) {
-        // the filter lsoaFunction populates a map object of lsoas (with relevant population)
-        let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
-        if (obj !== undefined) {
-          // console.log(obj[defaultIMD], maxValue);
-          const value = obj[defaultIMD];
+        if (mapsFilteredLSOA.has(lsoaCode)) {
+          // the filter lsoaFunction populates a map object of lsoas (with relevant population)
+          let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
+          if (obj !== undefined) {
+            // console.log(obj[defaultIMD], maxValue);
+            const value = obj[defaultIMD];
 
-          layer.setStyle({
-            // https://github.com/d3/d3-scale-chromatic
-            fillColor: colour(value), //colourScheme(value / maxValue),
-            fillOpacity: 0.6,
-            weight: 1, // border
-            color: "white", // border
-            opacity: 1,
-            // dashArray: "3",
-          });
+            layer.setStyle({
+              // https://github.com/d3/d3-scale-chromatic
+              fillColor: colour(value), //colourScheme(value / maxValue),
+              fillOpacity: 0.8,
+              weight: 1, // border
+              color: "white", // border
+              opacity: 1,
+              // dashArray: "3",
+            });
 
-          layer.bindPopup(
-            `<h3>${layer.feature.properties.lsoa}</h3>
+            layer.bindPopup(
+              `<h3>${layer.feature.properties.lsoa}</h3>
               <p>IMD: ${formatNumber(value)}</p>
             `
-          );
+            );
+          }
+          // });
+        } else {
+          // if population is less than set amount, make it transparent
+          layer.setStyle({
+            // no (transparent) background
+            fillColor: "#ff0000", // background
+            fillOpacity: 0, // transparent
+            weight: 0, // border
+            color: "red", // border
+            opacity: 0,
+          });
         }
-        // });
-      } else {
-        // if population is less than set amount, make it transparent
-        layer.setStyle({
-          // no (transparent) background
-          fillColor: "#ff0000", // background
-          fillOpacity: 0, // transparent
-          weight: 0, // border
-          color: "red", // border
-          opacity: 0,
-        });
-      }
-    });
+      });
+    }
   }
 }
 // }
 
-const mapIMDDomain = new Map();
-
 /*
-For colouring the heatmaps and legend
+For colouring the choropleth map and legend
 
 Scale is used to colour the maps.
 legendColour is used to create the colour bar (ramp)
@@ -607,6 +609,8 @@ popnOlderProperties.datasetDesc = "popnOlder";
 const popnWorkingProperties = Object.create(defaultIMDPopnProperties);
 popnWorkingProperties.datasetDesc = "popnWorking";
 
+const mapIMDDomain = new Map();
+
 mapIMDDomain.set("IMD Rank", imdRankProperties);
 mapIMDDomain.set("IMD Decile", {
   datasetDesc: "imdDecile",
@@ -663,8 +667,8 @@ mapIMDDomain.set(
 mapIMDDomain.set("Working age population 18 59 64", popnWorkingProperties);
 
 // default values
-let imdDomainDesc = "IMD Rank",
-  imdDomainShort = "imdRank";
+let imdDomainDesc = "Population",
+  imdDomainShort = "population";
 
 (function imdDomain(id = "selIMD") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
@@ -684,26 +688,37 @@ let imdDomainDesc = "IMD Rank",
   select.setAttribute("id", "selImdDomain");
 
   // Option constructor: args text, value, defaultSelected, selected
-  let counter = 0;
+  select.options.add(new Option("Population", 0, true, true));
+  let counter = 1;
   for (let key of mapIMDDomain.keys()) {
-    if (counter !== 0) {
-      select.options.add(new Option(key, counter));
-    } else {
-      select.options.add(new Option(key, 0, true, true));
-    }
+    select.options.add(new Option(key, counter));
     counter++;
   }
+  // for (let key of mapIMDDomain.keys()) {
+  //   if (counter !== 0) {
+  //     select.options.add(new Option(key, counter));
+  //   } else {
+  //     select.options.add(new Option(key, 0, true, true));
+  //   }
+  //   counter++;
+  // }
 
   frag.appendChild(select);
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
     imdDomainDesc = d3.select("#selImdDomain option:checked").text();
-    imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+    if (imdDomainDesc !== "Population") {
+      imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+    } else {
+      imdDomainShort = "population";
+    }
     console.log({ imdDomainShort: imdDomainShort });
     recolourIMDLayer(imdDomainShort);
   });
 })();
+
+let firstPass = true;
 
 function filterGPPracticeSites(zoomToExtent = false) {
   /* This will deselect the 'entire' GP Sites layer
@@ -714,6 +729,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
     mapsWithGPSites.forEach(function (value, key) {
       // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
       let isLayerDisplayed = false;
+      let isFilteredLayerDisplayed = false;
       if (key.hasLayer(value[0])) {
         // the original sites layer
         key.removeLayer(value[0]);
@@ -724,6 +740,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
       if (value.length > 1) {
         if (key.hasLayer(value[1])) {
           key.removeLayer(value[1]);
+          isFilteredLayerDisplayed = true;
         }
         // value.pop(); // not necessary as will be overwritten?
         delete value[1]; // keeps the array length but the filtered sites layer (in index 1) becomes undefined
@@ -787,7 +804,10 @@ function filterGPPracticeSites(zoomToExtent = false) {
         });
 
         // key is the map we are working with
-        gpSites.addTo(key);
+        if (isFilteredLayerDisplayed || firstPass) {
+          gpSites.addTo(key);
+          firstPass = false;
+        }
 
         value[1] = gpSites; // append the filtered layer
 
@@ -805,13 +825,14 @@ function filterGPPracticeSites(zoomToExtent = false) {
         }
       } else {
         // reset to show all sites
-        if (isLayerDisplayed || key === mapPopn.map) {
+        if (isLayerDisplayed) {
+          // (isLayerDisplayed || key === mapPopn.map)
           key.addLayer(value[0]);
         }
         key.flyTo(mapOfMaps.get(key), 9);
 
         // Remove the overlay
-        value[2] = null; // null will be used in the filter function to remove th overlay
+        value[2] = null; // null will be used in the filter function to remove the overlay
       }
     });
     // refreshFilteredGPSitesOverlays();
@@ -916,7 +937,7 @@ async function filterFunctionLsoa(zoomToExtent = false) {
       });
     })
     .then(() => {
-      recolourPopnLSOA();
+      // recolourPopnLSOA();
       recolourIMDLayer(imdDomainShort);
     })
     .then(() => {
@@ -1020,7 +1041,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
       });
     })
     .then(() => {
-      recolourPopnLSOA();
+      // recolourPopnLSOA();
       recolourIMDLayer(imdDomainShort);
       refreshFilteredLSOAOverlays();
     });
@@ -1149,3 +1170,61 @@ function actualPopulation(lsoa) {
         .get("All")
         .get(lsoa);
 }
+
+// function recolourPopnLSOA() {
+//   /*
+//     For updating the LSOA colours in mapPopulation
+//     */
+//   const maxValue = maxPopulation();
+
+//   // refreshMapPopnLegend(maxValue);
+//   popnLegend.legend({
+//     color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
+//     title: "Population",
+//     width: 600,
+//     marginLeft: 50,
+//   });
+
+//   mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
+//     const lsoaCode = layer.feature.properties.lsoa;
+
+//     let value = actualPopulation(lsoaCode);
+
+//     if (value === undefined) {
+//       value = 0;
+//     }
+
+//     if (value > minPopulationLSOA) {
+//       layer.setStyle({
+//         // https://github.com/d3/d3-scale-chromatic
+//         fillColor: d3.interpolateYlGnBu(value / maxValue), // colour(value),
+//         fillOpacity: 0.8,
+//         weight: 1, // border
+//         color: "white", // border
+//         opacity: 1,
+//         // dashArray: "3",
+//       });
+//       // layer.on("click", function (e) {
+//       //   // update other charts
+//       //   console.log({ lsoa: selectedLsoa });
+//       // });
+//     } else {
+//       layer.setStyle({
+//         // no (transparent) background
+//         fillColor: "#ff0000", // background
+//         fillOpacity: 0, // transparent
+//         weight: 0, // border
+//         color: "red", // border
+//         opacity: 0,
+//       });
+//     }
+
+//     layer.bindPopup(
+//       `<h3>${layer.feature.properties.lsoa}</h3>
+//             <p>${userSelections.selectedPractice}</p>
+//             <p>${formatPeriod(userSelections.nearestDate())}</p>
+//         Pop'n: ${formatNumber(value)}
+//         `
+//     );
+//   });
+// }

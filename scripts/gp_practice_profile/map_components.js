@@ -604,7 +604,7 @@ function mapInitialise({
   if (overlayCCGBoundary.inc || overlayCCGBoundary.zoomExtent) {
     Promise.allSettled([promGeoNationalCCGBoundaries]).then((ccgBoundaries) => {
       const ccgBoundaryVoY = L.geoJSON(ccgBoundaries[0].value, {
-        style: styleCCG,
+        style: styleCCG("VoY"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
@@ -614,7 +614,7 @@ function mapInitialise({
       });
 
       const ccgBoundaryNY = L.geoJSON(ccgBoundaries[0].value, {
-        style: styleCCG,
+        style: styleCCG("NY"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
@@ -624,7 +624,7 @@ function mapInitialise({
       });
 
       const ccgBoundaryER = L.geoJSON(ccgBoundaries[0].value, {
-        style: styleCCG,
+        style: styleCCG("ER"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
