@@ -187,7 +187,7 @@ function imdDomainD3(id = "selD3Leaf") {
     Can derive the geometric centre using geoDataLsoaBoundaries and .getCenter()
     Population centroid figures are published
      */
-  L.geoJson(geoDateLsoaPopnCentroid, {
+  L.geoJson(geoDataLsoaPopnCentroid, {
     onEachFeature: function (feature, layer) {
       let obj = {};
       obj.lsoa = layer.feature.properties.lsoa11cd; // lsoa code
@@ -893,7 +893,7 @@ async function filterFunctionLsoa(zoomToExtent = false) {
           }
         }
 
-        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+        const geoDataLsoaBoundaries = L.geoJSON(geoLsoaBoundaries, {
           style: styleLsoaOrangeOutline,
           pane: "lsoaBoundaryPane2",
           onEachFeature: function (feature, layer) {

@@ -11,6 +11,9 @@ function styleCCG(ccg) {
     case "ER":
       colour = "#7800ff";
       break;
+    case "Hull":
+        colour = "#dfff00";
+        break;
     default:
       colour = "#333";
   }

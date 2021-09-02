@@ -85,18 +85,23 @@ const promDataGPPopnLsoa = d3
   });
 
 // Export geojson data layers as: EPSG: 4326 - WGS 84
-let geoDataLsoaBoundaries, geoDateLsoaPopnCentroid, dataIMD; // not geo data but only used in map chart
+let geoLsoaBoundaries,
+  geoWardBoundaries,
+  geoDataLsoaPopnCentroid,
+  geoDataNationalCCGBoundaries,
+  dataIMD; // not geo data but only used in map chart
 
 // Promises to import the geo data
 
 const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
-  promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.geojson"),
-  // promGeoVoYBoundary = d3.json("Data/geo/ccg_boundary_03Q_simple20.geojson"),
-  promGeoNationalCCGBoundaries = d3.json("Data/geo/ccg_boundary_national_202104.geojson"),
-  promGeoDataLsoaBoundaries = d3.json(
-    "Data/geo/lsoa_gp_selected_simple20cp6.geojson"
+  promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.topojson"),
+  promGeoNationalCCGBoundaries = d3.json(
+    "Data/geo/ccg_boundary_national_202104.topojson"
   ),
-  promGeoDateLsoaPopnCentroid = d3.json(
+  promGeoDataLsoaBoundaries = d3.json(
+    "Data/geo/lsoa_gp_selected_simple20cp6.topojson"
+  ),
+  promGeoDataLsoaPopnCentroid = d3.json(
     "Data/geo/lsoa_population_centroid_03q.geojson"
   ),
   promHospitalDetails = d3.dsv(
@@ -114,17 +119,38 @@ const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
 //   "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000"
 // );
 
+promGeoNationalCCGBoundaries.then((data) => {
+  geoDataNationalCCGBoundaries = topojson.feature(
+    data,
+    data.objects.ccg_boundary_national_202104
+  );
+});
+
+promGeoDataLsoaBoundaries.then((data) => {
+  geoLsoaBoundaries = topojson.feature(
+    data,
+    data.objects.lsoa_gp_selected_simple20cp6
+  );
+});
+
+promGeoDataCYCWards.then((data) => {
+  geoWardBoundaries = topojson.feature(
+    data,
+    data.objects.cyc_wards
+  );
+});
+
 // Upload Data
 const importGeoData = (async function displayContent() {
   await Promise.allSettled([
     promGeoDataLsoaBoundaries,
-    promGeoDateLsoaPopnCentroid,
+    promGeoDataLsoaPopnCentroid,
     promDataIMD,
   ]).then((values) => {
     // if (values[0].status === "fulfilled") {
-    geoDataLsoaBoundaries = values[0].value;
+    // geoDataLsoaBoundaries = topojson.feature(values[0].value, values[0].value.objects.lsoa_gp_selected_simple20cp6)
     // }
-    geoDateLsoaPopnCentroid = values[1].value;
+    geoDataLsoaPopnCentroid = values[1].value;
     dataIMD = values[2].value;
   });
 })();

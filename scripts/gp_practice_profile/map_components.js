@@ -43,7 +43,6 @@ function mapInitialise({
   const promTesting = Promise.allSettled([
     promGeoDataGP,
     gpDetails,
-    promGeoNationalCCGBoundaries,
     promGeoDataCYCWards,
     promGeoDataLsoaBoundaries,
     promDataIMD,
@@ -602,8 +601,8 @@ function mapInitialise({
 
   // Option to include the CCG Boundary layer (option to display is later)
   if (overlayCCGBoundary.inc || overlayCCGBoundary.zoomExtent) {
-    Promise.allSettled([promGeoNationalCCGBoundaries]).then((ccgBoundaries) => {
-      const ccgBoundaryVoY = L.geoJSON(ccgBoundaries[0].value, {
+    Promise.allSettled([promGeoNationalCCGBoundaries]).then(() => {
+      const ccgBoundaryVoY = L.geoJSON(geoDataNationalCCGBoundaries, {
         style: styleCCG("VoY"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
@@ -613,7 +612,7 @@ function mapInitialise({
         },
       });
 
-      const ccgBoundaryNY = L.geoJSON(ccgBoundaries[0].value, {
+      const ccgBoundaryNY = L.geoJSON(geoDataNationalCCGBoundaries, {
         style: styleCCG("NY"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
@@ -623,13 +622,23 @@ function mapInitialise({
         },
       });
 
-      const ccgBoundaryER = L.geoJSON(ccgBoundaries[0].value, {
+      const ccgBoundaryER = L.geoJSON(geoDataNationalCCGBoundaries, {
         style: styleCCG("ER"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
 
           return ccg === "NHS East Riding of Yorkshire CCG" ? true : false;
+        },
+      });
+
+      const ccgBoundaryHull = L.geoJSON(geoDataNationalCCGBoundaries, {
+        style: styleCCG("Hull"),
+        pane: "ccgBoundaryPane",
+        filter: function (d) {
+          const ccg = d.properties.ccg21nm;
+
+          return ccg === "NHS Hull CCG" ? true : false;
         },
       });
 
@@ -654,6 +663,10 @@ function mapInitialise({
               label: "East Riding",
               layer: ccgBoundaryER,
             },
+            {
+              label: "Hull",
+              layer: ccgBoundaryHull,
+            },
           ],
         };
 
@@ -669,10 +682,10 @@ function mapInitialise({
 
   // Do you want to include the Ward Boundary layer (option to display is later)
   if (overlayWardBoundary.inc || overlayWardBoundary.zoomExtent) {
-    Promise.allSettled([promGeoDataCYCWards]).then((wardBoundaries) => {
+    Promise.allSettled([promGeoDataCYCWards]).then(() => {
       const layersMapWards = new Map();
 
-      const geoDataCYCWards = L.geoJSON(wardBoundaries[0].value, {
+      const geoDataCYCWards = L.geoJSON(geoWardBoundaries, {
         style: styleWard,
         pane: "wardBoundaryPane",
         onEachFeature: function (feature, layer) {
@@ -704,11 +717,11 @@ function mapInitialise({
   // Do you want to include the LSOA Boundary layer (option to display is later)
   // This layer will not be filtered ie. full boundary
   if (overlayLsoaBoundary.inc || overlayLsoaBoundary.zoomExtent) {
-    Promise.allSettled([promGeoDataLsoaBoundaries]).then((lsoaBoundaries) => {
+    Promise.allSettled([promGeoDataLsoaBoundaries]).then(() => {
       // const layersMapByCCG = new Map();
       // Consider option to show by CCG here...
 
-      const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+      const geoDataLsoaBoundaries = L.geoJSON(geoLsoaBoundaries, {
         style: styleLsoa,
         pane: "lsoaBoundaryPane",
         // onEachFeature: function (feature, layer) {
@@ -751,7 +764,7 @@ function mapInitialise({
       (lsoaBoundaries) => {
         const layersMapByIMD = new Map();
 
-        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+        const geoDataLsoaBoundaries = L.geoJSON(geoLsoaBoundaries, {
           style: styleLsoa,
           pane: "lsoaBoundaryPane",
           onEachFeature: function (feature, layer) {
