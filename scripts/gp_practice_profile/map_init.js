@@ -64,6 +64,7 @@ const mapIMD = mapInitialise({
   userOverlayGPSites: { inc: true, display: true },
   userOverlayLsoaBoundary: { inc: true, display: false },
   userOverlayFilteredLsoa: { inc: true },
+  userOverlayNationalTrusts: true,
 });
 mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapIMD.homeButton();
@@ -94,6 +95,7 @@ const mapD3Bubble = mapInitialise({
   userOverlayFilteredLsoa: { inc: true },
   // userOverlayGPMain: { inc: true, display: false },
   userOverlayGPSites: { inc: true, display: false },
+  userOverlayNationalTrusts: true,
 });
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();

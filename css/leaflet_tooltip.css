@@ -9,13 +9,30 @@ https://gis.stackexchange.com/a/285662
 See .leaflet-popup for defaults:
 https://github.com/Leaflet/Leaflet/blob/master/dist/leaflet.css
 
+Colour tool: https://material.io/resources/color/#!/?view.left=0&view.right=0
 */
+
+/* Defaults */
+.leaflet-popup-content-wrapper {
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.leaflet-popup-tip-container {
+  width: 30px;
+  height: 15px;
+}
 
 /* Wrapper content */
 .popup-dark .leaflet-popup-content-wrapper {
   background: hsl(210, 29%, 24%);
-  font-size: 12px;
-  pointer-events: none;
+}
+
+.popup-dark .leaflet-popup-tip {
+  background-color: #2c3e50;
+  /* border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 15px solid #2c3e50; */
 }
 
 .popup-dark .leaflet-popup-content {
@@ -27,13 +44,33 @@ https://github.com/Leaflet/Leaflet/blob/master/dist/leaflet.css
   color: rgba(255, 255, 255, 1);
 }
 
-.popup-dark .leaflet-popup-tip-container {
-  width: 30px;
-  height: 15px;
+/* NHS Trust Popups */
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/:is */
+.popup-trustNHS .leaflet-popup-content-wrapper,
+.popup-trustNHS .leaflet-popup-tip {
+  background: #004ba0;
 }
-.popup-dark .leaflet-popup-tip {
-  background-color: #2c3e50;
-  /* border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 15px solid #2c3e50; */
+
+.popup-trustNHS .leaflet-popup-content {
+  color: white;
+}
+
+.popup-trustNHS .leaflet-popup-content h3 {
+  background-color: #1976d2;
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Independent Trust Popups */
+.popup-trustIS .leaflet-popup-content-wrapper,
+.popup-trustIS .leaflet-popup-tip {
+  background: #005005;
+}
+
+.popup-trustIS .leaflet-popup-content {
+  color: rgba(255, 255, 255, 1);
+}
+
+.popup-trustIS .leaflet-popup-content h3 {
+  background-color: #2e7d32;
+  color: rgba(255, 255, 255, 1);
 }

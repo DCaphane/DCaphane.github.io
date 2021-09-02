@@ -813,17 +813,24 @@ function mapInitialise({
         <br>${d.sector}</p>`;
 
         if (category === "NHS Sector") {
-          const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+          const marker = trustMarker({
+            position: d.markerPosition,
+            className: "nhs",
+            text: "H",
+            popupText: popupText,
+            popupClass: "popup-trustNHS",
+          });
           marker.addTo(nhsTrustSites);
           i++;
         } else {
           // Independent Sector
-          const marker = trustMarker(
-            d.markerPosition,
-            "independent",
-            "H",
-            popupText
-          );
+          const marker = trustMarker({
+            position: d.markerPosition,
+            className: "independent",
+            text: "H",
+            popupText: popupText,
+            popupClass: "popup-trustIS",
+          });
           marker.addTo(nonNhsTrustSites);
           j++;
         }
@@ -841,7 +848,13 @@ function mapInitialise({
 
       updateOverlay("nationalTrusts", nationalTrusts);
 
-      function trustMarker(position, className, text = "H", popupText) {
+      function trustMarker({
+        position,
+        className,
+        text = "H",
+        popupText,
+        popupClass = "popup-dark",
+      } = {}) {
         return L.marker(position, {
           icon: L.divIcon({
             className: `trust-marker ${className}`,
@@ -849,7 +862,7 @@ function mapInitialise({
             iconSize: L.point(20, 20),
             popupAnchor: [0, -10],
           }),
-        }).bindPopup(popupText);
+        }).bindPopup(popupText, { className: popupClass }); // popup formatting applied in css, css/leaflet_tooltip.css
       }
 
       function overlayNationalTrusts(nhs, independent) {
@@ -951,7 +964,7 @@ const trustSitesLoc = {
   hullTrust: [53.74411, -0.035813],
 };
 
-function trustMarker(location, text) {
+function selectedTrustMarker(location, text) {
   return L.marker(location, {
     icon: L.BeautifyIcon.icon({
       iconShape: "circle",
@@ -1162,27 +1175,36 @@ function overlayTrusts() {
     children: [
       {
         label: "York",
-        layer: trustMarker(trustSitesLoc.yorkTrust, "York Trust"),
+        layer: selectedTrustMarker(trustSitesLoc.yorkTrust, "York Trust"),
       },
       {
         label: "Harrogate",
-        layer: trustMarker(trustSitesLoc.harrogateTrust, "Harrogate Trust"),
+        layer: selectedTrustMarker(
+          trustSitesLoc.harrogateTrust,
+          "Harrogate Trust"
+        ),
       },
       {
         label: "Scarborough",
-        layer: trustMarker(trustSitesLoc.scarboroughTrust, "Scarborough Trust"),
+        layer: selectedTrustMarker(
+          trustSitesLoc.scarboroughTrust,
+          "Scarborough Trust"
+        ),
       },
       {
         label: "Leeds",
-        layer: trustMarker(trustSitesLoc.leedsTrust, "Leeds Trust"),
+        layer: selectedTrustMarker(trustSitesLoc.leedsTrust, "Leeds Trust"),
       },
       {
         label: "South Tees",
-        layer: trustMarker(trustSitesLoc.southTeesTrust, "South Tees Trust"),
+        layer: selectedTrustMarker(
+          trustSitesLoc.southTeesTrust,
+          "South Tees Trust"
+        ),
       },
       {
         label: "Hull",
-        layer: trustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
+        layer: selectedTrustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
       },
     ],
   };

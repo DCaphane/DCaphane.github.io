@@ -322,7 +322,7 @@ function imdDomainD3(id = "selD3Leaf") {
         const sel = d3.select(this);
         sel.classed("hover", false);
         sel.lower();
-        sel.style("fill-opacity", 0.7);
+        sel.style("fill-opacity", 0.8);
         newTooltip.mouseout(tooltipD3Lsoa);
       })
       .attr("class", "bubble")
@@ -338,8 +338,9 @@ function imdDomainD3(id = "selD3Leaf") {
         let value = actualPopulation(lsoaCode);
 
         if (value > minPopulationLSOA) {
-          return 0.7;
+          return 0.8;
         } else {
+          console.log({ testing: lsoaCode });
           return 0.1;
         }
       })
