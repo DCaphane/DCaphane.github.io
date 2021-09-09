@@ -127,17 +127,15 @@ promGeoNationalCCGBoundaries.then((data) => {
 });
 
 promGeoDataLsoaBoundaries.then((data) => {
+
   geoLsoaBoundaries = topojson.feature(
     data,
-    data.objects.lsoa_gp_selected_simple20cp6
+    data.objects.lsoa_gp_selected_original
   );
 });
 
 promGeoDataCYCWards.then((data) => {
-  geoWardBoundaries = topojson.feature(
-    data,
-    data.objects.cyc_wards
-  );
+  geoWardBoundaries = topojson.feature(data, data.objects.cyc_wards);
 });
 
 // Upload Data

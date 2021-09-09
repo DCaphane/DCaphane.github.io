@@ -340,7 +340,7 @@ function imdDomainD3(id = "selD3Leaf") {
         if (value > minPopulationLSOA) {
           return 0.8;
         } else {
-          console.log({ testing: lsoaCode });
+          // console.log({ testing: lsoaCode });
           return 0.1;
         }
       })

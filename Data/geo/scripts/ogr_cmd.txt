@@ -1,0 +1,35 @@
+##########################################################################################################################################################
+cd C:\OSGeo4W64\bin
+
+To convert to topojson, use: https://mapshaper.org/
+    LSOAs used a 33.3% simplify
+
+National CCG Boundaries available for download here:
+https://geoportal.statistics.gov.uk/datasets/clinical-commissioning-groups-april-2021-en-bfc/explore?location=53.122658%2C-2.692730%2C8.00
+
+##########################################################################################################################################################
+
+
+## Selected CCG Boundaries Only
+-- Without Simplifying, results in an 3.4kb file
+-- Subsequently convert to topojson
+.\ogr2ogr -nln "National CCG Boundaries" -lco DESCRIPTION="Selected_LSOA, CoordPrec 6" H:\QGIS\ogr_output\ccg_boundary_national_202104.geojson  -sql "select ccg21nm, geom as geom from gis.ccg_national_202104 where ccg21nm in ('NHS Vale of York CCG','NHS North Yorkshire CCG','NHS East Riding of Yorkshire CCG', 'NHS Hull CCG')" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
+
+.\ogr2ogr -nln "National CCG Boundaries" -lco DESCRIPTION="202104, Simple 20m, CoordPrec 6" H:\QGIS\ogr_output\ccg_boundary_national_202104.geojson  -sql "select ccg21nm, st_simplify(geom,20,true) from gis.ccg_national_202104 where ccg21nm in ('NHS Vale of York CCG','NHS North Yorkshire CCG','NHS East Riding of Yorkshire CCG', 'NHS Hull CCG')" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
+
+-- Selected CCG Boundaries Only with preserve topology
+.\ogr2ogr -nln "National CCG Boundaries" -lco DESCRIPTION="202104, Simple 20m, CoordPrec 6" H:\QGIS\ogr_output\ccg_boundary_national_202104.geojson  -sql "select ccg21nm, ST_SimplifyPreserveTopology(geom,20) from gis.ccg_national_202104 where ccg21nm in ('NHS Vale of York CCG','NHS North Yorkshire CCG','NHS East Riding of Yorkshire CCG', 'NHS Hull CCG')" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
+
+
+## Selected VoY LSOA Boundaries Only
+-- Without Simplifying, results in an 8.8kb file
+-- Subsequently convert to topojson
+.\ogr2ogr -nln "GP Population by LSOA" -lco DESCRIPTION="Selected_LSOA, CoordPrec 6" H:\QGIS\ogr_output\lsoa_gp_selected_original.geojson  -sql "SELECT distinct lsoa, geom as geom FROM gis.lsoa_gp_pop_geo" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
+
+-- Simplifying results in a smaller file but boundaries not always shared
+.\ogr2ogr -nln "GP Population by LSOA" -lco DESCRIPTION="Simple 20m, CoordPrec 6" H:\QGIS\ogr_output\lsoa_gp_selected_simple20cp6.geojson  -sql "SELECT distinct lsoa, ST_Simplify(geom, 20, true) as geom FROM gis.lsoa_gp_pop_geo" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
+
+-- Selected VoY LSOA Boundaries Only with preserve topology
+.\ogr2ogr -nln "GP Population by LSOA" -lco DESCRIPTION="SimplePT 20m, CoordPrec 6" H:\QGIS\ogr_output\lsoa_gp_selected_simple20cp6.geojson  -sql "SELECT distinct lsoa, ST_SimplifyPreserveTopology(geom, 20) as geom FROM gis.lsoa_gp_pop_geo" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
+
+.\ogr2ogr -nln "GP Population by LSOA" -lco DESCRIPTION="SimplePT 5m, CoordPrec 6" H:\QGIS\ogr_output\lsoa_gp_selected_simple20cp6.geojson -sql "SELECT distinct lsoa, ST_SimplifyPreserveTopology(geom, 5) as geom FROM gis.lsoa_gp_pop_geo" --optfile "H:\QGIS\ogr_output\ogr_options\options.txt"
