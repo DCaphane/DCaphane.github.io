@@ -975,6 +975,7 @@ const trustSitesLoc = {
   leedsTrust: [53.80687, -1.52034],
   southTeesTrust: [54.55176, -1.21479],
   hullTrust: [53.74411, -0.035813],
+  selbyMIU: [53.77748, -1.07832],
 };
 
 function selectedTrustMarker(location, text) {
@@ -990,6 +991,22 @@ function selectedTrustMarker(location, text) {
     zIndexOffset: 1000,
     draggable: false,
   }).bindPopup(text); // Text to display in pop up
+}
+
+// Dummy moveable (draggable) marker for demo only
+function moveableMarker() {
+  return L.marker(trustSitesLoc.yorkTrust, {
+    icon: L.BeautifyIcon.icon({
+      iconShape: "circle",
+      icon: "atom",
+      borderColor: "Black", // "rgba(242,247,53)",
+      backgroundColor: "transparent",
+      textColor: "Black", // "rgba(242,247,53)", // Text color of marker icon
+      popupAnchor: [0, -5], // adjusts offset position of popup
+    }),
+    zIndexOffset: 1001,
+    draggable: true,
+  }).bindPopup("Drag to move me"); // Text to display in pop up
 }
 
 // Separate marker for York Trust
@@ -1218,6 +1235,14 @@ function overlayTrusts() {
       {
         label: "Hull",
         layer: selectedTrustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
+      },
+      {
+        label: "Selby MIU",
+        layer: selectedTrustMarker(trustSitesLoc.selbyMIU, "Selby MIU"),
+      },
+      {
+        label: "Move Me",
+        layer: moveableMarker(),
       },
     ],
   };

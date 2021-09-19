@@ -1,8 +1,15 @@
 ##########################################################################################################################################################
 cd C:\OSGeo4W64\bin
 
-To convert to topojson, use: https://mapshaper.org/
-    LSOAs used a 33.3% simplify
+If using topoJson:
+
+    • export unsimplified geoJson first using commands below
+
+    • To convert to topojson, use: https://mapshaper.org/
+        Import and use the options to clean:
+            detect line intersections
+            snap vertices
+        command: mapshaper -simplify weighted 15% -clean
 
 National CCG Boundaries available for download here:
 https://geoportal.statistics.gov.uk/datasets/clinical-commissioning-groups-april-2021-en-bfc/explore?location=53.122658%2C-2.692730%2C8.00

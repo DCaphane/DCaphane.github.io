@@ -114,10 +114,29 @@ const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
     "Data/geo/Hospital.csv",
     processDataHospitalSite
   ),
-  promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD);
-// promGPPracticeDetails = d3.json(
-//   "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations?RelTypeId=RE3,RE4,RE5&TargetOrgId=03Q&RelStatus=active&Limit=1000"
-// );
+  promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD),
+  promDataRates = d3
+  .csv("Data/ratesIndicators.csv", processRatesData)
+  .then((data) => {
+    // https://observablehq.com/@d3/d3-group
+    // Rates data grouped by csv and lsoa
+    dataRates = d3.group(
+      data,
+      (d) => d.key,
+      (d) => d.lsoa
+    );
+    // the max of the counts, used for sizing the d3 circle
+    dataRatesMax = d3.rollup(
+      data,
+      (v) => d3.max(v, (d) => d.count),
+      (d) => d.key
+    );
+
+    /*
+  dataRates.keys()
+
+    */
+  });
 
 promGeoNationalCCGBoundaries.then((data) => {
   geoDataNationalCCGBoundaries = topojson.feature(
@@ -127,7 +146,6 @@ promGeoNationalCCGBoundaries.then((data) => {
 });
 
 promGeoDataLsoaBoundaries.then((data) => {
-
   geoLsoaBoundaries = topojson.feature(
     data,
     data.objects.lsoa_gp_selected_original
@@ -144,6 +162,7 @@ const importGeoData = (async function displayContent() {
     promGeoDataLsoaBoundaries,
     promGeoDataLsoaPopnCentroid,
     promDataIMD,
+    promDataRates,
   ]).then((values) => {
     // if (values[0].status === "fulfilled") {
     // geoDataLsoaBoundaries = topojson.feature(values[0].value, values[0].value.objects.lsoa_gp_selected_simple20cp6)
@@ -287,3 +306,24 @@ function processDataIMD(d) {
     popnWorking: +d.Working_age_population_18_59_64,
   };
 }
+
+// Rates Testing
+let dataRates, dataRatesMax;
+
+
+
+function processRatesData(d) {
+  return {
+    key: d.Key,
+    lsoa: d.LSOA,
+    count: +d.Count,
+    rate: +d.Rate,
+    signf: d.Signf,
+  };
+}
+
+// // These would be hard coded to provide a lookup from the data key to the description
+const dataRatesKeys = new Map();
+dataRatesKeys.set("AE_01", "Long Description AE_01");
+dataRatesKeys.set("test02", "Long Description test02");
+dataRatesKeys.set("testNew", "Long Description testNew");

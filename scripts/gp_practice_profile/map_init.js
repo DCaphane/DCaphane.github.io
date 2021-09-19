@@ -112,7 +112,10 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
 
   Promise.allSettled([importGeoData]).then(() => {
     // The following require the above population data and the geoData
-    circlePopnIMDChart = imdDomainD3();
+    circlePopnIMDChart = imdDomainD3({
+      id: "selD3Leaf",
+      thisMap: mapD3Bubble.map,
+    });
     filterFunctionLsoa(true);
     //   .then(() => {
     //   recolourPopnLSOA();

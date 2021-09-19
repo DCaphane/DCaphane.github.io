@@ -59,7 +59,7 @@ function recolourPopnLSOAIMD() {
 let imdDomainDescD3 = "Population",
   imdDomainShortD3 = "Population";
 
-function imdDomainD3(id = "selD3Leaf") {
+function imdDomainD3({ id, thisMap } = {}) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
   // Create the drop down to sort the chart
@@ -83,19 +83,27 @@ function imdDomainD3(id = "selD3Leaf") {
     select.options.add(new Option(key, counter));
     counter++;
   }
+  for (let key of dataRatesLookup.keys()) {
+    select.options.add(new Option(key, counter));
+    counter++;
+  }
 
   frag.appendChild(select);
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
     imdDomainDescD3 = d3.select("#selImdDomainD3 option:checked").text();
-    if (imdDomainDescD3 !== "Population") {
-      imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
-    } else {
+    if (imdDomainDescD3 === "Population") {
       imdDomainShortD3 = "Population";
+    } else if (dataRatesLookup.has(imdDomainDescD3)) {
+      imdDomainShortD3 = dataRatesLookup.get(imdDomainDescD3).datasetDesc;
+    } else {
+      imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
     }
     console.log({ imdDomain: imdDomainDescD3 });
-    updateBubbleColour(imdDomainShortD3);
+    // refreshBubbleChart()
+    updateD3BubbleLsoa();
+    // updateBubbleColour(imdDomainShortD3);
   });
 
   // Define the div for the tooltip
@@ -104,7 +112,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   // add SVG to Leaflet map via Leaflet
   const svgLayer = L.svg();
-  svgLayer.addTo(mapD3Bubble.map);
+  svgLayer.addTo(thisMap);
 
   const svg = d3.select("#mapIMDD3").select("svg"),
     g = svg.select("g");
@@ -122,7 +130,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   // Project any point to map's current state
   // function projectPoint(x, y) {
-  //   const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
+  //   const point = thisMap.latLngToLayerPoint(new L.LatLng(y, x));
   //   this.stream.point(point.x, point.y);
   // }
 
@@ -132,7 +140,47 @@ function imdDomainD3(id = "selD3Leaf") {
   let d3BubbleEnter;
 
   function updateBubbleColour(defaultIMD = "Population") {
-    if (defaultIMD !== "Population") {
+    if (defaultIMD === "Population") {
+      // Style and legend for population
+      const maxValue = maxPopulation();
+
+      lsoaCentroidLegend.legend({
+        color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
+        title: "Population",
+        width: 600,
+        marginLeft: 50,
+      });
+
+      d3BubbleEnter.style("fill", function (d) {
+        return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
+      });
+    } else if (dataRatesMax.has(defaultIMD)) {
+      // convert short description back to long
+      const shortDesc = dataRatesKeys.get(defaultIMD);
+
+      const colour = defaultRatesProperties.legendColour();
+
+      lsoaCentroidLegend.legend({
+        color: colour,
+        title: dataRatesLookup.get(shortDesc).legendTitle,
+        leftSubTitle: dataRatesLookup.get(shortDesc).leftSubTitle,
+        rightSubTitle: dataRatesLookup.get(shortDesc).rightSubTitle,
+        tickFormat: dataRatesLookup.get(shortDesc).tickFormat,
+        width: 600,
+        marginLeft: 50,
+      });
+
+      d3BubbleEnter.style("fill", function (d) {
+        if (dataRates.get(defaultIMD).has(d.lsoa)) {
+          let sig = dataRates.get(defaultIMD).get(d.lsoa)[0].signf;
+          return colour(sig);
+        } else {
+          return "transparent";
+        }
+      });
+    } else {
+      // for IMD
+      // an array of the individual values
       const rawValues = dataIMD.map(function (d) {
         return d[defaultIMD];
       });
@@ -159,20 +207,6 @@ function imdDomainD3(id = "selD3Leaf") {
         } else {
           return null;
         }
-      });
-    } else {
-      // Style and legend for population
-      const maxValue = maxPopulation();
-
-      lsoaCentroidLegend.legend({
-        color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
-        title: "Population",
-        width: 600,
-        marginLeft: 50,
-      });
-
-      d3BubbleEnter.style("fill", function (d) {
-        return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
       });
     }
   }
@@ -203,15 +237,32 @@ function imdDomainD3(id = "selD3Leaf") {
   updateD3BubbleLsoa();
 
   function updateD3BubbleLsoa() {
-    // Update the population details
-    lsoaCentroidDetails.forEach((lsoa) => {
-      let value = actualPopulation(lsoa.lsoa);
+    /*
+    Update the population details or counts if using rates based data sets
+    For the rates based data, intention is to use count for the circle size rather than population
+    Colour will be used to show whether the rate is statistically significant eg. lower / higher rate
+    */
+    if (dataRatesMax.has(imdDomainShortD3)) {
+      lsoaCentroidDetails.forEach((lsoa) => {
+        let value;
+        if (dataRates.get(imdDomainShortD3).has(lsoa.lsoa)) {
+          value = dataRates.get(imdDomainShortD3).get(lsoa.lsoa)[0].count;
+        } else {
+          value = 0;
+        }
 
-      if (value === undefined) {
-        value = 0;
-      }
-      lsoa.lsoaPopulation = value;
-    });
+        lsoa.lsoaPopulation = value;
+      });
+    } else {
+      lsoaCentroidDetails.forEach((lsoa) => {
+        let value = actualPopulation(lsoa.lsoa);
+
+        if (value === undefined) {
+          value = 0;
+        }
+        lsoa.lsoaPopulation = value;
+      });
+    }
 
     const maxValue = d3.max(lsoaCentroidDetails, function (d) {
       return d.lsoaPopulation;
@@ -346,7 +397,7 @@ function imdDomainD3(id = "selD3Leaf") {
       })
       .style("pointer-events", "all");
 
-    refreshBubbles();
+    updateBubblePosition(); // Needed otherwise only updates after change in eg. zoom
     updateBubbleColour(imdDomainShortD3); // ensures colour matches dropdown
 
     const legendData = [maxValue / 10, maxValue / 2, maxValue];
@@ -404,11 +455,12 @@ function imdDomainD3(id = "selD3Leaf") {
       });
   }
 
-  function refreshBubbles() {
+  function updateBubblePosition() {
     d3BubbleEnter.attr("transform", function (d) {
-      const layerPoint = mapD3Bubble.map.latLngToLayerPoint(d.lsoaCentre);
+      const layerPoint = thisMap.latLngToLayerPoint(d.lsoaCentre);
       return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
     });
+
 
     return {
       updateD3BubbleLsoa: updateD3BubbleLsoa,
@@ -417,7 +469,7 @@ function imdDomainD3(id = "selD3Leaf") {
   }
 
   // Every time the map changes (post viewreset, move or moveend) update the SVG paths
-  mapD3Bubble.map.on("viewreset move moveend", refreshBubbles);
+  thisMap.on("viewreset move moveend", updateBubblePosition);
 
   return {
     updateD3BubbleLsoa: updateD3BubbleLsoa,
@@ -567,6 +619,26 @@ const defaultIMDPopnProperties = {
   tickFormat: ",.0f", // thousands comma, no decimals
 };
 
+const defaultRatesProperties = {
+  datasetDesc: "ratesDataFieldName", // which field in the dataset to refer to
+  scale() {
+    return d3
+      .scaleOrdinal()
+      .domain(["lower", "nosig", "higher"])
+      .range(["green", "grey", "red"]);
+  },
+  legendColour() {
+    return d3
+      .scaleOrdinal()
+      .domain(["lower", "nosig", "higher"])
+      .range(["green", "grey", "red"]);
+  },
+  // colourScheme: d3.schemeSpectral,
+  legendTitle: "IMD Decile",
+  leftSubTitle: "",
+  rightSubTitle: "",
+};
+
 const imdRankProperties = Object.create(defaultIMDProperties);
 imdRankProperties.datasetDesc = "imdRank";
 const incomeRankProperties = Object.create(defaultIMDProperties);
@@ -609,6 +681,21 @@ const popnOlderProperties = Object.create(defaultIMDPopnProperties);
 popnOlderProperties.datasetDesc = "popnOlder";
 const popnWorkingProperties = Object.create(defaultIMDPopnProperties);
 popnWorkingProperties.datasetDesc = "popnWorking";
+
+const ae_01RatesProperties = Object.create(defaultRatesProperties);
+ae_01RatesProperties.datasetDesc = "AE_01";
+const test02RatesProperties = Object.create(defaultRatesProperties);
+test02RatesProperties.datasetDesc = "test02";
+const testNewRatesProperties = Object.create(defaultRatesProperties);
+testNewRatesProperties.datasetDesc = "testNew";
+
+// const mapRatesDomain = new Map();
+
+// These would be hard coded to provide a lookup from the data key to the description
+const dataRatesLookup = new Map();
+dataRatesLookup.set("Long Description AE_01", ae_01RatesProperties);
+dataRatesLookup.set("Long Description test02", test02RatesProperties);
+dataRatesLookup.set("Long Description testNew", testNewRatesProperties);
 
 const mapIMDDomain = new Map();
 
@@ -695,6 +782,11 @@ let imdDomainDesc = "Population",
     select.options.add(new Option(key, counter));
     counter++;
   }
+
+  for (let key of dataRatesLookup.keys()) {
+    select.options.add(new Option(key, counter));
+    counter++;
+  }
   // for (let key of mapIMDDomain.keys()) {
   //   if (counter !== 0) {
   //     select.options.add(new Option(key, counter));
@@ -709,11 +801,23 @@ let imdDomainDesc = "Population",
 
   d3.select(select).on("change", function () {
     imdDomainDesc = d3.select("#selImdDomain option:checked").text();
-    if (imdDomainDesc !== "Population") {
+
+    if (mapIMDDomain.has(imdDomainDesc)) {
       imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+    } else if (dataRatesLookup.has(imdDomainDesc)) {
+      imdDomainShort = dataRatesLookup.get(imdDomainDesc);
+    } else if (imdDomainDesc === "Population") {
+      imdDomainShort = "population";
     } else {
       imdDomainShort = "population";
     }
+
+    // if (imdDomainDesc !== "Population") {
+    //   imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+    // } else {
+    //   imdDomainShort = "population";
+    // }
+
     console.log({ imdDomainShort: imdDomainShort });
     recolourIMDLayer(imdDomainShort);
   });
