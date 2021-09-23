@@ -43,7 +43,6 @@ function mapInitialise({
   const promTesting = Promise.allSettled([
     promGeoDataGP,
     gpDetails,
-    promGeoNationalCCGBoundaries,
     promGeoDataCYCWards,
     promGeoDataLsoaBoundaries,
     promDataIMD,
@@ -602,9 +601,9 @@ function mapInitialise({
 
   // Option to include the CCG Boundary layer (option to display is later)
   if (overlayCCGBoundary.inc || overlayCCGBoundary.zoomExtent) {
-    Promise.allSettled([promGeoNationalCCGBoundaries]).then((ccgBoundaries) => {
-      const ccgBoundaryVoY = L.geoJSON(ccgBoundaries[0].value, {
-        style: styleCCG,
+    Promise.allSettled([promGeoNationalCCGBoundaries]).then(() => {
+      const ccgBoundaryVoY = L.geoJSON(geoDataNationalCCGBoundaries, {
+        style: styleCCG("VoY"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
@@ -613,8 +612,8 @@ function mapInitialise({
         },
       });
 
-      const ccgBoundaryNY = L.geoJSON(ccgBoundaries[0].value, {
-        style: styleCCG,
+      const ccgBoundaryNY = L.geoJSON(geoDataNationalCCGBoundaries, {
+        style: styleCCG("NY"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
@@ -623,13 +622,23 @@ function mapInitialise({
         },
       });
 
-      const ccgBoundaryER = L.geoJSON(ccgBoundaries[0].value, {
-        style: styleCCG,
+      const ccgBoundaryER = L.geoJSON(geoDataNationalCCGBoundaries, {
+        style: styleCCG("ER"),
         pane: "ccgBoundaryPane",
         filter: function (d) {
           const ccg = d.properties.ccg21nm;
 
           return ccg === "NHS East Riding of Yorkshire CCG" ? true : false;
+        },
+      });
+
+      const ccgBoundaryHull = L.geoJSON(geoDataNationalCCGBoundaries, {
+        style: styleCCG("Hull"),
+        pane: "ccgBoundaryPane",
+        filter: function (d) {
+          const ccg = d.properties.ccg21nm;
+
+          return ccg === "NHS Hull CCG" ? true : false;
         },
       });
 
@@ -654,6 +663,10 @@ function mapInitialise({
               label: "East Riding",
               layer: ccgBoundaryER,
             },
+            {
+              label: "Hull",
+              layer: ccgBoundaryHull,
+            },
           ],
         };
 
@@ -669,10 +682,10 @@ function mapInitialise({
 
   // Do you want to include the Ward Boundary layer (option to display is later)
   if (overlayWardBoundary.inc || overlayWardBoundary.zoomExtent) {
-    Promise.allSettled([promGeoDataCYCWards]).then((wardBoundaries) => {
+    Promise.allSettled([promGeoDataCYCWards]).then(() => {
       const layersMapWards = new Map();
 
-      const geoDataCYCWards = L.geoJSON(wardBoundaries[0].value, {
+      const geoDataCYCWards = L.geoJSON(geoWardBoundaries, {
         style: styleWard,
         pane: "wardBoundaryPane",
         onEachFeature: function (feature, layer) {
@@ -704,11 +717,11 @@ function mapInitialise({
   // Do you want to include the LSOA Boundary layer (option to display is later)
   // This layer will not be filtered ie. full boundary
   if (overlayLsoaBoundary.inc || overlayLsoaBoundary.zoomExtent) {
-    Promise.allSettled([promGeoDataLsoaBoundaries]).then((lsoaBoundaries) => {
+    Promise.allSettled([promGeoDataLsoaBoundaries]).then(() => {
       // const layersMapByCCG = new Map();
       // Consider option to show by CCG here...
 
-      const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+      const geoDataLsoaBoundaries = L.geoJSON(geoLsoaBoundaries, {
         style: styleLsoa,
         pane: "lsoaBoundaryPane",
         // onEachFeature: function (feature, layer) {
@@ -751,7 +764,7 @@ function mapInitialise({
       (lsoaBoundaries) => {
         const layersMapByIMD = new Map();
 
-        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+        const geoDataLsoaBoundaries = L.geoJSON(geoLsoaBoundaries, {
           style: styleLsoa,
           pane: "lsoaBoundaryPane",
           onEachFeature: function (feature, layer) {
@@ -813,17 +826,24 @@ function mapInitialise({
         <br>${d.sector}</p>`;
 
         if (category === "NHS Sector") {
-          const marker = trustMarker(d.markerPosition, "nhs", "H", popupText);
+          const marker = trustMarker({
+            position: d.markerPosition,
+            className: "nhs",
+            text: "H",
+            popupText: popupText,
+            popupClass: "popup-trustNHS",
+          });
           marker.addTo(nhsTrustSites);
           i++;
         } else {
           // Independent Sector
-          const marker = trustMarker(
-            d.markerPosition,
-            "independent",
-            "H",
-            popupText
-          );
+          const marker = trustMarker({
+            position: d.markerPosition,
+            className: "independent",
+            text: "H",
+            popupText: popupText,
+            popupClass: "popup-trustIS",
+          });
           marker.addTo(nonNhsTrustSites);
           j++;
         }
@@ -841,7 +861,13 @@ function mapInitialise({
 
       updateOverlay("nationalTrusts", nationalTrusts);
 
-      function trustMarker(position, className, text = "H", popupText) {
+      function trustMarker({
+        position,
+        className,
+        text = "H",
+        popupText,
+        popupClass = "popup-dark",
+      } = {}) {
         return L.marker(position, {
           icon: L.divIcon({
             className: `trust-marker ${className}`,
@@ -849,7 +875,7 @@ function mapInitialise({
             iconSize: L.point(20, 20),
             popupAnchor: [0, -10],
           }),
-        }).bindPopup(popupText);
+        }).bindPopup(popupText, { className: popupClass }); // popup formatting applied in css, css/leaflet_tooltip.css
       }
 
       function overlayNationalTrusts(nhs, independent) {
@@ -949,9 +975,10 @@ const trustSitesLoc = {
   leedsTrust: [53.80687, -1.52034],
   southTeesTrust: [54.55176, -1.21479],
   hullTrust: [53.74411, -0.035813],
+  selbyMIU: [53.77748, -1.07832],
 };
 
-function trustMarker(location, text) {
+function selectedTrustMarker(location, text) {
   return L.marker(location, {
     icon: L.BeautifyIcon.icon({
       iconShape: "circle",
@@ -964,6 +991,22 @@ function trustMarker(location, text) {
     zIndexOffset: 1000,
     draggable: false,
   }).bindPopup(text); // Text to display in pop up
+}
+
+// Dummy moveable (draggable) marker for demo only
+function moveableMarker() {
+  return L.marker(trustSitesLoc.yorkTrust, {
+    icon: L.BeautifyIcon.icon({
+      iconShape: "circle",
+      icon: "atom",
+      borderColor: "Black", // "rgba(242,247,53)",
+      backgroundColor: "transparent",
+      textColor: "Black", // "rgba(242,247,53)", // Text color of marker icon
+      popupAnchor: [0, -5], // adjusts offset position of popup
+    }),
+    zIndexOffset: 1001,
+    draggable: true,
+  }).bindPopup("Drag to move me"); // Text to display in pop up
 }
 
 // Separate marker for York Trust
@@ -1162,27 +1205,44 @@ function overlayTrusts() {
     children: [
       {
         label: "York",
-        layer: trustMarker(trustSitesLoc.yorkTrust, "York Trust"),
+        layer: selectedTrustMarker(trustSitesLoc.yorkTrust, "York Trust"),
       },
       {
         label: "Harrogate",
-        layer: trustMarker(trustSitesLoc.harrogateTrust, "Harrogate Trust"),
+        layer: selectedTrustMarker(
+          trustSitesLoc.harrogateTrust,
+          "Harrogate Trust"
+        ),
       },
       {
         label: "Scarborough",
-        layer: trustMarker(trustSitesLoc.scarboroughTrust, "Scarborough Trust"),
+        layer: selectedTrustMarker(
+          trustSitesLoc.scarboroughTrust,
+          "Scarborough Trust"
+        ),
       },
       {
         label: "Leeds",
-        layer: trustMarker(trustSitesLoc.leedsTrust, "Leeds Trust"),
+        layer: selectedTrustMarker(trustSitesLoc.leedsTrust, "Leeds Trust"),
       },
       {
         label: "South Tees",
-        layer: trustMarker(trustSitesLoc.southTeesTrust, "South Tees Trust"),
+        layer: selectedTrustMarker(
+          trustSitesLoc.southTeesTrust,
+          "South Tees Trust"
+        ),
       },
       {
         label: "Hull",
-        layer: trustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
+        layer: selectedTrustMarker(trustSitesLoc.hullTrust, "Hull Trust"),
+      },
+      {
+        label: "Selby MIU",
+        layer: selectedTrustMarker(trustSitesLoc.selbyMIU, "Selby MIU"),
+      },
+      {
+        label: "Move Me",
+        layer: moveableMarker(),
       },
     ],
   };

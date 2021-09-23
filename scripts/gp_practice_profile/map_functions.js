@@ -1,18 +1,18 @@
-function recolourPopnLSOA() {
+function recolourPopnLSOAIMD() {
   /*
-    For updating the LSOA colours in mapPopulation
+    For updating the LSOA colours by population in the IMD chart
     */
   const maxValue = maxPopulation();
 
   // refreshMapPopnLegend(maxValue);
-  popnLegend.legend({
+  imdLegend.legend({
     color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
     title: "Population",
     width: 600,
     marginLeft: 50,
   });
 
-  mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
+  mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
     const lsoaCode = layer.feature.properties.lsoa;
 
     let value = actualPopulation(lsoaCode);
@@ -25,7 +25,7 @@ function recolourPopnLSOA() {
       layer.setStyle({
         // https://github.com/d3/d3-scale-chromatic
         fillColor: d3.interpolateYlGnBu(value / maxValue), // colour(value),
-        fillOpacity: 0.9,
+        fillOpacity: 0.8,
         weight: 1, // border
         color: "white", // border
         opacity: 1,
@@ -59,7 +59,7 @@ function recolourPopnLSOA() {
 let imdDomainDescD3 = "Population",
   imdDomainShortD3 = "Population";
 
-function imdDomainD3(id = "selD3Leaf") {
+function imdDomainD3({ id, thisMap } = {}) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
   const div = document.getElementById(id);
   // Create the drop down to sort the chart
@@ -83,19 +83,27 @@ function imdDomainD3(id = "selD3Leaf") {
     select.options.add(new Option(key, counter));
     counter++;
   }
+  for (let key of dataRatesLookup.keys()) {
+    select.options.add(new Option(key, counter));
+    counter++;
+  }
 
   frag.appendChild(select);
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
     imdDomainDescD3 = d3.select("#selImdDomainD3 option:checked").text();
-    if (imdDomainDescD3 !== "Population") {
-      imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
-    } else {
+    if (imdDomainDescD3 === "Population") {
       imdDomainShortD3 = "Population";
+    } else if (dataRatesLookup.has(imdDomainDescD3)) {
+      imdDomainShortD3 = dataRatesLookup.get(imdDomainDescD3).datasetDesc;
+    } else {
+      imdDomainShortD3 = mapIMDDomain.get(imdDomainDescD3).datasetDesc;
     }
     console.log({ imdDomain: imdDomainDescD3 });
-    updateBubbleColour(imdDomainShortD3);
+    // refreshBubbleChart()
+    updateD3BubbleLsoa();
+    // updateBubbleColour(imdDomainShortD3);
   });
 
   // Define the div for the tooltip
@@ -104,7 +112,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   // add SVG to Leaflet map via Leaflet
   const svgLayer = L.svg();
-  svgLayer.addTo(mapD3Bubble.map);
+  svgLayer.addTo(thisMap);
 
   const svg = d3.select("#mapIMDD3").select("svg"),
     g = svg.select("g");
@@ -122,7 +130,7 @@ function imdDomainD3(id = "selD3Leaf") {
 
   // Project any point to map's current state
   // function projectPoint(x, y) {
-  //   const point = mapD3Bubble.map.latLngToLayerPoint(new L.LatLng(y, x));
+  //   const point = thisMap.latLngToLayerPoint(new L.LatLng(y, x));
   //   this.stream.point(point.x, point.y);
   // }
 
@@ -132,7 +140,47 @@ function imdDomainD3(id = "selD3Leaf") {
   let d3BubbleEnter;
 
   function updateBubbleColour(defaultIMD = "Population") {
-    if (defaultIMD !== "Population") {
+    if (defaultIMD === "Population") {
+      // Style and legend for population
+      const maxValue = maxPopulation();
+
+      lsoaCentroidLegend.legend({
+        color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
+        title: "Population",
+        width: 600,
+        marginLeft: 50,
+      });
+
+      d3BubbleEnter.style("fill", function (d) {
+        return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
+      });
+    } else if (dataRatesMax.has(defaultIMD)) {
+      // convert short description back to long
+      const shortDesc = dataRatesKeys.get(defaultIMD);
+
+      const colour = defaultRatesProperties.legendColour();
+
+      lsoaCentroidLegend.legend({
+        color: colour,
+        title: dataRatesLookup.get(shortDesc).legendTitle,
+        leftSubTitle: dataRatesLookup.get(shortDesc).leftSubTitle,
+        rightSubTitle: dataRatesLookup.get(shortDesc).rightSubTitle,
+        tickFormat: dataRatesLookup.get(shortDesc).tickFormat,
+        width: 600,
+        marginLeft: 50,
+      });
+
+      d3BubbleEnter.style("fill", function (d) {
+        if (dataRates.get(defaultIMD).has(d.lsoa)) {
+          let sig = dataRates.get(defaultIMD).get(d.lsoa)[0].signf;
+          return colour(sig);
+        } else {
+          return "transparent";
+        }
+      });
+    } else {
+      // for IMD
+      // an array of the individual values
       const rawValues = dataIMD.map(function (d) {
         return d[defaultIMD];
       });
@@ -141,11 +189,11 @@ function imdDomainD3(id = "selD3Leaf") {
       const colour = mapIMDDomain.get(imdDomainDescD3).scale(rawValues);
 
       lsoaCentroidLegend.legend({
-        color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-        title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-        leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-        rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-        tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+        color: colour, //mapIMDDomain.get(imdDomainDescD3).legendColour(rawValues),
+        title: mapIMDDomain.get(imdDomainDescD3).legendTitle,
+        leftSubTitle: mapIMDDomain.get(imdDomainDescD3).leftSubTitle,
+        rightSubTitle: mapIMDDomain.get(imdDomainDescD3).rightSubTitle,
+        tickFormat: mapIMDDomain.get(imdDomainDescD3).tickFormat,
         width: 600,
         marginLeft: 50,
       });
@@ -160,20 +208,6 @@ function imdDomainD3(id = "selD3Leaf") {
           return null;
         }
       });
-    } else {
-      // Style and legend for population
-      const maxValue = maxPopulation();
-
-      lsoaCentroidLegend.legend({
-        color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
-        title: "Population",
-        width: 600,
-        marginLeft: 50,
-      });
-
-      d3BubbleEnter.style("fill", function (d) {
-        return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
-      });
     }
   }
 
@@ -187,7 +221,7 @@ function imdDomainD3(id = "selD3Leaf") {
     Can derive the geometric centre using geoDataLsoaBoundaries and .getCenter()
     Population centroid figures are published
      */
-  L.geoJson(geoDateLsoaPopnCentroid, {
+  L.geoJson(geoDataLsoaPopnCentroid, {
     onEachFeature: function (feature, layer) {
       let obj = {};
       obj.lsoa = layer.feature.properties.lsoa11cd; // lsoa code
@@ -203,15 +237,32 @@ function imdDomainD3(id = "selD3Leaf") {
   updateD3BubbleLsoa();
 
   function updateD3BubbleLsoa() {
-    // Update the population details
-    lsoaCentroidDetails.forEach((lsoa) => {
-      let value = actualPopulation(lsoa.lsoa);
+    /*
+    Update the population details or counts if using rates based data sets
+    For the rates based data, intention is to use count for the circle size rather than population
+    Colour will be used to show whether the rate is statistically significant eg. lower / higher rate
+    */
+    if (dataRatesMax.has(imdDomainShortD3)) {
+      lsoaCentroidDetails.forEach((lsoa) => {
+        let value;
+        if (dataRates.get(imdDomainShortD3).has(lsoa.lsoa)) {
+          value = dataRates.get(imdDomainShortD3).get(lsoa.lsoa)[0].count;
+        } else {
+          value = 0;
+        }
 
-      if (value === undefined) {
-        value = 0;
-      }
-      lsoa.lsoaPopulation = value;
-    });
+        lsoa.lsoaPopulation = value;
+      });
+    } else {
+      lsoaCentroidDetails.forEach((lsoa) => {
+        let value = actualPopulation(lsoa.lsoa);
+
+        if (value === undefined) {
+          value = 0;
+        }
+        lsoa.lsoaPopulation = value;
+      });
+    }
 
     const maxValue = d3.max(lsoaCentroidDetails, function (d) {
       return d.lsoaPopulation;
@@ -322,7 +373,7 @@ function imdDomainD3(id = "selD3Leaf") {
         const sel = d3.select(this);
         sel.classed("hover", false);
         sel.lower();
-        sel.style("fill-opacity", 0.7);
+        sel.style("fill-opacity", 0.8);
         newTooltip.mouseout(tooltipD3Lsoa);
       })
       .attr("class", "bubble")
@@ -338,14 +389,15 @@ function imdDomainD3(id = "selD3Leaf") {
         let value = actualPopulation(lsoaCode);
 
         if (value > minPopulationLSOA) {
-          return 0.7;
+          return 0.8;
         } else {
+          // console.log({ testing: lsoaCode });
           return 0.1;
         }
       })
       .style("pointer-events", "all");
 
-    refreshBubbles();
+    updateBubblePosition(); // Needed otherwise only updates after change in eg. zoom
     updateBubbleColour(imdDomainShortD3); // ensures colour matches dropdown
 
     const legendData = [maxValue / 10, maxValue / 2, maxValue];
@@ -403,11 +455,12 @@ function imdDomainD3(id = "selD3Leaf") {
       });
   }
 
-  function refreshBubbles() {
+  function updateBubblePosition() {
     d3BubbleEnter.attr("transform", function (d) {
-      const layerPoint = mapD3Bubble.map.latLngToLayerPoint(d.lsoaCentre);
+      const layerPoint = thisMap.latLngToLayerPoint(d.lsoaCentre);
       return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
     });
+
 
     return {
       updateD3BubbleLsoa: updateD3BubbleLsoa,
@@ -416,7 +469,7 @@ function imdDomainD3(id = "selD3Leaf") {
   }
 
   // Every time the map changes (post viewreset, move or moveend) update the SVG paths
-  mapD3Bubble.map.on("viewreset move moveend", refreshBubbles);
+  thisMap.on("viewreset move moveend", updateBubblePosition);
 
   return {
     updateD3BubbleLsoa: updateD3BubbleLsoa,
@@ -430,76 +483,78 @@ function recolourIMDLayer(defaultIMD = "imdRank") {
   //   return d[defaultIMD];
   // });
 
-  /*
-      rawValues are the values in the appropriate field
-      These are ignored for the IMD indicators since they are hardcoded based on the number of LSOAs: 1 to 32,844
-      However, for the population figures, these are used
-      */
-  const rawValues = dataIMD.map(function (d) {
-    return d[defaultIMD];
-  });
-  // console.log(rawValues)
+  if (defaultIMD === "population") {
+    recolourPopnLSOAIMD();
+  } else {
+    /*
+        rawValues are the values in the appropriate field
+        These are ignored for the IMD indicators since they are hardcoded based on the number of LSOAs: 1 to 32,844
+        However, for the 'imd' population figures, these are used
+        */
+    const rawValues = dataIMD.map(function (d) {
+      return d[defaultIMD];
+    });
+    // console.log(rawValues)
 
-  const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
+    const colour = mapIMDDomain.get(imdDomainDesc).scale(rawValues);
 
-  imdLegend.legend({
-    color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
-    title: mapIMDDomain.get(imdDomainDesc).legendTitle,
-    leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
-    rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
-    tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
-    width: 600,
-    marginLeft: 50,
-  });
+    imdLegend.legend({
+      color: colour, //mapIMDDomain.get(imdDomainDesc).legendColour(rawValues),
+      title: mapIMDDomain.get(imdDomainDesc).legendTitle,
+      leftSubTitle: mapIMDDomain.get(imdDomainDesc).leftSubTitle,
+      rightSubTitle: mapIMDDomain.get(imdDomainDesc).rightSubTitle,
+      tickFormat: mapIMDDomain.get(imdDomainDesc).tickFormat,
+      width: 600,
+      marginLeft: 50,
+    });
 
-  if (mapsWithLSOAFiltered.has(mapIMD.map)) {
-    mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
-      const lsoaCode = layer.feature.properties.lsoa;
+    if (mapsWithLSOAFiltered.has(mapIMD.map)) {
+      mapsWithLSOAFiltered.get(mapIMD.map)[0].eachLayer(function (layer) {
+        const lsoaCode = layer.feature.properties.lsoa;
 
-      if (mapsFilteredLSOA.has(lsoaCode)) {
-        // the filter lsoaFunction populates a map object of lsoas (with relevant population)
-        let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
-        if (obj !== undefined) {
-          // console.log(obj[defaultIMD], maxValue);
-          const value = obj[defaultIMD];
+        if (mapsFilteredLSOA.has(lsoaCode)) {
+          // the filter lsoaFunction populates a map object of lsoas (with relevant population)
+          let obj = dataIMD.find((x) => x.lsoa === lsoaCode);
+          if (obj !== undefined) {
+            // console.log(obj[defaultIMD], maxValue);
+            const value = obj[defaultIMD];
 
-          layer.setStyle({
-            // https://github.com/d3/d3-scale-chromatic
-            fillColor: colour(value), //colourScheme(value / maxValue),
-            fillOpacity: 0.6,
-            weight: 1, // border
-            color: "white", // border
-            opacity: 1,
-            // dashArray: "3",
-          });
+            layer.setStyle({
+              // https://github.com/d3/d3-scale-chromatic
+              fillColor: colour(value), //colourScheme(value / maxValue),
+              fillOpacity: 0.8,
+              weight: 1, // border
+              color: "white", // border
+              opacity: 1,
+              // dashArray: "3",
+            });
 
-          layer.bindPopup(
-            `<h3>${layer.feature.properties.lsoa}</h3>
+            layer.bindPopup(
+              `<h3>${layer.feature.properties.lsoa}</h3>
               <p>IMD: ${formatNumber(value)}</p>
             `
-          );
+            );
+          }
+          // });
+        } else {
+          // if population is less than set amount, make it transparent
+          layer.setStyle({
+            // no (transparent) background
+            fillColor: "#ff0000", // background
+            fillOpacity: 0, // transparent
+            weight: 0, // border
+            color: "red", // border
+            opacity: 0,
+          });
         }
-        // });
-      } else {
-        // if population is less than set amount, make it transparent
-        layer.setStyle({
-          // no (transparent) background
-          fillColor: "#ff0000", // background
-          fillOpacity: 0, // transparent
-          weight: 0, // border
-          color: "red", // border
-          opacity: 0,
-        });
-      }
-    });
+      });
+    }
   }
 }
 // }
 
-const mapIMDDomain = new Map();
-
 /*
-For colouring the heatmaps and legend
+For colouring the choropleth map and legend
 
 Scale is used to colour the maps.
 legendColour is used to create the colour bar (ramp)
@@ -564,6 +619,26 @@ const defaultIMDPopnProperties = {
   tickFormat: ",.0f", // thousands comma, no decimals
 };
 
+const defaultRatesProperties = {
+  datasetDesc: "ratesDataFieldName", // which field in the dataset to refer to
+  scale() {
+    return d3
+      .scaleOrdinal()
+      .domain(["lower", "nosig", "higher"])
+      .range(["green", "grey", "red"]);
+  },
+  legendColour() {
+    return d3
+      .scaleOrdinal()
+      .domain(["lower", "nosig", "higher"])
+      .range(["green", "grey", "red"]);
+  },
+  // colourScheme: d3.schemeSpectral,
+  legendTitle: "IMD Decile",
+  leftSubTitle: "",
+  rightSubTitle: "",
+};
+
 const imdRankProperties = Object.create(defaultIMDProperties);
 imdRankProperties.datasetDesc = "imdRank";
 const incomeRankProperties = Object.create(defaultIMDProperties);
@@ -606,6 +681,23 @@ const popnOlderProperties = Object.create(defaultIMDPopnProperties);
 popnOlderProperties.datasetDesc = "popnOlder";
 const popnWorkingProperties = Object.create(defaultIMDPopnProperties);
 popnWorkingProperties.datasetDesc = "popnWorking";
+
+const ae_01RatesProperties = Object.create(defaultRatesProperties);
+ae_01RatesProperties.datasetDesc = "AE_01";
+const test02RatesProperties = Object.create(defaultRatesProperties);
+test02RatesProperties.datasetDesc = "test02";
+const testNewRatesProperties = Object.create(defaultRatesProperties);
+testNewRatesProperties.datasetDesc = "testNew";
+
+// const mapRatesDomain = new Map();
+
+// These would be hard coded to provide a lookup from the data key to the description
+const dataRatesLookup = new Map();
+dataRatesLookup.set("Long Description AE_01", ae_01RatesProperties);
+dataRatesLookup.set("Long Description test02", test02RatesProperties);
+dataRatesLookup.set("Long Description testNew", testNewRatesProperties);
+
+const mapIMDDomain = new Map();
 
 mapIMDDomain.set("IMD Rank", imdRankProperties);
 mapIMDDomain.set("IMD Decile", {
@@ -663,8 +755,8 @@ mapIMDDomain.set(
 mapIMDDomain.set("Working age population 18 59 64", popnWorkingProperties);
 
 // default values
-let imdDomainDesc = "IMD Rank",
-  imdDomainShort = "imdRank";
+let imdDomainDesc = "Population",
+  imdDomainShort = "population";
 
 (function imdDomain(id = "selIMD") {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
@@ -684,26 +776,54 @@ let imdDomainDesc = "IMD Rank",
   select.setAttribute("id", "selImdDomain");
 
   // Option constructor: args text, value, defaultSelected, selected
-  let counter = 0;
+  select.options.add(new Option("Population", 0, true, true));
+  let counter = 1;
   for (let key of mapIMDDomain.keys()) {
-    if (counter !== 0) {
-      select.options.add(new Option(key, counter));
-    } else {
-      select.options.add(new Option(key, 0, true, true));
-    }
+    select.options.add(new Option(key, counter));
     counter++;
   }
+
+  for (let key of dataRatesLookup.keys()) {
+    select.options.add(new Option(key, counter));
+    counter++;
+  }
+  // for (let key of mapIMDDomain.keys()) {
+  //   if (counter !== 0) {
+  //     select.options.add(new Option(key, counter));
+  //   } else {
+  //     select.options.add(new Option(key, 0, true, true));
+  //   }
+  //   counter++;
+  // }
 
   frag.appendChild(select);
   span.appendChild(frag);
 
   d3.select(select).on("change", function () {
     imdDomainDesc = d3.select("#selImdDomain option:checked").text();
-    imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+
+    if (mapIMDDomain.has(imdDomainDesc)) {
+      imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+    } else if (dataRatesLookup.has(imdDomainDesc)) {
+      imdDomainShort = dataRatesLookup.get(imdDomainDesc);
+    } else if (imdDomainDesc === "Population") {
+      imdDomainShort = "population";
+    } else {
+      imdDomainShort = "population";
+    }
+
+    // if (imdDomainDesc !== "Population") {
+    //   imdDomainShort = mapIMDDomain.get(imdDomainDesc).datasetDesc;
+    // } else {
+    //   imdDomainShort = "population";
+    // }
+
     console.log({ imdDomainShort: imdDomainShort });
     recolourIMDLayer(imdDomainShort);
   });
 })();
+
+let firstPass = true;
 
 function filterGPPracticeSites(zoomToExtent = false) {
   /* This will deselect the 'entire' GP Sites layer
@@ -714,6 +834,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
     mapsWithGPSites.forEach(function (value, key) {
       // value includes the original unfiltered sites layer, value[0] and the filtered layer if exists, value[1]
       let isLayerDisplayed = false;
+      let isFilteredLayerDisplayed = false;
       if (key.hasLayer(value[0])) {
         // the original sites layer
         key.removeLayer(value[0]);
@@ -724,6 +845,7 @@ function filterGPPracticeSites(zoomToExtent = false) {
       if (value.length > 1) {
         if (key.hasLayer(value[1])) {
           key.removeLayer(value[1]);
+          isFilteredLayerDisplayed = true;
         }
         // value.pop(); // not necessary as will be overwritten?
         delete value[1]; // keeps the array length but the filtered sites layer (in index 1) becomes undefined
@@ -787,7 +909,10 @@ function filterGPPracticeSites(zoomToExtent = false) {
         });
 
         // key is the map we are working with
-        gpSites.addTo(key);
+        if (isFilteredLayerDisplayed || firstPass) {
+          gpSites.addTo(key);
+          firstPass = false;
+        }
 
         value[1] = gpSites; // append the filtered layer
 
@@ -805,13 +930,14 @@ function filterGPPracticeSites(zoomToExtent = false) {
         }
       } else {
         // reset to show all sites
-        if (isLayerDisplayed || key === mapPopn.map) {
+        if (isLayerDisplayed) {
+          // (isLayerDisplayed || key === mapPopn.map)
           key.addLayer(value[0]);
         }
         key.flyTo(mapOfMaps.get(key), 9);
 
         // Remove the overlay
-        value[2] = null; // null will be used in the filter function to remove th overlay
+        value[2] = null; // null will be used in the filter function to remove the overlay
       }
     });
     // refreshFilteredGPSitesOverlays();
@@ -871,7 +997,7 @@ async function filterFunctionLsoa(zoomToExtent = false) {
           }
         }
 
-        const geoDataLsoaBoundaries = L.geoJSON(lsoaBoundaries[0].value, {
+        const geoDataLsoaBoundaries = L.geoJSON(geoLsoaBoundaries, {
           style: styleLsoaOrangeOutline,
           pane: "lsoaBoundaryPane2",
           onEachFeature: function (feature, layer) {
@@ -916,7 +1042,7 @@ async function filterFunctionLsoa(zoomToExtent = false) {
       });
     })
     .then(() => {
-      recolourPopnLSOA();
+      // recolourPopnLSOA();
       recolourIMDLayer(imdDomainShort);
     })
     .then(() => {
@@ -1020,7 +1146,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
       });
     })
     .then(() => {
-      recolourPopnLSOA();
+      // recolourPopnLSOA();
       recolourIMDLayer(imdDomainShort);
       refreshFilteredLSOAOverlays();
     });
@@ -1149,3 +1275,61 @@ function actualPopulation(lsoa) {
         .get("All")
         .get(lsoa);
 }
+
+// function recolourPopnLSOA() {
+//   /*
+//     For updating the LSOA colours in mapPopulation
+//     */
+//   const maxValue = maxPopulation();
+
+//   // refreshMapPopnLegend(maxValue);
+//   popnLegend.legend({
+//     color: d3.scaleSequential([0, maxValue], d3.interpolateYlGnBu),
+//     title: "Population",
+//     width: 600,
+//     marginLeft: 50,
+//   });
+
+//   mapsWithLSOAFiltered.get(mapPopn.map)[0].eachLayer(function (layer) {
+//     const lsoaCode = layer.feature.properties.lsoa;
+
+//     let value = actualPopulation(lsoaCode);
+
+//     if (value === undefined) {
+//       value = 0;
+//     }
+
+//     if (value > minPopulationLSOA) {
+//       layer.setStyle({
+//         // https://github.com/d3/d3-scale-chromatic
+//         fillColor: d3.interpolateYlGnBu(value / maxValue), // colour(value),
+//         fillOpacity: 0.8,
+//         weight: 1, // border
+//         color: "white", // border
+//         opacity: 1,
+//         // dashArray: "3",
+//       });
+//       // layer.on("click", function (e) {
+//       //   // update other charts
+//       //   console.log({ lsoa: selectedLsoa });
+//       // });
+//     } else {
+//       layer.setStyle({
+//         // no (transparent) background
+//         fillColor: "#ff0000", // background
+//         fillOpacity: 0, // transparent
+//         weight: 0, // border
+//         color: "red", // border
+//         opacity: 0,
+//       });
+//     }
+
+//     layer.bindPopup(
+//       `<h3>${layer.feature.properties.lsoa}</h3>
+//             <p>${userSelections.selectedPractice}</p>
+//             <p>${formatPeriod(userSelections.nearestDate())}</p>
+//         Pop'n: ${formatNumber(value)}
+//         `
+//     );
+//   });
+// }

@@ -4,7 +4,10 @@ Data/org_structure/
 
 
 Data/GP_Practice_Populations.csv
+# pgadmin connection string
+Data/geo/scripts/options.txt
 
+Data/geo/selectedLSOATesting
 xx_delete
 
 # ignore all jpgs

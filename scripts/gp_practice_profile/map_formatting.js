@@ -1,11 +1,31 @@
 // Formatting Styles
-const styleCCG = {
-  color: "#00ff78",
-  weight: 2,
-  opacity: 0.6,
-};
+function styleCCG(ccg) {
+  let colour;
+  switch (ccg) {
+    case "VoY":
+      colour = "#00ff78";
+      break;
+    case "NY":
+      colour = "#ff0078";
+      break;
+    case "ER":
+      colour = "#7800ff";
+      break;
+    case "Hull":
+        colour = "#dfff00";
+        break;
+    default:
+      colour = "#333";
+  }
 
-function styleLsoa(feature) {
+  return {
+    color: colour,
+    weight: 2,
+    opacity: 0.6,
+  };
+}
+
+function styleLsoa() {
   return {
     fillColor: "#ff0000", // background
     fillOpacity: 0, // transparent
@@ -63,7 +83,6 @@ const wardsStyleLabels = {
   opacity: 0,
   weight: 0,
 };
-
 
 function pcnFormatting(feature, latlng, { addBounce = false } = {}) {
   let markerPCN;

@@ -1,5 +1,0 @@
-# Comment
--f GeoJSON
--lco COORDINATE_PRECISION=10
--s_srs EPSG:27700
--t_srs EPSG:4326

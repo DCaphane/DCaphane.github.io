@@ -25,6 +25,7 @@ sidebarMapMain.addPanel(sidebarContent.panelSettings);
 
 mapMain.updateOverlay("selectedTrusts", overlayTrusts());
 
+/*
 // Population Map by lsoa
 const mapPopn = mapInitialise({
   mapDivID: "mapPopnLSOA",
@@ -42,6 +43,7 @@ sidebarPopn.addPanel(sidebarContent.panelOverview);
 mapPopn.updateOverlay("selectedTrusts", overlayTrusts());
 
 const popnLegend = legendWrapper("footerMapPopn", genID.uid("popn"));
+*/
 
 /*
 IMD Map by LSOA
@@ -58,8 +60,11 @@ Useful IMD FAQ: https://assets.publishing.service.gov.uk/government/uploads/syst
 
 const mapIMD = mapInitialise({
   mapDivID: "mapIMDLSOA",
-  baselayer: "Jawg Matrix",
+  baselayer: "Dark", // Jawg Matrix
+  userOverlayGPSites: { inc: true, display: true },
+  userOverlayLsoaBoundary: { inc: true, display: false },
   userOverlayFilteredLsoa: { inc: true },
+  userOverlayNationalTrusts: true,
 });
 mapIMD.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapIMD.homeButton();
@@ -85,11 +90,12 @@ Drawing points of interest using this demo:
 
 const mapD3Bubble = mapInitialise({
   mapDivID: "mapIMDD3",
-  baselayer: "High Contrast",
+  baselayer: "OS Light", // High Contrast
   userOverlayLsoaBoundary: { inc: true },
   userOverlayFilteredLsoa: { inc: true },
   // userOverlayGPMain: { inc: true, display: false },
   userOverlayGPSites: { inc: true, display: false },
+  userOverlayNationalTrusts: true,
 });
 mapD3Bubble.scaleBar(); // default is bottomleft, can use mapMain.scaleBar({position: "bottomright"});
 mapD3Bubble.homeButton();
@@ -106,7 +112,10 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then(() => {
 
   Promise.allSettled([importGeoData]).then(() => {
     // The following require the above population data and the geoData
-    circlePopnIMDChart = imdDomainD3();
+    circlePopnIMDChart = imdDomainD3({
+      id: "selD3Leaf",
+      thisMap: mapD3Bubble.map,
+    });
     filterFunctionLsoa(true);
     //   .then(() => {
     //   recolourPopnLSOA();
