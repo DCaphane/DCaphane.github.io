@@ -76,6 +76,7 @@ sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
 mapIMD.updateOverlay("selectedTrusts", overlayTrusts());
+mapIMD.updateOverlay("separatorLine", overlayAddSeparator());
 
 /*
 Population and IMD by LSOA (D3 Circle Map)
@@ -103,6 +104,27 @@ mapStore.push(mapD3Bubble);
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
 mapD3Bubble.updateOverlay("selectedTrusts", overlayTrusts());
+mapD3Bubble.updateOverlay("separatorLine", overlayAddSeparator());
+
+// bubbleGroup to run a function in the overlayers tree
+mapD3Bubble.updateOverlay("functionCall", {
+  label:
+    `<span id="d3Toggle" onmouseover="this.style.cursor='pointer'" onclick="toggleBubbles('mapIMDD3')";><input type="checkbox" id="d3Check" checked> Toggle Circles</span>`,
+});
+
+function toggleBubbles(elemParentID) {
+  const bubbleGroup = document
+    .getElementById(elemParentID) // need this specific element if more than one d3 bubble map
+    .getElementsByClassName("bubble-group")[0];
+  const checkBox = document.getElementById("d3Check");
+  if (bubbleGroup.style.visibility === "hidden") {
+    bubbleGroup.style.visibility = "visible";
+    checkBox.checked = true;
+  } else {
+    bubbleGroup.style.visibility = "hidden";
+    checkBox.checked = false;
+  }
+}
 
 // const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 

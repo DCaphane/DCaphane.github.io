@@ -418,7 +418,8 @@ function mapInitialise({
   overlayMap.set("lsoaBoundaryFull", 4);
   overlayMap.set("nationalTrusts", 5);
   overlayMap.set("selectedTrusts", 6);
-  overlayMap.set("gpSitesFiltered", 7);
+  overlayMap.set("separatorLine", 7)
+  overlayMap.set("gpSitesFiltered", 8);
 
   function updateOverlay(olName, ol, remove = false) {
     if (!overlayMap.has(olName)) {
@@ -1351,4 +1352,12 @@ function overlayLSOAbyIMD(mapObj, labelDesc) {
       },
     ],
   };
+}
+
+
+function overlayAddSeparator() {
+  // Adds a horizontal line
+  return {
+    label: '<div class="leaflet-control-layers-separator"></div>'
+  }
 }

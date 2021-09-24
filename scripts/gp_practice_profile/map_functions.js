@@ -115,7 +115,7 @@ function imdDomainD3({ id, thisMap } = {}) {
   svgLayer.addTo(thisMap);
 
   const svg = d3.select("#mapIMDD3").select("svg"),
-    g = svg.select("g");
+    g = svg.select("g").attr("class", "bubble-group");
 
   // svg for bubble legend
   const bubbleLegend = d3
@@ -460,7 +460,6 @@ function imdDomainD3({ id, thisMap } = {}) {
       const layerPoint = thisMap.latLngToLayerPoint(d.lsoaCentre);
       return "translate(" + layerPoint.x + "," + layerPoint.y + ")";
     });
-
 
     return {
       updateD3BubbleLsoa: updateD3BubbleLsoa,
