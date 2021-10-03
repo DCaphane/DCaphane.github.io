@@ -108,7 +108,7 @@ function imdDomainD3({ id, thisMap } = {}) {
 
   // Define the div for the tooltip
   const tooltipD3Lsoa = newTooltip.tooltip(div);
-  tooltipD3Lsoa.style("height", "65px").style("width", "160px");
+  tooltipD3Lsoa.style("height", "75px").style("width", "180px");
 
   // add SVG to Leaflet map via Leaflet
   const svgLayer = L.svg();
@@ -170,14 +170,34 @@ function imdDomainD3({ id, thisMap } = {}) {
         marginLeft: 50,
       });
 
-      d3BubbleEnter.style("fill", function (d) {
-        if (dataRates.get(defaultIMD).has(d.lsoa)) {
-          let sig = dataRates.get(defaultIMD).get(d.lsoa)[0].signf;
-          return colour(sig);
-        } else {
-          return "transparent";
-        }
-      });
+      // The colour is determined by the overall significance  - not at individual practice level
+      // if (userSelections.selectedPractice === "All Practices") {
+        d3BubbleEnter.style("fill", function (d) {
+          if (dataRates.get(defaultIMD).get("All").has(d.lsoa)) {
+            let sig = dataRates.get(defaultIMD).get("All").get(d.lsoa)[0].signf;
+            return colour(sig);
+          } else {
+            return "transparent";
+          }
+        });
+      // } else {
+      //   d3BubbleEnter.style("fill", function (d) {
+      //     if (
+      //       dataRates
+      //         .get(defaultIMD)
+      //         .get(userSelections.selectedPractice)
+      //         .has(d.lsoa)
+      //     ) {
+      //       let sig = dataRates
+      //         .get(defaultIMD)
+      //         .get(userSelections.selectedPractice)
+      //         .get(d.lsoa)[0].signf;
+      //       return colour(sig);
+      //     } else {
+      //       return "transparent";
+      //     }
+      //   });
+      // }
     } else {
       // for IMD
       // an array of the individual values
@@ -245,12 +265,21 @@ function imdDomainD3({ id, thisMap } = {}) {
     if (dataRatesMax.has(imdDomainShortD3)) {
       lsoaCentroidDetails.forEach((lsoa) => {
         let value;
-        if (dataRates.get(imdDomainShortD3).has(lsoa.lsoa)) {
-          value = dataRates.get(imdDomainShortD3).get(lsoa.lsoa)[0].count;
+        if (userSelections.selectedPractice === "All Practices") {
+          if (dataRates.get(imdDomainShortD3).get("All").has(lsoa.lsoa)) {
+            value = dataRates.get(imdDomainShortD3).get("All").get(lsoa.lsoa)[0].activityU;
+          } else {
+            value = 0;
+          }
         } else {
-          value = 0;
+          if (dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).has(lsoa.lsoa)) {
+            value = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(lsoa.lsoa)[0].activityU;
+          } else {
+            value = 0;
+          }
         }
 
+        // For rates data, lsoaPopulation is actually the volume of eg. attendances
         lsoa.lsoaPopulation = value;
       });
     } else {
@@ -299,30 +328,49 @@ function imdDomainD3({ id, thisMap } = {}) {
         ) => exit.call((exit) => exit.remove())
       )
       .on("click", function (event, d) {
-        console.log(d.lsoa);
-        const pos = this.getBoundingClientRect();
-        const str = `LSOA: <strong>${
-          d.lsoa
-        }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-          d.lsoaPopulation
-        )}</span>`;
+        console.log(d);
+        // const pos = this.getBoundingClientRect();
+        // const str = `LSOA: <strong>${
+        //   d.lsoa
+        // }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+        //   d.lsoaPopulation
+        // )}</span>`;
 
-        let subString;
-        if (imdDomainDescD3 !== "Population") {
-          let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
+        // let subString;
+        // if (imdDomainDescD3 === "Population") {
+        //   subString = ""
+        // } else if (dataRatesMax.has(imdDomainShortD3)) {
+        //   let value;
+        //   if (userSelections.selectedPractice === "All Practices") {
+        //     if (dataRates.get(imdDomainShortD3).get("All").has(d.lsoa)) {
+        //       value = dataRates.get(imdDomainShortD3).get("All").get(d.lsoa)[0].activityU;
+        //     } else {
+        //       value = 0;
+        //     }
+        //   } else {
+        //     if (dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).has(d.lsoa)) {
+        //       value = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(d.lsoa)[0].activityU;
+        //     } else {
+        //       value = 0;
+        //     }
+        //   }
+        //   subString = `<br><strong>${imdDomainDescD3}:
+        //   </strong><span style="color:red">${formatNumber(value)}</span>`;
+        // } else {
+        //   let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
 
-          if (obj !== undefined) {
-            const value = obj[imdDomainShortD3];
+        //   if (obj !== undefined) {
+        //     const value = obj[imdDomainShortD3];
 
-            subString = `<br><strong>${imdDomainDescD3}:
-          </strong><span style="color:red">${formatNumber(value)}</span>`;
-          } else {
-            return "";
-          }
-        }
+        //     subString = `<br><strong>${imdDomainDescD3}:
+        //   </strong><span style="color:red">${formatNumber(value)}</span>`;
+        //   } else {
+        //     return "";
+        //   }
+        // }
 
-        newTooltip.counter++;
-        newTooltip.mouseover(tooltipD3Lsoa, str + subString, event, pos);
+        // newTooltip.counter++;
+        // newTooltip.mouseover(tooltipD3Lsoa, str + subString, event, pos);
       })
       .on("mouseover", function (event, d) {
         const sel = d3.select(this);
@@ -330,15 +378,61 @@ function imdDomainD3({ id, thisMap } = {}) {
         sel.raise();
         sel.style("fill-opacity", 1);
         const pos = this.getBoundingClientRect();
-        const str = `LSOA: <strong>${
-          d.lsoa
-        }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-          d.lsoaPopulation
-        )}</span>`;
+        // console.log(d)
 
-        let subString;
+        let str, subString = "";
+        if (imdDomainDescD3 === "Population") {
+          str = `LSOA: <strong>${
+            d.lsoa
+          }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+            d.lsoaPopulation
+          )}</span>`;
 
-        if (imdDomainDescD3 !== "Population") {
+        } else if (dataRatesMax.has(imdDomainShortD3)) {
+
+          let value, latestPopn, stdRate = 0, crudeRate = 0;
+          if (userSelections.selectedPractice === "All Practices") {
+            latestPopn = dataPopulationGPLsoa.get(userSelections.nearestQuarter).get("All").get(d.lsoa)
+            if (dataRates.get(imdDomainShortD3).get("All").has(d.lsoa)) {
+              value = dataRates.get(imdDomainShortD3).get("All").get(d.lsoa)[0].activityU;
+              stdRate = dataRates.get(imdDomainShortD3).get("All").get(d.lsoa)[0].rate;
+              crudeRate = value / latestPopn * 1000
+            } else {
+              value = 0;
+            }
+          } else {
+            latestPopn = dataPopulationGPLsoa.get(userSelections.nearestQuarter).get(userSelections.selectedPractice).get(d.lsoa)
+            if (dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).has(d.lsoa)) {
+              value = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(d.lsoa)[0].activityU;
+              stdRate = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(d.lsoa)[0].rate;
+              crudeRate = value / latestPopn * 1000
+            } else {
+              value = 0;
+            }
+          }
+
+          str = `LSOA: <strong>${
+            d.lsoa
+          }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+            latestPopn
+          )}</span>`;
+
+          subString = `<br><strong>${imdDomainDescD3}:
+          </strong><span style="color:red">${formatNumber(value)}</span>`;
+
+          subString += `<br><strong>std Rate:
+          </strong><span style="color:red">${formatNumber(stdRate)}</span>`;
+
+          subString += `<br><strong>Crude Rate:
+          </strong><span style="color:red">${formatNumber(crudeRate)}</span>`;
+        } else {
+
+          str = `LSOA: <strong>${
+            d.lsoa
+          }</strong><br>Pop'n: <span style="color:red">${formatNumber(
+            d.lsoaPopulation
+          )}</span>`;
+
           let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
 
           if (obj !== undefined) {
@@ -349,8 +443,6 @@ function imdDomainD3({ id, thisMap } = {}) {
           } else {
             return "";
           }
-        } else {
-          subString = "";
         }
         //  // Option to return IMD Rank as a default option instead of "" above
         // else {
@@ -621,21 +713,27 @@ const defaultIMDPopnProperties = {
 const defaultRatesProperties = {
   datasetDesc: "ratesDataFieldName", // which field in the dataset to refer to
   scale() {
-    return d3
-      .scaleOrdinal()
-      .domain(["lower", "nosig", "higher"])
-      .range(["green", "grey", "red"]);
+    return (
+      d3
+        .scaleOrdinal()
+        // .domain(["lower", "nosig", "higher"])
+        .domain([-1, 0, 1])
+        .range(["green", "grey", "red"])
+    );
   },
   legendColour() {
-    return d3
-      .scaleOrdinal()
-      .domain(["lower", "nosig", "higher"])
-      .range(["green", "grey", "red"]);
+    return (
+      d3
+        .scaleOrdinal()
+        // .domain(["lower", "nosig", "higher"])
+        .domain([-1, 0, 1])
+        .range(["green", "grey", "red"])
+    );
   },
   // colourScheme: d3.schemeSpectral,
-  legendTitle: "IMD Decile",
-  leftSubTitle: "",
-  rightSubTitle: "",
+  legendTitle: "Rates Demo",
+  leftSubTitle: "lower",
+  rightSubTitle: "higher",
 };
 
 const imdRankProperties = Object.create(defaultIMDProperties);

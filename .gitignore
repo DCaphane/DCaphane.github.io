@@ -12,9 +12,10 @@ xx_delete
 
 # ignore all jpgs
 *.jpg
-*.pdf
-
 # except the default image
 !img/org_structure/default.jpg
+
+*.pdf
+*.xls*
 
 .vscode/settings.json
