@@ -119,29 +119,29 @@ const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
   ),
   promDataIMD = d3.csv("Data/imd_lsoa_ccg.csv", processDataIMD),
   promDataRates = d3
-  .csv("Data/ratesIndicators_v1.csv", processRatesData)
-  .then((data) => {
-    // https://observablehq.com/@d3/d3-group
-    // Rates data grouped by csv and lsoa
-    dataRates = d3.group(
-      data,
-      (d) => d.key,
-      (d) => d.practice,
-      (d) => d.lsoa,
-    );
-    // the max of the counts, used for sizing the d3 circle
-    dataRatesMax = d3.rollup(
-      data,
-      (v) => d3.max(v, (d) => d.activityU),
-      (d) => d.key,
-      (d) => d.practice,
-    );
+    .csv("Data/ratesIndicators_v1.csv", processRatesData)
+    .then((data) => {
+      // https://observablehq.com/@d3/d3-group
+      // Rates data grouped by csv and lsoa
+      dataRates = d3.group(
+        data,
+        (d) => d.key,
+        (d) => d.practice,
+        (d) => d.lsoa
+      );
+      // the max of the counts, used for sizing the d3 circle
+      dataRatesMax = d3.rollup(
+        data,
+        (v) => d3.max(v, (d) => d.activityU),
+        (d) => d.key,
+        (d) => d.practice
+      );
 
-    /*
+      /*
   dataRates.keys()
 
     */
-  });
+    });
 
 promGeoNationalCCGBoundaries.then((data) => {
   geoDataNationalCCGBoundaries = topojson.feature(
@@ -315,8 +315,6 @@ function processDataIMD(d) {
 // Rates Testing
 let dataRates, dataRatesMax;
 
-
-
 function processRatesData(d) {
   return {
     key: d.Key,
@@ -331,6 +329,6 @@ function processRatesData(d) {
 
 // // These would be hard coded to provide a lookup from the data key to the description
 const dataRatesKeys = new Map();
-dataRatesKeys.set("AE_01", "Long Description AE_01");
-dataRatesKeys.set("test02", "Long Description test02");
+dataRatesKeys.set("AE_01", "A&E Demo");
+dataRatesKeys.set("selbyUTC", "Selby UTC");
 dataRatesKeys.set("testNew", "Long Description testNew");

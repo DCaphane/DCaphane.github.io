@@ -2,6 +2,7 @@
 Data/org_structure/
     dataSource.json
 
+Data/dsrCalcs
 
 Data/GP_Practice_Populations.csv
 # pgadmin connection string

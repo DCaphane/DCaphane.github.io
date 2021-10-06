@@ -172,14 +172,14 @@ function imdDomainD3({ id, thisMap } = {}) {
 
       // The colour is determined by the overall significance  - not at individual practice level
       // if (userSelections.selectedPractice === "All Practices") {
-        d3BubbleEnter.style("fill", function (d) {
-          if (dataRates.get(defaultIMD).get("All").has(d.lsoa)) {
-            let sig = dataRates.get(defaultIMD).get("All").get(d.lsoa)[0].signf;
-            return colour(sig);
-          } else {
-            return "transparent";
-          }
-        });
+      d3BubbleEnter.style("fill", function (d) {
+        if (dataRates.get(defaultIMD).get("All").has(d.lsoa)) {
+          let sig = dataRates.get(defaultIMD).get("All").get(d.lsoa)[0].signf;
+          return colour(sig);
+        } else {
+          return "transparent";
+        }
+      });
       // } else {
       //   d3BubbleEnter.style("fill", function (d) {
       //     if (
@@ -267,13 +267,24 @@ function imdDomainD3({ id, thisMap } = {}) {
         let value;
         if (userSelections.selectedPractice === "All Practices") {
           if (dataRates.get(imdDomainShortD3).get("All").has(lsoa.lsoa)) {
-            value = dataRates.get(imdDomainShortD3).get("All").get(lsoa.lsoa)[0].activityU;
+            value = dataRates
+              .get(imdDomainShortD3)
+              .get("All")
+              .get(lsoa.lsoa)[0].activityU;
           } else {
             value = 0;
           }
         } else {
-          if (dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).has(lsoa.lsoa)) {
-            value = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(lsoa.lsoa)[0].activityU;
+          if (
+            dataRates
+              .get(imdDomainShortD3)
+              .get(userSelections.selectedPractice)
+              .has(lsoa.lsoa)
+          ) {
+            value = dataRates
+              .get(imdDomainShortD3)
+              .get(userSelections.selectedPractice)
+              .get(lsoa.lsoa)[0].activityU;
           } else {
             value = 0;
           }
@@ -380,32 +391,57 @@ function imdDomainD3({ id, thisMap } = {}) {
         const pos = this.getBoundingClientRect();
         // console.log(d)
 
-        let str, subString = "";
+        let str,
+          subString = "";
         if (imdDomainDescD3 === "Population") {
           str = `LSOA: <strong>${
             d.lsoa
           }</strong><br>Pop'n: <span style="color:red">${formatNumber(
             d.lsoaPopulation
           )}</span>`;
-
         } else if (dataRatesMax.has(imdDomainShortD3)) {
-
-          let value, latestPopn, stdRate = 0, crudeRate = 0;
+          let value,
+            latestPopn,
+            stdRate = 0,
+            crudeRate = 0;
           if (userSelections.selectedPractice === "All Practices") {
-            latestPopn = dataPopulationGPLsoa.get(userSelections.nearestQuarter).get("All").get(d.lsoa)
+            latestPopn = dataPopulationGPLsoa
+              .get(userSelections.nearestQuarter)
+              .get("All")
+              .get(d.lsoa);
             if (dataRates.get(imdDomainShortD3).get("All").has(d.lsoa)) {
-              value = dataRates.get(imdDomainShortD3).get("All").get(d.lsoa)[0].activityU;
-              stdRate = dataRates.get(imdDomainShortD3).get("All").get(d.lsoa)[0].rate;
-              crudeRate = value / latestPopn * 1000
+              value = dataRates
+                .get(imdDomainShortD3)
+                .get("All")
+                .get(d.lsoa)[0].activityU;
+              stdRate = dataRates
+                .get(imdDomainShortD3)
+                .get("All")
+                .get(d.lsoa)[0].rate;
+              crudeRate = (value / latestPopn) * 1000;
             } else {
               value = 0;
             }
           } else {
-            latestPopn = dataPopulationGPLsoa.get(userSelections.nearestQuarter).get(userSelections.selectedPractice).get(d.lsoa)
-            if (dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).has(d.lsoa)) {
-              value = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(d.lsoa)[0].activityU;
-              stdRate = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(d.lsoa)[0].rate;
-              crudeRate = value / latestPopn * 1000
+            latestPopn = dataPopulationGPLsoa
+              .get(userSelections.nearestQuarter)
+              .get(userSelections.selectedPractice)
+              .get(d.lsoa);
+            if (
+              dataRates
+                .get(imdDomainShortD3)
+                .get(userSelections.selectedPractice)
+                .has(d.lsoa)
+            ) {
+              value = dataRates
+                .get(imdDomainShortD3)
+                .get(userSelections.selectedPractice)
+                .get(d.lsoa)[0].activityU;
+              stdRate = dataRates
+                .get(imdDomainShortD3)
+                .get(userSelections.selectedPractice)
+                .get(d.lsoa)[0].rate;
+              crudeRate = (value / latestPopn) * 1000;
             } else {
               value = 0;
             }
@@ -426,7 +462,6 @@ function imdDomainD3({ id, thisMap } = {}) {
           subString += `<br><strong>Crude Rate:
           </strong><span style="color:red">${formatNumber(crudeRate)}</span>`;
         } else {
-
           str = `LSOA: <strong>${
             d.lsoa
           }</strong><br>Pop'n: <span style="color:red">${formatNumber(
@@ -781,8 +816,8 @@ popnWorkingProperties.datasetDesc = "popnWorking";
 
 const ae_01RatesProperties = Object.create(defaultRatesProperties);
 ae_01RatesProperties.datasetDesc = "AE_01";
-const test02RatesProperties = Object.create(defaultRatesProperties);
-test02RatesProperties.datasetDesc = "test02";
+const selbyUTCRatesProperties = Object.create(defaultRatesProperties);
+selbyUTCRatesProperties.datasetDesc = "selbyUTC";
 const testNewRatesProperties = Object.create(defaultRatesProperties);
 testNewRatesProperties.datasetDesc = "testNew";
 
@@ -790,8 +825,8 @@ testNewRatesProperties.datasetDesc = "testNew";
 
 // These would be hard coded to provide a lookup from the data key to the description
 const dataRatesLookup = new Map();
-dataRatesLookup.set("Long Description AE_01", ae_01RatesProperties);
-dataRatesLookup.set("Long Description test02", test02RatesProperties);
+dataRatesLookup.set("A&E Demo", ae_01RatesProperties);
+dataRatesLookup.set("Selby UTC", selbyUTCRatesProperties);
 dataRatesLookup.set("Long Description testNew", testNewRatesProperties);
 
 const mapIMDDomain = new Map();
