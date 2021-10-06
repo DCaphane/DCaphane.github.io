@@ -2,6 +2,7 @@
 Data/org_structure/
     dataSource.json
 
+Data/dsrCalcs
 
 Data/GP_Practice_Populations.csv
 # pgadmin connection string
@@ -12,9 +13,10 @@ xx_delete
 
 # ignore all jpgs
 *.jpg
-*.pdf
-
 # except the default image
 !img/org_structure/default.jpg
+
+*.pdf
+*.xls*
 
 .vscode/settings.json

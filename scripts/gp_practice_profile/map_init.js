@@ -76,6 +76,7 @@ sidebarIMD.addPanel(sidebarContent.panelIMDSpecific);
 const imdLegend = legendWrapper("footerMapIMD", genID.uid("imd"));
 
 mapIMD.updateOverlay("selectedTrusts", overlayTrusts());
+mapIMD.updateOverlay("separatorLine", overlayAddSeparator());
 
 /*
 Population and IMD by LSOA (D3 Circle Map)
@@ -103,6 +104,50 @@ mapStore.push(mapD3Bubble);
 const lsoaCentroidLegend = legendWrapper("footerMapD3Leaf", genID.uid("lsoa"));
 
 mapD3Bubble.updateOverlay("selectedTrusts", overlayTrusts());
+mapD3Bubble.updateOverlay("separatorLine", overlayAddSeparator());
+
+// bubbleGroup to run a function in the overlayers tree
+const htmlD3Bubble = svgCheckBox("mapIMDD3");
+
+// returns a html string with a checkbox to enable toggling of the d3 svg circle layer
+function svgCheckBox(id) {
+  const cboxId = genID.uid("cbox").id;
+
+  return `<span class="d3Toggle" onmouseover="this.style.cursor='pointer'" onclick="toggleBubbles('${id}', '${cboxId}')";><input type="checkbox" id="${cboxId}" checked> Toggle Circles</span>`;
+}
+
+mapD3Bubble.updateOverlay("functionCall", {
+  label: htmlD3Bubble,
+});
+
+function toggleBubbles(elemParentID, cboxID) {
+  // function to toggle the D3 circle bubbles
+  // need this specific element if more than one d3 bubble map
+  const bubbleGroup = d3.select(`#${elemParentID} .bubble-group`);
+  const checkBox = document.getElementById(cboxID);
+
+  if (bubbleGroup.style("visibility") === "hidden") {
+    bubbleGroup.style("visibility", "visible");
+    checkBox.checked = true;
+  } else {
+    bubbleGroup.style("visibility", "hidden");
+    checkBox.checked = false;
+  }
+  /*
+  const bubbleGroup = document
+    .getElementById(elemParentID) // need this specific element if more than one d3 bubble map
+    .getElementsByClassName("bubble-group")[0];
+
+  const checkBox = document.getElementById("d3Check");
+  if (bubbleGroup.style.visibility === "hidden") {
+    bubbleGroup.style.visibility = "visible";
+    checkBox.checked = true;
+  } else {
+    bubbleGroup.style.visibility = "hidden";
+    checkBox.checked = false;
+  }
+*/
+}
 
 // const sidebarD3 = mapD3Bubble.sideBar(); // default is left, can use mapMain.sidebar({side: "right"});
 
