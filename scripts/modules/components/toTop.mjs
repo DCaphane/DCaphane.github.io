@@ -1,4 +1,4 @@
-(function () {
+export default function navToTop() {
   // Add an anchor (for to top) at end of document, after footer
   const anchor = document.createElement("a");
   // <a href='#...'>key text</a>
@@ -96,4 +96,4 @@
     }
     if (classList.length > 1) removeClass(el, classList.slice(1).join(" "));
   }
-})();
+};

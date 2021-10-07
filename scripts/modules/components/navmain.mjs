@@ -1,7 +1,7 @@
 // https://javascript.info/modifying-document#a-word-about-document-write
 // https://plnkr.co/edit/LJbzzvqdwGaf2iojgymr?p=preview
 
-(function createNavBarMain() {
+export default function createNavBarMain() {
   // Object consisting of main headers and page links
   const siteStructure = createSiteStructure();
 
@@ -151,7 +151,7 @@
 
     return ul;
   }
-})();
+};
 
 function createSiteStructure() {
   /*
