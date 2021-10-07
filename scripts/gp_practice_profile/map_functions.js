@@ -180,24 +180,6 @@ function imdDomainD3({ id, thisMap } = {}) {
           return "transparent";
         }
       });
-      // } else {
-      //   d3BubbleEnter.style("fill", function (d) {
-      //     if (
-      //       dataRates
-      //         .get(defaultIMD)
-      //         .get(userSelections.selectedPractice)
-      //         .has(d.lsoa)
-      //     ) {
-      //       let sig = dataRates
-      //         .get(defaultIMD)
-      //         .get(userSelections.selectedPractice)
-      //         .get(d.lsoa)[0].signf;
-      //       return colour(sig);
-      //     } else {
-      //       return "transparent";
-      //     }
-      //   });
-      // }
     } else {
       // for IMD
       // an array of the individual values
@@ -258,13 +240,13 @@ function imdDomainD3({ id, thisMap } = {}) {
 
   function updateD3BubbleLsoa() {
     /*
-    Update the population details or counts if using rates based data sets
-    For the rates based data, intention is to use count for the circle size rather than population
+    Update the population details or counts when using rates based data sets
+    For the rates based data, the circle size uses the volume of activity rather than the population
     Colour will be used to show whether the rate is statistically significant eg. lower / higher rate
     */
     if (dataRatesMax.has(imdDomainShortD3)) {
       lsoaCentroidDetails.forEach((lsoa) => {
-        let value;
+        let value = 0;
         if (userSelections.selectedPractice === "All Practices") {
           if (dataRates.get(imdDomainShortD3).get("All").has(lsoa.lsoa)) {
             value = dataRates
@@ -274,7 +256,9 @@ function imdDomainD3({ id, thisMap } = {}) {
           } else {
             value = 0;
           }
-        } else {
+        } else if (
+          dataRates.get(imdDomainShortD3).has(userSelections.selectedPractice)
+        ) {
           if (
             dataRates
               .get(imdDomainShortD3)
@@ -288,6 +272,8 @@ function imdDomainD3({ id, thisMap } = {}) {
           } else {
             value = 0;
           }
+        } else {
+          value = 0;
         }
 
         // For rates data, lsoaPopulation is actually the volume of eg. attendances
@@ -315,15 +301,17 @@ function imdDomainD3({ id, thisMap } = {}) {
       .range([0, 20]);
 
     const d3BubbleSelection = g.selectAll("circle").data(
-      lsoaCentroidDetails.sort(
-        // sort the bubbles so smaller populations appear above larger population
-        function (a, b) {
-          return b.lsoaPopulation - a.lsoaPopulation;
-        },
-        function (d) {
-          return d.lsoa;
-        }
-      )
+      lsoaCentroidDetails
+        .filter((popn) => popn.lsoaPopulation > minPopulationLSOA)
+        .sort(
+          // sort the bubbles so smaller populations appear above larger population
+          function (a, b) {
+            return b.lsoaPopulation - a.lsoaPopulation;
+          },
+          function (d) {
+            return d.lsoa;
+          }
+        )
     );
 
     d3BubbleEnter = d3BubbleSelection
@@ -340,48 +328,6 @@ function imdDomainD3({ id, thisMap } = {}) {
       )
       .on("click", function (event, d) {
         console.log(d);
-        // const pos = this.getBoundingClientRect();
-        // const str = `LSOA: <strong>${
-        //   d.lsoa
-        // }</strong><br>Pop'n: <span style="color:red">${formatNumber(
-        //   d.lsoaPopulation
-        // )}</span>`;
-
-        // let subString;
-        // if (imdDomainDescD3 === "Population") {
-        //   subString = ""
-        // } else if (dataRatesMax.has(imdDomainShortD3)) {
-        //   let value;
-        //   if (userSelections.selectedPractice === "All Practices") {
-        //     if (dataRates.get(imdDomainShortD3).get("All").has(d.lsoa)) {
-        //       value = dataRates.get(imdDomainShortD3).get("All").get(d.lsoa)[0].activityU;
-        //     } else {
-        //       value = 0;
-        //     }
-        //   } else {
-        //     if (dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).has(d.lsoa)) {
-        //       value = dataRates.get(imdDomainShortD3).get(userSelections.selectedPractice).get(d.lsoa)[0].activityU;
-        //     } else {
-        //       value = 0;
-        //     }
-        //   }
-        //   subString = `<br><strong>${imdDomainDescD3}:
-        //   </strong><span style="color:red">${formatNumber(value)}</span>`;
-        // } else {
-        //   let obj = dataIMD.find((x) => x.lsoa === d.lsoa);
-
-        //   if (obj !== undefined) {
-        //     const value = obj[imdDomainShortD3];
-
-        //     subString = `<br><strong>${imdDomainDescD3}:
-        //   </strong><span style="color:red">${formatNumber(value)}</span>`;
-        //   } else {
-        //     return "";
-        //   }
-        // }
-
-        // newTooltip.counter++;
-        // newTooltip.mouseover(tooltipD3Lsoa, str + subString, event, pos);
       })
       .on("mouseover", function (event, d) {
         const sel = d3.select(this);
@@ -393,6 +339,7 @@ function imdDomainD3({ id, thisMap } = {}) {
 
         let str,
           subString = "";
+
         if (imdDomainDescD3 === "Population") {
           str = `LSOA: <strong>${
             d.lsoa
@@ -404,11 +351,13 @@ function imdDomainD3({ id, thisMap } = {}) {
             latestPopn,
             stdRate = 0,
             crudeRate = 0;
+
           if (userSelections.selectedPractice === "All Practices") {
             latestPopn = dataPopulationGPLsoa
               .get(userSelections.nearestQuarter)
               .get("All")
               .get(d.lsoa);
+
             if (dataRates.get(imdDomainShortD3).get("All").has(d.lsoa)) {
               value = dataRates
                 .get(imdDomainShortD3)
@@ -418,7 +367,6 @@ function imdDomainD3({ id, thisMap } = {}) {
                 .get(imdDomainShortD3)
                 .get("All")
                 .get(d.lsoa)[0].rate;
-              crudeRate = (value / latestPopn) * 1000;
             } else {
               value = 0;
             }
@@ -427,25 +375,31 @@ function imdDomainD3({ id, thisMap } = {}) {
               .get(userSelections.nearestQuarter)
               .get(userSelections.selectedPractice)
               .get(d.lsoa);
+
             if (
               dataRates
                 .get(imdDomainShortD3)
-                .get(userSelections.selectedPractice)
-                .has(d.lsoa)
+                .has(userSelections.selectedPractice)
             ) {
-              value = dataRates
-                .get(imdDomainShortD3)
-                .get(userSelections.selectedPractice)
-                .get(d.lsoa)[0].activityU;
-              stdRate = dataRates
-                .get(imdDomainShortD3)
-                .get(userSelections.selectedPractice)
-                .get(d.lsoa)[0].rate;
-              crudeRate = (value / latestPopn) * 1000;
+              if (
+                dataRates
+                  .get(imdDomainShortD3)
+                  .get(userSelections.selectedPractice)
+                  .has(d.lsoa)
+              ) {
+                value = dataRates
+                  .get(imdDomainShortD3)
+                  .get(userSelections.selectedPractice)
+                  .get(d.lsoa)[0].activityU;
+              } else {
+                value = 0;
+              }
             } else {
               value = 0;
             }
           }
+
+          crudeRate = (value / latestPopn) * 1000;
 
           str = `LSOA: <strong>${
             d.lsoa
@@ -453,11 +407,16 @@ function imdDomainD3({ id, thisMap } = {}) {
             latestPopn
           )}</span>`;
 
-          subString = `<br><strong>${imdDomainDescD3}:
+          subString = `<br><strong>Attendances:
           </strong><span style="color:red">${formatNumber(value)}</span>`;
 
-          subString += `<br><strong>std Rate:
+          if (userSelections.selectedPractice === "All Practices") {
+            subString += `<br><strong>std Rate:
           </strong><span style="color:red">${formatNumber(stdRate)}</span>`;
+          } else {
+            subString += `<br><strong>std Rate:
+            </strong><span style="color:red">n/a</span>`;
+          }
 
           subString += `<br><strong>Crude Rate:
           </strong><span style="color:red">${formatNumber(crudeRate)}</span>`;
@@ -505,7 +464,11 @@ function imdDomainD3({ id, thisMap } = {}) {
       })
       .attr("class", "bubble")
       .attr("r", function (d) {
-        return radius(d.lsoaPopulation);
+        if (d.lsoaPopulation > 0) {
+          return radius(d.lsoaPopulation);
+        } else {
+          return 0;
+        }
       })
       // .style("fill", function (d) {
       //   return d3.interpolateYlGnBu(d.lsoaPopulation / maxValue);
