@@ -1,4 +1,3 @@
-// import { Tooltip } from "../modules/tooltip.mjs";
 import createNavBarMain from "./navmain.mjs";
 import createNavBarSide from "./navside.mjs";
 import navToTop from "./toTop.mjs";
