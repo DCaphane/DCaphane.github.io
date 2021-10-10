@@ -9,7 +9,7 @@ https://observablehq.com/@d3/brush-snapping-transitions
 
 */
 
-// not working, need to import all the variables?, chtWidthWide...
+
 import {
   genID,
   newTooltip,
