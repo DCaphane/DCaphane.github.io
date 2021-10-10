@@ -1112,10 +1112,10 @@ function highlightFeature(selPractice, map, zoomToExtent = false) {
     highlightedPractice = L.geoJSON(data[0].value, {
       pointToLayer: function (feature, latlng) {
         if (feature.properties.orgCode === selPractice) {
-          return (markerLayer = L.marker(latlng, {
+          return L.marker(latlng, {
             icon: arrHighlightIcons[5],
             zIndexOffset: -5,
-          }));
+          });
         }
       },
     });
