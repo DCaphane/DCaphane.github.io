@@ -18,7 +18,7 @@ export {
   promDataRates,
 };
 
-export { importGeoData, dataRates, dataRatesMax };
+export { importGeoData, mapLSOAbyIMD, dataRates, dataRatesMax };
 
 let geoLsoaBoundaries,
   geoWardBoundaries,
@@ -27,6 +27,8 @@ let geoLsoaBoundaries,
   dataIMD; // not geo data but only used in map chart
 
 let dataRates, dataRatesMax;
+
+const mapLSOAbyIMD = new Map(); // LSOAs by the main IMD decile
 
 const promGeoDataGP = d3.json("Data/geo/gpPracticeDetailsGeo.geojson"),
   promGeoDataCYCWards = d3.json("Data/geo/cyc_wards.topojson").then((data) => {

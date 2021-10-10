@@ -42,7 +42,7 @@ import {
   geoDataNationalCCGBoundaries,
   dataIMD,
 } from "./modules/geoData.mjs";
-import { importGeoData, dataRates, dataRatesMax } from "./modules/geoData.mjs";
+import { importGeoData, mapLSOAbyIMD, dataRates, dataRatesMax } from "./modules/geoData.mjs";
 import {
   dataPopulationGP,
 dataPopulationGPSummary,
@@ -172,7 +172,7 @@ function refreshChartsPostDateChange() {
 
 
 
-const mapLSOAbyIMD = new Map(); // LSOAs by the main IMD decile
+
 
 // // These would be hard coded to provide a lookup from the data key to the description
 const dataRatesKeys = new Map();
@@ -4489,7 +4489,7 @@ async function filterFunctionLsoa(zoomToExtent = false) {
 
             layer.on("click", function (e) {
               // update other charts
-              selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
+              const selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
               console.log({ lsoa: selectedLsoa });
             });
           },
@@ -4588,7 +4588,7 @@ async function filterFunctionLsoaByIMD(zoomToExtent = false) {
 
             layer.on("click", function (e) {
               // update other charts
-              selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
+              const selectedLsoa = feature.properties.lsoa; // change the lsoa to whichever was clicked
               console.log({ lsoa: selectedLsoa });
             });
           },
