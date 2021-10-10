@@ -1,7 +1,7 @@
-export { default as createTooltip } from "../modules/components/tooltip.mjs";
-export { default as generateUniqueID } from "../modules/functions/uniqueID.mjs";
+import createTooltip  from "../modules/components/tooltip.mjs";
+import generateUniqueID  from "../modules/functions/uniqueID.mjs";
 export { default as legendWrapper } from "../modules/formatCharts/canvasLegend.mjs";
-export { default as sidebarDefaults } from "./modules/gpPracticeText.mjs";
+import sidebarDefaults  from "./modules/gpPracticeText.mjs";
 export { titleCase } from "../modules/functions/standard.mjs";
 export {
   styleCCG,
@@ -56,4 +56,8 @@ export {
 } from "./modules/gpPracticePopnData.mjs";
 
 
+export { default as initTrendChart } from "./modules/d3Charts/gpPopnTrend.mjs"
 
+export const sidebarContent = sidebarDefaults();
+export const newTooltip = createTooltip();
+export const genID = generateUniqueID(); // genID.uid

@@ -1,6 +1,24 @@
+/*
+Brush Resources
+
+https://observablehq.com/@d3/focus-context
+https://stackoverflow.com/q/65896903
+https://stackoverflow.com/q/14665482
+
+https://observablehq.com/@d3/brush-snapping-transitions
+
+*/
+
 // not working, need to import all the variables?, chtWidthWide...
-import { genID, newTooltip, userSelections } from "../../index.js";
-import { chtWidthWide } from "../../modules/formatCharts/standard.mjs";
+import {
+  genID,
+  newTooltip,
+  chtWidthWide,
+  chtHeightShort,
+  formatPeriod,
+  formatNumber,
+} from "../../aggregateModules.mjs";
+import { userSelections, refreshChartsPostDateChange } from "../../index.js";
 
 export default function initTrendChart(dataInit, id) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0
