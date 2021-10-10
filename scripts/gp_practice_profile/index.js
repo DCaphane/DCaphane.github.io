@@ -1,17 +1,15 @@
-import createTooltip from "../modules/components/tooltip.mjs";
-import generateUniqueID from "../modules/functions/uniqueID.mjs";
-import legendWrapper from "../modules/formatCharts/canvasLegend.mjs";
-import sidebarDefaults from "./modules/gpPracticeText.mjs";
-import { titleCase } from "../modules/functions/standard.mjs";
 import {
+  createTooltip,
+  generateUniqueID,
+  legendWrapper,
+  sidebarDefaults,
+  titleCase,
   styleCCG,
   styleLsoa,
   styleWard,
   wardsStyle,
   wardsStyleLabels,
-} from "../modules/formatMaps/boundaryStyles.mjs";
-import pcnFormatting from "../modules/formatMaps/pcnFormatting.mjs";
-import {
+  pcnFormatting,
   chtWidthStd,
   chtHeightStd,
   chtWidthWide,
@@ -24,8 +22,6 @@ import {
   formatNumber,
   formatPercent1dp,
   formatPercent,
-} from "../modules/formatCharts/standard.mjs";
-import {
   promGeoDataGP,
   promGeoDataCYCWards,
   promGeoNationalCCGBoundaries,
@@ -34,29 +30,25 @@ import {
   promHospitalDetails,
   promDataIMD,
   promDataRates,
-} from "./modules/geoData.mjs";
-import {
   geoLsoaBoundaries,
   geoWardBoundaries,
   geoDataLsoaPopnCentroid,
   geoDataNationalCCGBoundaries,
   dataIMD,
-} from "./modules/geoData.mjs";
-import { importGeoData, mapLSOAbyIMD, dataRates, dataRatesMax } from "./modules/geoData.mjs";
-import {
+  importGeoData,
+  mapLSOAbyIMD,
+  dataRates,
+  dataRatesMax,
   dataPopulationGP,
-dataPopulationGPSummary,
-dataPopulationGPLsoa,
-arrayGPLsoaDates,
-uniquePractices
-} from "./modules/gpPracticePopnData.mjs";
-
-import {
+  dataPopulationGPSummary,
+  dataPopulationGPLsoa,
+  arrayGPLsoaDates,
+  uniquePractices,
   promDataGPPopn,
-  promDataGPPopnLsoa
-} from "./modules/gpPracticePopnData.mjs";
-// import initTrendChart from "./modules/d3Charts/gpPopnTrend.mjs"
+  promDataGPPopnLsoa,
+} from "./aggregateModules.mjs";
 
+// import initTrendChart from "./modules/d3Charts/gpPopnTrend.mjs"
 
 const sidebarContent = sidebarDefaults();
 const newTooltip = createTooltip();
@@ -99,17 +91,15 @@ const userSelections = {
   },
 };
 
-Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then((data)=>{
-      // default the selected date to the latest available
-      userSelections.selectedDate = d3.max(data[0].value, function (d) {
-        return d.Period;
-      });
-      // hard fixed, what is the latest date
-      userSelections.latestPeriod = userSelections.selectedDate;
-      userSelections.nearestQuarter = userSelections.nearestDate();
-})
-
-
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then((data) => {
+  // default the selected date to the latest available
+  userSelections.selectedDate = d3.max(data[0].value, function (d) {
+    return d.Period;
+  });
+  // hard fixed, what is the latest date
+  userSelections.latestPeriod = userSelections.selectedDate;
+  userSelections.nearestQuarter = userSelections.nearestDate();
+});
 
 function initD3Charts() {
   trendChart = initTrendChart(dataPopulationGP, "cht_PopTrend");
@@ -169,10 +159,6 @@ function refreshChartsPostDateChange() {
   circlePopnIMDChart.updateD3BubbleLsoa();
   barChart.fnRedrawBarChart();
 }
-
-
-
-
 
 // // These would be hard coded to provide a lookup from the data key to the description
 const dataRatesKeys = new Map();
@@ -970,8 +956,6 @@ function initTrendChart(dataInit, id) {
     chartTrendDraw: chartTrendDraw,
   };
 }
-
-
 
 // ###########################################################################################
 
@@ -5218,7 +5202,6 @@ Comment out as a bit excessive for this example
 // }
 
 // ###########################################################################################
-
 
 // ############################### functions.js #######################################
 
