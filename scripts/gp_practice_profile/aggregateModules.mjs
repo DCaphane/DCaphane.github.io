@@ -58,7 +58,7 @@ export {
 
 export { default as initTrendChart } from "./modules/d3Charts/gpPopnTrend.mjs"
 export { default as initPopnBarChart } from "./modules/d3Charts/gpPopnBar.mjs"
-
+export {default as initChartDemog} from "./modules/d3Charts/demographicBar.mjs"
 
 export const sidebarContent = sidebarDefaults();
 export const newTooltip = createTooltip();
