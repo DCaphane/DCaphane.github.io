@@ -9,7 +9,6 @@ https://observablehq.com/@d3/brush-snapping-transitions
 
 */
 
-
 import {
   genID,
   newTooltip,
@@ -17,8 +16,9 @@ import {
   chtHeightShort,
   formatPeriod,
   formatNumber,
+  userSelections,
 } from "../../aggregateModules.mjs";
-import { userSelections, refreshChartsPostDateChange } from "../../index.js";
+import { refreshChartsPostDateChange } from "../../index.js";
 
 export default function initTrendChart(dataInit, id) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0

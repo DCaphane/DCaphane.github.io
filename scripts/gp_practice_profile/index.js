@@ -51,53 +51,14 @@ import {
   barChart,
   demographicChart,
   initD3Charts,
+  userSelections,
 } from "./aggregateModules.mjs";
 
-// import initTrendChart from "./modules/d3Charts/gpPopnTrend.mjs"
 
-export { userSelections };
 // ############################### index.js #######################################
 // Load the initial data and then variations on this for subsequent filtering
 let circlePopnIMDChart, highlightedPractice;
 
-const userSelections = {
-  selectedPractice: "All Practices",
-  selectedPracticeName() {
-    return practiceLookup.has(this.selectedPractice)
-      ? titleCase(practiceLookup.get(this.selectedPractice))
-      : "";
-  },
-  selectedPracticeCompare: "None",
-  selectedPracticeCompareName() {
-    return practiceLookup.has(this.selectedPracticeCompare)
-      ? titleCase(practiceLookup.get(this.selectedPracticeCompare))
-      : "";
-  },
-  selectedDate: null,
-  nearestDate() {
-    // Align the selected period to the nearest quarterly period
-    // arrayGPLsoaDates is result of promise promDataGPPopnLsoa
-    return (
-      arrayGPLsoaDates.reduce(
-        (p, n) =>
-          Math.abs(p) > Math.abs(n - this.selectedDate)
-            ? n - this.selectedDate
-            : p,
-        Infinity
-      ) + this.selectedDate
-    );
-  },
-};
-
-Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then((data) => {
-  // default the selected date to the latest available
-  userSelections.selectedDate = d3.max(data[0].value, function (d) {
-    return d.Period;
-  });
-  // hard fixed, what is the latest date
-  userSelections.latestPeriod = userSelections.selectedDate;
-  userSelections.nearestQuarter = userSelections.nearestDate();
-});
 
 function refreshChartsPostPracticeChange(practice) {
   console.log({ selectedPractice: practice });

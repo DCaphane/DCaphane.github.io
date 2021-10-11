@@ -5,8 +5,8 @@ import {
   chtHeightStd,
   formatNumber,
   practiceLookup,
+  userSelections,
 } from "../../aggregateModules.mjs";
-import { userSelections } from "../../index.js";
 
 export default function initPopnBarChart(dataInit, id) {
   // https://gist.github.com/lstefano71/21d1770f4ef050c7e52402b59281c1a0

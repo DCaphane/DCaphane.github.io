@@ -16,8 +16,9 @@ import {
   formatPercent1dp,
   practiceLookup,
   titleCase,
+  userSelections,
 } from "../../aggregateModules.mjs";
-import { userSelections } from "../../index.js";
+
 
 export default function initChartDemog(dataInit, id) {
   const div = document.getElementById(id);

@@ -1,4 +1,4 @@
-import { parseDate, parseDate2 } from "../../modules/formatCharts/standard.mjs";
+import { parseDate, parseDate2, userSelections } from "../aggregateModules.mjs";
 
 export {
   dataPopulationGP,
@@ -49,6 +49,16 @@ const promDataGPPopnLsoa = d3
     // Will use closest value
     arrayGPLsoaDates = [...dataPopulationGPLsoa.keys()]; // use Array.from or spread syntax
   });
+
+Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then((data) => {
+  // default the selected date to the latest available
+  userSelections.selectedDate = d3.max(data[0].value, function (d) {
+    return d.Period;
+  });
+  // hard fixed, what is the latest date
+  userSelections.latestPeriod = userSelections.selectedDate;
+  userSelections.nearestQuarter = userSelections.nearestDate();
+});
 
 function processDataGPPopulation(d, index, columnKeys) {
   // Loop through the raw data to format columns as appropriate

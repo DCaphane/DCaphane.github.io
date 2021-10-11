@@ -1,7 +1,7 @@
-import createTooltip  from "../modules/components/tooltip.mjs";
-import generateUniqueID  from "../modules/functions/uniqueID.mjs";
+import createTooltip from "../modules/components/tooltip.mjs";
+import generateUniqueID from "../modules/functions/uniqueID.mjs";
 export { default as legendWrapper } from "../modules/formatCharts/canvasLegend.mjs";
-import sidebarDefaults  from "./modules/gpPracticeText.mjs";
+import sidebarDefaults from "./modules/gpPracticeText.mjs";
 export { titleCase } from "../modules/functions/standard.mjs";
 export {
   styleCCG,
@@ -55,11 +55,16 @@ export {
   promDataGPPopnLsoa,
 } from "./modules/gpPracticePopnData.mjs";
 
-
+export { userSelections } from "./modules/userSelections.mjs";
 // export { default as initTrendChart } from "./modules/d3Charts/gpPopnTrend.mjs"
 // export { default as initPopnBarChart } from "./modules/d3Charts/gpPopnBar.mjs"
 // export {default as initChartDemog} from "./modules/d3Charts/demographicBar.mjs"
-export { trendChart, barChart, demographicChart, initD3Charts } from "./modules/d3Charts/initD3Charts.mjs"
+export {
+  trendChart,
+  barChart,
+  demographicChart,
+  initD3Charts,
+} from "./modules/d3Charts/initD3Charts.mjs";
 
 export const sidebarContent = sidebarDefaults();
 export const newTooltip = createTooltip();
