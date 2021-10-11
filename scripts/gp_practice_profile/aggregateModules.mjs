@@ -56,9 +56,10 @@ export {
 } from "./modules/gpPracticePopnData.mjs";
 
 
-export { default as initTrendChart } from "./modules/d3Charts/gpPopnTrend.mjs"
-export { default as initPopnBarChart } from "./modules/d3Charts/gpPopnBar.mjs"
-export {default as initChartDemog} from "./modules/d3Charts/demographicBar.mjs"
+// export { default as initTrendChart } from "./modules/d3Charts/gpPopnTrend.mjs"
+// export { default as initPopnBarChart } from "./modules/d3Charts/gpPopnBar.mjs"
+// export {default as initChartDemog} from "./modules/d3Charts/demographicBar.mjs"
+export { trendChart, barChart, demographicChart, initD3Charts } from "./modules/d3Charts/initD3Charts.mjs"
 
 export const sidebarContent = sidebarDefaults();
 export const newTooltip = createTooltip();

@@ -47,9 +47,10 @@ import {
   promDataGPPopn,
   promDataGPPopnLsoa,
   practiceLookup,
-  initTrendChart,
-  initPopnBarChart,
-  initChartDemog,
+  trendChart,
+  barChart,
+  demographicChart,
+  initD3Charts,
 } from "./aggregateModules.mjs";
 
 // import initTrendChart from "./modules/d3Charts/gpPopnTrend.mjs"
@@ -57,11 +58,7 @@ import {
 export { userSelections };
 // ############################### index.js #######################################
 // Load the initial data and then variations on this for subsequent filtering
-let trendChart,
-  barChart,
-  demographicChart,
-  circlePopnIMDChart,
-  highlightedPractice;
+let circlePopnIMDChart, highlightedPractice;
 
 const userSelections = {
   selectedPractice: "All Practices",
@@ -101,19 +98,6 @@ Promise.allSettled([promDataGPPopn, promDataGPPopnLsoa]).then((data) => {
   userSelections.latestPeriod = userSelections.selectedDate;
   userSelections.nearestQuarter = userSelections.nearestDate();
 });
-
-// create a separate module here that imports d3 modules - only this function needs to be imported here
-// trend bar and demographic would need to be accessible
-function initD3Charts() {
-  trendChart = initTrendChart(dataPopulationGP, "cht_PopTrend");
-  trendChart.chartTrendDraw();
-
-  barChart = initPopnBarChart(dataPopulationGP, "cht_PopBar");
-  barChart.fnRedrawBarChart();
-
-  demographicChart = initChartDemog(dataPopulationGP, "cht_PopDemo");
-  demographicChart.updateChtDemog();
-}
 
 function refreshChartsPostPracticeChange(practice) {
   console.log({ selectedPractice: practice });
