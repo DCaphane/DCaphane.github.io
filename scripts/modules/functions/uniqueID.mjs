@@ -1,4 +1,7 @@
-export default function generateUniqueID() {
+ const genID = generateUniqueID(); // genID.uid
+ export {genID}
+
+function generateUniqueID() {
     /*
       To generate a unique ID
       https://talk.observablehq.com/t/what-does-dom-uid-xxx-do/4015

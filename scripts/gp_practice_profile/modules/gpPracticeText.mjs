@@ -1,4 +1,7 @@
-export default function sidebarDefaults() {
+const sidebarContent = sidebarDefaults();
+export {sidebarContent}
+
+function sidebarDefaults() {
     const defaultText = `<br>
                       <h1>Primary Care Demographics...
                       <p/>

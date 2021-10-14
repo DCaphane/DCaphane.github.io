@@ -1,6 +1,6 @@
 import { practiceLookup, titleCase, arrayGPLsoaDates} from "../aggregateModules.mjs"
 
-export const userSelections = {
+ const userSelections = {
     selectedPractice: "All Practices",
     selectedPracticeName() {
       return practiceLookup.has(this.selectedPractice)
@@ -28,3 +28,5 @@ export const userSelections = {
       );
     },
   };
+
+export default userSelections
