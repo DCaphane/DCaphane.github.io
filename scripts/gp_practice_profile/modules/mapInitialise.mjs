@@ -211,7 +211,7 @@ export function mapInitialise({
       */
 
     const serviceUrl = "https://api.os.uk/maps/raster/v1/zxy",
-      apiKey = "npRUEEMn3OTN7lx7RPJednU5SOiRSt35";
+      apiKey = "pcO6urOqfhWL4VeAuHBNVKC1T9MdTbUv";
 
     let copyrightStatement =
       "Contains OS data &copy; Crown copyright and database rights YYYY"; // '&copy; <a href="http://www.ordnancesurvey.co.uk/">Ordnance Survey</a>'
